@@ -14,7 +14,7 @@ import {
 } from '@/lib/constants';
 import { formatShortDate } from '@/lib/dateUtils';
 import { AvatarStack } from '@/components/ui/Badge';
-import type { TaskStatus } from '@/lib/types';
+import type { Task, TaskStatus } from '@/lib/types';
 
 interface KanbanViewProps {
   onTaskClick: (taskId: string) => void;
