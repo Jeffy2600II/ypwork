@@ -1,0 +1,26 @@
+{
+  "name": "ypwork — สภานักเรียน โรงเรียนคำยางพิทยา",
+  "short_name": "ypwork",
+  "description": "ระบบจัดการงานสภานักเรียน — ทุกงานของสภา อยู่ในที่เดียว ดูได้ทุกมุมมอง ไม่มีงานหล่นช่อง",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#09090F",
+  "orientation": "portrait-primary",
+  "lang": "th",
+  "categories": ["productivity", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
