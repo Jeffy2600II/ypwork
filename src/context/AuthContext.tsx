@@ -45,9 +45,9 @@ export function useAuth() { return useContext(AuthContext); }
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
-function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+function withTimeout<T>(p: PromiseLike<T>, ms: number): Promise<T> {
   return Promise.race([
-    p,
+    Promise.resolve(p),
     new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`timeout ${ms}ms`)), ms)),
   ]);
 }
