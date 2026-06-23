@@ -84,7 +84,7 @@ export function FilterBar({ compact = false }: FilterBarProps) {
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
           {filters.search && (
             <span className="filter-chip" onClick={() => setFilter('search', '')}>
-              ค้นหา: "{filters.search}" <span className="filter-chip-close">×</span>
+              ค้นหา: &quot;{filters.search}&quot; <span className="filter-chip-close">×</span>
             </span>
           )}
           {filters.type !== 'all' && (

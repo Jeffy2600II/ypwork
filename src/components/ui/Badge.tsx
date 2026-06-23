@@ -4,6 +4,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { getStatusMeta, getPriorityMeta, getTaskTypeMeta } from '@/lib/constants';
 import type { TaskStatus, TaskPriority, TaskType, UserProfile } from '@/lib/types';
 
@@ -36,8 +37,16 @@ export function AvatarStack({ users, max = 3, size = 'md' }: {
       {shown.map(u => {
         const initials = u.full_name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
         return (
-          <div key={u.auth_uid} className={`avatar ${sizeClass}`} title={u.full_name}>
-            {u.avatar_url ? <img src={u.avatar_url} alt={u.full_name} /> : initials}
+          <div key={u.auth_uid} className={`avatar ${sizeClass}`} title={u.full_name} style={{ position: 'relative' }}>
+            {u.avatar_url ? (
+              <Image
+                src={u.avatar_url}
+                alt={u.full_name}
+                fill
+                unoptimized
+                style={{ objectFit: 'cover' }}
+              />
+            ) : initials}
           </div>
         );
       })}

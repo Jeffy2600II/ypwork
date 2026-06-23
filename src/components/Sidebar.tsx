@@ -5,6 +5,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useCategory } from '@/modules/category-manager';
 import { useTaskEngine } from '@/modules/task-engine';
@@ -51,8 +52,16 @@ export function Sidebar({
             ปีการศึกษา {user?.year ?? '-'}
           </div>
         </div>
-        <div className="avatar avatar-sm" style={{ width: 30, height: 30, fontSize: 10.5 }}>
-          {user?.avatar_url ? <img src={user.avatar_url} alt={user?.full_name} /> : initials}
+        <div className="avatar avatar-sm" style={{ width: 30, height: 30, fontSize: 10.5, position: 'relative' }}>
+          {user?.avatar_url ? (
+            <Image
+              src={user.avatar_url}
+              alt={user?.full_name ?? 'avatar'}
+              fill
+              unoptimized
+              style={{ objectFit: 'cover' }}
+            />
+          ) : initials}
         </div>
       </div>
 

@@ -5,6 +5,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useTaskEngine } from '@/modules/task-engine';
 import { useCategory } from '@/modules/category-manager';
 import { useToast } from '@/context/ToastContext';
@@ -171,8 +172,16 @@ export function DetailPanel({ taskId, onClose, onEdit }: DetailPanelProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {taskAssignees.map(u => (
                     <div key={u.auth_uid} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-2)' }}>
-                      <div className="avatar avatar-sm">
-                        {u.avatar_url ? <img src={u.avatar_url} alt={u.full_name} /> :
+                      <div className="avatar avatar-sm" style={{ position: 'relative' }}>
+                        {u.avatar_url ? (
+                          <Image
+                            src={u.avatar_url}
+                            alt={u.full_name}
+                            fill
+                            unoptimized
+                            style={{ objectFit: 'cover' }}
+                          />
+                        ) :
                           u.full_name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()}
                       </div>
                       {u.full_name}
