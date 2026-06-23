@@ -13,9 +13,11 @@ import { useAuth } from '@/context/AuthContext';
 import { setCachedProfile } from '@/lib/profileCache';
 import type { UserProfile } from '@/lib/types';
 
-/** Generate a synthetic email from a 5-digit student ID — same pattern as yplabs */
+/** Generate a synthetic email from a 5-digit student ID — same pattern as yplabs.
+ *  CRITICAL: must use @yplabs.internal domain so the auth user created by yplabs
+ *  is found by Supabase Auth (the two apps share one Supabase project). */
 function synthesizeEmail(studentId: string): string {
-  return `student_${studentId}@ypwork.local`;
+  return `student_${studentId}@yplabs.internal`;
 }
 
 export function LoginPage() {
@@ -51,7 +53,7 @@ export function LoginPage() {
 
       const { data: row, error: rowErr } = await supabase
         .from('council_users')
-        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled,avatar_url')
+        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled')
         .eq('auth_uid', signInData.user.id)
         .limit(1)
         .maybeSingle();
@@ -69,10 +71,10 @@ export function LoginPage() {
         throw new Error('ชื่อ-นามสกุลไม่ตรงกับข้อมูลในระบบ');
       }
 
-      // Ensure email field exists on the cached profile
       const profile: UserProfile = {
         ...row,
         email: (row as any).email ?? '',
+        avatar_url: null,
       } as UserProfile;
       setCachedProfile(profile);
 
@@ -103,7 +105,7 @@ export function LoginPage() {
 
       const { data: row, error: rowErr } = await supabase
         .from('council_users')
-        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled,avatar_url')
+        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled')
         .eq('auth_uid', data.user.id)
         .limit(1)
         .maybeSingle();
@@ -119,6 +121,7 @@ export function LoginPage() {
       const profile: UserProfile = {
         ...row,
         email: (row as any).email ?? '',
+        avatar_url: null,
       } as UserProfile;
       setCachedProfile(profile);
 

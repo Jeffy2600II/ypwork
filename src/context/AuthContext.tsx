@@ -57,7 +57,7 @@ async function fetchProfileDB(uid: string): Promise<UserProfile | null> {
     const sb = getBrowserSupabase();
     const { data, error } = await withTimeout(
       sb.from('council_users')
-        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled,avatar_url')
+        .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled')
         .eq('auth_uid', uid)
         .limit(1)
         .maybeSingle(),
@@ -67,7 +67,8 @@ async function fetchProfileDB(uid: string): Promise<UserProfile | null> {
     if (!data.approved || data.disabled) return null;
     // Patch: council_users doesn't always have email column populated
     if (!data.email) data.email = '';
-    return data as UserProfile;
+    // avatar_url not in shared council_users schema — leave null
+    return { ...data, avatar_url: null } as UserProfile;
   } catch {
     return null;
   }

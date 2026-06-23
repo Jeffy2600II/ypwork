@@ -9,9 +9,11 @@ import { DEFAULT_CATEGORIES } from '@/lib/constants';
 
 export const runtime = 'nodejs';
 
-/** Synthesize an email from a 5-digit student ID — same pattern as yplabs */
+/** Synthesize an email from a 5-digit student ID — same pattern as yplabs.
+ *  CRITICAL: must use @yplabs.internal domain so the auth user can be found
+ *  by both yplabs and ypwork (they share one Supabase project). */
 function synthesizeEmail(studentId: string): string {
-  return `student_${studentId}@ypwork.local`;
+  return `student_${studentId}@yplabs.internal`;
 }
 
 export async function POST(req: NextRequest) {

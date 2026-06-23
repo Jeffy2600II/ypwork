@@ -99,7 +99,7 @@ export function TaskEngineProvider({ children }: { children: React.ReactNode }) 
         sb.from('ypwork_subtasks').select('*').order('sort_order', { ascending: true }),
         sb.from('ypwork_assignees').select('task_id, user_id'),
         sb.from('council_users')
-          .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled,avatar_url')
+          .select('auth_uid,full_name,student_id,email,year,role,account_type,approved,disabled')
           .eq('approved', true)
           .eq('disabled', false)
           .order('full_name', { ascending: true }),
@@ -113,7 +113,8 @@ export function TaskEngineProvider({ children }: { children: React.ReactNode }) 
       setTasks((tasksRes.data ?? []) as Task[]);
       setSubtasks((subtasksRes.data ?? []) as Subtask[]);
       setAssignees((assigneesRes.data ?? []) as { task_id: string; user_id: string }[]);
-      setMembers((membersRes.data ?? []) as UserProfile[]);
+      // avatar_url is not in the shared council_users schema — normalize to null
+      setMembers((membersRes.data ?? []).map((m: any) => ({ ...m, avatar_url: null })) as UserProfile[]);
     } catch (e: any) {
       setError(e?.message ?? 'โหลดข้อมูลล้มเหลว');
     } finally {
