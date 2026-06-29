@@ -1,10 +1,12 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Events List View (client component — filter state)
+// YP WORK · Events List View (v1.6 — realtime)
 // ═══════════════════════════════════════════════════════════════
 // แสดง filter 5 แบบ + group by month (พ.ศ.)
 // filter state เปลี่ยน → re-render เฉพาะ list (ไม่ re-create page shell)
+// v1.6: subscribe Supabase Realtime — list อัพเดตทันทีเมื่อมีการ
+// เพิ่ม/แก้ไข/ลบ events หรือ tasks โดยไม่ต้อง refresh
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -15,6 +17,7 @@ import {
   isToday,
   THAI_MONTHS,
 } from '@/lib/utils/date';
+import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
 
 type FilterKey = 'all' | 'group' | 'task' | 'mine' | 'overdue';
 
@@ -31,8 +34,11 @@ export interface EventsListViewProps {
   user: SessionUser;
 }
 
-export function EventsListView({ events, user }: EventsListViewProps) {
+export function EventsListView({ events: initialEvents, user }: EventsListViewProps) {
   const [filter, setFilter] = React.useState<FilterKey>('all');
+
+  // v1.6: subscribe realtime
+  const { events } = useRealtimeEvents(initialEvents);
 
   const filtered = React.useMemo(() => {
     const sorted = [...events].sort((a, b) =>

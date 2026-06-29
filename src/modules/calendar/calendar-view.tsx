@@ -1,19 +1,24 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Calendar View (client component — month state)
+// YP WORK · Calendar View (v1.6 — realtime + local date fix)
 // ═══════════════════════════════════════════════════════════════
 // Month view ภาษาไทย (พ.ศ.) พร้อม event indicator
 // - ปุ่มเดือนก่อน/ถัดไป + ปุ่ม "วันนี้"
 // - วันที่มี 1 งาน → link ไป /events/[id]
 // - วันที่มีหลายงาน → link ไป /events/day/[date]
+// - v1.6: ใช้ getLocalTodayStr() แทน toISOString() — แก้ปัญหา
+//   "วันที่ 28 แทน 29" ตอนเข้าหน้าปฏิทินรอบเที่ยงคืน UTC
+// - v1.6: subscribe Supabase Realtime — เมื่อ events/tasks เปลี่ยน
+//   ปฏิทินอัพเดตทันที ไม่ต้อง refresh
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { YPEvent } from '@/lib/types';
-import { THAI_MONTHS } from '@/lib/utils/date';
+import { THAI_MONTHS, getLocalTodayStr } from '@/lib/utils/date';
+import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
 
 const THAI_DAYS_SHORT = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
 
@@ -37,6 +42,8 @@ export function CalendarView({
   initialYear,
   initialMonth,
 }: CalendarViewProps) {
+  // v1.6: ใช้ local date (ไม่ใช้ toISOString ที่แปลงเป็น UTC)
+  const todayStr = getLocalTodayStr();
   const now = new Date();
   const [viewYear, setViewYear] = React.useState<number>(
     initialYear ?? now.getFullYear()
@@ -45,19 +52,18 @@ export function CalendarView({
     initialMonth ?? now.getMonth()
   );
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = today.toISOString().slice(0, 10);
+  // v1.6: subscribe realtime — events list อัพเดตอัตโนมัติ
+  const { events: liveEvents } = useRealtimeEvents(initialEvents);
 
   // Build events by date map
   const eventsByDate = React.useMemo(() => {
     const map = new Map<string, YPEvent[]>();
-    for (const ev of initialEvents) {
+    for (const ev of liveEvents) {
       if (!map.has(ev.date)) map.set(ev.date, []);
       map.get(ev.date)!.push(ev);
     }
     return map;
-  }, [initialEvents]);
+  }, [liveEvents]);
 
   // Build day cells
   const cells = React.useMemo<DayCell[]>(() => {

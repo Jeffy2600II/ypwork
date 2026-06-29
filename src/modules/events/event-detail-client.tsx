@@ -51,6 +51,7 @@ import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { Avatar } from '@/components/framework/avatar';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { useRealtimeEventById } from '@/lib/hooks/use-realtime';
 
 interface EventDetailClientProps {
   event: YPEvent;
@@ -124,8 +125,19 @@ export function EventDetailClient({
     return supabaseRef.current;
   };
 
-  const [event, setEvent] = React.useState<YPEvent>(initialEvent);
-  const [error, setError] = React.useState<string | null>(null);
+  // v1.6: useRealtimeEventById — subscribe changes แบบ realtime
+  // event state อัพเดตอัตโนมัติเมื่อมีใครแก้ไข/เพิ่ม/ลบใน DB
+  const {
+    event,
+    error: realtimeError,
+    patchEvent,
+    patchTask,
+    removeTask,
+    addTask,
+  } = useRealtimeEventById(initialEvent, initialEvent?.id ?? null);
+
+  const [localError, setLocalError] = React.useState<string | null>(null);
+  const error = realtimeError || localError;
   const [toast, setToast] = React.useState<{ msg: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   // ── Sheet open states ──
@@ -142,8 +154,16 @@ export function EventDetailClient({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
-  const accent = event.color || '#4F46E5';
-  const isGroup = event.type === 'group';
+  // If event becomes null after delete (via realtime), redirect to /events
+  React.useEffect(() => {
+    if (!event) {
+      // event was deleted — go back to list
+      router.replace('/events');
+    }
+  }, [event, router]);
+
+  const accent = event?.color || '#4F46E5';
+  const isGroup = event?.type === 'group';
 
   // ── Toast helper (auto-dismiss) ──
   React.useEffect(() => {
@@ -158,18 +178,14 @@ export function EventDetailClient({
 
   // ── Patch task status (local + DB) ──
   const handleTaskStatusChange = async (newStatus: TaskStatus) => {
-    if (!activeTaskId) return;
+    if (!activeTaskId || !event) return;
     const taskId = activeTaskId;
+    const oldStatus = event.tasks?.find((t) => t.id === taskId)?.status;
     setStatusPickerOpen(false);
     setActiveTaskId(null);
 
-    // Optimistic update
-    setEvent((prev) => ({
-      ...prev,
-      tasks: (prev.tasks || []).map((t) =>
-        t.id === taskId ? { ...t, status: newStatus } : t
-      ),
-    }));
+    // v1.6: Optimistic update via patchTask from realtime hook
+    patchTask(taskId, { status: newStatus });
 
     try {
       const supabase = getSupabase();
@@ -180,23 +196,19 @@ export function EventDetailClient({
 
       if (updateErr) throw updateErr;
       setToast({ msg: 'เปลี่ยนสถานะ task แล้ว', type: 'success' });
+      // Realtime will sync from server — no need to refetch
     } catch (e: any) {
       // revert on error
-      setEvent((prev) => ({
-        ...prev,
-        tasks: (prev.tasks || []).map((t) =>
-          t.id === taskId
-            ? { ...t, status: t.status }
-            : t
-        ),
-      }));
-      setError(`ไม่สามารถอัพเดตสถานะ: ${e.message || 'unknown error'}`);
+      if (oldStatus) patchTask(taskId, { status: oldStatus });
+      setLocalError(`ไม่สามารถอัพเดตสถานะ: ${e.message || 'unknown error'}`);
     }
   };
 
   // ── Patch event status (single event) ──
   const handleEventStatusChange = async (newStatus: EventStatus) => {
-    setEvent((prev) => ({ ...prev, status: newStatus }));
+    if (!event) return;
+    const oldStatus = event.status;
+    patchEvent({ status: newStatus });
 
     try {
       const supabase = getSupabase();
@@ -207,126 +219,19 @@ export function EventDetailClient({
 
       if (updateErr) throw updateErr;
     } catch (e: any) {
-      setEvent((prev) => ({ ...prev, status: event.status }));
-      setError(`ไม่สามารถอัพเดตสถานะงาน: ${e.message || 'unknown error'}`);
+      patchEvent({ status: oldStatus });
+      setLocalError(`ไม่สามารถอัพเดตสถานะงาน: ${e.message || 'unknown error'}`);
     }
   };
 
-  // ── Reload event from DB ──
-  const reloadEvent = React.useCallback(async () => {
-    try {
-      const supabase = getSupabase();
-      const { data: evRaw, error: e1 } = await supabase
-        .from('ypwork_events')
-        .select(
-          `
-          id, type, title, date, end_date, time, location, description,
-          department_id, status, color, created_by, created_at, updated_at,
-          department:ypwork_departments ( id, name, color, icon, description ),
-          tasks:ypwork_tasks (
-            id, event_id, title, due_date, status, priority,
-            estimated_time, notes, tags, sort_order, created_at, updated_at
-          )
-        `
-        )
-        .eq('id', event.id)
-        .limit(1)
-        .maybeSingle();
-
-      if (e1) throw e1;
-      if (!evRaw) return;
-
-      // Fetch assignees
-      const taskIds = (evRaw.tasks || []).map((t: any) => t.id);
-      let assigneesMap = new Map<string, UserProfile[]>();
-      if (taskIds.length > 0) {
-        const { data: assigneesRaw } = await supabase
-          .from('ypwork_task_assignees')
-          .select('task_id, user_auth_uid')
-          .in('task_id', taskIds);
-
-        const uids = Array.from(
-          new Set((assigneesRaw || []).map((a: any) => a.user_auth_uid))
-        );
-        let usersMap = new Map<string, UserProfile>();
-        if (uids.length > 0) {
-          const { data: usersRaw } = await supabase
-            .from('council_users')
-            .select('auth_uid, full_name, color, role, account_type, year, department_id')
-            .in('auth_uid', uids);
-          for (const u of usersRaw || []) {
-            usersMap.set(u.auth_uid, {
-              auth_uid: u.auth_uid,
-              full_name: u.full_name,
-              student_id: null,
-              national_id: null,
-              year: u.year ?? null,
-              role: u.role ?? 'member',
-              account_type: (u.account_type || 'student') as
-                | 'student'
-                | 'teacher'
-                | 'other',
-              approved: true,
-              disabled: false,
-              email: '',
-              department_id: u.department_id ?? null,
-              color: u.color ?? '#4F46E5',
-            });
-          }
-        }
-        for (const a of assigneesRaw || []) {
-          if (!assigneesMap.has(a.task_id)) assigneesMap.set(a.task_id, []);
-          const u = usersMap.get(a.user_auth_uid);
-          if (u) assigneesMap.get(a.task_id)!.push(u);
-        }
-      }
-
-      const e: any = evRaw;
-      setEvent({
-        id: e.id,
-        type: e.type,
-        title: e.title,
-        date: e.date,
-        end_date: e.end_date ?? null,
-        time: e.time ?? '',
-        location: e.location ?? '',
-        description: e.description ?? '',
-        department_id: e.department_id ?? null,
-        status: e.status,
-        color: e.color ?? '#4F46E5',
-        created_by: e.created_by ?? null,
-        created_at: e.created_at,
-        updated_at: e.updated_at,
-        department: e.department
-          ? Array.isArray(e.department)
-            ? (e.department[0] as Department)
-            : (e.department as Department)
-          : null,
-        tasks: (Array.isArray(e.tasks) ? e.tasks : []).map((t: any) => ({
-          id: t.id,
-          event_id: t.event_id,
-          title: t.title,
-          due_date: t.due_date ?? null,
-          status: t.status,
-          priority: t.priority,
-          estimated_time: t.estimated_time ?? '',
-          notes: t.notes ?? '',
-          tags: Array.isArray(t.tags) ? t.tags : [],
-          sort_order: t.sort_order ?? 0,
-          created_at: t.created_at,
-          updated_at: t.updated_at,
-          assignees: assigneesMap.get(t.id) || [],
-        })),
-      });
-    } catch (e: any) {
-      setError(`โหลดข้อมูลงานไม่สำเร็จ: ${e.message || ''}`);
-    }
-  }, [event.id]);
+  // v1.6: reloadEvent ย้ายไปใช้ useRealtimeEventById (reload ภายใน hook)
+  // ไม่ต้องเขียนเองที่นี่ — เรียก reload() จาก hook ถ้าต้องการ force-refresh
 
   // ── Delete event (called from confirm sheet) ──
   const handleDelete = async () => {
+    if (!event) return;
     setSubmitting(true);
-    setError(null);
+    setLocalError(null);
 
     try {
       const supabase = getSupabase();
@@ -338,10 +243,12 @@ export function EventDetailClient({
       if (deleteErr) throw deleteErr;
       setConfirmDeleteOpen(false);
       setManageOpen(false);
-      // ใช้ replace แทน push — กันปัญหา back-button กลับมาหน้า detail ของงานที่ถูกลบแล้ว
+      // v1.6: realtime จะ detect DELETE และทำให้ event เป็น null
+      // useEffect ด้านบนจะ redirect ไป /events อัตโนมัติ
+      // (สำรอง: redirect ทันทีเพื่อความรวดเร็ว)
       router.replace('/events');
     } catch (e: any) {
-      setError(`ไม่สามารถลบงาน: ${e.message || 'unknown error'}`);
+      setLocalError(`ไม่สามารถลบงาน: ${e.message || 'unknown error'}`);
       setSubmitting(false);
     }
   };
@@ -366,15 +273,14 @@ export function EventDetailClient({
         .eq('id', taskId);
 
       if (delErr) throw delErr;
-      setEvent((prev) => ({
-        ...prev,
-        tasks: (prev.tasks || []).filter((t) => t.id !== taskId),
-      }));
+      // v1.6: optimistic remove — การ์ดจะหายทันที
+      // (realtime จะมา confirm ในภายหลัง)
+      removeTask(taskId);
       setConfirmDeleteTaskOpen(false);
       setDeleteTaskId(null);
       setToast({ msg: 'ลบแล้ว', type: 'success' });
     } catch (e: any) {
-      setError(`ไม่สามารถลบ task: ${e.message || ''}`);
+      setLocalError(`ไม่สามารถลบ task: ${e.message || ''}`);
     } finally {
       setSubmitting(false);
     }
@@ -385,19 +291,22 @@ export function EventDetailClient({
     setConfirmDeleteTaskOpen(true);
   };
 
-  const totalTasks = event.tasks?.length || 0;
-  const doneTasks = event.tasks?.filter((t) => t.status === 'done').length || 0;
-  const progress = eventProgress(event.tasks || []);
+  const totalTasks = event?.tasks?.length || 0;
+  const doneTasks = event?.tasks?.filter((t) => t.status === 'done').length || 0;
+  const progress = eventProgress(event?.tasks || []);
 
   const activeTask =
     activeTaskId != null
-      ? event.tasks?.find((t) => t.id === activeTaskId) || null
+      ? event?.tasks?.find((t) => t.id === activeTaskId) || null
       : null;
 
   const editTask =
     editTaskId != null
-      ? event.tasks?.find((t) => t.id === editTaskId) || null
+      ? event?.tasks?.find((t) => t.id === editTaskId) || null
       : null;
+
+  // v1.6: ถ้า event ถูกลบ (realtime) จะ render null แล้ว useEffect จะ redirect
+  if (!event) return null;
 
   return (
     <div
@@ -689,7 +598,7 @@ export function EventDetailClient({
         users={users}
         onSubmit={async (payload) => {
           setSubmitting(true);
-          setError(null);
+          setLocalError(null);
           try {
             const supabase = getSupabase();
             const { data, error: insertErr } = await supabase
@@ -745,15 +654,13 @@ export function EventDetailClient({
               } else {
                 (data as any).assignees = [];
               }
-              setEvent((prev) => ({
-                ...prev,
-                tasks: [...(prev.tasks || []), data as Task],
-              }));
+              // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
+              addTask(data as Task);
               setAddTaskOpen(false);
               setToast({ msg: 'เพิ่ม task แล้ว', type: 'success' });
             }
           } catch (e: any) {
-            setError(`ไม่สามารถเพิ่ม task: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถเพิ่ม task: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -777,7 +684,7 @@ export function EventDetailClient({
           users={users}
           onSubmit={async (payload) => {
             setSubmitting(true);
-            setError(null);
+            setLocalError(null);
             try {
               const supabase = getSupabase();
               const { error: updateErr } = await supabase
@@ -809,12 +716,21 @@ export function EventDetailClient({
                   });
               }
 
+              // v1.6: optimistic patch — realtime จะ confirm ภายหลัง
+              patchTask(editTask.id, {
+                title: payload.title,
+                priority: payload.priority,
+                due_date: payload.dueDate || null,
+                estimated_time: payload.estimatedTime,
+                notes: payload.notes,
+                tags: payload.tags,
+              });
+
               setEditTaskOpen(false);
               setEditTaskId(null);
               setToast({ msg: 'บันทึกการแก้ไขแล้ว', type: 'success' });
-              await reloadEvent();
             } catch (e: any) {
-              setError(`ไม่สามารถแก้ไข task: ${e.message || 'unknown error'}`);
+              setLocalError(`ไม่สามารถแก้ไข task: ${e.message || 'unknown error'}`);
             } finally {
               setSubmitting(false);
             }
@@ -834,7 +750,7 @@ export function EventDetailClient({
         departments={departments}
         onSubmit={async (patch) => {
           setSubmitting(true);
-          setError(null);
+          setLocalError(null);
           try {
             const supabase = getSupabase();
             const { error: updateErr } = await supabase
@@ -852,11 +768,21 @@ export function EventDetailClient({
 
             if (updateErr) throw updateErr;
 
+            // v1.6: optimistic patch — realtime จะ sync ภายหลัง
+            patchEvent({
+              title: patch.title,
+              date: patch.date,
+              time: patch.time,
+              location: patch.location,
+              description: patch.description,
+              department_id: patch.departmentId || null,
+              color: patch.color,
+            });
+
             setEditEventOpen(false);
             setToast({ msg: 'บันทึกแล้ว', type: 'success' });
-            await reloadEvent();
           } catch (e: any) {
-            setError(`ไม่สามารถแก้ไขงาน: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถแก้ไขงาน: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -1156,6 +1082,17 @@ function TaskRow({
     <div
       className={`yp-task-row${task.status === 'done' ? ' is-done' : ''}`}
       data-task-id={task.id}
+      role="button"
+      tabIndex={0}
+      onClick={onStatusClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onStatusClick();
+        }
+      }}
+      style={{ cursor: 'pointer' }}
+      aria-label={`เปลี่ยนสถานะ task: ${task.title}`}
     >
       <button
         type="button"

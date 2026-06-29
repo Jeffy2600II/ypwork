@@ -120,6 +120,24 @@ export function getRelativeDate(offsetDays: number): string {
   return `${y}-${m}-${day}`;
 }
 
+/**
+ * v1.6 — คืนวันนี้ในรูปแบบ YYYY-MM-DD โดยใช้ LOCAL timezone เท่านั้น
+ * ไม่ใช้ toISOString() ซึ่งแปลงเป็น UTC ทำให้คืน "วันวาน" เมื่อเวลาท้องถิ่น
+ * ยังอยู่ในวันถัดไปของ UTC (เช่น เวลาไทย 00:00-06:59 → UTC ยังอยู่วันก่อน)
+ *
+ * ใช้ getLocalDateStr(d) สำหรับ任意 Date object และ getLocalTodayStr() สำหรับวันนี้
+ */
+export function getLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export function getLocalTodayStr(): string {
+  return getLocalDateStr(new Date());
+}
+
 /** คำนวณจำนวนวันระหว่างวันที่ 2 วัน */
 export function daysBetween(startStr: string, endStr: string): number {
   const start = new Date(startStr + 'T00:00:00');
