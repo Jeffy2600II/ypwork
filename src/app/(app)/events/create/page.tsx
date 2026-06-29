@@ -81,6 +81,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
       activeNav="events"
       title={editEvent ? 'แก้ไขงาน' : 'สร้างงาน'}
       showBack
+      showBottomNav={false}
     >
       <CreateEventForm
         departments={departments}

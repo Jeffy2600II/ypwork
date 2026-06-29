@@ -1,13 +1,20 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell (port จาก demo v8.2)
+// YP WORK · App Shell (port จาก demo v8.2) — v1.4
 // ═══════════════════════════════════════════════════════════════
 // Client component ที่ทำหน้าที่เป็น app shell:
 // - top-bar (fixed): back button + accent-driven title + avatar link
 // - main content slot (children)
 // - FAB (floating action button) — แสดงเฉพาะหน้าที่สร้างงานได้
 // - bottom-nav (4 ไอเทม) — mobile เท่านั้น, desktop ≥900px เป็น left-rail
+//
+// v1.4 แก้ไข:
+// - เพิ่ม showBottomNav prop — ควบคุมการแสดง bottom-nav (ใช้ is-hidden class)
+// - ย้าย yp-page-enter จาก shell div → main content wrapper
+//   เพื่อแก้ปัญหา transform สร้าง containing block ใหม่
+//   ที่ทำให้ position: fixed (FAB, bottom-nav) ไม่ล็อกกับ viewport
+// - auto showBack เมื่อ showBottomNav=false
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -32,6 +39,8 @@ export interface AppShellProps {
   activeNav?: AppShellActiveNav;
   showBack?: boolean;
   showFAB?: boolean;
+  /** แสดง bottom-nav? (default: true) — ซ่อนบนหน้า detail/create */
+  showBottomNav?: boolean;
   title?: string;
   /** accent color (เช่น event color) — ใช้ set --yp-top-* CSS vars */
   accent?: string;
@@ -74,11 +83,15 @@ export function AppShell({
   activeNav,
   showBack = false,
   showFAB = false,
+  showBottomNav = true,
   title = 'YP Work',
   accent,
 }: AppShellProps) {
   const router = useRouter();
   const { from, to, accentVar } = computeTitleVars(accent);
+
+  // v1.4: auto showBack เมื่อซ่อน bottom-nav (เหมือน demo route-meta logic)
+  const effectiveShowBack = showBack || !showBottomNav;
 
   const shellStyle: React.CSSProperties = {
     '--yp-top-from': from,
@@ -91,11 +104,11 @@ export function AppShell({
   }, [router]);
 
   return (
-    <div className="app-shell yp-page-enter" style={shellStyle}>
+    <div className="app-shell" style={shellStyle}>
       {/* ── TOP BAR (fixed) ── */}
       <header className="top-bar" role="banner">
         <div className="top-bar__left">
-          {showBack ? (
+          {effectiveShowBack ? (
             <button
               type="button"
               className="top-bar__back"
@@ -132,7 +145,11 @@ export function AppShell({
 
       {/* ── MAIN CONTENT ── */}
       <main className="app-main" id="app-main">
-        {children}
+        {/* v1.4: animation wrapper อยู่ข้างใน main ไม่ใช่ shell
+            เพื่อไม่ให้ transform บน shell ทำลาย position:fixed ของ FAB/bottom-nav */}
+        <div className="yp-shell-content-enter">
+          {children}
+        </div>
       </main>
 
       {/* ── FAB ── */}
@@ -148,7 +165,10 @@ export function AppShell({
       ) : null}
 
       {/* ── BOTTOM NAV / LEFT-RAIL ── */}
-      <nav className="bottom-nav" aria-label="นำทางหลัก">
+      <nav
+        className={`bottom-nav${showBottomNav ? '' : ' is-hidden'}`}
+        aria-label="นำทางหลัก"
+      >
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeNav === item.key;

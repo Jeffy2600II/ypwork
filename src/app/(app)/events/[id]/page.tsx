@@ -157,6 +157,7 @@ export default async function EventDetailPage({ params }: PageProps) {
       title={truncatedTitle}
       accent={accent}
       showBack
+      showBottomNav={false}
     >
       <EventDetailClient event={event} department={event.department || null} />
     </AppShell>

@@ -91,6 +91,7 @@ export default async function DayViewPage({ params }: PageProps) {
       user={user}
       title={formatDate(dateStr, { long: true })}
       showBack
+      showBottomNav={false}
     >
       <div className="yp-page yp-page-enter">
         <div className="yp-page-header">

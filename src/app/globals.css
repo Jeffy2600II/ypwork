@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v8.2 (Indigo Trust theme)
+   YP WORK · Global CSS v1.4 (Indigo Trust theme)
    Port จาก demo v8.2 — ใช้ design tokens เดียวกัน
    ═══════════════════════════════════════════════════════════════ */
 
@@ -538,6 +538,13 @@
   animation: yp-page-in var(--yp-page-enter) both;
 }
 
+/* v1.4: animation wrapper สำหรับ content ใน app-main
+ *       แยกออกจาก app-shell เพื่อไม่ให้ transform animation
+ *       สร้าง containing block ใหม่ที่ทำลาย position:fixed ของ FAB/bottom-nav */
+.yp-shell-content-enter {
+  animation: yp-page-in var(--yp-page-enter) both;
+}
+
 .yp-hero-enter {
   animation: yp-hero-enter var(--yp-hero-enter) both;
 }
@@ -547,6 +554,7 @@
    ═══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .yp-page-enter,
+  .yp-shell-content-enter,
   .yp-hero-enter {
     animation-duration: 200ms !important;
   }
@@ -3818,4 +3826,97 @@ body.yp-sheet-open .fab {
   .sheet.is-closing {
     transition: transform 100ms;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · CONFIRM DIALOG (v1.4 — ใช้กับ logout, delete, etc.)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--yp-z-overlay, 9000) + 10);
+  background: rgba(15, 10, 40, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yp-page-pad-x);
+  animation: yp-confirm-fade-in 200ms var(--yp-ease-emphasized-decel) both;
+}
+
+.yp-confirm-dialog {
+  background: var(--yp-bg-card);
+  border-radius: var(--yp-radius-xl);
+  border: 1px solid var(--yp-border-subtle);
+  box-shadow: 0 24px 48px rgba(30, 27, 70, 0.18);
+  padding: var(--yp-space-6);
+  max-width: 340px;
+  width: 100%;
+  animation: yp-confirm-scale-in 280ms var(--yp-ease-emphasized-decel) both;
+}
+
+.yp-confirm-dialog__title {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin: 0 0 var(--yp-space-2);
+}
+
+.yp-confirm-dialog__message {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-secondary);
+  margin: 0 0 var(--yp-space-5);
+  line-height: 1.5;
+}
+
+.yp-confirm-dialog__actions {
+  display: flex;
+  gap: var(--yp-space-2);
+  justify-content: flex-end;
+}
+
+.yp-confirm-dialog__btn {
+  font-family: inherit;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  padding: 10px 20px;
+  border-radius: var(--yp-radius-control);
+  border: 0;
+  cursor: pointer;
+  transition: transform var(--yp-t-fast), opacity var(--yp-t-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.yp-confirm-dialog__btn:active {
+  transform: scale(0.96);
+}
+
+.yp-confirm-dialog__btn--cancel {
+  background: var(--yp-bg-card-soft);
+  color: var(--yp-text-body);
+  border: 1px solid var(--yp-border-default);
+}
+
+.yp-confirm-dialog__btn--cancel:hover {
+  background: var(--yp-bg-elevated);
+}
+
+.yp-confirm-dialog__btn--danger {
+  background: #BE123C;
+  color: white;
+}
+
+.yp-confirm-dialog__btn--danger:hover {
+  background: #9F1239;
+}
+
+@keyframes yp-confirm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes yp-confirm-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }

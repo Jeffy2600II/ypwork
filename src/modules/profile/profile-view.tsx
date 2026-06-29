@@ -2,6 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · Profile View (client component — logout + masked IDs)
+// v1.4: เพิ่ม confirm dialog ก่อน logout (เหมือน demo v8.2)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -37,6 +38,7 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
   const [idRevealed, setIdRevealed] = React.useState(false);
   const [codeRevealed, setCodeRevealed] = React.useState(false);
   const [loggingOut, setLoggingOut] = React.useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
 
   const accent = user.color || '#4F46E5';
   const roleLabel = formatRoleLabel(user.role, user.account_type);
@@ -255,7 +257,7 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
           <button
             type="button"
             className="yp-profile-action yp-profile-action--danger"
-            onClick={handleLogout}
+            onClick={() => setShowLogoutDialog(true)}
             disabled={loggingOut}
           >
             <span className="yp-profile-action__icon" aria-hidden="true">
@@ -277,6 +279,48 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
         <p>YP Work · สมองของสภานักเรียน</p>
         <p>สร้างด้วย Next.js 16 + Supabase · Indigo Trust theme</p>
       </footer>
+
+      {/* ── LOGOUT CONFIRM DIALOG (v1.4 — เหมือน demo v8.2) ── */}
+      {showLogoutDialog ? (
+        <div className="yp-confirm-overlay" onClick={() => setShowLogoutDialog(false)}>
+          <div
+            className="yp-confirm-dialog"
+            onClick={(e) => e.stopPropagation()}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="logout-dialog-title"
+            aria-describedby="logout-dialog-desc"
+          >
+            <h3 id="logout-dialog-title" className="yp-confirm-dialog__title">
+              ออกจากระบบ?
+            </h3>
+            <p id="logout-dialog-desc" className="yp-confirm-dialog__message">
+              คุณจะกลับสู่หน้าเข้าสู่ระบบ
+            </p>
+            <div className="yp-confirm-dialog__actions">
+              <button
+                type="button"
+                className="yp-confirm-dialog__btn yp-confirm-dialog__btn--cancel"
+                onClick={() => setShowLogoutDialog(false)}
+                disabled={loggingOut}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                className="yp-confirm-dialog__btn yp-confirm-dialog__btn--danger"
+                onClick={() => {
+                  setShowLogoutDialog(false);
+                  handleLogout();
+                }}
+                disabled={loggingOut}
+              >
+                {loggingOut ? 'กำลังออก...' : 'ออกจากระบบ'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
