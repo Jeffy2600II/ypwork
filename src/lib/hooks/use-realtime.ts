@@ -86,7 +86,7 @@ function normalizeTask(t: RawTask): Task {
 const EVENT_FIELDS = `
   id, type, title, date, end_date, time, location, description,
   department_id, status, color, created_by, created_at, updated_at,
-  department:ypwork_departments ( id, name, color, icon, description ),
+  department:departments ( id, name, color, icon, description ),
   tasks:ypwork_tasks (
     id, event_id, title, due_date, status, priority,
     estimated_time, notes, tags, sort_order, created_at, updated_at

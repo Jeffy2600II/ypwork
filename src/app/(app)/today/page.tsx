@@ -42,7 +42,7 @@ export default async function TodayPage() {
       created_by,
       created_at,
       updated_at,
-      department:ypwork_departments (
+      department:departments (
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (
@@ -86,7 +86,7 @@ export default async function TodayPage() {
 
   if (user.department_id) {
     const { data: deptRaw } = await supabase
-      .from('ypwork_departments')
+      .from('departments')
       .select('id, name, color, icon, description')
       .eq('id', user.department_id)
       .limit(1)

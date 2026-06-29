@@ -38,7 +38,7 @@ export default async function EventsListPage() {
       created_by,
       created_at,
       updated_at,
-      department:ypwork_departments (
+      department:departments (
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (

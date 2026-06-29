@@ -41,7 +41,7 @@ export default async function EventDetailPage({ params }: PageProps) {
       created_by,
       created_at,
       updated_at,
-      department:ypwork_departments (
+      department:departments (
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (
@@ -169,7 +169,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   // ── v1.5: ดึงรายชื่อ departments สำหรับ edit event ──
   const { data: deptsRaw } = await supabase
-    .from('ypwork_departments')
+    .from('departments')
     .select('id, name, color, icon, description')
     .order('name', { ascending: true });
 

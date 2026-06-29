@@ -25,7 +25,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
 
   // ── ดึง departments ──
   const { data: deptsRaw } = await supabase
-    .from('ypwork_departments')
+    .from('departments')
     .select('id, name, color, icon, description')
     .order('name', { ascending: true });
 

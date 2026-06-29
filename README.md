@@ -92,18 +92,28 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 คัดลอก SQL จาก `supabase/migrations/ypwork_schema.sql` ไปวางใน Supabase SQL Editor แล้วกด Run
 
 สิ่งที่ SQL นี้สร้าง:
-- ตาราง `ypwork_departments` (ฝ่ายงาน)
+- ตาราง `departments` (ฝ่ายงาน — v1.7: rename จาก `ypwork_departments`)
 - ตาราง `ypwork_events` (งาน)
 - ตาราง `ypwork_tasks` (task ย่อย)
 - ตาราง `ypwork_task_assignees` (ผู้รับผิดชอบ task)
 - ตาราง `ypwork_event_members` (สมาชิกงาน)
 - ตาราง `ypwork_activity_log` (log)
-- Row Level Security policies
+- เพิ่ม column `department_id` ใน `council_users` (FK → departments)
+- เพิ่ม column `department_id` ใน `council_join_requests` (FK → departments)
+- Row Level Security policies (รวม policy สำหรับ anon อ่าน departments ได้)
 - Triggers (auto-update updated_at)
 - Realtime สำหรับ live updates
 - Seed data สำหรับ 6 ฝ่ายงาน
 
-**หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` สำหรับข้อมูลผู้ใช้
+**หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.6 → v1.7
+
+ถ้าคุณมี database v1.6 อยู่แล้ว ให้รัน `ypwork-v1.7-departments-and-user-department.sql` (idempotent — รันซ้ำก็ปลอดภัย) สคริปต์นี้จะ:
+1. Rename `ypwork_departments` → `departments`
+2. ย้าย FK ใน `ypwork_events` ให้ชี้ไป `departments`
+3. เพิ่ม `department_id` ใน `council_users` และ `council_join_requests`
+4. เพิ่ม `departments` เข้า Realtime publication
 
 ### 3. รัน Local
 
@@ -141,9 +151,16 @@ bun run dev
 2. Sign in ด้วย Supabase Auth โดยตรง
 3. ตรวจสอบ profile ใน `council_users`
 
-### Register Flow (demo)
+### Register Flow (v1.7)
 
-ส่งคำขอสมัคร — ในเวอร์ชั่นนี้เป็น demo (แสดง success state แต่ยังไม่สร้าง user จริง) การสร้าง user จริงต้องใช้ service role key ที่ server-side ซึ่งจะทำในเวอร์ชั่นถัดไป
+ส่งคำขอสมัครเข้า `council_join_requests` จริง (ไม่ใช่ demo ลอย ๆ อีกต่อไป):
+1. เลือกประเภทบัญชี (นักเรียน/ครู/อื่นๆ)
+2. กรอกข้อมูลให้ครบ
+3. **เลือกฝ่ายได้ (optional)** — ส่ง `department_id` ไปพร้อมคำขอ
+4. Insert จริงเข้า `council_join_requests`
+5. ผู้ดูแลตรวจสอบและ approve ผ่าน YP Labs admin
+
+หมายเหตุ: การสร้าง Supabase Auth user จริงยังต้องใช้ service role key (ผู้ดูแลทำหลัง approve คำขอ)
 
 ---
 

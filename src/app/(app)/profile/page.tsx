@@ -20,7 +20,7 @@ export default async function ProfilePage() {
   let department: Department | null = null;
   if (user.department_id) {
     const { data: deptRaw } = await supabase
-      .from('ypwork_departments')
+      .from('departments')
       .select('id, name, color, icon, description')
       .eq('id', user.department_id)
       .limit(1)

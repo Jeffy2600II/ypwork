@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.6)
+// YP WORK · About Page (v1.7)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5 และ v1.6
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6 และ v1.7
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.6.0
+                1.7.0
               </span>
             </div>
             <div style={{
@@ -96,6 +96,34 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.7 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.7
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li>เปลี่ยนชื่อตาราง <code>ypwork_departments</code> → <code>departments</code> (สั้นและสะอาดขึ้น)</li>
+            <li>เพิ่มคอลัมน์ <code>department_id</code> ใน <code>council_users</code> — เก็บ ID ของฝ่าย ไม่ใช่ชื่อฝ่าย</li>
+            <li>เพิ่มคอลัมน์ <code>department_id</code> ใน <code>council_join_requests</code> (ตารางรอยืนยัน)</li>
+            <li>หน้าสมัครบัญชีใหม่ <strong>เลือกฝ่ายได้</strong> — ส่ง <code>department_id</code> ไปพร้อมคำขอ</li>
+            <li>ส่งคำขอสมัครเข้า <code>council_join_requests</code> จริง (ไม่ใช่ demo ลอย ๆ อีกต่อไป)</li>
+            <li>เปิดให้ anon อ่านรายชื่อฝ่ายได้ — หน้า register ดึงรายการฝ่ายได้ก่อน login</li>
+            <li>เพิ่ม <code>departments</code> เข้า Supabase Realtime publication</li>
+            <li>ปรับปรุง schema SQL ให้ idempotent — รันซ้ำก็ปลอดภัย</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.6 ── */}
