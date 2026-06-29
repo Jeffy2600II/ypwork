@@ -2,7 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · Profile View (client component — logout + masked IDs)
-// v1.4: เพิ่ม confirm dialog ก่อน logout (เหมือน demo v8.2)
+// v1.5: เปลี่ยน logout confirmation จาก custom dialog → BottomSheet (เหมือน demo)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -15,9 +15,11 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  AlertTriangle,
 } from 'lucide-react';
 import type { SessionUser, Department } from '@/lib/types';
 import { Avatar } from '@/components/framework/avatar';
+import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { logout } from '@/lib/auth/logout';
 import { createClient } from '@/lib/supabase/client';
 
@@ -280,47 +282,44 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
         <p>สร้างด้วย Next.js 16 + Supabase · Indigo Trust theme</p>
       </footer>
 
-      {/* ── LOGOUT CONFIRM DIALOG (v1.4 — เหมือน demo v8.2) ── */}
-      {showLogoutDialog ? (
-        <div className="yp-confirm-overlay" onClick={() => setShowLogoutDialog(false)}>
-          <div
-            className="yp-confirm-dialog"
-            onClick={(e) => e.stopPropagation()}
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="logout-dialog-title"
-            aria-describedby="logout-dialog-desc"
-          >
-            <h3 id="logout-dialog-title" className="yp-confirm-dialog__title">
-              ออกจากระบบ?
-            </h3>
-            <p id="logout-dialog-desc" className="yp-confirm-dialog__message">
-              คุณจะกลับสู่หน้าเข้าสู่ระบบ
-            </p>
-            <div className="yp-confirm-dialog__actions">
-              <button
-                type="button"
-                className="yp-confirm-dialog__btn yp-confirm-dialog__btn--cancel"
-                onClick={() => setShowLogoutDialog(false)}
-                disabled={loggingOut}
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                className="yp-confirm-dialog__btn yp-confirm-dialog__btn--danger"
-                onClick={() => {
-                  setShowLogoutDialog(false);
-                  handleLogout();
-                }}
-                disabled={loggingOut}
-              >
-                {loggingOut ? 'กำลังออก...' : 'ออกจากระบบ'}
-              </button>
-            </div>
+      {/* ── LOGOUT CONFIRM SHEET (v1.5 — BottomSheet เหมือน demo) ── */}
+      <BottomSheet
+        open={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        title="ออกจากระบบ?"
+        footer={
+          <div className="yp-form-actions">
+            <button
+              type="button"
+              className="yp-btn yp-btn--ghost yp-btn--block"
+              onClick={() => setShowLogoutDialog(false)}
+              disabled={loggingOut}
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="button"
+              className="yp-btn yp-btn--danger yp-btn--block"
+              onClick={() => {
+                setShowLogoutDialog(false);
+                handleLogout();
+              }}
+              disabled={loggingOut}
+            >
+              {loggingOut ? 'กำลังออก...' : 'ออกจากระบบ'}
+            </button>
+          </div>
+        }
+      >
+        <div className="yp-confirm-body">
+          <div className="yp-confirm-body__icon yp-confirm-body__icon--warning">
+            <AlertTriangle width={20} height={20} />
+          </div>
+          <div className="yp-confirm-body__text">
+            คุณจะกลับสู่<strong>หน้าเข้าสู่ระบบ</strong> — เซสชันปัจจุบันจะถูกปิด
           </div>
         </div>
-      ) : null}
+      </BottomSheet>
     </div>
   );
 }

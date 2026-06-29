@@ -132,7 +132,9 @@ export function CreateEventForm({
         throw new Error('ไม่สามารถดึง ID ของงานที่สร้าง/แก้ไข');
       }
 
-      router.push(`/events/${resultId}`);
+      // v1.5: ใช้ replace แทน push — กันปัญหา back-button กลับมาหน้า /events/create อีกครั้ง
+      // หลังสร้างเสร็จ → กด back จะกลับไปหน้า /events (หน้าก่อนหน้า create) ไม่ใช่หน้า create ซ้ำ
+      router.replace(`/events/${resultId}`);
     } catch (e: any) {
       setError(`เกิดข้อผิดพลาด: ${e.message || 'unknown error'}`);
       setSubmitting(false);

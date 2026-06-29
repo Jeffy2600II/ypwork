@@ -970,6 +970,17 @@ body.yp-sheet-open .fab {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
+/* v1.5: large input variant (สำหรับ task title ใน add/edit task sheet) */
+.yp-input--lg {
+  padding: 1em 1.2em;
+  font-size: var(--yp-text-base);
+  min-height: 56px;
+  font-weight: var(--yp-fw-medium);
+}
+.yp-input--lg::placeholder {
+  font-weight: var(--yp-fw-normal);
+}
+
 .yp-select {
   appearance: none;
   -webkit-appearance: none;
@@ -2895,6 +2906,58 @@ body.yp-sheet-open .fab {
   line-height: 1.45;
 }
 
+.yp-manage-sheet__action > svg:last-child {
+  width: 16px; height: 16px;
+  color: var(--yp-text-faint);
+  flex-shrink: 0;
+}
+
+/* ── Task picker (สำหรับเลือก task ที่จะแก้ไข) — v1.5 ── */
+.yp-manage-task-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yp-manage-task-picker__item {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-sm);
+  cursor: pointer;
+  transition: background var(--yp-t-fast), border-color var(--yp-t-fast);
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--yp-shadow-xs);
+  color: var(--yp-text-muted);
+}
+.yp-manage-task-picker__item:hover {
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-indigo);
+}
+.yp-manage-task-picker__body { flex: 1; min-width: 0; }
+.yp-manage-task-picker__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yp-manage-task-picker__meta {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+}
+.yp-manage-task-picker__item > svg:last-child {
+  width: 16px; height: 16px;
+  color: var(--yp-text-faint);
+  flex-shrink: 0;
+}
+
 /* Task row */
 .yp-task-row {
   display: flex;
@@ -3008,6 +3071,146 @@ body.yp-sheet-open .fab {
   border-color: rgba(244, 63, 94, 0.22);
 }
 
+/* v1.5: priority chip variant — dot + label (เหมือน demo) */
+.yp-task-row__priority {
+  font-weight: var(--yp-fw-semibold);
+}
+.yp-task-row__priority::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: var(--yp-radius-pill);
+  background: currentColor;
+  flex-shrink: 0;
+}
+.yp-task-row__priority svg { display: none; }
+.yp-task-row__priority.is-priority-low {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.20);
+}
+.yp-task-row__priority.is-priority-high {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.22);
+}
+
+/* v1.5: status chip — icon + label */
+.yp-task-row__status {
+  font-weight: var(--yp-fw-medium);
+}
+.yp-task-row__status--todo { color: var(--yp-amber-500); }
+.yp-task-row__status--ongoing { color: var(--yp-indigo-500); }
+.yp-task-row__status--done { color: #047857; }
+
+/* v1.5: due-date chip — เด่นกว่า est-time เพราะเป็น deadline */
+.yp-task-row__chip--due {
+  color: var(--yp-text-heading);
+  background: var(--yp-bg-card);
+  border-color: var(--yp-border-default);
+  font-weight: var(--yp-fw-semibold);
+}
+.yp-task-row__chip--due.is-overdue {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.06);
+  border-color: rgba(244, 63, 94, 0.20);
+  font-weight: var(--yp-fw-bold);
+}
+.yp-task-row__chip--est {
+  color: var(--yp-text-muted);
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-subtle);
+}
+.yp-task-row__chip-label {
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  font-size: 11px;
+  margin-right: -2px;
+}
+.yp-task-row__chip--due .yp-task-row__chip-label { color: var(--yp-text-muted); }
+.yp-task-row__chip--due.is-overdue .yp-task-row__chip-label { color: rgba(190, 18, 60, 0.7); }
+
+/* v1.5: assignee chip — avatar + first name */
+.yp-task-row__chip--assignee {
+  background: var(--yp-bg-card);
+  border-color: var(--yp-border-default);
+}
+.yp-task-row__avatar {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.yp-task-row__avatar svg { width: 16px; height: 16px; }
+
+/* v1.5: tag chip — pill with # prefix, indigo-tinted */
+.yp-task-row__tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-indigo-700);
+  background: var(--yp-bg-indigo-soft);
+  border: 1px solid var(--yp-border-indigo);
+  padding: 2px 9px;
+  border-radius: var(--yp-radius-pill);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+
+/* v1.5: notes preview — soft panel with left border */
+.yp-task-row__notes {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  margin-top: 8px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  background: var(--yp-bg-card-soft);
+  border-radius: var(--yp-radius-xs);
+  border-left: 2px solid var(--yp-border-indigo);
+  word-break: break-word;
+}
+
+/* v1.5: edit + delete buttons on task row */
+.yp-task-row__actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.yp-task-row__edit,
+.yp-task-row__delete {
+  flex-shrink: 0;
+  width: 30px; height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--yp-text-faint);
+  border-radius: var(--yp-radius-xs);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: background var(--yp-t-fast), color var(--yp-t-fast), opacity var(--yp-t-fast);
+  margin-top: 1px;
+}
+.yp-task-row__edit svg, .yp-task-row__delete svg { width: 14px; height: 14px; stroke-width: 2; }
+.yp-task-row__edit:hover {
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  opacity: 1;
+}
+.yp-task-row__delete:hover {
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+  opacity: 1;
+}
+@media (hover: none) {
+  .yp-task-row__edit { opacity: 0.35; }
+  .yp-task-row__edit:active { opacity: 1; background: var(--yp-bg-indigo-soft); color: var(--yp-indigo-600); }
+  .yp-task-row__delete { opacity: 0.25; }
+  .yp-task-row__delete:active { opacity: 1; background: rgba(244, 63, 94, 0.12); color: #BE123C; }
+}
+
 .yp-task-list-hint {
   margin-top: 12px;
   text-align: center;
@@ -3112,6 +3315,164 @@ body.yp-sheet-open .fab {
 .yp-color-option.is-selected {
   box-shadow: 0 0 0 2.5px var(--yp-indigo-500);
   transform: scale(1.05);
+}
+
+/* v1.5: Parent event chip (ใน add-task / edit-task form) — เหมือน demo */
+.yp-form-modal__parent {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: 14px 16px;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-sm);
+  margin-bottom: var(--yp-space-5);
+}
+.yp-form-modal__parent-label {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.yp-form-modal__parent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 12px;
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 12%, white);
+  color: var(--accent, var(--yp-indigo-600));
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 25%, transparent);
+  letter-spacing: 0.01em;
+  min-width: 0;
+}
+.yp-form-modal__parent-chip svg {
+  width: 14px; height: 14px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.yp-form-modal__parent-chip span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* v1.5: Priority picker (3 ตัวเลือก low/medium/high) — เหมือน demo */
+.yp-priority-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.yp-priority-option {
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-sm);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: border-color var(--yp-t-fast), background var(--yp-t-fast), box-shadow var(--yp-t-fast), transform var(--yp-t-fast);
+  text-align: center;
+  background: var(--yp-bg-card);
+  box-shadow: var(--yp-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+}
+.yp-priority-option:hover {
+  border-color: var(--yp-border-indigo);
+}
+.yp-priority-option.is-selected {
+  border-color: var(--yp-indigo-500);
+  background: var(--yp-bg-indigo-soft);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+.yp-priority-option__dot {
+  width: 14px; height: 14px;
+  border-radius: var(--yp-radius-pill);
+  margin-bottom: 2px;
+}
+.yp-priority-option__dot.is-low    { background: #10B981; }
+.yp-priority-option__dot.is-medium { background: #6366F1; }
+.yp-priority-option__dot.is-high   { background: #F43F5E; }
+.yp-priority-option__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.yp-priority-option__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.3;
+  margin-top: 1px;
+}
+
+/* v1.5: textarea สำหรับ notes (override yp-input) */
+.yp-textarea {
+  min-height: 84px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* v1.5: field__hint — hint text ใต้ input */
+.field__hint {
+  margin-top: 6px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.4;
+  font-weight: var(--yp-fw-medium);
+}
+
+/* v1.5: confirm sheet body — used in logout + delete confirms */
+.yp-confirm-body {
+  display: flex;
+  gap: var(--yp-space-4);
+  align-items: flex-start;
+  padding: var(--yp-space-2) 0;
+}
+.yp-confirm-body__icon {
+  width: 44px; height: 44px;
+  border-radius: var(--yp-radius-sm);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+.yp-confirm-body__icon--danger {
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+  border-color: rgba(244, 63, 94, 0.22);
+}
+.yp-confirm-body__icon--warning {
+  background: rgba(245, 158, 11, 0.10);
+  color: #B45309;
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.yp-confirm-body__text {
+  flex: 1;
+  min-width: 0;
+  color: var(--yp-text-body);
+  font-size: var(--yp-text-sm);
+  line-height: 1.55;
+}
+.yp-confirm-body__text strong {
+  color: var(--yp-text-strong);
+}
+
+/* v1.5: btn-danger — ปุ่ม danger สำหรับ confirm delete */
+.yp-btn--danger {
+  background: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+  color: white;
+  border: 1px solid #BE123C;
+}
+.yp-btn--danger:hover {
+  background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);
 }
 
 .yp-form-actions {

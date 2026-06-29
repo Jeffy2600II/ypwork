@@ -144,6 +144,43 @@ export default async function EventDetailPage({ params }: PageProps) {
     })),
   };
 
+  // ── v1.5: ดึงรายชื่อ users สำหรับเลือก assignee (council_users ที่ approved + ไม่ disabled) ──
+  const { data: usersRaw } = await supabase
+    .from('council_users')
+    .select('auth_uid, full_name, color, role, account_type, year, department_id')
+    .eq('approved', true)
+    .eq('disabled', false)
+    .order('full_name', { ascending: true });
+
+  const users: UserProfile[] = (usersRaw || []).map((u: any) => ({
+    auth_uid: u.auth_uid,
+    full_name: u.full_name,
+    student_id: null,
+    national_id: null,
+    year: u.year ?? null,
+    role: u.role ?? 'member',
+    account_type: (u.account_type || 'student') as 'student' | 'teacher' | 'other',
+    approved: true,
+    disabled: false,
+    email: '',
+    department_id: u.department_id ?? null,
+    color: u.color ?? '#4F46E5',
+  }));
+
+  // ── v1.5: ดึงรายชื่อ departments สำหรับ edit event ──
+  const { data: deptsRaw } = await supabase
+    .from('ypwork_departments')
+    .select('id, name, color, icon, description')
+    .order('name', { ascending: true });
+
+  const departments: Department[] = (deptsRaw || []).map((d: any) => ({
+    id: d.id,
+    name: d.name,
+    color: d.color,
+    icon: d.icon,
+    description: d.description,
+  }));
+
   const accent = event.color || '#4F46E5';
   // Truncate title for top bar
   const truncatedTitle =
@@ -159,7 +196,12 @@ export default async function EventDetailPage({ params }: PageProps) {
       showBack
       showBottomNav={false}
     >
-      <EventDetailClient event={event} department={event.department || null} />
+      <EventDetailClient
+        event={event}
+        department={event.department || null}
+        users={users}
+        departments={departments}
+      />
     </AppShell>
   );
 }
