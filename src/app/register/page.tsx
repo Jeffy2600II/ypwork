@@ -1,7 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Register Page (server component — v1.7)
+// YP WORK · Register Page (server component — v1.8)
 // ═══════════════════════════════════════════════════════════════
-// v1.7 changes:
+// v1.8 changes:
+//   - แก้บั๊กส่งคำขอ (frontend เลิก swallow error)
+//   - ต้องรัน ypwork-v1.8-realtime-and-rls-fix.sql บน Supabase
+//     เพื่อเปิด RLS INSERT policy บน council_join_requests
+//
+// v1.7 changes (baseline):
 //   - ดึงรายการฝ่ายจากตาราง `departments` (rename จาก ypwork_departments)
 //   - ส่ง list ฝ่ายเข้า RegisterForm เพื่อให้ผู้ใช้เลือกได้
 //   - รองรับการ insert คำขอเข้า `council_join_requests` พร้อม department_id

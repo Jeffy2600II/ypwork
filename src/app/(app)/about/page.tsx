@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.7)
+// YP WORK · About Page (v1.8)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6 และ v1.7
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7 และ v1.8
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.7.0
+                1.8.0
               </span>
             </div>
             <div style={{
@@ -96,6 +96,35 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.8 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.8
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> ส่งคำขอสมัครเสร็จแต่ Supabase ไม่มีข้อมูล — frontend เคย swallow error เงียบ ๆ แล้วแสดง success state ทั้งที่จริงล้มเหลว</li>
+            <li>เพิ่ม <code>RLS INSERT policy</code> บน <code>council_join_requests</code> ให้ anon และ authenticated ส่งคำขอได้จริง (ก่อนหน้านี้ไม่มี policy นี้ → RLS บล็อกโดยเงียบ)</li>
+            <li>ฟอร์มสมัครตอนนี้ <strong>แสดง error จริง</strong> ใต้ปุ่ม submit พร้อมแปล error code ที่พบบ่อยให้เป็นข้อความที่เข้าใจ</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>ขยาย Realtime ทั่วทั้งเว็บ:</strong> เพิ่ม <code>council_users</code>, <code>council_join_requests</code>, <code>ypwork_activity_log</code> เข้า publication</li>
+            <li>หน้า <strong>โปรไฟล์</strong>ตอนนี้ stats และข้อมูลฝ่ายอัพเดตแบบ realtime (เมื่อ task/assignee/event เปลี่ยน หรือ admin เปลี่ยนฝ่ายของ user)</li>
+            <li>หน้า <strong>Day View</strong> (<code>/events/day/[date]</code>) ตอนนี้ subscribe realtime — เห็น event ใหม่/ลบ/แก้ไขทันที</li>
+            <li>หน้า <strong>Register</strong> dropdown ฝ่ายตอนนี้ realtime — เมื่อ admin เปลี่ยนชื่อ/สีฝ่าย ผู้สมัครเห็นทันที</li>
+            <li>เพิ่ม hooks ใหม่: <code>useRealtimeDepartments</code>, <code>useRealtimeProfileStats</code>, <code>useRealtimeEventsForDate</code>, <code>useRealtimeActivityLog</code></li>
+            <li>เพิ่ม RLS SELECT policy บน <code>council_join_requests</code> ให้ user ตรวจสอบสถานะคำขอของตัวเองได้</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.7 ── */}

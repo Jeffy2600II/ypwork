@@ -1,17 +1,24 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Register Form (client component — v1.7)
+// YP WORK · Register Form (client component — v1.8)
 // ═══════════════════════════════════════════════════════════════
-// v1.7 changes:
+// v1.8 changes (CRITICAL BUG FIX):
+//   - เลิก swallow error เงียบ ๆ — ตอนนี้แสดง error จริงให้ user เห็น
+//     ก่อนหน้านี้เมื่อ insert ล้มเหลว (RLS บล็อก, column หาย, ฯลฯ)
+//     ระบบจะแสดง "ส่งคำขอสำเร็จ" ทั้ง ๆ ที่จริงล้มเหลว → สร้างความสับสน
+//   - ตอนนี้: error จริง → toast + ข้อความ error ใต้ปุ่ม
+//            สำเร็จจริง → success state เท่านั้น
+//
+// v1.7 changes (baseline):
 //   - เพิ่ม dropdown เลือกฝ่าย (department_id) — optional
 //   - เมื่อ submit → insert จริงเข้า `council_join_requests`
 //     พร้อม department_id (ถ้าเลือกฝ่ายไว้)
 //   - หลังส่งสำเร็จ → แสดง success state
 //
 // หมายเหตุ: การ insert ใช้ anon key (public RLS policy)
-//   - council_join_requests มี policy "Anyone can submit join request"
-//     แม้ไม่ login ก็ insert ได้
+//   - ต้องรัน ypwork-v1.8-realtime-and-rls-fix.sql ก่อน
+//     เพื่อสร้าง policy "council_join_requests_insert_anyone"
 //   - ผู้ดูแลจะตรวจสอบและ approve ผ่าน YP Labs admin ภายหลัง
 // ═══════════════════════════════════════════════════════════════
 
@@ -37,6 +44,7 @@ import {
   validatePassword,
 } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { useRealtimeDepartments } from '@/lib/hooks/use-realtime';
 import type { Department, RegisterAccountType } from '@/lib/types';
 
 interface FieldErrors {
@@ -64,6 +72,10 @@ interface RegisterFormProps {
 export function RegisterForm({ departments }: RegisterFormProps) {
   const { toast } = useToast();
 
+  // v1.8: subscribe realtime — รายการฝ่ายอัพเดตทันทีเมื่อ admin
+  //       เปลี่ยนชื่อ/สี/ไอคอนฝ่าย หรือเพิ่ม/ลบฝ่าย โดยไม่ต้อง refresh
+  const { departments: liveDepartments } = useRealtimeDepartments(departments);
+
   const [accountType, setAccountType] = React.useState<RegisterAccountType>('student');
   const [submitting, setSubmitting] = React.useState(false);
   const [done, setDone] = React.useState<{
@@ -83,8 +95,12 @@ export function RegisterForm({ departments }: RegisterFormProps) {
 
   const [errors, setErrors] = React.useState<FieldErrors>({});
 
+  // v1.8: เก็บ error จาก server แสดงใต้ปุ่ม submit
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+
   const clearError = React.useCallback((field: keyof FieldErrors) => {
     setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+    setSubmitError(null);
   }, []);
 
   const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,6 +136,7 @@ export function RegisterForm({ departments }: RegisterFormProps) {
   const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDepartmentId(e.target.value);
     clearError('department');
+    setSubmitError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,8 +166,10 @@ export function RegisterForm({ departments }: RegisterFormProps) {
     }
 
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      // v1.7: insert จริงเข้า council_join_requests พร้อม department_id
+      // v1.8: insert จริงเข้า council_join_requests พร้อม department_id
+      //       ถ้าล้มเหลว → แสดง error จริง ไม่ fallback เป็น success state อีกต่อไป
       const supabase = (await import('@/lib/supabase/client')).createClient();
       const { error: insertErr } = await supabase
         .from('council_join_requests')
@@ -164,23 +183,45 @@ export function RegisterForm({ departments }: RegisterFormProps) {
         });
 
       if (insertErr) {
-        // กรณี policy บล็อก หรือตารางยังไม่มี column department_id
-        // → fallback เป็น demo mode (success state) ไม่ให้ user เห็น error
-        console.warn('[register] insert failed, fallback to demo mode:', insertErr.message);
+        // v1.8: แสดง error จริง — ไม่ใช่ demo fallback อีกต่อไป
+        console.error('[register] insert failed:', insertErr.message, insertErr);
+
+        // แปล error code ที่พบบ่อยให้เป็นข้อความที่ user เข้าใจ
+        let userMessage = insertErr.message || 'ส่งคำขอไม่สำเร็จ';
+        if (/row-level security policy/i.test(insertErr.message)) {
+          userMessage = 'ระบบยังไม่ได้เปิดให้ส่งคำขอ — กรุณาติดต่อผู้ดูแลเพื่อรัน SQL v1.8';
+        } else if (/could not find the .* department_id/i.test(insertErr.message)) {
+          userMessage = 'ฐานข้อมูลยังไม่ได้อัปเกรด — กรุณาบอกผู้ดูแลให้รัน ypwork-v1.8-realtime-and-rls-fix.sql';
+        } else if (/duplicate key/i.test(insertErr.message)) {
+          userMessage = 'อีเมลหรือรหัสนักเรียนนี้ส่งคำขอไปแล้ว รอผู้ดูแลอนุมัติ';
+        }
+
+        setSubmitError(userMessage);
+        toast({
+          title: 'ส่งคำขอไม่สำเร็จ',
+          description: userMessage,
+          variant: 'destructive',
+        });
+        return; // ★ หยุด — ไม่เข้า success state
       }
 
+      // insert สำเร็จจริง ๆ → แสดง success state
       const deptName =
-        departments.find((d) => d.id === departmentId)?.name ?? null;
+        liveDepartments.find((d) => d.id === departmentId)?.name ?? null;
 
       setDone({ fullName: name, type: accountType, departmentName: deptName });
       toast({ title: 'ส่งคำขอสำเร็จ — รออนุมัติจากผู้ดูแล' });
     } catch (err: any) {
-      console.error('[register] error:', err);
-      // ไม่ throw — แสดง success state อยู่ (demo mode)
-      const deptName =
-        departments.find((d) => d.id === departmentId)?.name ?? null;
-      setDone({ fullName: name, type: accountType, departmentName: deptName });
-      toast({ title: 'ส่งคำขอสำเร็จ — รออนุมัติจากผู้ดูแล' });
+      // v1.8: แสดง error จริง — ไม่ใช่ demo fallback อีกต่อไป
+      console.error('[register] unexpected error:', err);
+      const userMessage =
+        err?.message || 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองอีกครั้ง';
+      setSubmitError(userMessage);
+      toast({
+        title: 'ส่งคำขอไม่สำเร็จ',
+        description: userMessage,
+        variant: 'destructive',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -456,17 +497,17 @@ export function RegisterForm({ departments }: RegisterFormProps) {
                       className="yp-select"
                       value={departmentId}
                       onChange={handleDepartmentChange}
-                      disabled={submitting || departments.length === 0}
+                      disabled={submitting || liveDepartments.length === 0}
                     >
                       <option value="">— ยังไม่ระบุฝ่าย —</option>
-                      {departments.map((d) => (
+                      {liveDepartments.map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.icon} {d.name}
                         </option>
                       ))}
                     </select>
                   </div>
-                  {departments.length === 0 ? (
+                  {liveDepartments.length === 0 ? (
                     <div
                       style={{
                         fontSize: '0.85em',
@@ -497,6 +538,28 @@ export function RegisterForm({ departments }: RegisterFormProps) {
                     </>
                   )}
                 </button>
+
+                {/* v1.8: แสดง error จาก server ใต้ปุ่ม submit */}
+                {submitError ? (
+                  <div
+                    role="alert"
+                    style={{
+                      marginTop: '12px',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--yp-radius-md, 12px)',
+                      background: 'rgba(244, 63, 94, 0.08)',
+                      border: '1px solid rgba(244, 63, 94, 0.25)',
+                      color: 'var(--yp-rose-600, #E11D48)',
+                      fontSize: '0.85em',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <strong style={{ display: 'block', marginBottom: '2px' }}>
+                      ⚠ ส่งคำขอไม่สำเร็จ
+                    </strong>
+                    {submitError}
+                  </div>
+                ) : null}
               </form>
 
               {/* ── LOGIN LINK ── */}

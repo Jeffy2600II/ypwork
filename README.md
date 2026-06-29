@@ -2,6 +2,8 @@
 
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
+>
+> **เวอร์ชันปัจจุบัน: v1.8.0** — แก้บั๊กส่งคำขอสมัคร + ขยาย Realtime ทั่วทั้งเว็บ
 
 ---
 
@@ -43,8 +45,9 @@ src/
 │   ├── calendar/
 │   ├── events/
 │   │   ├── event-card.tsx        # Shared event card component
-│   │   ├── events-list-view.tsx  # List with filters
-│   │   ├── event-detail-client.tsx  # Detail interactive
+│   │   ├── events-list-view.tsx  # List with filters (realtime)
+│   │   ├── event-detail-client.tsx  # Detail interactive (realtime)
+│   │   ├── day-view-client.tsx   # Day view (v1.8 realtime)
 │   │   └── create-event-form.tsx # Create/edit form
 │   └── profile/
 ├── components/
@@ -67,7 +70,10 @@ src/
 │   │   ├── date.ts               # Date helpers (Thai locale)
 │   │   └── ...
 │   └── hooks/
-│       └── use-session-user.ts   # Client session hook
+│       ├── use-session-user.ts   # Client session hook
+│       └── use-realtime.ts       # v1.8 — 6 hooks: events, eventById,
+│                                  #         eventsForDate, departments,
+│                                  #         profileStats, activityLog
 └── middleware.ts                 # Next.js middleware (auth guard)
 ```
 
@@ -106,6 +112,21 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.7 → v1.8 (CRITICAL — ต้องรันก่อนใช้ v1.8)
+
+รันไฟล์ **`ypwork-v1.8-realtime-and-rls-fix.sql`** บน Supabase SQL Editor (idempotent — รันซ้ำก็ปลอดภัย) สคริปต์นี้จะ:
+
+1. **แก้บั๊กสำคัญ:** เพิ่ม RLS INSERT policy บน `council_join_requests` ให้ anon/authenticated สามารถส่งคำขอได้จริง (ก่อนหน้านี้ frontend แสดง "สำเร็จ" ทั้งที่จริง RLS บล็อกโดยเงียบ ๆ)
+2. **ยืนยัน department_id** บน `council_users` และ `council_join_requests` (idempotent — re-affirm จาก v1.7)
+3. **ขยาย Realtime ทั่วทั้งเว็บ:** เพิ่ม `council_users`, `council_join_requests`, `ypwork_activity_log` เข้า `supabase_realtime` publication พร้อม `REPLICA IDENTITY FULL`
+4. **เพิ่ม RLS SELECT policy** บน `council_join_requests` ให้ user ตรวจสอบสถานะคำขอของตัวเองได้
+
+หลังรันแล้ว:
+- ฟอร์มสมัครจะแสดง **error จริง** แทน "สำเร็จปลอม" เมื่อมีปัญหา
+- หน้าโปรไฟล์อัพเดต stats แบบ realtime
+- หน้า Day View อัพเดต events แบบ realtime
+- รายการฝ่ายในฟอร์มสมัครอัพเดตแบบ realtime เมื่อ admin เปลี่ยน
 
 #### สำหรับอัปเกรดจาก v1.6 → v1.7
 
@@ -151,14 +172,16 @@ bun run dev
 2. Sign in ด้วย Supabase Auth โดยตรง
 3. ตรวจสอบ profile ใน `council_users`
 
-### Register Flow (v1.7)
+### Register Flow (v1.8)
 
-ส่งคำขอสมัครเข้า `council_join_requests` จริง (ไม่ใช่ demo ลอย ๆ อีกต่อไป):
+ส่งคำขอสมัครเข้า `council_join_requests` จริง — พร้อมการจัดการ error ที่ถูกต้อง:
 1. เลือกประเภทบัญชี (นักเรียน/ครู/อื่นๆ)
 2. กรอกข้อมูลให้ครบ
-3. **เลือกฝ่ายได้ (optional)** — ส่ง `department_id` ไปพร้อมคำขอ
-4. Insert จริงเข้า `council_join_requests`
-5. ผู้ดูแลตรวจสอบและ approve ผ่าน YP Labs admin
+3. **เลือกฝ่ายได้ (optional)** — ส่ง `department_id` ไปพร้อมคำขอ (dropdown อัพเดต realtime)
+4. Insert จริงเข้า `council_join_requests` ผ่าน RLS INSERT policy (anon ได้รับอนุญาต)
+5. **ถ้าสำเร็จ** → แสดง success state
+6. **ถ้าล้มเหลว** → แสดง error จริงใต้ปุ่ม submit พร้อมแปล error code ให้เข้าใจ
+7. ผู้ดูแลตรวจสอบและ approve ผ่าน YP Labs admin
 
 หมายเหตุ: การสร้าง Supabase Auth user จริงยังต้องใช้ service role key (ผู้ดูแลทำหลัง approve คำขอ)
 
@@ -185,11 +208,12 @@ bun run dev
 - Event detail (accent-driven theme)
 - Task management (add/edit/delete/toggle status)
 - Manage sheet (edit/delete event)
+- **Day view (v1.8 — realtime)**: กดวันในปฏิทิน → list events ของวันนั้นอัพเดตแบบ live
 
-### Profile (`/profile`)
+### Profile (`/profile`) — v1.8 realtime
 - Hero gradient + avatar 96px
-- สถิติ 4 ตัว
-- ข้อมูลบัญชี (masked IDs)
+- สถิติ 4 ตัว (อัพเดต realtime เมื่อ task/assignee/event เปลี่ยน)
+- ข้อมูลบัญชี (masked IDs) — ฝ่ายแสดงข้อมูลล่าสุดเสมอ (realtime)
 - ปุ่มออกจากระบบ
 
 ---

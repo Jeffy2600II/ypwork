@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Supabase Realtime Hooks (v1.6)
+// YP WORK · Supabase Realtime Hooks (v1.8 — global realtime)
 // ═══════════════════════════════════════════════════════════════
 // ชุด hooks สำหรับ subscribe ข้อมูลแบบ realtime ผ่าน Supabase Realtime
 //
@@ -10,6 +10,15 @@
 //   - พร้อมรับข้อมูลตลอด — เปิด WebSocket channel ค้างไว้
 //   - เมื่อ DB เปลี่ยน → Supabase push ผ่าน channel → เราอัพเดต state
 //   - ไม่มีข้อมูลใหม่ → ไม่มีอะไรเกิดขึ้น → ไม่กินคำขอ HTTP
+//
+// v1.8 changes (Realtime ทั่วทั้งเว็บ):
+//   - เพิ่ม useRealtimeDepartments() — subscribe การเปลี่ยนแปลงฝ่าย
+//   - เพิ่ม useRealtimeProfileStats() — live stats ของ user ในหน้าโปรไฟล์
+//   - เพิ่ม useRealtimeEventsForDate() — สำหรับ day view
+//   - เพิ่ม useRealtimeActivityLog() — สำหรับ activity feed ในอนาคต
+//   - ตารางที่ subscribe ครอบคลุม: ypwork_events, ypwork_tasks,
+//     ypwork_task_assignees, ypwork_event_members, departments,
+//     council_users, council_join_requests, ypwork_activity_log
 //
 // Trade-offs:
 //   - ใช้ WebSocket 1 ตัวต่อ client (Supabase จัดการ multiplexing เอง)
@@ -399,4 +408,394 @@ export function useRealtimeEventById(
   }, []);
 
   return { event, loading, error, reload, patchEvent, patchTask, removeTask, addTask };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8 · useRealtimeEventsForDate — สำหรับหน้า Day View (/events/day/[date])
+// เหมือน useRealtimeEvents แต่กรองเฉพาะ events ของวันที่กำหนด
+// ═══════════════════════════════════════════════════════════════
+export function useRealtimeEventsForDate(
+  initialEvents: YPEvent[],
+  dateStr: string | null
+): {
+  events: YPEvent[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [events, setEvents] = React.useState<YPEvent[]>(initialEvents);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    if (!dateStr) return;
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchEvents()
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          // กรองเฉพาะ event ของวันที่กำหนด (date หรือ end_date คลุมวันนี้)
+          const filtered = rows.filter((e) => {
+            if (e.date === dateStr) return true;
+            if (e.end_date && e.date <= dateStr && e.end_date >= dateStr) return true;
+            return false;
+          });
+          setEvents(filtered);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดข้อมูลไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, [dateStr]);
+
+  React.useEffect(() => {
+    if (!dateStr) return;
+    const supabase = getClient();
+    const channel = supabase
+      .channel(`ypwork-events-day-${dateStr}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_events' },
+        () => reload()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_tasks' },
+        () => reload()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [dateStr, reload]);
+
+  return { events, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8 · useRealtimeDepartments — สำหรับแสดงรายการฝ่ายแบบ live
+// ใช้ใน: register form (เลือกฝ่าย), profile (แสดงฝ่าย), today (stat ฝ่าย)
+// เมื่อ admin เปลี่ยนชื่อ/สี/ไอคอนฝ่าย → ทุกหน้าอัพเดตทันที
+// ═══════════════════════════════════════════════════════════════
+async function fetchDepartments(): Promise<Department[]> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from('departments')
+    .select('id, name, color, icon, description, created_at, updated_at')
+    .order('name', { ascending: true });
+  if (error) throw error;
+  return (data || []) as Department[];
+}
+
+export function useRealtimeDepartments(
+  initialDepartments: Department[]
+): {
+  departments: Department[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [departments, setDepartments] = React.useState<Department[]>(initialDepartments);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchDepartments()
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          setDepartments(rows);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดข้อมูลฝ่ายไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    const supabase = getClient();
+    const channel = supabase
+      .channel('ypwork-departments-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'departments' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [reload]);
+
+  return { departments, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8 · useRealtimeProfileStats — live stats ของ user ในหน้าโปรไฟล์
+// subscribe: ypwork_tasks, ypwork_task_assignees, ypwork_events,
+//            council_users (เพื่อ detect การเปลี่ยนฝ่าย/สี/role ของตัวเอง)
+// ═══════════════════════════════════════════════════════════════
+export interface ProfileStats {
+  deptEvents: number;
+  myTasks: number;
+  myDone: number;
+  myPending: number;
+  completionRate: number;
+}
+
+async function fetchProfileStats(
+  userAuthUid: string,
+  departmentId: string | null
+): Promise<ProfileStats> {
+  const supabase = getClient();
+
+  // 1) งานในฝ่าย (events where department_id = user.department_id)
+  let deptEvents = 0;
+  if (departmentId) {
+    const { count } = await supabase
+      .from('ypwork_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('department_id', departmentId);
+    deptEvents = count || 0;
+  }
+
+  // 2) Tasks ที่รับผิดชอบ (assignee = user.auth_uid)
+  const { data: myAssignees } = await supabase
+    .from('ypwork_task_assignees')
+    .select('task_id')
+    .eq('user_auth_uid', userAuthUid);
+
+  const myTaskIds = (myAssignees || []).map((a: any) => a.task_id);
+  let myTasks = 0;
+  let myDone = 0;
+  let myPending = 0;
+
+  if (myTaskIds.length > 0) {
+    const { data: myTasksRaw } = await supabase
+      .from('ypwork_tasks')
+      .select('id, status')
+      .in('id', myTaskIds);
+
+    myTasks = myTasksRaw?.length || 0;
+    myDone = myTasksRaw?.filter((t: any) => t.status === 'done').length || 0;
+    myPending = myTasks - myDone;
+  }
+
+  const completionRate = myTasks > 0 ? Math.round((myDone / myTasks) * 100) : 0;
+
+  return { deptEvents, myTasks, myDone, myPending, completionRate };
+}
+
+export function useRealtimeProfileStats(
+  userAuthUid: string,
+  departmentId: string | null,
+  initialStats: ProfileStats
+): {
+  stats: ProfileStats;
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [stats, setStats] = React.useState<ProfileStats>(initialStats);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchProfileStats(userAuthUid, departmentId)
+      .then((s) => {
+        if (myToken === reloadTokenRef.current) {
+          setStats(s);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดสถิติไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, [userAuthUid, departmentId]);
+
+  React.useEffect(() => {
+    const supabase = getClient();
+    const channel = supabase
+      .channel(`ypwork-profile-${userAuthUid}`)
+      // task changes → myTasks/myDone/myPending/completionRate เปลี่ยน
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_tasks' },
+        () => reload()
+      )
+      // assignee changes → myTasks เปลี่ยน
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+        () => reload()
+      )
+      // events change → deptEvents เปลี่ยน
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_events' },
+        () => reload()
+      )
+      // council_users change → ฝ่าย/สี/role ของตัวเองอาจเปลี่ยน
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'council_users',
+          filter: `auth_uid=eq.${userAuthUid}`,
+        },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userAuthUid, reload]);
+
+  return { stats, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8 · useRealtimeActivityLog — สำหรับ activity feed (ในอนาคต)
+// subscribe ypwork_activity_log + council_users (เพื่อ resolve actor name)
+// ═══════════════════════════════════════════════════════════════
+export interface ActivityLogEntry {
+  id: string;
+  actor_id: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  entity_title: string | null;
+  created_at: string;
+  actor_name?: string | null;
+  actor_color?: string | null;
+}
+
+async function fetchActivityLog(limit = 50): Promise<ActivityLogEntry[]> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from('ypwork_activity_log')
+    .select(
+      'id, actor_id, action, entity_type, entity_id, entity_title, created_at'
+    )
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+
+  const rows = (data || []) as ActivityLogEntry[];
+
+  // resolve actor names (best-effort — ถ้า fail ก็ยังแสดงได้)
+  const actorIds = Array.from(
+    new Set(rows.map((r) => r.actor_id).filter(Boolean) as string[])
+  );
+  if (actorIds.length === 0) return rows;
+
+  const { data: users } = await supabase
+    .from('council_users')
+    .select('auth_uid, full_name, color')
+    .in('auth_uid', actorIds);
+
+  const userMap = new Map<string, { name: string; color: string }>();
+  for (const u of users || []) {
+    userMap.set(u.auth_uid, {
+      name: u.full_name,
+      color: u.color || '#4F46E5',
+    });
+  }
+
+  return rows.map((r) => ({
+    ...r,
+    actor_name: r.actor_id ? userMap.get(r.actor_id)?.name || null : null,
+    actor_color: r.actor_id ? userMap.get(r.actor_id)?.color || null : null,
+  }));
+}
+
+export function useRealtimeActivityLog(limit = 50): {
+  entries: ActivityLogEntry[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [entries, setEntries] = React.useState<ActivityLogEntry[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchActivityLog(limit)
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          setEntries(rows);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลด activity log ไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, [limit]);
+
+  React.useEffect(() => {
+    reload();
+    const supabase = getClient();
+    const channel = supabase
+      .channel('ypwork-activity-log-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_activity_log' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [reload]);
+
+  return { entries, loading, error, reload };
 }

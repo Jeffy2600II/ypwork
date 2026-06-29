@@ -1,8 +1,10 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Profile View (client component — logout + masked IDs)
-// v1.5: เปลี่ยน logout confirmation จาก custom dialog → BottomSheet (เหมือน demo)
+// YP WORK · Profile View (client component — v1.8 realtime)
+// v1.5: เปลี่ยน logout confirmation จาก custom dialog → BottomSheet
+// v1.8: subscribe realtime — stats และ department อัพเดตทันทีเมื่อ DB เปลี่ยน
+//       (เช่น admin เปลี่ยนฝ่ายของ user, task status เปลี่ยน, assignee เปลี่ยน)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -22,17 +24,16 @@ import { Avatar } from '@/components/framework/avatar';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { logout } from '@/lib/auth/logout';
 import { createClient } from '@/lib/supabase/client';
+import {
+  useRealtimeProfileStats,
+  useRealtimeDepartments,
+  type ProfileStats,
+} from '@/lib/hooks/use-realtime';
 
 export interface ProfileViewProps {
   user: SessionUser;
   department: Department | null;
-  stats: {
-    deptEvents: number;
-    myTasks: number;
-    myDone: number;
-    myPending: number;
-    completionRate: number;
-  };
+  stats: ProfileStats;
 }
 
 export function ProfileView({ user, department, stats }: ProfileViewProps) {
@@ -41,6 +42,22 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
   const [codeRevealed, setCodeRevealed] = React.useState(false);
   const [loggingOut, setLoggingOut] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
+
+  // v1.8: subscribe realtime — stats อัพเดตทันทีเมื่อ tasks/assignees/events
+  //       ของ user เปลี่ยน หรือเมื่อ profile ของตัวเองถูกแก้
+  const { stats: liveStats } = useRealtimeProfileStats(
+    user.auth_uid,
+    user.department_id,
+    stats
+  );
+
+  // v1.8: subscribe departments — เมื่อฝ่ายถูกเปลี่ยนชื่อ/สี/ไอคอน
+  //       หน้าโปรไฟล์จะแสดงข้อมูลล่าสุดทันที
+  const initialDepts: Department[] = department ? [department] : [];
+  const { departments: liveDepts } = useRealtimeDepartments(initialDepts);
+  const liveDepartment = user.department_id
+    ? liveDepts.find((d) => d.id === user.department_id) || department
+    : department;
 
   const accent = user.color || '#4F46E5';
   const roleLabel = formatRoleLabel(user.role, user.account_type);
@@ -82,12 +99,12 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
         </h1>
         <p className="yp-profile-hero__role">
           {roleLabel}
-          {department ? ` · ${department.name}` : ''}
+          {liveDepartment ? ` · ${liveDepartment.name}` : ''}
         </p>
-        {department ? (
+        {liveDepartment ? (
           <span className="yp-profile-hero__chip">
-            <span aria-hidden="true">{department.icon || '◎'}</span>
-            {department.name}
+            <span aria-hidden="true">{liveDepartment.icon || '◎'}</span>
+            {liveDepartment.name}
           </span>
         ) : null}
       </section>
@@ -95,42 +112,42 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
       {/* ── STATS ── */}
       <section className="yp-profile-stats" aria-label="สรุปภาพรวม">
         <div className="yp-profile-stat">
-          <span className="yp-profile-stat__value">{stats.deptEvents}</span>
+          <span className="yp-profile-stat__value">{liveStats.deptEvents}</span>
           <span className="yp-profile-stat__label">งานในฝ่าย</span>
         </div>
         <div className="yp-profile-stat">
-          <span className="yp-profile-stat__value">{stats.myTasks}</span>
+          <span className="yp-profile-stat__value">{liveStats.myTasks}</span>
           <span className="yp-profile-stat__label">Task รับผิดชอบ</span>
         </div>
         <div className="yp-profile-stat yp-profile-stat--success">
-          <span className="yp-profile-stat__value">{stats.myDone}</span>
+          <span className="yp-profile-stat__value">{liveStats.myDone}</span>
           <span className="yp-profile-stat__label">ทำเสร็จ</span>
         </div>
         <div className="yp-profile-stat yp-profile-stat--warning">
-          <span className="yp-profile-stat__value">{stats.myPending}</span>
+          <span className="yp-profile-stat__value">{liveStats.myPending}</span>
           <span className="yp-profile-stat__label">ค้างทำ</span>
         </div>
       </section>
 
       {/* ── PROGRESS ── */}
-      {stats.myTasks > 0 ? (
+      {liveStats.myTasks > 0 ? (
         <section className="yp-profile-progress" aria-label="อัตราความคืบหน้า">
           <div className="yp-profile-progress__head">
             <span className="yp-profile-progress__label">อัตราความคืบหน้า</span>
             <span className="yp-profile-progress__pct">
-              {stats.completionRate}%
+              {liveStats.completionRate}%
             </span>
           </div>
           <div
             className="yp-progress"
             role="progressbar"
-            aria-valuenow={stats.completionRate}
+            aria-valuenow={liveStats.completionRate}
             aria-valuemin={0}
             aria-valuemax={100}
           >
             <div
               className="yp-progress__fill"
-              style={{ width: `${stats.completionRate}%` }}
+              style={{ width: `${liveStats.completionRate}%` }}
             />
           </div>
         </section>
@@ -162,7 +179,7 @@ export function ProfileView({ user, department, stats }: ProfileViewProps) {
             <div className="yp-profile-info__row">
               <dt className="yp-profile-info__label">ฝ่าย</dt>
               <dd className="yp-profile-info__value">
-                {department?.name || '-'}
+                {liveDepartment?.name || '-'}
               </dd>
             </div>
 

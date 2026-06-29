@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Day View Page (server component)
+// YP WORK · Day View Page (server component — v1.8 realtime)
 // ═══════════════════════════════════════════════════════════════
-// ดึง events ในวันที่กำหนด แสดง list ของ event cards
+// ดึง events ในวันที่กำหนด ส่งให้ DayViewClient (client island)
+// เพื่อ subscribe realtime updates — เมื่อมี event ใหม่/ถูกลบ/แก้ไข
+// list อัพเดตทันทีโดยไม่ต้อง refresh
 // ═══════════════════════════════════════════════════════════════
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getSessionUser } from '@/lib/auth';
 import { AppShell } from '@/components/layout/app-shell';
-import { EventCard } from '@/modules/events/event-card';
+import { DayViewClient } from '@/modules/events/day-view-client';
 import { formatDate } from '@/lib/utils/date';
 import type { YPEvent, Department } from '@/lib/types';
 
@@ -93,37 +95,11 @@ export default async function DayViewPage({ params }: PageProps) {
       showBack
       showBottomNav={false}
     >
-      <div className="yp-page yp-page-enter">
-        <div className="yp-page-header">
-          <div className="yp-page-header__eyebrow">งานในวันที่</div>
-          <h1 className="yp-page-header__title">
-            {formatDate(dateStr, { long: true })}
-          </h1>
-          <p className="yp-page-header__subtitle">
-            {events.length} รายการ
-          </p>
-        </div>
-
-        {events.length === 0 ? (
-          <div className="yp-empty">
-            <div className="yp-empty__icon" aria-hidden="true">
-              <span role="img" aria-label="ว่าง">
-                📭
-              </span>
-            </div>
-            <div className="yp-empty__title">ไม่มีงานในวันนี้</div>
-            <div className="yp-empty__desc">
-              กดปุ่ม + เพื่อสร้างงานใหม่สำหรับวันนี้
-            </div>
-          </div>
-        ) : (
-          <div>
-            {events.map((ev) => (
-              <EventCard key={ev.id} event={ev} />
-            ))}
-          </div>
-        )}
-      </div>
+      <DayViewClient
+        dateStr={dateStr}
+        formattedTitle={formatDate(dateStr, { long: true })}
+        initialEvents={events}
+      />
     </AppShell>
   );
 }
