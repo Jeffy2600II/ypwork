@@ -1,0 +1,65 @@
+import type { Metadata, Viewport } from "next";
+import { Noto_Sans_Thai, Inter } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-sans-thai",
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "YP Work · สมองของสภานักเรียน",
+  description:
+    "แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย — สภานักเรียน",
+  keywords: ["YP Work", "สภานักเรียน", "จัดตารางงาน", "student council"],
+  authors: [{ name: "YP Work" }],
+  icons: {
+    icon: "/logo.svg",
+  },
+  openGraph: {
+    title: "YP Work · สมองของสภานักเรียน",
+    description: "จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4F46E5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="th" suppressHydrationWarning>
+      <body
+        className={`${notoSansThai.variable} ${inter.variable} antialiased`}
+        style={{
+          fontFamily: "var(--yp-font-stack)",
+          background: "var(--yp-bg-page)",
+          color: "var(--yp-text-body)",
+        }}
+      >
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
+}
