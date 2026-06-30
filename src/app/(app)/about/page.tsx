@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.8)
+// YP WORK · About Page (v1.8.1)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7 และ v1.8
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8 และ v1.8.1
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.8.0
+                1.8.1
               </span>
             </div>
             <div style={{
@@ -96,6 +96,34 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.8.1 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.8.1
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> ฟอร์มสมัครส่งคำขอแต่ <strong>เลขบัตรประชาชนหาย</strong> — เพราะก่อนหน้านี้ payload ไม่ได้ส่ง field <code>national_id</code> ไปเลย ตอนนี้แก้แล้ว</li>
+            <li>เพิ่มคอลัมน์ <code>national_id</code> ในตาราง <code>council_join_requests</code> และ <code>council_users</code> (ผ่าน SQL v1.8.1)</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>เปลี่ยนปีการศึกษาจาก hardcoded → ดึงจาก DB:</strong> ตอนนี้ดึงรายการปีจากตาราง <code>council_years</code> ของ YP Labs แบบ realtime แทนการ hardcoded <code>['2568','2567','2566']</code></li>
+            <li>ปีที่ admin ตั้ง <code>closed=true</code> จะแสดงเป็น option ที่เลือกไม่ได้ พร้อม label <code>(ปิดรับ)</code></li>
+            <li>เปิด <code>RLS SELECT</code> บน <code>council_years</code> ให้ <code>anon</code> อ่านได้ — คนที่ยังไม่ login ดึงรายการปีได้</li>
+            <li>เพิ่ม hook ใหม่: <code>useRealtimeYears</code> — subscribe realtime บน <code>council_years</code></li>
+            <li>เพิ่ม <code>council_years</code> เข้า <code>supabase_realtime</code> publication</li>
+            <li>แปล error message ใหม่ — แนะนำให้รัน SQL v1.8.1 เมื่อเจอ column <code>national_id</code> ไม่มี</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.8 ── */}

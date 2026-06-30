@@ -11,6 +11,11 @@
 //   - เมื่อ DB เปลี่ยน → Supabase push ผ่าน channel → เราอัพเดต state
 //   - ไม่มีข้อมูลใหม่ → ไม่มีอะไรเกิดขึ้น → ไม่กินคำขอ HTTP
 //
+// v1.8.1 changes:
+//   - เพิ่ม useRealtimeYears() — subscribe รายการปีการศึกษาจาก council_years
+//     (ก่อนหน้านี้ register form hardcoded ['2568','2567','2566'])
+//   - เปิด Realtime บน council_years ใน ypwork-v1.8.1-...sql
+//
 // v1.8 changes (Realtime ทั่วทั้งเว็บ):
 //   - เพิ่ม useRealtimeDepartments() — subscribe การเปลี่ยนแปลงฝ่าย
 //   - เพิ่ม useRealtimeProfileStats() — live stats ของ user ในหน้าโปรไฟล์
@@ -18,7 +23,8 @@
 //   - เพิ่ม useRealtimeActivityLog() — สำหรับ activity feed ในอนาคต
 //   - ตารางที่ subscribe ครอบคลุม: ypwork_events, ypwork_tasks,
 //     ypwork_task_assignees, ypwork_event_members, departments,
-//     council_users, council_join_requests, ypwork_activity_log
+//     council_users, council_join_requests, ypwork_activity_log,
+//     council_years (เพิ่มใน v1.8.1)
 //
 // Trade-offs:
 //   - ใช้ WebSocket 1 ตัวต่อ client (Supabase จัดการ multiplexing เอง)
@@ -798,4 +804,90 @@ export function useRealtimeActivityLog(limit = 50): {
   }, [reload]);
 
   return { entries, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8.1 · useRealtimeYears — รายการปีการศึกษาแบบ live
+// ใช้ใน: register form (เลือกปีการศึกษา)
+// เมื่อ admin เพิ่ม/ปิดปีใน YP Labs → หน้า register อัพเดตทันที
+// (ก่อนหน้านี้ frontend hardcoded ['2568','2567','2566'])
+//
+// schema (จาก yplabs):
+//   council_years (
+//     year integer PRIMARY KEY,
+//     closed boolean DEFAULT false
+//   )
+// ═══════════════════════════════════════════════════════════════
+
+export interface CouncilYear {
+  year: number;
+  closed: boolean;
+}
+
+async function fetchYears(): Promise<CouncilYear[]> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from('council_years')
+    .select('year, closed')
+    .order('year', { ascending: false });
+  if (error) throw error;
+  // normalize — ถ้า column `closed` ไม่มี (DB ยังไม่ migrate) ให้ถือว่าเปิดอยู่
+  return (data || []).map((r: any) => ({
+    year: Number(r.year),
+    closed: Boolean(r.closed ?? false),
+  }));
+}
+
+export function useRealtimeYears(
+  initialYears: CouncilYear[]
+): {
+  years: CouncilYear[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [years, setYears] = React.useState<CouncilYear[]>(initialYears);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchYears()
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          setYears(rows);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดรายการปีการศึกษาไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    const supabase = getClient();
+    const channel = supabase
+      .channel('ypwork-years-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'council_years' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [reload]);
+
+  return { years, loading, error, reload };
 }

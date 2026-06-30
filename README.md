@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.8.0** — แก้บั๊กส่งคำขอสมัคร + ขยาย Realtime ทั่วทั้งเว็บ
+> **เวอร์ชันปัจจุบัน: v1.8.1** — แก้บั๊กเลขบัตรหายในคำขอสมัคร + เปลี่ยนปีการศึกษาให้ดึงจาก DB
 
 ---
 
@@ -112,6 +112,20 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.8 → v1.8.1 (CRITICAL — ต้องรันก่อนใช้ v1.8.1)
+
+รันไฟล์ **`ypwork-v1.8.1-national-id-and-years-from-db.sql`** บน Supabase SQL Editor (idempotent — รันซ้ำก็ปลอดภัย) สคริปต์นี้จะ:
+
+1. **★ แก้บั๊กสำคัญ ★:** เพิ่มคอลัมน์ `national_id` ใน `council_join_requests` และ `council_users` — เพราะก่อนหน้านี้ form กรอกเลขบัตรประชาชน 13 หลัก แต่ payload ไม่ได้ส่ง field `national_id` ไปเลย (column ไม่มีอยู่ใน schema)
+2. **★ เปลี่ยนปีการศึกษาจาก hardcoded → ดึงจาก DB ★:** เปิด RLS SELECT บน `council_years` ให้ `anon` อ่านได้ (ก่อนหน้านี้มีเฉพาะ `authenticated` → คนที่ยังไม่ login ไม่สามารถดึงรายการปีได้ → frontend ต้อง hardcoded ปีแทน)
+3. **เพิ่ม Realtime** บน `council_years` — เมื่อ admin เพิ่ม/ปิดปี ผู้สมัครเห็นทันทีโดยไม่ต้อง refresh
+4. **เพิ่ม index** บน `national_id` ของทั้งสองตาราง เพื่อค้นหาคำขอที่ซ้ำกันได้เร็วขึ้น
+
+หลังรันแล้ว:
+- ฟอร์มสมัครจะส่งเลขบัตรประชาชนไปในคำขอจริง ๆ (ไม่หายอีกต่อไป)
+- รายการปีในฟอร์มสมัครดึงจากตาราง `council_years` ของ YP Labs แบบ realtime
+- ปีที่ `closed=true` จะแสดงเป็น option ที่เลือกไม่ได้ พร้อม label `(ปิดรับ)`
 
 #### สำหรับอัปเกรดจาก v1.7 → v1.8 (CRITICAL — ต้องรันก่อนใช้ v1.8)
 

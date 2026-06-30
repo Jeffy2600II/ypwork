@@ -1,9 +1,19 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Register Form (client component — v1.8)
+// YP WORK · Register Form (client component — v1.8.1)
 // ═══════════════════════════════════════════════════════════════
-// v1.8 changes (CRITICAL BUG FIX):
+// v1.8.1 changes (CRITICAL BUG FIX):
+//   - ★ เพิ่ม `national_id` เข้า insert payload ของ council_join_requests ★
+//     ก่อนหน้านี้ form กรอกเลขบัตรประชาชน 13 หลัก แต่ payload ไม่ได้ส่ง
+//     field นี้ไปเลย → ข้อมูลเลขบัตรหายไปตั้งแต่ขั้นตอน insert
+//   - ★ เปลี่ยนรายการปีการศึกษาจาก hardcoded → ดึงจาก `council_years` ★
+//     ก่อนหน้านี้ใช้ YEAR_OPTIONS = ['2568','2567','2566'] ตายตัว
+//     ตอนนี้ดึงจาก DB ผ่าน prop `years` (ส่งจาก server component)
+//     และ subscribe Realtime ผ่าน `useRealtimeYears`
+//   - ปีที่ `closed=true` จะแสดงเป็น option ที่เลือกไม่ได้ พร้อม label "(ปิดรับ)"
+//
+// v1.8 changes (baseline):
 //   - เลิก swallow error เงียบ ๆ — ตอนนี้แสดง error จริงให้ user เห็น
 //     ก่อนหน้านี้เมื่อ insert ล้มเหลว (RLS บล็อก, column หาย, ฯลฯ)
 //     ระบบจะแสดง "ส่งคำขอสำเร็จ" ทั้ง ๆ ที่จริงล้มเหลว → สร้างความสับสน
@@ -17,8 +27,9 @@
 //   - หลังส่งสำเร็จ → แสดง success state
 //
 // หมายเหตุ: การ insert ใช้ anon key (public RLS policy)
-//   - ต้องรัน ypwork-v1.8-realtime-and-rls-fix.sql ก่อน
-//     เพื่อสร้าง policy "council_join_requests_insert_anyone"
+//   - ต้องรัน ypwork-v1.8.1-national-id-and-years-from-db.sql ก่อน
+//     เพื่อเพิ่มคอลัมน์ national_id ใน council_join_requests
+//     และเปิด RLS SELECT บน council_years ให้ anon อ่านได้
 //   - ผู้ดูแลจะตรวจสอบและ approve ผ่าน YP Labs admin ภายหลัง
 // ═══════════════════════════════════════════════════════════════
 
@@ -44,7 +55,8 @@ import {
   validatePassword,
 } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
-import { useRealtimeDepartments } from '@/lib/hooks/use-realtime';
+import { useRealtimeDepartments, useRealtimeYears } from '@/lib/hooks/use-realtime';
+import type { CouncilYear } from '@/lib/hooks/use-realtime';
 import type { Department, RegisterAccountType } from '@/lib/types';
 
 interface FieldErrors {
@@ -57,8 +69,6 @@ interface FieldErrors {
   department?: string;
 }
 
-const YEAR_OPTIONS = ['2568', '2567', '2566'];
-
 const TYPE_LABEL: Record<RegisterAccountType, string> = {
   student: 'นักเรียน',
   teacher: 'ครู',
@@ -67,14 +77,20 @@ const TYPE_LABEL: Record<RegisterAccountType, string> = {
 
 interface RegisterFormProps {
   departments: Department[];
+  // v1.8.1: รายการปีการศึกษาจาก `council_years` (ส่งจาก server component)
+  years: CouncilYear[];
 }
 
-export function RegisterForm({ departments }: RegisterFormProps) {
+export function RegisterForm({ departments, years }: RegisterFormProps) {
   const { toast } = useToast();
 
   // v1.8: subscribe realtime — รายการฝ่ายอัพเดตทันทีเมื่อ admin
   //       เปลี่ยนชื่อ/สี/ไอคอนฝ่าย หรือเพิ่ม/ลบฝ่าย โดยไม่ต้อง refresh
   const { departments: liveDepartments } = useRealtimeDepartments(departments);
+
+  // v1.8.1: subscribe realtime — รายการปีการศึกษาอัพเดตทันทีเมื่อ admin
+  //         เพิ่ม/ลบ/ปิดปีใน YP Labs โดยไม่ต้อง refresh
+  const { years: liveYears } = useRealtimeYears(years);
 
   const [accountType, setAccountType] = React.useState<RegisterAccountType>('student');
   const [submitting, setSubmitting] = React.useState(false);
@@ -168,13 +184,18 @@ export function RegisterForm({ departments }: RegisterFormProps) {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      // v1.8: insert จริงเข้า council_join_requests พร้อม department_id
-      //       ถ้าล้มเหลว → แสดง error จริง ไม่ fallback เป็น success state อีกต่อไป
+      // v1.8.1: insert จริงเข้า council_join_requests พร้อม national_id + department_id
+      //         ★ FIX BUG: ก่อนหน้านี้ payload ไม่ได้ส่ง `national_id` เลย ★
+      //         แม้ user กรอกเลขบัตร 13 หลักใน form ก็ตาม
+      // v1.8: ถ้าล้มเหลว → แสดง error จริง ไม่ fallback เป็น success state อีกต่อไป
       const supabase = (await import('@/lib/supabase/client')).createClient();
       const { error: insertErr } = await supabase
         .from('council_join_requests')
         .insert({
           full_name: name,
+          // v1.8.1: ★ เพิ่ม national_id ใน payload ★ (student เท่านั้น)
+          national_id:
+            accountType === 'student' ? nationalId.replace(/\D/g, '') : '',
           student_id: accountType === 'student' ? studentCode.replace(/\D/g, '') : '',
           year: year ? parseInt(year, 10) : new Date().getFullYear() + 543,
           email: synEmail,
@@ -190,8 +211,9 @@ export function RegisterForm({ departments }: RegisterFormProps) {
         let userMessage = insertErr.message || 'ส่งคำขอไม่สำเร็จ';
         if (/row-level security policy/i.test(insertErr.message)) {
           userMessage = 'ระบบยังไม่ได้เปิดให้ส่งคำขอ — กรุณาติดต่อผู้ดูแลเพื่อรัน SQL v1.8';
-        } else if (/could not find the .* department_id/i.test(insertErr.message)) {
-          userMessage = 'ฐานข้อมูลยังไม่ได้อัปเกรด — กรุณาบอกผู้ดูแลให้รัน ypwork-v1.8-realtime-and-rls-fix.sql';
+        } else if (/could not find the .* department_id/i.test(insertErr.message)
+          || /could not find the .* national_id/i.test(insertErr.message)) {
+          userMessage = 'ฐานข้อมูลยังไม่ได้อัปเกรด — กรุณาบอกผู้ดูแลให้รัน ypwork-v1.8.1-national-id-and-years-from-db.sql';
         } else if (/duplicate key/i.test(insertErr.message)) {
           userMessage = 'อีเมลหรือรหัสนักเรียนนี้ส่งคำขอไปแล้ว รอผู้ดูแลอนุมัติ';
         }
@@ -447,7 +469,7 @@ export function RegisterForm({ departments }: RegisterFormProps) {
                   </>
                 )}
 
-                {/* ── YEAR ── */}
+                {/* ── YEAR (v1.8.1 — ดึงจาก council_years แทน hardcoded) ── */}
                 <div className={`field${errors.year ? ' has-error' : ''}`}>
                   <label className="field__label" htmlFor="year-select">
                     ปีการศึกษา
@@ -465,11 +487,35 @@ export function RegisterForm({ departments }: RegisterFormProps) {
                       disabled={submitting}
                     >
                       <option value="">— เลือกปี —</option>
-                      {YEAR_OPTIONS.map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
+                      {liveYears.length === 0 ? (
+                        <option value="">
+                          ยังไม่มีปีในระบบ — ติดต่อผู้ดูแล
+                        </option>
+                      ) : (
+                        liveYears.map((y) => (
+                          <option
+                            key={y.year}
+                            value={String(y.year)}
+                            disabled={y.closed}
+                          >
+                            {y.year}{y.closed ? ' (ปิดรับ)' : ''}
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
+                  {liveYears.length === 0 ? (
+                    <div
+                      style={{
+                        fontSize: '0.85em',
+                        color: 'var(--yp-text-muted)',
+                        marginTop: '4px',
+                      }}
+                    >
+                      ยังไม่มีปีการศึกษาในระบบ — ผู้ดูแลต้องเพิ่มปี
+                      ในตาราง <code>council_years</code> ก่อน
+                    </div>
+                  ) : null}
                   {errors.year ? <div className="field__error">{errors.year}</div> : null}
                 </div>
 
