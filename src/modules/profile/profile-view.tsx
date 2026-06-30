@@ -1,10 +1,12 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Profile View (client component — v1.8 realtime)
+// YP WORK · Profile View (client component — v1.8.2 realtime)
 // v1.5: เปลี่ยน logout confirmation จาก custom dialog → BottomSheet
 // v1.8: subscribe realtime — stats และ department อัพเดตทันทีเมื่อ DB เปลี่ยน
 //       (เช่น admin เปลี่ยนฝ่ายของ user, task status เปลี่ยน, assignee เปลี่ยน)
+// v1.8.2: เพิ่ม useRealtimeSessionUser — ชื่อ/สี/ฝ่าย ของ user อัพเดต live
+//         (admin เปลี่ยนชื่อ หรือย้ายฝ่าย ผู้ใช้เห็นทันทีในหน้าโปรไฟล์)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -27,6 +29,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   useRealtimeProfileStats,
   useRealtimeDepartments,
+  useRealtimeSessionUser,
   type ProfileStats,
 } from '@/lib/hooks/use-realtime';
 
@@ -36,12 +39,16 @@ export interface ProfileViewProps {
   stats: ProfileStats;
 }
 
-export function ProfileView({ user, department, stats }: ProfileViewProps) {
+export function ProfileView({ user: initialUser, department, stats }: ProfileViewProps) {
   const router = useRouter();
   const [idRevealed, setIdRevealed] = React.useState(false);
   const [codeRevealed, setCodeRevealed] = React.useState(false);
   const [loggingOut, setLoggingOut] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
+
+  // v1.8.2: subscribe realtime — ชื่อ/สี/ฝ่าย ของ user อัพเดต live
+  //   ถ้า admin เปลี่ยนชื่อ หรือย้ายฝ่าย หน้าโปรไฟล์จะอัพเดตทันที
+  const { user } = useRealtimeSessionUser(initialUser);
 
   // v1.8: subscribe realtime — stats อัพเดตทันทีเมื่อ tasks/assignees/events
   //       ของ user เปลี่ยน หรือเมื่อ profile ของตัวเองถูกแก้

@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import type { SessionUser } from '@/lib/types';
 import { Avatar } from '@/components/framework/avatar';
+// v1.8.2: live session user — avatar/name ใน top-bar อัพเดต realtime
+import { useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
 
 export type AppShellActiveNav = 'today' | 'calendar' | 'events' | 'profile';
 
@@ -78,7 +80,7 @@ function computeTitleVars(accent?: string): {
 }
 
 export function AppShell({
-  user,
+  user: initialUser,
   children,
   activeNav,
   showBack = false,
@@ -87,6 +89,9 @@ export function AppShell({
   title = 'YP Work',
   accent,
 }: AppShellProps) {
+  // v1.8.2: subscribe realtime — ชื่อ/สี/ฝ่าย ของ user เปลี่ยน → avatar และ
+  //   top-bar อัพเดตทันที (admin เปลี่ยนชื่อ, ย้ายฝ่าย, เปลี่ยนสี)
+  const { user } = useRealtimeSessionUser(initialUser);
   const router = useRouter();
   const { from, to, accentVar } = computeTitleVars(accent);
 

@@ -35,7 +35,7 @@
 import * as React from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { YPEvent, Task, UserProfile, Department } from '@/lib/types';
+import type { YPEvent, Task, UserProfile, Department, SessionUser } from '@/lib/types';
 
 // ═══════════════════════════════════════════════════════════════
 // Shared client (singleton) — ใช้ client เดียวกันทั้ง app
@@ -260,7 +260,17 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
       });
   }, []);
 
-  // Initial mount: keep SSR data as-is, then subscribe for changes
+  // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
+  //   ปัญหาเดิม: ถ้า user ไปหน้าอื่นแล้วย้อนกลับมาภายใน 30 วินาที
+  //   Next.js จะใช้ cached RSC payload (initialEvents ตัวเก่า) แล้ว
+  //   subscribe realtime — ถ้าไม่มี change ใหม่เกิดขึ้น user จะเห็น
+  //   ข้อมูลเก่าตลอด → ต้อง reload() ทันทีหลัง mount เพื่อดึงข้อมูล
+  //   ล่าสุดจาก DB (เสีย request 1 ครั้งต่อ navigation แต่ trade-off
+  //   ที่ยอมรับได้เพื่อความถูกต้องของข้อมูล)
+  React.useEffect(() => {
+    reload();
+  }, [reload]);
+
   React.useEffect(() => {
     const supabase = getClient();
     const channel = supabase
@@ -286,6 +296,25 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+        () => reload()
+      )
+      // v1.8.2: event_members changes — คนเข้า/ออกงาน ต้อง reload
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_event_members' },
+        () => reload()
+      )
+      // v1.8.2: council_users changes — คนเปลี่ยนชื่อ/สี/ฝ่าย ต้อง reload
+      //         (assignees / members display ต้องอัพเดตตาม)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'council_users' },
+        () => reload()
+      )
+      // v1.8.2: departments changes — admin เปลี่ยนชื่อ/สี/ไอคอนฝ่าย ต้อง reload
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'departments' },
         () => reload()
       )
       .subscribe();
@@ -343,6 +372,13 @@ export function useRealtimeEventById(
       });
   }, [eventId]);
 
+  // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
+  //   ถ้า user กลับเข้าหน้า detail ภายใน 30 วินาที Next.js จะใช้ cached
+  //   payload → initialEvent ตัวเก่า → ต้อง reload เพื่อให้แน่ใจว่าข้อมูลสด
+  React.useEffect(() => {
+    if (eventId) reload();
+  }, [eventId, reload]);
+
   React.useEffect(() => {
     if (!eventId) return;
     const supabase = getClient();
@@ -375,6 +411,24 @@ export function useRealtimeEventById(
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+        () => reload()
+      )
+      // v1.8.2: event_members changes — คนเข้า/ออกงานนี้
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_event_members' },
+        () => reload()
+      )
+      // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี/ฝ่าย
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'council_users' },
+        () => reload()
+      )
+      // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงานนี้
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'departments' },
         () => reload()
       )
       .subscribe();
@@ -463,6 +517,11 @@ export function useRealtimeEventsForDate(
       });
   }, [dateStr]);
 
+  // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
+  React.useEffect(() => {
+    if (dateStr) reload();
+  }, [dateStr, reload]);
+
   React.useEffect(() => {
     if (!dateStr) return;
     const supabase = getClient();
@@ -481,6 +540,24 @@ export function useRealtimeEventsForDate(
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+        () => reload()
+      )
+      // v1.8.2: event_members changes
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ypwork_event_members' },
+        () => reload()
+      )
+      // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'council_users' },
+        () => reload()
+      )
+      // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงาน
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'departments' },
         () => reload()
       )
       .subscribe();
@@ -890,4 +967,209 @@ export function useRealtimeYears(
   }, [reload]);
 
   return { years, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8.2 · useRealtimeDeptMembers — สมาชิกในฝ่ายแบบ live
+// ใช้ใน: Today (dept overview — แสดง avatar group + จำนวนสมาชิก)
+// เมื่อ admin เพิ่ม/ลบ/ย้ายคนเข้าฝ่าย → รายการสมาชิกอัพเดตทันที
+//
+// subscribe: council_users (filter by department_id) — แต่เนื่องจาก
+//   Supabase Realtime filter รองรับเฉพาะ column ในตารางเดียวกัน
+//   เราจึง subscribe ทุก council_users changes แล้ว reload (เหมือน hook อื่น ๆ)
+// ═══════════════════════════════════════════════════════════════
+
+async function fetchDeptMembers(departmentId: string): Promise<UserProfile[]> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from('council_users')
+    .select('auth_uid, full_name, color, role, account_type, year, department_id')
+    .eq('department_id', departmentId)
+    .eq('approved', true)
+    .eq('disabled', false)
+    .limit(50);
+  if (error) throw error;
+  return (data || []).map((m: any) => ({
+    auth_uid: m.auth_uid,
+    full_name: m.full_name,
+    student_id: null,
+    national_id: null,
+    year: m.year ?? null,
+    role: m.role ?? 'member',
+    account_type: (m.account_type || 'student') as 'student' | 'teacher' | 'other',
+    approved: true,
+    disabled: false,
+    email: '',
+    department_id: m.department_id ?? null,
+    color: m.color ?? '#4F46E5',
+  }));
+}
+
+export function useRealtimeDeptMembers(
+  departmentId: string | null,
+  initialMembers: UserProfile[]
+): {
+  members: UserProfile[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [members, setMembers] = React.useState<UserProfile[]>(initialMembers);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    if (!departmentId) {
+      setMembers([]);
+      return;
+    }
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchDeptMembers(departmentId)
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          setMembers(rows);
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดสมาชิกฝ่ายไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, [departmentId]);
+
+  // v1.8.2: Initial mount — reload to bypass RSC cache
+  React.useEffect(() => {
+    reload();
+  }, [reload]);
+
+  React.useEffect(() => {
+    if (!departmentId) return;
+    const supabase = getClient();
+    const channel = supabase
+      .channel(`ypwork-dept-members-${departmentId}`)
+      // any council_users change → reload (filter ไม่ได้เพราะอาจเป็น
+      // การย้ายคนเข้า/ออกฝ่าย ที่ต้องการฝั่ง server กรองใหม่)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'council_users' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [departmentId, reload]);
+
+  return { members, loading, error, reload };
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// v1.8.2 · useRealtimeSessionUser — ข้อมูล user ตัวเองแบบ live
+// ใช้ใน: Today (hero name), Profile, AppShell (header avatar)
+// เมื่อ admin เปลี่ยนชื่อ/สี/ฝ่าย/role ของ user → UI อัพเดตทันที
+//
+// subscribe: council_users กรองด้วย auth_uid ของตัวเอง
+// ═══════════════════════════════════════════════════════════════
+
+async function fetchSessionUserLive(authUid: string): Promise<Partial<SessionUser> | null> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from('council_users')
+    .select('auth_uid, full_name, color, role, account_type, year, department_id')
+    .eq('auth_uid', authUid)
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    auth_uid: data.auth_uid,
+    full_name: data.full_name,
+    year: data.year ?? null,
+    role: data.role ?? 'member',
+    account_type: (data.account_type || 'student') as 'student' | 'teacher' | 'other',
+    department_id: data.department_id ?? null,
+    color: data.color ?? '#4F46E5',
+  };
+}
+
+export function useRealtimeSessionUser(
+  initialUser: SessionUser
+): {
+  user: SessionUser;
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+} {
+  const [user, setUser] = React.useState<SessionUser>(initialUser);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    fetchSessionUserLive(initialUser.auth_uid)
+      .then((live) => {
+        if (myToken === reloadTokenRef.current && live) {
+          // merge — เก็บ email จาก initial (ไม่ได้ select ตอน fetch live
+          // เพราะ email อาจไม่ได้อยู่ใน council_users)
+          setUser((prev) => ({ ...prev, ...live, email: prev.email }));
+          setError(null);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดข้อมูลผู้ใช้ไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, [initialUser.auth_uid]);
+
+  // v1.8.2: Initial mount — reload to bypass RSC cache
+  React.useEffect(() => {
+    reload();
+  }, [reload]);
+
+  React.useEffect(() => {
+    const supabase = getClient();
+    const channel = supabase
+      .channel(`ypwork-session-user-${initialUser.auth_uid}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'council_users',
+          filter: `auth_uid=eq.${initialUser.auth_uid}`,
+        },
+        () => reload()
+      )
+      // ถ้าฝ่ายของ user เปลี่ยนชื่อ/สี/ไอคอน → ต้อง reload ด้วย
+      // (เพราะ color ใน SessionUser อาจมาจากฝ่าย)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'departments' },
+        () => reload()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [initialUser.auth_uid, reload]);
+
+  return { user, loading, error, reload };
 }

@@ -1,10 +1,19 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v1.6 — realtime client island)
+// YP WORK · Today Dashboard (v1.8.2 — full realtime client island)
 // ═══════════════════════════════════════════════════════════════
 // แยกออกจาก today/page.tsx (server) เพื่อให้สามารถ subscribe
 // Supabase Realtime ได้ — ปฏิเสธ polling โดยสิ้นเชิง
+//
+// v1.8.2 changes (Realtime ทั่วทั้งหน้า):
+//   - เพิ่ม useRealtimeSessionUser — ชื่อ/สี/ฝ่าย ของ user ใน hero อัพเดต live
+//     (ถ้า admin เปลี่ยนชื่อหรือย้ายฝ่าย ผู้ใช้เห็นทันที)
+//   - เพิ่ม useRealtimeDeptMembers — สมาชิกในฝ่าย (avatar group) อัพเดต live
+//     (ถ้ามีคนใหม่เข้าฝ่าย หรือมีคนถูกปิดใช้งาน)
+//   - เพิ่ม useRealtimeDepartments — ชื่อ/ไอคอน/คำอธิบายฝ่ายอัพเดต live
+//   - แก้ useRealtimeEvents ให้ reload ตอน mount + subscribe council_users,
+//     departments, ypwork_event_members (เห็นการเปลี่ยนแปลงทุกตารางที่เกี่ยวข้อง)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -18,7 +27,7 @@ import {
 import { AlertCircle, Flag, Check, Clock } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import type { YPEvent, Department, UserProfile, SessionUser } from '@/lib/types';
-import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
+import { useRealtimeEvents, useRealtimeDepartments, useRealtimeDeptMembers, useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
 
 export interface TodayClientProps {
   initialEvents: YPEvent[];
@@ -30,13 +39,40 @@ export interface TodayClientProps {
 
 export function TodayClient({
   initialEvents,
-  user,
-  dept,
-  deptMembers,
+  user: initialUser,
+  dept: initialDept,
+  deptMembers: initialDeptMembers,
   deptStats: initialDeptStats,
 }: TodayClientProps) {
   // v1.6: realtime subscription — events อัพเดตทันทีเมื่อ DB เปลี่ยน
+  // v1.8.2: ตอนนี้ subscribe ครอบคลุม ypwork_events, ypwork_tasks,
+  //   ypwork_task_assignees, ypwork_event_members, council_users, departments
   const { events } = useRealtimeEvents(initialEvents);
+
+  // v1.8.2: live session user — ชื่อ/สี/ฝ่าย ของ user ใน hero อัพเดต live
+  //   ถ้า admin เปลี่ยนชื่อหรือย้ายฝ่าย ผู้ใช้เห็นทันที
+  const { user } = useRealtimeSessionUser(initialUser);
+
+  // v1.8.2: live departments — ถ้า user มีฝ่าย ดึงฝ่ายล่าสุดจาก DB
+  //   เผื่อ admin เปลี่ยนชื่อ/ไอคอน/คำอธิบายฝ่าย
+  const { departments: liveDepartments } = useRealtimeDepartments(
+    initialDept ? [initialDept] : []
+  );
+  const liveDept =
+    user.department_id
+      ? liveDepartments.find((d) => d.id === user.department_id) ?? null
+      : null;
+
+  // v1.8.2: live dept members — avatar group + จำนวนสมาชิกอัพเดต live
+  //   ถ้ามีคนใหม่เข้าฝ่าย หรือคนถูก disabled
+  const { members: liveDeptMembers } = useRealtimeDeptMembers(
+    user.department_id,
+    initialDeptMembers
+  );
+
+  // ใช้ live dept + live members แทน static props
+  const dept = liveDept ?? initialDept;
+  const deptMembers = liveDeptMembers;
 
   // ใช้ local date เสมอ (v1.6 — ป้องกันปัญหา UTC offset)
   const now = new Date();

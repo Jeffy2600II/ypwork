@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.8.1** — แก้บั๊กเลขบัตรหายในคำขอสมัคร + เปลี่ยนปีการศึกษาให้ดึงจาก DB
+> **เวอร์ชันปัจจุบัน: v1.8.2** — แก้บั๊กหน้า home ไม่อัพเดตเมื่อย้อนกลับ + ขยาย realtime ครอบคลุมทุกตารางที่เกี่ยวข้อง
 
 ---
 
@@ -112,6 +112,29 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.8.1 → v1.8.2 (Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม** เพราะตารางที่เกี่ยวข้องทั้งหมด (`ypwork_events`, `ypwork_tasks`, `ypwork_task_assignees`, `ypwork_event_members`, `departments`, `council_users`, `council_join_requests`, `ypwork_activity_log`, `council_years`) ถูกเพิ่มเข้า Realtime publication หมดแล้วตั้งแต่ v1.6/v1.7/v1.8/v1.8.1
+
+การแก้ไขใน v1.8.2:
+
+1. **★ แก้บั๊กสำคัญ ★:** หน้า home (Today) ไม่อัพเดตข้อมูลเมื่อย้อนกลับมาจากหน้าอื่น — เพราะ Next.js ใช้ cached RSC payload (30 วินาที) แล้ว hook ไม่ได้เรียก `reload()` ตอน mount ตอนนี้แก้แล้ว: ทุก hook เรียก `reload()` ทันทีหลัง mount เพื่อ bypass cache
+
+2. **ขยาย realtime subscription:** ทุก hook (`useRealtimeEvents`, `useRealtimeEventById`, `useRealtimeEventsForDate`) ตอนนี้ subscribe 3 ตารางเพิ่ม:
+   - `council_users` — คนเปลี่ยนชื่อ/สี/ฝ่าย → รายการ assignees / members อัพเดต
+   - `departments` — admin เปลี่ยนชื่อ/ไอคอน/สีฝ่าย → ทุกหน้าอัพเดต
+   - `ypwork_event_members` — คนเข้า/ออกงาน → รายการงานอัพเดต
+
+3. **เพิ่ม hook ใหม่:**
+   - `useRealtimeSessionUser` — ชื่อ/สี/ฝ่าย ของ user ตัวเองอัพเดต live (admin เปลี่ยนชื่อ, ย้ายฝ่าย, เปลี่ยนสี)
+   - `useRealtimeDeptMembers` — สมาชิกในฝ่ายอัพเดต live (คนใหม่เข้าฝ่าย, คนถูก disabled)
+
+4. **Realtime ครอบคลุม UI ทุกส่วน:**
+   - **AppShell** (top-bar ทุกหน้า): avatar + name อัพเดต live
+   - **Today (Home)**: hero name/color, dept overview (name/icon/description/members) ทั้งหมด live
+   - **Profile**: ชื่อ/สี/ฝ่าย ของ user อัพเดต live (ก่อนหน้านี้ static)
+   - **Calendar / Events list / Event detail / Day view**: reload ตอน mount + subscribe 6 ตาราง
 
 #### สำหรับอัปเกรดจาก v1.8 → v1.8.1 (CRITICAL — ต้องรันก่อนใช้ v1.8.1)
 

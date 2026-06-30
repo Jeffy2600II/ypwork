@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.8.1)
+// YP WORK · About Page (v1.8.2)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8 และ v1.8.1
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1 และ v1.8.2
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.8.1
+                1.8.2
               </span>
             </div>
             <div style={{
@@ -96,6 +96,35 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.8.2 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.8.2
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> หน้า home (Today) ไม่อัพเดตข้อมูลเมื่อย้อนกลับมาจากหน้าอื่น — เพราะ Next.js ใช้ cached RSC payload แล้ว hook ไม่ได้ reload ตอน mount</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>Realtime ทุกหน้า:</strong> เพิ่ม <code>reload()</code> ตอน mount ในทุก hook (<code>useRealtimeEvents</code>, <code>useRealtimeEventById</code>, <code>useRealtimeEventsForDate</code>) เพื่อ bypass cache</li>
+            <li>เพิ่ม subscription 3 ตารางใหม่ในทุก hook: <code>council_users</code>, <code>departments</code>, <code>ypwork_event_members</code> — เมื่อคนเปลี่ยนชื่อ/สี, admin เปลี่ยนฝ่าย, คนเข้า/ออกงาน → ทุกหน้าอัพเดตทันที</li>
+            <li>เพิ่ม hook ใหม่ <code>useRealtimeSessionUser</code> — ชื่อ/สี/ฝ่าย ของ user ตัวเองอัพเดต live (ใช้ใน AppShell, Today, Profile)</li>
+            <li>เพิ่ม hook ใหม่ <code>useRealtimeDeptMembers</code> — สมาชิกในฝ่ายอัพเดต live (avatar group ในหน้า Today)</li>
+            <li>หน้า <strong>Today</strong>: hero name/color, dept overview (name, icon, description, members) ทั้งหมดอัพเดตแบบ realtime แล้ว</li>
+            <li>หน้า <strong>Profile</strong>: ชื่อ/สี/ฝ่าย ของ user อัพเดตแบบ realtime (ก่อนหน้านี้เป็น static)</li>
+            <li><strong>AppShell</strong> (top-bar ทุกหน้า): avatar และ name ใน top-bar อัพเดตแบบ realtime</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — ตารางที่เกี่ยวข้องอยู่ใน Realtime publication หมดแล้วตั้งแต่ v1.6/v1.7/v1.8</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.8.1 ── */}
