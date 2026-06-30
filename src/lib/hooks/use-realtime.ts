@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Supabase Realtime Hooks (v1.8 — global realtime)
+// YP WORK · Supabase Realtime Hooks (v1.8.3 — defensive + unique channels)
 // ═══════════════════════════════════════════════════════════════
 // ชุด hooks สำหรับ subscribe ข้อมูลแบบ realtime ผ่าน Supabase Realtime
 //
@@ -10,6 +10,19 @@
 //   - พร้อมรับข้อมูลตลอด — เปิด WebSocket channel ค้างไว้
 //   - เมื่อ DB เปลี่ยน → Supabase push ผ่าน channel → เราอัพเดต state
 //   - ไม่มีข้อมูลใหม่ → ไม่มีอะไรเกิดขึ้น → ไม่กินคำขอ HTTP
+//
+// v1.8.3 changes (defensive + unique channels):
+//   - แก้บั๊ก "This page couldn't load" บน /today และ /profile — เกิดจาก
+//     2 hooks ใช้ชื่อ channel เดียวกัน (AppShell + TodayClient/ProfileView
+//     เรียก useRealtimeSessionUser ทั้งคู่) เวลา cleanup อันนึง removeChannel
+//     ไปทำลาย subscription ของอีกอัน → ใช้ useUniqueChannelName() แก้
+//   - getClient() ไม่ throw แล้ว — คืน null แล้วให้ hook ข้าม subscription
+//     (ป้องกัน crash ทั้งหน้าเวลา env var ไม่ครบ)
+//   - ทุก useEffect ที่ subscribe channel ถูกห่อด้วย try-catch
+//   - ทุก cleanup เรียก removeChannel ใน try-catch (กัน throw ตอน channel
+//     ถูก remove ไปแล้ว)
+//   - รองรับทั้ง NEXT_PUBLIC_SUPABASE_ANON_KEY (legacy) และ
+//     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Vercel × Supabase integration)
 //
 // v1.8.1 changes:
 //   - เพิ่ม useRealtimeYears() — subscribe รายการปีการศึกษาจาก council_years
@@ -39,11 +52,41 @@ import type { YPEvent, Task, UserProfile, Department, SessionUser } from '@/lib/
 
 // ═══════════════════════════════════════════════════════════════
 // Shared client (singleton) — ใช้ client เดียวกันทั้ง app
+// v1.8.3: ป้องกันไม่ให้ throw หาก env var ยังไม่ถูกตั้ง — คืน null แล้ว
+//   ให้ hook ตัวบอกว่า loading/error แทน ไม่ใช่ crash ทั้งหน้า
 // ═══════════════════════════════════════════════════════════════
 let _client: SupabaseClient | null = null;
-function getClient(): SupabaseClient {
-  if (!_client) _client = createClient();
-  return _client;
+let _clientError: string | null = null;
+
+function getClient(): SupabaseClient | null {
+  if (_client) return _client;
+  if (_clientError) return null; // ลองสร้างแล้วล้มเหลว — ไม่ต้องลอกซ้ำ
+  try {
+    _client = createClient();
+    return _client;
+  } catch (e: any) {
+    _clientError = e?.message || 'ไม่สามารถสร้าง Supabase client ได้';
+    // eslint-disable-next-line no-console
+    console.error('[use-realtime] getClient() failed:', _clientError);
+    return null;
+  }
+}
+
+function getClientError(): string | null {
+  return _clientError;
+}
+
+/**
+ * v1.8.3: สร้าง channel name ที่ unique ต่อ hook instance
+ * ป้องกันปัญหา 2 hooks ที่ใช้ชื่อ channel เดียวกัน (เช่น AppShell + TodayClient
+ * ที่เรียก useRealtimeSessionUser ทั้งคู่) ทำให้ removeChannel ของอันหนึ่ง
+ * ไปทำลาย subscription ของอีกอัน
+ */
+function useUniqueChannelName(prefix: string, suffix?: string): string {
+  const id = React.useId();
+  return suffix
+    ? `${prefix}__${suffix}__${id}`
+    : `${prefix}__${id}`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -110,6 +153,7 @@ const EVENT_FIELDS = `
 
 async function fetchEvents(): Promise<YPEvent[]> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('ypwork_events')
     .select(EVENT_FIELDS)
@@ -167,6 +211,7 @@ async function fetchEvents(): Promise<YPEvent[]> {
 
 async function fetchEventById(id: string): Promise<YPEvent | null> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('ypwork_events')
     .select(EVENT_FIELDS)
@@ -272,55 +317,69 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
   }, [reload]);
 
   React.useEffect(() => {
+    // v1.8.3: ใช้ unique channel name เพื่อกัน conflict กับ hook อื่น
     const supabase = getClient();
-    const channel = supabase
-      .channel('ypwork-events-realtime')
-      // events changes
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_events' },
-        () => {
-          // Reload full set on any change — simple and stable.
-          // (We avoid patching individual rows to keep correctness with
-          //  joins like department + assignees; one round-trip is cheap.)
-          reload();
-        }
-      )
-      // tasks changes (affects progress + counts)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_tasks' },
-        () => reload()
-      )
-      // assignees changes
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-        () => reload()
-      )
-      // v1.8.2: event_members changes — คนเข้า/ออกงาน ต้อง reload
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_event_members' },
-        () => reload()
-      )
-      // v1.8.2: council_users changes — คนเปลี่ยนชื่อ/สี/ฝ่าย ต้อง reload
-      //         (assignees / members display ต้องอัพเดตตาม)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'council_users' },
-        () => reload()
-      )
-      // v1.8.2: departments changes — admin เปลี่ยนชื่อ/สี/ไอคอนฝ่าย ต้อง reload
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'departments' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // env var ไม่ครบ — ข้าม subscription, แค่อาศัย initial data
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel('ypwork-events-realtime')
+        // events changes
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_events' },
+          () => {
+            // Reload full set on any change — simple and stable.
+            // (We avoid patching individual rows to keep correctness with
+            //  joins like department + assignees; one round-trip is cheap.)
+            reload();
+          }
+        )
+        // tasks changes (affects progress + counts)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_tasks' },
+          () => reload()
+        )
+        // assignees changes
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+          () => reload()
+        )
+        // v1.8.2: event_members changes — คนเข้า/ออกงาน ต้อง reload
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_event_members' },
+          () => reload()
+        )
+        // v1.8.2: council_users changes — คนเปลี่ยนชื่อ/สี/ฝ่าย ต้อง reload
+        //         (assignees / members display ต้องอัพเดตตาม)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_users' },
+          () => reload()
+        )
+        // v1.8.2: departments changes — admin เปลี่ยนชื่อ/สี/ไอคอนฝ่าย ต้อง reload
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'departments' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeEvents] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore — channel อาจถูก remove ไปแล้ว
+      }
     };
   }, [reload]);
 
@@ -382,59 +441,71 @@ export function useRealtimeEventById(
   React.useEffect(() => {
     if (!eventId) return;
     const supabase = getClient();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
 
-    const channel = supabase
-      .channel(`ypwork-event-${eventId}`)
-      // changes on THIS event row
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'ypwork_events',
-          filter: `id=eq.${eventId}`,
-        },
-        () => reload()
-      )
-      // changes on tasks of THIS event (filter by event_id)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'ypwork_tasks',
-          filter: `event_id=eq.${eventId}`,
-        },
-        () => reload()
-      )
-      // assignee changes — reload (no per-row filter possible easily)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-        () => reload()
-      )
-      // v1.8.2: event_members changes — คนเข้า/ออกงานนี้
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_event_members' },
-        () => reload()
-      )
-      // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี/ฝ่าย
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'council_users' },
-        () => reload()
-      )
-      // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงานนี้
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'departments' },
-        () => reload()
-      )
-      .subscribe();
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(`ypwork-event-${eventId}`)
+        // changes on THIS event row
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'ypwork_events',
+            filter: `id=eq.${eventId}`,
+          },
+          () => reload()
+        )
+        // changes on tasks of THIS event (filter by event_id)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'ypwork_tasks',
+            filter: `event_id=eq.${eventId}`,
+          },
+          () => reload()
+        )
+        // assignee changes — reload (no per-row filter possible easily)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+          () => reload()
+        )
+        // v1.8.2: event_members changes — คนเข้า/ออกงานนี้
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_event_members' },
+          () => reload()
+        )
+        // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี/ฝ่าย
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_users' },
+          () => reload()
+        )
+        // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงานนี้
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'departments' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeEventById] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [eventId, reload]);
 
@@ -525,45 +596,58 @@ export function useRealtimeEventsForDate(
   React.useEffect(() => {
     if (!dateStr) return;
     const supabase = getClient();
-    const channel = supabase
-      .channel(`ypwork-events-day-${dateStr}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_events' },
-        () => reload()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_tasks' },
-        () => reload()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-        () => reload()
-      )
-      // v1.8.2: event_members changes
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_event_members' },
-        () => reload()
-      )
-      // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'council_users' },
-        () => reload()
-      )
-      // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงาน
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'departments' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(`ypwork-events-day-${dateStr}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_events' },
+          () => reload()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_tasks' },
+          () => reload()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+          () => reload()
+        )
+        // v1.8.2: event_members changes
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_event_members' },
+          () => reload()
+        )
+        // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_users' },
+          () => reload()
+        )
+        // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงาน
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'departments' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeEventsForDate] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [dateStr, reload]);
 
@@ -578,6 +662,7 @@ export function useRealtimeEventsForDate(
 // ═══════════════════════════════════════════════════════════════
 async function fetchDepartments(): Promise<Department[]> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('departments')
     .select('id, name, color, icon, description, created_at, updated_at')
@@ -622,17 +707,30 @@ export function useRealtimeDepartments(
 
   React.useEffect(() => {
     const supabase = getClient();
-    const channel = supabase
-      .channel('ypwork-departments-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'departments' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel('ypwork-departments-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'departments' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeDepartments] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [reload]);
 
@@ -658,6 +756,7 @@ async function fetchProfileStats(
   departmentId: string | null
 ): Promise<ProfileStats> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
 
   // 1) งานในฝ่าย (events where department_id = user.department_id)
   let deptEvents = 0;
@@ -734,41 +833,54 @@ export function useRealtimeProfileStats(
 
   React.useEffect(() => {
     const supabase = getClient();
-    const channel = supabase
-      .channel(`ypwork-profile-${userAuthUid}`)
-      // task changes → myTasks/myDone/myPending/completionRate เปลี่ยน
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_tasks' },
-        () => reload()
-      )
-      // assignee changes → myTasks เปลี่ยน
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-        () => reload()
-      )
-      // events change → deptEvents เปลี่ยน
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_events' },
-        () => reload()
-      )
-      // council_users change → ฝ่าย/สี/role ของตัวเองอาจเปลี่ยน
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'council_users',
-          filter: `auth_uid=eq.${userAuthUid}`,
-        },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(`ypwork-profile-${userAuthUid}`)
+        // task changes → myTasks/myDone/myPending/completionRate เปลี่ยน
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_tasks' },
+          () => reload()
+        )
+        // assignee changes → myTasks เปลี่ยน
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
+          () => reload()
+        )
+        // events change → deptEvents เปลี่ยน
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_events' },
+          () => reload()
+        )
+        // council_users change → ฝ่าย/สี/role ของตัวเองอาจเปลี่ยน
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'council_users',
+            filter: `auth_uid=eq.${userAuthUid}`,
+          },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeProfileStats] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [userAuthUid, reload]);
 
@@ -794,6 +906,7 @@ export interface ActivityLogEntry {
 
 async function fetchActivityLog(limit = 50): Promise<ActivityLogEntry[]> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('ypwork_activity_log')
     .select(
@@ -866,17 +979,30 @@ export function useRealtimeActivityLog(limit = 50): {
   React.useEffect(() => {
     reload();
     const supabase = getClient();
-    const channel = supabase
-      .channel('ypwork-activity-log-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'ypwork_activity_log' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel('ypwork-activity-log-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'ypwork_activity_log' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeActivityLog] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [reload]);
 
@@ -904,6 +1030,7 @@ export interface CouncilYear {
 
 async function fetchYears(): Promise<CouncilYear[]> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('council_years')
     .select('year, closed')
@@ -952,17 +1079,30 @@ export function useRealtimeYears(
 
   React.useEffect(() => {
     const supabase = getClient();
-    const channel = supabase
-      .channel('ypwork-years-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'council_years' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel('ypwork-years-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_years' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeYears] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [reload]);
 
@@ -982,6 +1122,7 @@ export function useRealtimeYears(
 
 async function fetchDeptMembers(departmentId: string): Promise<UserProfile[]> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('council_users')
     .select('auth_uid, full_name, color, role, account_type, year, department_id')
@@ -1053,19 +1194,32 @@ export function useRealtimeDeptMembers(
   React.useEffect(() => {
     if (!departmentId) return;
     const supabase = getClient();
-    const channel = supabase
-      .channel(`ypwork-dept-members-${departmentId}`)
-      // any council_users change → reload (filter ไม่ได้เพราะอาจเป็น
-      // การย้ายคนเข้า/ออกฝ่าย ที่ต้องการฝั่ง server กรองใหม่)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'council_users' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(`ypwork-dept-members-${departmentId}`)
+        // any council_users change → reload (filter ไม่ได้เพราะอาจเป็น
+        // การย้ายคนเข้า/ออกฝ่าย ที่ต้องการฝั่ง server กรองใหม่)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_users' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeDeptMembers] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
   }, [departmentId, reload]);
 
@@ -1083,6 +1237,7 @@ export function useRealtimeDeptMembers(
 
 async function fetchSessionUserLive(authUid: string): Promise<Partial<SessionUser> | null> {
   const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
   const { data, error } = await supabase
     .from('council_users')
     .select('auth_uid, full_name, color, role, account_type, year, department_id')
@@ -1115,6 +1270,15 @@ export function useRealtimeSessionUser(
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
 
+  // v1.8.3: unique channel name ต่อ hook instance — กัน conflict เวลา
+  //   AppShell + TodayClient/ProfileView เรียก hook นี้พร้อมกัน (ปัญหาเดิม
+  //   คือ 2 hooks ใช้ชื่อ channel เดียวกัน เวลา cleanup อันนึง removeChannel
+  //   ไปทำลาย subscription ของอีกอัน)
+  const channelName = useUniqueChannelName(
+    'ypwork-session-user',
+    initialUser.auth_uid
+  );
+
   const reload = React.useCallback(() => {
     reloadTokenRef.current += 1;
     const myToken = reloadTokenRef.current;
@@ -1145,31 +1309,44 @@ export function useRealtimeSessionUser(
 
   React.useEffect(() => {
     const supabase = getClient();
-    const channel = supabase
-      .channel(`ypwork-session-user-${initialUser.auth_uid}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'council_users',
-          filter: `auth_uid=eq.${initialUser.auth_uid}`,
-        },
-        () => reload()
-      )
-      // ถ้าฝ่ายของ user เปลี่ยนชื่อ/สี/ไอคอน → ต้อง reload ด้วย
-      // (เพราะ color ใน SessionUser อาจมาจากฝ่าย)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'departments' },
-        () => reload()
-      )
-      .subscribe();
+    if (!supabase) return; // v1.8.3: env var ไม่ครบ — ข้าม subscription
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'council_users',
+            filter: `auth_uid=eq.${initialUser.auth_uid}`,
+          },
+          () => reload()
+        )
+        // ถ้าฝ่ายของ user เปลี่ยนชื่อ/สี/ไอคอน → ต้อง reload ด้วย
+        // (เพราะ color ใน SessionUser อาจมาจากฝ่าย)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'departments' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[useRealtimeSessionUser] subscribe failed:', e);
+      return;
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
     };
-  }, [initialUser.auth_uid, reload]);
+  }, [initialUser.auth_uid, channelName, reload]);
 
   return { user, loading, error, reload };
 }

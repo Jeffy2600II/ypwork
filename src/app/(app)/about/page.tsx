@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.8.2)
+// YP WORK · About Page (v1.8.3)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1 และ v1.8.2
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2 และ v1.8.3
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.8.2
+                1.8.3
               </span>
             </div>
             <div style={{
@@ -96,6 +96,34 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.8.3 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.8.3
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> หน้า <strong>Home (Today)</strong> และ <strong>Profile</strong> ขึ้น "This page couldn&rsquo;t load" เมื่อเข้าใช้งาน — เกิดจาก 2 hooks ใช้ชื่อ channel เดียวกัน (AppShell + page component เรียก <code>useRealtimeSessionUser</code> ทั้งคู่) เวลา cleanup ไปทำลาย subscription ของกันและกัน → ใช้ <code>useUniqueChannelName()</code> แก้ให้แต่ละ hook มี channel ของตัวเอง</li>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> รองรับ <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> (Vercel × Supabase integration ใช้ชื่อนี้) เพิ่มจาก <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> (legacy) — ก่อนหน้านี้ถ้า Vercel ตั้งแค่ PUBLISHABLE_KEY จะทำให้ <code>createBrowserClient</code> throw และ crash หน้า</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>Defensive hooks:</strong> <code>getClient()</code> ไม่ throw แล้ว — คืน null แล้วให้ hook ข้าม subscription (ป้องกัน crash ทั้งหน้าเวลา env var ไม่ครบ)</li>
+            <li>ทุก <code>useEffect</code> ที่ subscribe channel ถูกห่อด้วย try-catch — ถ้า subscribe ล้มเหลวจะแค่ log error ไม่ crash หน้า</li>
+            <li>ทุก cleanup <code>removeChannel</code> ห่อ try-catch — กัน throw ตอน channel ถูก remove ไปแล้ว</li>
+            <li>เพิ่ม <code>global-error.tsx</code> และ <code>error.tsx</code> สำหรับ (app) route group — แสดงข้อความ error จริง + ปุ่ม "ลองใหม่" / "ย้อนกลับ" แทนข้อความ generic "This page couldn&rsquo;t load"</li>
+            <li>Server-side <code>createClient()</code> และ middleware รองรับ <code>SUPABASE_PUBLISHABLE_KEY</code>, <code>SUPABASE_ANON_KEY</code>, <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>, <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> แบบ fallback ตามลำดับ</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.8.2 ── */}

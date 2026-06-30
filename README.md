@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.8.2** — แก้บั๊กหน้า home ไม่อัพเดตเมื่อย้อนกลับ + ขยาย realtime ครอบคลุมทุกตารางที่เกี่ยวข้อง
+> **เวอร์ชันปัจจุบัน: v1.8.3** — แก้บั๊กหน้า Home และ Profile ขึ้น "This page couldn't load" + รองรับ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
 ---
 
@@ -93,6 +93,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 
 หรือตั้งใน Vercel Dashboard → Settings → Environment Variables
 
+> **v1.8.3**: รองรับทั้ง `NEXT_PUBLIC_SUPABASE_ANON_KEY` (legacy) และ `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel × Supabase integration ใช้ชื่อนี้) — สามารถตั้งอันใดอันหนึ่งหรือทั้งสองได้ (PUBLISHABLE_KEY จะถูกใช้ก่อน)
+
 ### 2. Database Setup
 
 คัดลอก SQL จาก `supabase/migrations/ypwork_schema.sql` ไปวางใน Supabase SQL Editor แล้วกด Run
@@ -112,6 +114,26 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.8.2 → v1.8.3 (Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม**
+
+การแก้ไขใน v1.8.3:
+
+1. **★ แก้บั๊กสำคัญ ★:** หน้า **Home (Today)** และ **Profile** ขึ้น "This page couldn't load. Reload to try again, or go back." — เกิดจาก 2 hooks ใช้ชื่อ channel เดียวกัน (AppShell + page component เรียก `useRealtimeSessionUser` ทั้งคู่) เวลา cleanup ของอันนึงไปทำลาย subscription ของอีกอัน → ใช้ `useUniqueChannelName()` แก้ให้แต่ละ hook มี channel ของตัวเอง
+
+2. **★ แก้บั๊กสำคัญ ★:** รองรับ `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel × Supabase integration ใช้ชื่อนี้) เพิ่มจาก `NEXT_PUBLIC_SUPABASE_ANON_KEY` (legacy) — ก่อนหน้านี้ถ้า Vercel ตั้งแค่ PUBLISHABLE_KEY จะทำให้ `createBrowserClient` throw และ crash หน้า
+
+3. **Defensive hooks:** `getClient()` ไม่ throw แล้ว — คืน null แล้วให้ hook ข้าม subscription (ป้องกัน crash ทั้งหน้าเวลา env var ไม่ครบ)
+
+4. ทุก `useEffect` ที่ subscribe channel ถูกห่อด้วย try-catch — ถ้า subscribe ล้มเหลวจะแค่ log error ไม่ crash หน้า
+
+5. ทุก cleanup `removeChannel` ห่อ try-catch — กัน throw ตอน channel ถูก remove ไปแล้ว
+
+6. เพิ่ม `global-error.tsx` และ `error.tsx` สำหรับ (app) route group — แสดงข้อความ error จริง + ปุ่ม "ลองใหม่" / "ย้อนกลับ" แทนข้อความ generic "This page couldn't load"
+
+7. Server-side `createClient()` และ middleware รองรับ `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` แบบ fallback ตามลำดับ
 
 #### สำหรับอัปเกรดจาก v1.8.1 → v1.8.2 (Frontend-only — ไม่ต้องรัน SQL)
 
