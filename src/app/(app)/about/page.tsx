@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.8.3)
+// YP WORK · About Page (v1.9.1)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2 และ v1.8.3
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9 และ v1.9.1
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.8.3
+                1.9.1
               </span>
             </div>
             <div style={{
@@ -96,6 +96,64 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9.1 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9.1
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> หลังลบงาน หน้ารายละเอียดงาน &ldquo;ค้าง&rdquo; ไม่ปิดหน้าอัตโนมัติ — ตอนนี้ปิดทุก Bottom Sheet ที่เปิดอยู่ก่อน navigation และ force redirect ไป <code>/events</code> ทันที พร้อม safety timeout 3 วินาที (ถ้า <code>router.replace</code> ล้มเหลวจะใช้ <code>window.location</code> แทน)</li>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> หลังลบ task ภายใน Edit Task sheet, sheet อาจค้าง — ตอนนี้ปิดทุก sheet ที่เกี่ยวข้อง (confirmDeleteTask, editTask, editTaskPicker) พร้อมกัน</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>BottomSheet ปลอดภัยขึ้น:</strong> เพิ่ม safety net สำหรับ cleanup ตอน unmount — กัน <code>body.yp-sheet-open</code> class ค้างและ scroll lock ไม่ปลด ถ้า parent component unmount ระหว่าง animation</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>เข้าถึงคำขอสมัครได้แล้ว:</strong> เพิ่ม <code>lib/db/pending-requests.ts</code> — helper สำหรับดึง/จัดการคำขอสมัครใน <code>council_join_requests</code> (ดัดแปลงจาก reference repo <code>admin-sc-yp</code>)</li>
+            <li>เพิ่ม <code>lib/auth/api-guard.ts</code> — <code>requireAdmin()</code> สำหรับตรวจสิทธิ์ admin ใน API routes คืน <code>adminClient</code> (service role, bypass RLS) เมื่อสำเร็จ</li>
+            <li>เพิ่ม <code>createAdminClient()</code> ใน <code>lib/supabase/server.ts</code> — service-role client สำหรับ admin operations (ใช้ <code>SUPABASE_SERVICE_ROLE_KEY</code>)</li>
+            <li>เพิ่ม API routes สำหรับ admin จัดการคำขอสมัคร: <code>GET /api/admin/requests</code>, <code>POST /api/admin/approve-request</code>, <code>POST /api/admin/requests/[id]/reject</code></li>
+            <li>เพิ่ม hook <code>useRealtimePendingRequests</code> — subscribe รายการคำขอสมัครทั้งหมดแบบ realtime (สำหรับ admin view ในอนาคต)</li>
+            <li>ฟังก์ชัน <code>approveRequest()</code> รองรับกรณี email ซ้ำ — ถ้า auth account มีอยู่แล้วแต่ยังไม่มี <code>council_users</code> row จะ reuse auth account แทนการ fail</li>
+            <li>ฟังก์ชัน <code>rejectRequest()</code> ใช้ service role → bypass RLS ที่บล็อก authenticated users จากการ DELETE</li>
+            <li>เพิ่ม <code>router.refresh()</code> หลัง navigation หลัก — บังคับให้ Next.js reload RSC payload ของ <code>/events</code> (กัน cached payload ที่ไม่อัพเดต)</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>Login flow ใหม่:</strong> ถ้า login แล้วไม่พบบัญชี → แนะนำให้สมัคร; ถ้ามีคำขออยู่แล้ว → redirect ไปหน้าสถานะ; ถ้าเคยถูกปฏิเสธ → แจ้งเตือน</li>
+            <li>ผู้ใช้ที่ส่งคำขอสมัครแล้วแต่ยังไม่อนุมัติ สามารถเข้าสู่ระบบได้ — แต่จะเห็นเฉพาะหน้าสถานะแบบ realtime</li>
+            <li>เมื่อ admin อนุมัติ → ระบบพาเข้าสู่ระบบอัตโนมัติทันที (realtime)</li>
+            <li>เมื่อ admin ปฏิเสธ → ระบบ sign out อัตโนมัติ และจำบัญชีไว้ใน localStorage เพื่อแจ้งเตือนเมื่อกลับมา</li>
+            <li>หลังส่งคำขอสมัคร → auto-login เป็น pending user + redirect ไปหน้าสถานะ</li>
+            <li>ไม่แก้ฐานข้อมูล — ใช้ localStorage เก็บ pending session + rejected accounts</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.8.3 ── */}

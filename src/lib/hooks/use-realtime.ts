@@ -1566,3 +1566,124 @@ export function useRealtimePendingRequest(
 
   return { status, request, loading, error };
 }
+
+// ═══════════════════════════════════════════════════════════════
+// v1.9.1 · useRealtimePendingRequests — สำหรับหน้า admin
+// ═══════════════════════════════════════════════════════════════
+// subscribe รายการคำขอสมัครทั้งหมดใน council_join_requests แบบ realtime
+//   - ใช้สำหรับ admin view (เมื่อมีคำขอใหม่/ถูกอนุมัติ/ถูกปฏิเสธ → list อัพเดตทันที)
+//   - ฝั่ง client ใช้ getPendingRequests() จาก lib/db/pending-requests
+//   - RLS อนุญาต authenticated SELECT
+//
+// ใช้งาน:
+//   const { requests, loading, error, reload } = useRealtimePendingRequests();
+// ═══════════════════════════════════════════════════════════════
+
+export interface UseRealtimePendingRequestsResult {
+  requests: PendingRequestAdminItem[];
+  loading: boolean;
+  error: string | null;
+  reload: () => void;
+}
+
+export interface PendingRequestAdminItem {
+  id: string;
+  full_name: string;
+  student_id: string;
+  year: number | null;
+  email: string;
+  message: string | null;
+  account_type: 'student' | 'teacher' | 'other';
+  national_id: string | null;
+  department_id: string | null;
+  created_at: string;
+}
+
+async function fetchAllPendingRequests(): Promise<PendingRequestAdminItem[]> {
+  const supabase = getClient();
+  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
+
+  const { data, error } = await supabase
+    .from('council_join_requests')
+    .select(
+      'id, full_name, student_id, year, email, message, account_type, national_id, department_id, created_at'
+    )
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data as PendingRequestAdminItem[]) || [];
+}
+
+export function useRealtimePendingRequests(): UseRealtimePendingRequestsResult {
+  const [requests, setRequests] = React.useState<PendingRequestAdminItem[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const reloadTokenRef = React.useRef(0);
+
+  const channelName = useUniqueChannelName('ypwork-pending-requests-admin', 'all');
+
+  const reload = React.useCallback(() => {
+    reloadTokenRef.current += 1;
+    const myToken = reloadTokenRef.current;
+    setLoading(true);
+    setError(null);
+    fetchAllPendingRequests()
+      .then((rows) => {
+        if (myToken === reloadTokenRef.current) {
+          setRequests(rows);
+        }
+      })
+      .catch((e: any) => {
+        if (myToken === reloadTokenRef.current) {
+          setError(e?.message || 'โหลดรายการคำขอไม่สำเร็จ');
+        }
+      })
+      .finally(() => {
+        if (myToken === reloadTokenRef.current) setLoading(false);
+      });
+  }, []);
+
+  // Initial load
+  React.useEffect(() => {
+    reload();
+  }, [reload]);
+
+  // Realtime subscription — ฟัง council_join_requests changes + council_users INSERT
+  // (เมื่อ admin อนุมัติคำขอ → row ใน council_join_requests จะถูก delete → reload)
+  // (เมื่อมีคำขอใหม่ → row INSERT → reload)
+  React.useEffect(() => {
+    const supabase = getClient();
+    if (!supabase) return;
+
+    let channel: any;
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'council_join_requests' },
+          () => reload()
+        )
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'council_users' },
+          () => reload()
+        )
+        .subscribe();
+    } catch (e) {
+      console.error('[useRealtimePendingRequests] subscribe failed:', e);
+      return;
+    }
+
+    return () => {
+      try {
+        if (channel) supabase.removeChannel(channel);
+      } catch {
+        // ignore
+      }
+    };
+  }, [channelName, reload]);
+
+  return { requests, loading, error, reload };
+}
+

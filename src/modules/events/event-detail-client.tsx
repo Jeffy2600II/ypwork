@@ -155,10 +155,30 @@ export function EventDetailClient({
   const [submitting, setSubmitting] = React.useState(false);
 
   // If event becomes null after delete (via realtime), redirect to /events
+  // v1.9.1: ใช้ refs เก็บว่าอยู่ระหว่างการลบ เพื่อกัน double-redirect
+  // และเพิ่ม safety timeout — ถ้า realtime ไม่มาภายใน 3 วินาที ก็ force redirect
+  //
+  // Note: ไม่ต้อง setXXXOpen(false) ที่นี่ เพราะ navigation จะ unmount component
+  // และ BottomSheet มี safety cleanup ของตัวเอง (v1.9.1)
+  const deletingRef = React.useRef(false);
   React.useEffect(() => {
     if (!event) {
       // event was deleted — go back to list
+      if (!deletingRef.current) {
+        deletingRef.current = true;
+      }
+      // Force navigation — ใช้ replace เพื่อกัน back button กลับมาหน้า deleted event
       router.replace('/events');
+      // v1.9.1: router.refresh() เพื่อ invalidate cache ของ /events
+      // (บางครั้ง Next.js ใช้ cached RSC payload → list ไม่อัพเดต)
+      router.refresh();
+      // Safety net — ถ้า router.replace ล้มเหลว ให้ force ด้วย window.location
+      const fallback = setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/events') {
+          window.location.href = '/events';
+        }
+      }, 1500);
+      return () => clearTimeout(fallback);
     }
   }, [event, router]);
 
@@ -228,28 +248,66 @@ export function EventDetailClient({
   // ไม่ต้องเขียนเองที่นี่ — เรียก reload() จาก hook ถ้าต้องการ force-refresh
 
   // ── Delete event (called from confirm sheet) ──
+  // v1.9.1: ปรับปรุง flow ให้ปิดทุก sheet ก่อน navigation
+  // และเพิ่ม safety timeout — ถ้า realtime ไม่มา ก็ force redirect ภายใน 3 วิ
   const handleDelete = async () => {
     if (!event) return;
+    const eventId = event.id;
     setSubmitting(true);
     setLocalError(null);
+    deletingRef.current = true;
 
     try {
       const supabase = getSupabase();
       const { error: deleteErr } = await supabase
         .from('ypwork_events')
         .delete()
-        .eq('id', event.id);
+        .eq('id', eventId);
 
       if (deleteErr) throw deleteErr;
+
+      // v1.9.1: ปิดทุก sheet ทันทีก่อน navigation
+      // (ก่อนหน้านี้ปิดเฉพาะ confirm + manage → บางครั้ง editEvent sheet ค้าง)
       setConfirmDeleteOpen(false);
       setManageOpen(false);
-      // v1.6: realtime จะ detect DELETE และทำให้ event เป็น null
-      // useEffect ด้านบนจะ redirect ไป /events อัตโนมัติ
-      // (สำรอง: redirect ทันทีเพื่อความรวดเร็ว)
-      router.replace('/events');
+      setEditEventOpen(false);
+      setEditTaskOpen(false);
+      setEditTaskPickerOpen(false);
+      setAddTaskOpen(false);
+      setStatusPickerOpen(false);
+      setActiveTaskId(null);
+      setEditTaskId(null);
+      setDeleteTaskId(null);
+
+      // toast สั้น ๆ ก่อน navigation
+      setToast({ msg: 'ลบงานแล้ว — กำลังกลับสู่รายการ', type: 'success' });
+
+      // v1.9.1: Force navigation ทันที — ไม่รอ realtime
+      // (realtime อาจใช้เวลา 1-2 วินาที → user รู้สึกว่า "ค้าง")
+      // ใช้ setTimeout เล็กน้อยเพื่อให้ user เห็น toast ก่อน
+      setTimeout(() => {
+        try {
+          router.replace('/events');
+          router.refresh();
+        } catch {
+          // fallback: ใช้ window.location ถ้า router มีปัญหา
+          if (typeof window !== 'undefined') {
+            window.location.href = '/events';
+          }
+        }
+      }, 400);
+
+      // v1.9.1: Safety net — ถ้าผ่านไป 3 วินาทีแล้วยังไม่ navigate ให้ force
+      // (ป้องกัน router.replace ล้มเหลวโดยเงียบ ๆ)
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/events') {
+          window.location.href = '/events';
+        }
+      }, 3000);
     } catch (e: any) {
       setLocalError(`ไม่สามารถลบงาน: ${e.message || 'unknown error'}`);
       setSubmitting(false);
+      deletingRef.current = false;
     }
   };
 
@@ -260,6 +318,8 @@ export function EventDetailClient({
   };
 
   // ── Delete task ──
+  // v1.9.1: ปรับปรุง flow ให้ปิดทุก sheet ที่เกี่ยวข้องกับ task ก่อน
+  // (ก่อนหน้านี้ปิดเฉพาะ confirmDeleteTask → editTask sheet ค้างได้)
   const handleDeleteTask = async () => {
     if (!deleteTaskId) return;
     const taskId = deleteTaskId;
@@ -276,9 +336,16 @@ export function EventDetailClient({
       // v1.6: optimistic remove — การ์ดจะหายทันที
       // (realtime จะมา confirm ในภายหลัง)
       removeTask(taskId);
+
+      // v1.9.1: ปิดทุก sheet ที่เกี่ยวข้องกับ task
       setConfirmDeleteTaskOpen(false);
+      setEditTaskOpen(false);
+      setEditTaskPickerOpen(false);
       setDeleteTaskId(null);
-      setToast({ msg: 'ลบแล้ว', type: 'success' });
+      setEditTaskId(null);
+      setActiveTaskId(null);
+
+      setToast({ msg: 'ลบ task แล้ว', type: 'success' });
     } catch (e: any) {
       setLocalError(`ไม่สามารถลบ task: ${e.message || ''}`);
     } finally {

@@ -609,6 +609,27 @@ export function BottomSheet({
     };
   }, [mounted, open, dismissable, popupMode, isClosing]);
 
+  // ═══════════════════════════════════════════════════════════════
+  // v1.9.1: Safety net — ensure cleanup runs even if component unmounts
+  // while still open (e.g., parent navigates away during animation)
+  // ═══════════════════════════════════════════════════════════════
+  React.useEffect(() => {
+    return () => {
+      // On unmount: defensive cleanup of body class + scroll lock
+      // (these are no-ops if already cleaned up by the main effect)
+      try {
+        document.body.classList.remove('yp-sheet-open');
+        document.body.classList.remove('yp-sheet-popup');
+        // Force-decrement lockCount in case we unmounted while open
+        // (the main effect's cleanup will have already done this, but
+        // calling unlockScroll() again is safe — it's a no-op if count is 0)
+        unlockScroll();
+      } catch {
+        // ignore — defensive only
+      }
+    };
+  }, []);
+
   if (!mounted || typeof document === 'undefined') return null;
 
   const backdropClass = `sheet-backdrop${isOpen && !isClosing ? ' is-open' : ''}`;
@@ -617,7 +638,6 @@ export function BottomSheet({
     `${footer ? ' has-footer' : ''}` +
     `${isOpen && !isClosing ? ' is-open' : ''}` +
     `${isClosing ? ' is-closing' : ''}`;
-
   const backdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!dismissable) return;
     if (e.target === e.currentTarget) {
