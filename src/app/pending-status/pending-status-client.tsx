@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Pending Status Client (v1.9)
+// YP WORK · Pending Status Client (v1.9.2 — FIXED)
 // ═══════════════════════════════════════════════════════════════
 // แสดงสถานะคำขอสมัครแบบ realtime:
 //   - อ่าน pending session จาก localStorage
@@ -11,6 +11,21 @@
 //   - status='approved' → เคลียร์ pending session + redirect ไป /today
 //   - status='rejected' → เคลียร์ pending session + mark rejected + แสดงข้อความ
 //   - status='unknown' → แสดงข้อความให้ login ใหม่ (สำหรับครู/อื่นๆ)
+//
+// ★ v1.9.2 CRITICAL FIX:
+//   ก่อนหน้านี้ เมื่อ status='rejected' ระบบจะเรียก addRejectedAccount()
+//   ทันที → บันทึกลง localStorage → login ครั้งต่อไปเห็น isRejected=true
+//   → คืน 'rejected' ทันทีโดยไม่ตรวจตาราง
+//
+//   แต่บางครั้ง status='rejected' เกิดจาก RLS บล็อกการ SELECT ไม่ใช่
+//   การถูกปฏิเสธจริง → ทำให้ user ที่ยัง pending ถูก mark เป็น rejected ผิด ๆ
+//
+//   ตอนนี้ useRealtimePendingRequest ใช้ server API (service role)
+//   ถ้าหาก status='rejected' จะเป็นการยืนยันจาก server แล้วว่าไม่มี row
+//   จึงสามารถ mark rejected ได้อย่างปลอดภัย
+//
+//   สำหรับ status='unknown' (API error หรือ server ไม่พร้อม) →
+//   ไม่ mark rejected, ไม่ redirect, แค่แสดงให้ user ลองใหม่
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -184,7 +199,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.2 · Status</span>
             <h1>คำขอสมัคร<br />ถูกปฏิเสธ</h1>
             <p>ผู้ดูแลระบบได้ปฏิเสธคำขอสมัครของคุณ</p>
           </div>
@@ -250,7 +265,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.2 · Status</span>
             <h1>กรุณาเข้าสู่ระบบ<br />อีกครั้ง</h1>
             <p>ไม่สามารถตรวจสอบสถานะอัตโนมัติได้ — กรุณา login ด้วยตัวเอง</p>
           </div>
@@ -314,7 +329,7 @@ export function PendingStatusClient() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v1.9 · Pending Status</span>
+          <span className="yp-auth__demo-badge">v1.9.2 · Pending Status</span>
           <h1>รอผู้ดูแล<br />อนุมัติ</h1>
           <p>คำขอของคุณถูกส่งเรียบร้อย — หน้านี้จะอัพเดตอัตโนมัติเมื่อมีการเปลี่ยนแปลง</p>
         </div>

@@ -1352,7 +1352,7 @@ export function useRealtimeSessionUser(
 }
 
 // ═══════════════════════════════════════════════════════════════
-// v1.9 · useRealtimePendingRequest — สำหรับหน้า /pending-status
+// v1.9.2 · useRealtimePendingRequest — สำหรับหน้า /pending-status (FIXED)
 // ═══════════════════════════════════════════════════════════════
 // subscribe คำขอสมัครใน council_join_requests แบบ realtime
 //   - ใช้ student_id (นักเรียน) หรือ email (ครู/อื่นๆ) เป็น filter
@@ -1360,15 +1360,19 @@ export function useRealtimeSessionUser(
 //     ตรวจสอบว่า "approved" (council_users มี row) หรือ "rejected"
 //   - คืน status: 'pending' | 'approved' | 'rejected' | 'unknown'
 //
-// การตรวจสอบ approved/rejected:
-//   - ลอง signInWithPassword ด้วย email + password ที่ใช้ตอน register
-//     (นักเรียน: synthesize email + student_code เป็น password)
-//     (ครู/อื่นๆ: email จริง + password จริง — แต่เราไม่เก็บ password ใน localStorage)
-//   - ถ้า signIn สำเร็จ → approved → ให้ caller redirect ไป /today
-//   - ถ้า signIn ล้มเหลว → rejected → ให้ caller sign out + แสดงข้อความ
-//   - ข้อจำกัด: สำหรับครู/อื่นๆ เราไม่เก็บ password ใน pending session
-//     จึงต้องบอก user ให้ login ใหม่ด้วยตัวเอง (จะได้รับ error "rejected"
-//     จาก login flow ที่ตรวจ localStorage แล้ว)
+// ★ v1.9.2 CRITICAL FIX:
+//   ก่อนหน้านี้ ระบบใช้ Supabase client (anon key) เพื่อ SELECT
+//   council_join_requests แต่ RLS บล็อก anon users → คืน null
+//   → ระบบตีความเป็น 'rejected' ทั้งที่จริงยัง 'pending' อยู่
+//
+//   ตอนนี้ใช้ server-side API (/api/auth/check-pending-status)
+//   ที่ใช้ service role (bypass RLS) เพื่อตรวจสอบสถานะที่แน่นอน
+//   - ถ้า row มีอยู่ใน council_join_requests = pending เสมอ
+//   - ถ้าไม่มี row แต่ council_users มี row = approved
+//   - ถ้าไม่มี row ทั้งคู่ = rejected (definitively)
+//
+// Realtime channel ยังใช้สำหรับ trigger reload (เมื่อมีการเปลี่ยนแปลง)
+// แต่การตรวจสอบสถานะทำผ่าน server API เท่านั้น
 // ═══════════════════════════════════════════════════════════════
 
 export type PendingStatus = 'pending' | 'approved' | 'rejected' | 'unknown';
@@ -1398,86 +1402,71 @@ export interface UseRealtimePendingRequestResult {
   error: string | null;
 }
 
-async function fetchPendingRequest(
+/**
+ * v1.9.2: เรียก server API เพื่อตรวจสอบสถานะแบบ definitive
+ * ใช้ service role (bypass RLS) — ไม่ต้อง login ก็ตรวจได้
+ *
+ * Returns:
+ *   - { status: 'pending', request: {...} } — ยังรออนุมัติ
+ *   - { status: 'approved', user: {...} } — อนุมัติแล้ว
+ *   - { status: 'rejected' } — ถูกปฏิเสธ/ไม่พบ
+ *   - { status: 'unknown' } — API error หรือ input ไม่ครบ
+ */
+async function checkPendingStatusViaServer(
   studentId: string | null,
   email: string | null
-): Promise<{ full_name: string; student_id: string | null; email: string | null; submitted_at: string | null } | null> {
-  const supabase = getClient();
-  if (!supabase) throw new Error(getClientError() || 'Supabase client ไม่พร้อมใช้งาน');
-
-  let query = supabase
-    .from('council_join_requests')
-    .select('full_name, student_id, email, created_at');
-
-  // ใช้ student_id ก่อน (ถ้ามี) — นักเรียน
-  // ไม่งั้นใช้ email — ครู/อื่นๆ
-  if (studentId) {
-    query = query.eq('student_id', studentId);
-  } else if (email) {
-    query = query.eq('email', email);
-  } else {
-    return null;
+): Promise<{
+  status: PendingStatus;
+  request: { full_name: string; student_id: string | null; email: string | null; submitted_at: string | null } | null;
+}> {
+  if (!studentId && !email) {
+    return { status: 'unknown', request: null };
   }
 
-  const { data, error } = await query.limit(1).maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  return {
-    full_name: data.full_name,
-    student_id: data.student_id ?? null,
-    email: data.email ?? null,
-    submitted_at: data.created_at ?? null,
-  };
-}
+  try {
+    const params = new URLSearchParams();
+    if (studentId) params.set('student_id', studentId);
+    else if (email) params.set('email', email);
 
-/**
- * ลอง signIn เพื่อตรวจสอบว่าคำขอถูกอนุมัติหรือไม่
- * - นักเรียน: synthesize email + student_code เป็น password
- * - ครู/อื่นๆ: ไม่สามารถ signIn ได้โดยไม่รู้ password → คืน 'unknown'
- */
-async function tryCheckApproved(
-  studentId: string | null,
-  email: string | null,
-  accountType: 'student' | 'teacher' | 'other'
-): Promise<boolean | null> {
-  const supabase = getClient();
-  if (!supabase) return null;
+    const res = await fetch(`/api/auth/check-pending-status?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    });
 
-  // เฉพาะนักเรียนที่เราสามารถ synthesize email + password ได้
-  if (accountType === 'student' && studentId) {
-    try {
-      const synEmail = `student_${studentId}@yplabs.internal`;
-      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
-        email: synEmail,
-        password: studentId,
-      });
-      if (!signInErr && signInData?.user) {
-        // signIn สำเร็จ → ตรวจ council_users
-        const { data: profile } = await supabase
-          .from('council_users')
-          .select('approved, disabled')
-          .eq('auth_uid', signInData.user.id)
-          .limit(1)
-          .maybeSingle();
-        if (profile?.approved && !profile?.disabled) {
-          return true; // approved
-        }
-        // signIn ได้แต่ยังไม่ approved → ไม่ reject ก็ไม่ approve
-        // signOut ก่อนคืน unknown
-        await supabase.auth.signOut();
-        return null;
-      }
-      // signIn ล้มเหลว → ยังไม่ approve (อาจเป็น rejected หรือยังไม่ได้สร้าง auth account)
-      return false;
-    } catch {
-      return null;
+    if (!res.ok) {
+      console.error('[checkPendingStatusViaServer] HTTP error:', res.status);
+      return { status: 'unknown', request: null };
     }
-  }
 
-  // ครู/อื่นๆ — เราไม่เก็บ password ใน pending session
-  // จึงไม่สามารถตรวจสอบได้ว่า approved หรือ rejected
-  // ให้ caller บอก user ให้ login ด้วยตัวเอง
-  return null;
+    const data = await res.json();
+
+    if (data.status === 'pending' && data.request) {
+      return {
+        status: 'pending',
+        request: {
+          full_name: data.request.full_name,
+          student_id: data.request.student_id ?? null,
+          email: data.request.email ?? null,
+          submitted_at: data.request.submitted_at ?? null,
+        },
+      };
+    }
+
+    if (data.status === 'approved') {
+      return { status: 'approved', request: null };
+    }
+
+    if (data.status === 'rejected') {
+      return { status: 'rejected', request: null };
+    }
+
+    // error อื่น ๆ — ถือว่า unknown (ไม่ตีความเป็น rejected)
+    return { status: 'unknown', request: null };
+  } catch (err) {
+    console.error('[checkPendingStatusViaServer] fetch failed:', err);
+    return { status: 'unknown', request: null };
+  }
 }
 
 export function useRealtimePendingRequest(
@@ -1491,35 +1480,25 @@ export function useRealtimePendingRequest(
 
   const channelName = useUniqueChannelName('ypwork-pending-request', studentId || email || 'anon');
 
-  // Reload function — fetch request + check status
+  // v1.9.2: reload ใช้ server API แทนการ query DB ตรง ๆ
+  //   - server API ใช้ service role (bypass RLS) → ได้ผลที่แน่นอน
+  //   - ถ้า row มีอยู่ → pending (เสมอ)
+  //   - ถ้า row ไม่มี → approved หรือ rejected (ตามที่ council_users บอก)
   const reload = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const req = await fetchPendingRequest(studentId, email);
-      if (req) {
-        // ยังมีคำขอ → pending
-        setRequest(req);
-        setStatus('pending');
-      } else {
-        // ไม่พบคำขอ → อาจ approved หรือ rejected
-        setRequest(null);
-        const approved = await tryCheckApproved(studentId, email, accountType);
-        if (approved === true) {
-          setStatus('approved');
-        } else if (approved === false) {
-          setStatus('rejected');
-        } else {
-          // ไม่สามารถตรวจสอบได้ (ครู/อื่นๆ หรือ signIn ไม่ได้)
-          setStatus('unknown');
-        }
-      }
+      const result = await checkPendingStatusViaServer(studentId, email);
+      setStatus(result.status);
+      setRequest(result.request);
     } catch (e: any) {
       setError(e?.message || 'โหลดสถานะไม่สำเร็จ');
+      // ถ้า fetch ไม่ได้ ไม่ตีความเป็น rejected — ถือว่า unknown
+      setStatus('unknown');
     } finally {
       setLoading(false);
     }
-  }, [studentId, email, accountType]);
+  }, [studentId, email]);
 
   // Initial load
   React.useEffect(() => {
@@ -1527,6 +1506,7 @@ export function useRealtimePendingRequest(
   }, [reload]);
 
   // Realtime subscription — ฟัง council_join_requests changes
+  // เมื่อมีการเปลี่ยนแปลง (insert/update/delete) → reload เพื่อตรวจสอบสถานะใหม่
   React.useEffect(() => {
     const supabase = getClient();
     if (!supabase) return; // env var ไม่ครบ — ข้าม subscription
@@ -1539,7 +1519,7 @@ export function useRealtimePendingRequest(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'council_join_requests' },
           () => {
-            // reload เพื่อตรวจสอบสถานะใหม่
+            // reload ผ่าน server API เพื่อตรวจสอบสถานะใหม่
             reload();
           }
         )

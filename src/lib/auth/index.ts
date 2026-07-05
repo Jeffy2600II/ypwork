@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Auth Utilities (v1.9 — pending login flow)
+// YP WORK · Auth Utilities (v1.9.2 — pending login flow FIXED)
 // ═══════════════════════════════════════════════════════════════
 // Auth flow (เหมือน YP Labs ที่ใช้งานได้จริง):
 // - นักเรียน: กรอก national_id (13 หลัก) + student_code (5 หลัก)
@@ -10,15 +10,25 @@
 //   4. ตรวจ approved + disabled + national_id ตรงกับที่กรอก
 // - ครู/อื่นๆ: ใช้ email + password → sign in ตรงๆ
 //
-// v1.9 — Pending login flow (ใหม่):
-//   - เมื่อ signInWithPassword ล้มเหลว (ยังไม่มี auth account):
-//     1. ตรวจ localStorage ว่า student_id/email นี้เคยถูกปฏิเสธหรือไม่
-//        - ถ้าเคย → คืน status: 'rejected'
-//     2. ตรวจ council_join_requests ดูมีคำขออยู่หรือไม่
-//        - ถ้ามี → คืน status: 'pending' พร้อมข้อมูลคำขอ
-//        - ถ้าไม่มี → คืน status: 'not_found' (เพื่อให้ redirect ไป /register)
-//   - ผู้ใช้ที่ approved อยู่แล้ว → flow เดิม ไม่เปลี่ยนแปลง
-//   - ไม่แก้ฐานข้อมูล — ใช้ localStorage เก็บสถานะ rejected เท่านั้น
+// v1.9.2 — Pending login flow (CRITICAL FIX):
+//   ★ Bug ก่อนหน้านี้: ถ้า signIn ล้มเหลว ระบบเช็ค isRejected (localStorage)
+//     ก่อน → ถ้า true คืน 'rejected' ทันทีโดยไม่เช็ค council_join_requests
+//     แม้ว่า row จะยังอยู่ในตาราง (แปลว่ายัง pending อยู่)
+//
+//   ★ Bug อีกตัว: ระบบใช้ client (anon key) SELECT council_join_requests
+//     แต่ RLS บล็อก anon users → คืน null → ตีความเป็น 'not_found'
+//     ทั้งที่จริง row มีอยู่
+//
+//   ★ Fix v1.9.2:
+//     1. ใช้ server API (/api/auth/check-pending-status) ที่ใช้ service role
+//        (bypass RLS) เพื่อตรวจสอบสถานะที่แน่นอน
+//     2. Logic ใหม่ (ถูกต้องตาม requirement ของ user):
+//        - ถ้ามี row ใน council_join_requests = pending เสมอ (ยังไม่ถูกอนุมัติ/ปฏิเสธ)
+//        - ถ้าไม่มี row ใน council_join_requests:
+//          - ถ้าอยู่ใน council_users (approved) = approved
+//          - ถ้าไม่อยู่ = rejected (หรือไม่เคยสมัคร)
+//     3. isRejected (localStorage) ใช้เป็น hint เท่านั้น ไม่ใช่ source of truth
+//        ถ้า server API บอกว่า pending → คืน pending แม้ว่า localStorage จะบอก rejected
 // ═══════════════════════════════════════════════════════════════
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -73,6 +83,71 @@ export interface PendingRequestInfo {
   submitted_at: string | null;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// v1.9.2 — Helper: เรียก server API เพื่อตรวจสอบสถานะแบบ definitive
+// ═══════════════════════════════════════════════════════════════
+// ใช้ service role (bypass RLS) ที่ฝั่ง server เพื่อตรวจสอบ:
+//   - ถ้ามี row ใน council_join_requests = pending
+//   - ถ้าไม่มี row ใน council_join_requests แต่ council_users มี = approved
+//   - ถ้าไม่มีทั้งคู่ = rejected
+//
+// Note: function นี้ใช้ได้เฉพาะฝั่ง client (browser) เพราะต้อง fetch
+// ═══════════════════════════════════════════════════════════════
+
+interface ServerStatusResult {
+  status: 'pending' | 'approved' | 'rejected' | 'unknown';
+  pendingRequest?: PendingRequestInfo;
+}
+
+async function checkStatusViaServerApi(
+  studentId: string | null,
+  email: string | null
+): Promise<ServerStatusResult> {
+  if (!studentId && !email) return { status: 'unknown' };
+
+  try {
+    const params = new URLSearchParams();
+    if (studentId) params.set('student_id', studentId);
+    else if (email) params.set('email', email);
+
+    const res = await fetch(`/api/auth/check-pending-status?${params.toString()}`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    });
+
+    if (!res.ok) {
+      console.error('[checkStatusViaServerApi] HTTP error:', res.status);
+      return { status: 'unknown' };
+    }
+
+    const data = await res.json();
+
+    if (data.status === 'pending' && data.request) {
+      return {
+        status: 'pending',
+        pendingRequest: {
+          full_name: data.request.full_name,
+          student_id: data.request.student_id ?? studentId,
+          email: data.request.email ?? email,
+          national_id: data.request.national_id ?? null,
+          account_type: (data.request.account_type || 'student') as RegisterAccountType,
+          year: data.request.year ?? null,
+          department_id: data.request.department_id ?? null,
+          submitted_at: data.request.submitted_at ?? null,
+        },
+      };
+    }
+
+    if (data.status === 'approved') return { status: 'approved' };
+    if (data.status === 'rejected') return { status: 'rejected' };
+    return { status: 'unknown' };
+  } catch (err) {
+    console.error('[checkStatusViaServerApi] fetch failed:', err);
+    return { status: 'unknown' };
+  }
+}
+
 /**
  * Login สำหรับนักเรียน: national_id + student_code
  *
@@ -84,11 +159,13 @@ export interface PendingRequestInfo {
  * 4. ตรวจ approved + disabled
  * 5. ตรวจ national_id ตรงกับที่กรอก (ถ้ามีใน DB)
  *
- * v1.9: ถ้า signIn ล้มเหลว (ยังไม่มี auth account):
- *   - ตรวจ council_join_requests ดูมีคำขออยู่หรือไม่
- *   - ถ้ามี → คืน status='pending' (login เข้าหน้าสถานะได้ แต่ใช้งานเว็บไม่ได้)
- *   - ถ้าไม่มี → คืน status='not_found' (บอกให้ไปสมัคร)
- *   - ถ้าเคยถูกปฏิเสธ (ตรวจจาก localStorage) → คืน status='rejected'
+ * v1.9.2: ถ้า signIn ล้มเหลว (ยังไม่มี auth account):
+ *   - เรียก server API (/api/auth/check-pending-status) ซึ่งใช้ service role
+ *     bypass RLS → ได้ผลที่แน่นอน
+ *   - ถ้า server API บอก 'pending' → คืน pending (แม้ localStorage จะบอก rejected)
+ *   - ถ้า server API บอก 'rejected' → คืน rejected
+ *   - ถ้า server API บอก 'approved' → บอก user ลอง login ใหม่ (auth account พร้อมแล้ว)
+ *   - ถ้า server API ไม่ทำงาน → fallback ไปใช้วิธีเดิม (RLS-blocked)
  *
  * debug info จะถูกส่งกลับในกรณีล้มเหลว เพื่อให้เห็นว่าเกิดอะไรขึ้น
  */
@@ -123,13 +200,92 @@ export async function loginStudent(
     debug.push(`   code: ${signInErr?.code ?? 'n/a'}`);
     debug.push(`   status: ${signInErr?.status ?? 'n/a'}`);
 
-    // v1.9: ถ้า signIn ล้มเหลว อาจเป็นเพราะยังไม่มี auth account
-    //       (ผู้ใช้ส่งคำขอแล้ว แต่ admin ยังไม่อนุมัติ)
-    //       ให้ตรวจ council_join_requests ก่อนตัดสินใจว่า "ไม่มีบัญชี"
-    debug.push('v1.9: ตรวจ council_join_requests สำหรับ student_id นี้...');
+    // v1.9.2: เรียก server API เพื่อตรวจสอบสถานะที่แน่นอน
+    //   - ใช้ service role bypass RLS → ไม่ติดปัญหาanon SELECT blocked
+    //   - ถ้า row มีอยู่ใน council_join_requests = pending เสมอ
+    debug.push('v1.9.2: เรียก server API /api/auth/check-pending-status...');
+
+    const serverResult = await checkStatusViaServerApi(cleanStudent, synEmail);
+    debug.push(`server API ตอบ: status=${serverResult.status}`);
+
+    if (serverResult.status === 'pending' && serverResult.pendingRequest) {
+      debug.push(`✅ พบคำขอใน council_join_requests: ${serverResult.pendingRequest.full_name}`);
+
+      // ตรวจ national_id ตรงกับที่กรอก (ถ้ามีใน DB)
+      if (
+        serverResult.pendingRequest.national_id &&
+        String(serverResult.pendingRequest.national_id).trim() !== ''
+      ) {
+        if (String(serverResult.pendingRequest.national_id).trim() !== cleanNational.trim()) {
+          debug.push('❌ national_id ในคำขอไม่ตรงกับที่กรอก');
+          return {
+            success: false,
+            status: 'error',
+            error: 'เลขบัตรประชาชนไม่ตรงกับคำขอที่ส่งไว้',
+            debug,
+          };
+        }
+      }
+
+      return {
+        success: false,
+        status: 'pending',
+        pendingRequest: serverResult.pendingRequest,
+        error: 'คำขอสมัครของคุณยังอยู่ระหว่างการพิจารณา',
+        debug,
+      };
+    }
+
+    if (serverResult.status === 'approved') {
+      // server API บอก approved แต่ signIn ล้มเหลว — อาจเป็น auth account issue
+      // แนะนำให้ user ลอง login ใหม่อีกครั้ง
+      debug.push('⚠️ server API บอก approved แต่ signIn ล้มเหลว — แนะนำให้ลองใหม่');
+      return {
+        success: false,
+        status: 'error',
+        error: 'บัญชีได้รับการอนุมัติแล้ว แต่ยังเข้าสู่ระบบไม่ได้ — กรุณาลองอีกครั้ง',
+        debug,
+      };
+    }
+
+    if (serverResult.status === 'rejected') {
+      debug.push('❌ server API ยืนยัน: ไม่พบคำขอและไม่พบบัญชี → rejected/not_found');
+
+      // ใช้ localStorage เป็น hint เพื่อแยก 'rejected' vs 'not_found'
+      // ถ้าเคยถูกปฏิเสธ → คืน 'rejected'
+      // ถ้าไม่เคย → คืน 'not_found' (เพื่อแนะนำให้สมัคร)
+      let wasRejected = false;
+      if (typeof window !== 'undefined') {
+        try {
+          const { isRejected: checkRejected } = await import('@/lib/pending-session');
+          wasRejected = checkRejected(cleanStudent, synEmail);
+        } catch {
+          // ignore
+        }
+      }
+
+      if (wasRejected) {
+        debug.push('localStorage ระบุ: เคยถูกปฏิเสธ → status=rejected');
+        return {
+          success: false,
+          status: 'rejected',
+          error: 'คำขอสมัครของคุณถูกปฏิเสธ หากคิดว่าเป็นข้อผิดพลาด กรุณาติดต่อผู้ดูแล',
+          debug,
+        };
+      }
+
+      return {
+        success: false,
+        status: 'not_found',
+        error: 'ยังไม่มีบัญชีในระบบ — กรุณาส่งคำขอสมัครก่อน',
+        debug,
+      };
+    }
+
+    // server API ไม่ทำงาน (unknown) → fallback ไปใช้วิธีเดิม
+    debug.push('⚠️ server API ไม่ทำงาน — fallback ไปใช้วิธีเดิม (RLS-blocked)');
 
     // ตรวจ localStorage ก่อนว่าเคยถูกปฏิเสธหรือไม่
-    // (dynamic import เพื่อให้ไฟล์นี้ยังใช้ใน server-side ได้)
     let wasRejected = false;
     if (typeof window !== 'undefined') {
       try {
@@ -140,21 +296,7 @@ export async function loginStudent(
       }
     }
 
-    if (wasRejected) {
-      debug.push('❌ พบในรายการ rejected (localStorage) → คืน status=rejected');
-      return {
-        success: false,
-        status: 'rejected',
-        error: 'คำขอสมัครของคุณถูกปฏิเสธ หากคิดว่าเป็นข้อผิดพลาด กรุณาติดต่อผู้ดูแล',
-        debug,
-      };
-    }
-
-    // ตรวจ council_join_requests ดูมีคำขออยู่หรือไม่
-    // (RLS: SELECT authenticated/own — แต่เราใช้ anon client ที่ยังไม่ login
-    //  ดังนั้นต้องอาศัย policy "own" ที่อนุญาตให้ผู้ส่งคำขอเห็นของตัวเอง
-    //  ในทางปฏิบัติ anon key อาจไม่เห็น — เราจึงตรวจด้วย student_id ที่ซ้ำได้
-    //  ถ้า RLS บล็อก → ถือว่า "not found" และบอกให้ไปสมัคร)
+    // ตรวจ council_join_requests ด้วย client (อาจ RLS บล็อก)
     const { data: pendingRow, error: pendingErr } = await supabase
       .from('council_join_requests')
       .select('full_name, student_id, email, national_id, account_type, year, department_id, created_at')
@@ -164,17 +306,10 @@ export async function loginStudent(
 
     if (pendingErr) {
       debug.push(`❌ query council_join_requests error: ${pendingErr.message}`);
-      // ถ้า query ไม่ได้ (RLS บล็อก) ก็บอกว่าไม่พบบัญชี
-      return {
-        success: false,
-        status: 'not_found',
-        error: 'ยังไม่มีบัญชีในระบบ — หากเพิ่งส่งคำขอ กรุณารอผู้ดูแลอนุมัติ หรือส่งคำขอใหม่',
-        debug,
-      };
     }
 
     if (pendingRow) {
-      debug.push(`✅ พบคำขอใน council_join_requests: ${pendingRow.full_name}`);
+      debug.push(`✅ พบคำขอ (fallback): ${pendingRow.full_name}`);
 
       // ตรวจ national_id ตรงกับที่กรอก (ถ้ามีใน DB)
       if (
@@ -193,7 +328,6 @@ export async function loginStudent(
         }
       }
 
-      // คืน status=pending พร้อมข้อมูลคำขอ
       const pendingInfo: PendingRequestInfo = {
         full_name: pendingRow.full_name,
         student_id: pendingRow.student_id ?? cleanStudent,
@@ -214,7 +348,17 @@ export async function loginStudent(
       };
     }
 
-    // ไม่พบทั้งใน council_users (ผ่าน signIn), ไม่พบใน council_join_requests
+    // Fallback: ไม่พบคำขอ (อาจเพราะ RLS บล็อก หรือไม่มีจริง)
+    if (wasRejected) {
+      debug.push('❌ พบในรายการ rejected (localStorage) → คืน status=rejected');
+      return {
+        success: false,
+        status: 'rejected',
+        error: 'คำขอสมัครของคุณถูกปฏิเสธ หากคิดว่าเป็นข้อผิดพลาด กรุณาติดต่อผู้ดูแล',
+        debug,
+      };
+    }
+
     debug.push('❌ ไม่พบคำขอ → คืน status=not_found');
     return {
       success: false,
@@ -277,17 +421,29 @@ export async function loginStudent(
   // 4. สร้าง SessionUser
   const sessionUser = profileToSessionUser(profile);
   debug.push('✅ login สำเร็จ — สร้าง session');
+
+  // เคลียร์สถานะ rejected ใน localStorage ถ้ามี (เพราะ login สำเร็จแล้ว)
+  if (typeof window !== 'undefined') {
+    try {
+      const { clearRejectedAccount, clearPendingSession } = await import('@/lib/pending-session');
+      clearRejectedAccount(cleanStudent, synEmail);
+      clearPendingSession();
+    } catch {
+      // ignore
+    }
+  }
+
   return { success: true, status: 'success', user: sessionUser, debug };
 }
 
 /**
  * Login สำหรับครู/อื่นๆ: email + password
  *
- * v1.9: ถ้า signIn ล้มเหลว อาจเป็นเพราะยังไม่มี auth account
- *       → ตรวจ council_join_requests ดูมีคำขออยู่หรือไม่
- *       → ถ้ามี → คืน status='pending'
- *       → ถ้าไม่มี → คืน status='not_found'
- *       → ถ้าเคยถูกปฏิเสธ → คืน status='rejected'
+ * v1.9.2: ถ้า signIn ล้มเหลว → เรียก server API เพื่อตรวจสอบสถานะที่แน่นอน
+ *   - ใช้ service role (bypass RLS) → ไม่ติดปัญหา anon SELECT blocked
+ *   - ถ้า server API บอก 'pending' → คืน pending
+ *   - ถ้า server API บอก 'rejected' → คืน rejected/not_found (ใช้ localStorage เป็น hint)
+ *   - ถ้า server API ไม่ทำงาน → fallback ไปใช้วิธีเดิม
  */
 export async function loginOther(
   supabase: SupabaseClient,
@@ -310,7 +466,54 @@ export async function loginOther(
   });
 
   if (signInErr || !signInData?.user) {
-    // v1.9: ตรวจ localStorage ก่อนว่าเคยถูกปฏิเสธหรือไม่
+    // v1.9.2: เรียก server API เพื่อตรวจสอบสถานะที่แน่นอน
+    const serverResult = await checkStatusViaServerApi(null, emailClean);
+
+    if (serverResult.status === 'pending' && serverResult.pendingRequest) {
+      return {
+        success: false,
+        status: 'pending',
+        pendingRequest: serverResult.pendingRequest,
+        error: 'คำขอสมัครของคุณยังอยู่ระหว่างการพิจารณา',
+      };
+    }
+
+    if (serverResult.status === 'approved') {
+      return {
+        success: false,
+        status: 'error',
+        error: 'บัญชีได้รับการอนุมัติแล้ว แต่ยังเข้าสู่ระบบไม่ได้ — กรุณาลองอีกครั้ง',
+      };
+    }
+
+    if (serverResult.status === 'rejected') {
+      // ใช้ localStorage เป็น hint
+      let wasRejected = false;
+      if (typeof window !== 'undefined') {
+        try {
+          const { isRejected: checkRejected } = await import('@/lib/pending-session');
+          wasRejected = checkRejected(null, emailClean);
+        } catch {
+          // ignore
+        }
+      }
+
+      if (wasRejected) {
+        return {
+          success: false,
+          status: 'rejected',
+          error: 'คำขอสมัครของคุณถูกปฏิเสธ หากคิดว่าเป็นข้อผิดพลาด กรุณาติดต่อผู้ดูแล',
+        };
+      }
+
+      return {
+        success: false,
+        status: 'not_found',
+        error: 'ยังไม่มีบัญชีในระบบ — กรุณาส่งคำขอสมัครก่อน',
+      };
+    }
+
+    // server API ไม่ทำงาน (unknown) → fallback ไปใช้วิธีเดิม
     let wasRejected = false;
     if (typeof window !== 'undefined') {
       try {
@@ -329,7 +532,7 @@ export async function loginOther(
       };
     }
 
-    // ตรวจ council_join_requests ดูมีคำขออยู่หรือไม่ (ใช้ email ตรงๆ)
+    // ตรวจ council_join_requests ด้วย client (อาจ RLS บล็อก)
     const { data: pendingRow, error: pendingErr } = await supabase
       .from('council_join_requests')
       .select('full_name, student_id, email, national_id, account_type, year, department_id, created_at')
@@ -393,6 +596,18 @@ export async function loginOther(
 
   // 3. สร้าง SessionUser
   const sessionUser = profileToSessionUser(profile);
+
+  // v1.9.2: เคลียร์สถานะ rejected/pending ใน localStorage (login สำเร็จแล้ว)
+  if (typeof window !== 'undefined') {
+    try {
+      const { clearRejectedAccount, clearPendingSession } = await import('@/lib/pending-session');
+      clearRejectedAccount(null, emailClean);
+      clearPendingSession();
+    } catch {
+      // ignore
+    }
+  }
+
   return { success: true, status: 'success', user: sessionUser };
 }
 

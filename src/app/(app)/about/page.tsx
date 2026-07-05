@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.9.1)
+// YP WORK · About Page (v1.9.2)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9 และ v1.9.1
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1 และ v1.9.2
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.9.1
+                1.9.2
               </span>
             </div>
             <div style={{
@@ -96,6 +96,35 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9.2 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9.2
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> ผู้ใช้ที่ส่งคำขอสมัครแล้ว (ยังรออนุมัติ) ถูกระบบแจ้งว่า &ldquo;ถูกปฏิเสธ&rdquo; ทั้งที่ยังไม่มีการดำเนินการใด ๆ — เกิดจาก RLS policy <code>council_join_requests_select_own</code> อนุญาตเฉพาะ authenticated users ในการ SELECT ทำให้ client ที่ยังไม่ login มองไม่เห็น row ของตัวเอง</li>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>Root cause:</strong> เมื่อ <code>fetchPendingRequest()</code> คืน <code>null</code> เพราะ RLS บล็อก ระบบไปลอง <code>signIn</code> ก็ล้มเหลว (ยังไม่มี auth account) → ตีความเป็น &lsquo;rejected&rsquo; ทั้งที่จริงยัง &lsquo;pending&rsquo; อยู่ → บันทึกลง localStorage ทำให้ login ครั้งต่อไปเห็น <code>isRejected=true</code> และคืน &lsquo;rejected&rsquo; ตลอด</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>แก้ไข:</strong> สร้าง server-side API <code>GET /api/auth/check-pending-status</code> ที่ใช้ <strong>service role</strong> (bypass RLS) เพื่อตรวจสอบสถานะที่แน่นอน — ถ้า row มีอยู่ใน <code>council_join_requests</code> = pending เสมอ</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>Logic ใหม่ตาม requirement:</strong> ข้อมูลอยู่ใน <code>council_join_requests</code> = ยังรออนุมัติ (ยังไม่อนุมัติ และยังไม่ถูกปฏิเสธ) — ระบบไม่ตีความเป็น &lsquo;rejected&rsquo; อีกต่อไป</li>
+            <li>แก้ <code>useRealtimePendingRequest</code> hook — ใช้ server API แทนการ query DB ตรง ๆ ฝั่ง client (ที่ติด RLS)</li>
+            <li>แก้ <code>loginStudent</code> และ <code>loginOther</code> — ตรวจสถานะผ่าน server API ก่อน ใช้ localStorage <code>isRejected</code> เป็น hint เท่านั้น (ไม่ใช่ source of truth)</li>
+            <li>เมื่อ login สำเร็จ → เคลียร์สถานะ rejected/pending ใน localStorage อัตโนมัติ</li>
+            <li>Realtime channel ยังใช้สำหรับ trigger reload — แต่การตรวจสอบสถานะทำผ่าน server API เท่านั้น</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.9.1 ── */}
