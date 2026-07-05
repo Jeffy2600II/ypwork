@@ -263,6 +263,9 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
         full_name: name,
         account_type: accountType,
         submitted_at: new Date().toISOString(),
+        // v1.9.3: เก็บ password สำหรับครู/อื่นๆ เพื่อใช้ sign-in อัตโนมัติเมื่อ admin อนุมัติ
+        // สำหรับนักเรียน: password คือ student_id (คำนวณได้จาก student_id) จึงไม่ต้องเก็บ
+        password: accountType === 'student' ? null : password,
       });
 
       // แสดง success state สั้น ๆ แล้ว redirect ไป /pending-status

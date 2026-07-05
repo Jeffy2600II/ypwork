@@ -1,31 +1,37 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Pending Status Client (v1.9.2 — FIXED)
+// YP WORK · Pending Status Client (v1.9.3 — Auto sign-in on approval)
 // ═══════════════════════════════════════════════════════════════
 // แสดงสถานะคำขอสมัครแบบ realtime:
 //   - อ่าน pending session จาก localStorage
 //   - ถ้าไม่มี pending session → redirect ไป /login
 //   - subscribe council_join_requests + council_users ผ่าน useRealtimePendingRequest
 //   - status='pending' → แสดงข้อมูลคำขอ + animation รอ
-//   - status='approved' → เคลียร์ pending session + redirect ไป /today
+//   - status='approved' → ★ sign-in กับ Supabase Auth ก่อน ★ แล้ว redirect ไป /today
 //   - status='rejected' → เคลียร์ pending session + mark rejected + แสดงข้อความ
 //   - status='unknown' → แสดงข้อความให้ login ใหม่ (สำหรับครู/อื่นๆ)
 //
-// ★ v1.9.2 CRITICAL FIX:
-//   ก่อนหน้านี้ เมื่อ status='rejected' ระบบจะเรียก addRejectedAccount()
-//   ทันที → บันทึกลง localStorage → login ครั้งต่อไปเห็น isRejected=true
-//   → คืน 'rejected' ทันทีโดยไม่ตรวจตาราง
+// ★ v1.9.3 CRITICAL FIX:
+//   ก่อนหน้านี้ เมื่อ status='approved' ระบบจะเคลียร์ pending session และ
+//   router.replace('/today') ทันที — แต่ user ยังไม่ได้ sign-in กับ
+//   Supabase Auth จริง (เพราะ pending session เป็นเพียง localStorage state)
+//   → middleware ตรวจพบ !user → redirect กลับไป /login
+//   → user ต้อง login ใหม่ทั้งที่รออยู่ตั้งแต่แรก (ประสบการณ์ไม่ดี)
 //
-//   แต่บางครั้ง status='rejected' เกิดจาก RLS บล็อกการ SELECT ไม่ใช่
-//   การถูกปฏิเสธจริง → ทำให้ user ที่ยัง pending ถูก mark เป็น rejected ผิด ๆ
+//   ตอนนี้เมื่อ status='approved':
+//     1. คำนวณ email + password จาก pending session
+//        - นักเรียน: email = synthesizeEmail(student_id), password = student_id
+//        - ครู/อื่นๆ: email = session.email, password = session.password
+//     2. เรียก supabase.auth.signInWithPassword พร้อม retry 5 ครั้ง
+//        (race condition: auth account อาจยังไม่พร้อมทันทีหลัง admin approve)
+//     3. เมื่อ sign-in สำเร็จ → เคลียร์ password จาก pending session → redirect ไป /today
+//     4. ถ้า sign-in ล้มเหลวหลัง retry ครบ → fallback ไป /login พร้อม toast แจ้ง
 //
-//   ตอนนี้ useRealtimePendingRequest ใช้ server API (service role)
-//   ถ้าหาก status='rejected' จะเป็นการยืนยันจาก server แล้วว่าไม่มี row
-//   จึงสามารถ mark rejected ได้อย่างปลอดภัย
-//
-//   สำหรับ status='unknown' (API error หรือ server ไม่พร้อม) →
-//   ไม่ mark rejected, ไม่ redirect, แค่แสดงให้ user ลองใหม่
+// ★ v1.9.2 (คงไว้):
+//   - ใช้ server API (service role) ตรวจสอบสถานะที่แน่นอน
+//   - status='rejected' ยืนยันจาก server ก่อน mark ใน localStorage
+//   - status='unknown' ไม่ mark rejected, ไม่ redirect
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -39,17 +45,20 @@ import {
   LogOut,
   ArrowRight,
   Hourglass,
+  Loader2,
 } from 'lucide-react';
 import {
   getPendingSession,
   clearPendingSession,
+  clearPendingSessionPassword,
   addRejectedAccount,
 } from '@/lib/pending-session';
 import { useRealtimePendingRequest } from '@/lib/hooks/use-realtime';
 import { createClient } from '@/lib/supabase/client';
+import { synthesizeEmail } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
-type DisplayMode = 'loading' | 'pending' | 'approved' | 'rejected' | 'unknown' | 'no_session';
+type DisplayMode = 'loading' | 'pending' | 'approved' | 'approved_signing_in' | 'rejected' | 'unknown' | 'no_session';
 
 export function PendingStatusClient() {
   const router = useRouter();
@@ -58,6 +67,9 @@ export function PendingStatusClient() {
   // อ่าน pending session เก็บไว้ใน state — ใช้ใน render และ hook
   const [session, setSession] = React.useState(() => getPendingSession());
   const [displayMode, setDisplayMode] = React.useState<DisplayMode>('loading');
+
+  // v1.9.3: ref สำหรับกัน auto sign-in ทำงานซ้ำ (React strict mode + realtime events)
+  const signingInRef = React.useRef(false);
 
   // ถ้าไม่มี pending session → redirect ไป /login (ใน useEffect)
   React.useEffect(() => {
@@ -78,21 +90,129 @@ export function PendingStatusClient() {
     nationalId: session?.national_id ?? null,
   });
 
+  // v1.9.3: helper — sign-in กับ Supabase Auth พร้อม retry
+  // ทำงานเมื่อ admin อนุมัติแล้ว เพื่อให้ user เข้าสู่ระบบได้ทันทีโดยไม่ต้อง login ใหม่
+  const performAutoSignIn = React.useCallback(
+    async (currentSession: NonNullable<typeof session>): Promise<boolean> => {
+      if (signingInRef.current) {
+        // กันการทำงานซ้ำซ้อน (realtime events อาจมาพร้อมกัน)
+        return false;
+      }
+      signingInRef.current = true;
+
+      try {
+        const supabase = createClient();
+
+        // คำนวณ email + password จาก pending session
+        let signInEmail: string;
+        let signInPassword: string;
+
+        if (currentSession.account_type === 'student' && currentSession.student_id) {
+          // นักเรียน: email = synthesizeEmail(student_id), password = student_id
+          signInEmail = synthesizeEmail(currentSession.student_id);
+          signInPassword = currentSession.student_id;
+        } else if (currentSession.email && currentSession.password) {
+          // ครู/อื่นๆ: ใช้ email + password ที่เก็บไว้ใน pending session
+          signInEmail = currentSession.email;
+          signInPassword = currentSession.password;
+        } else {
+          // กรณี legacy (pending session เก่าที่ไม่ได้เก็บ password)
+          // ไม่สามารถ sign-in ได้ → return false เพื่อ fallback ไป /login
+          console.warn(
+            '[pending-status] cannot auto sign-in: missing password for non-student account'
+          );
+          return false;
+        }
+
+        // Retry sign-in สูงสุด 5 ครั้ง (ระยะห่าง 600ms, 800ms, 1000ms, 1500ms, 2000ms)
+        // race condition: อาจมี delay ระหว่าง admin approve (insert council_users)
+        // กับ auth account ที่พร้อมใช้งาน
+        const retryDelays = [0, 600, 800, 1000, 1500, 2000];
+        let lastError: any = null;
+
+        for (let i = 0; i < retryDelays.length; i++) {
+          if (i > 0) {
+            await new Promise((r) => setTimeout(r, retryDelays[i]));
+          }
+
+          try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: signInEmail,
+              password: signInPassword,
+            });
+
+            if (!error && data?.user) {
+              // sign-in สำเร็จ!
+              console.log(
+                '[pending-status] auto sign-in success after',
+                i,
+                'retries, uid=',
+                data.user.id.slice(-6)
+              );
+              // เคลียร์ password จาก pending session (ไม่ให้ค้างใน localStorage)
+              clearPendingSessionPassword();
+              return true;
+            }
+
+            lastError = error;
+            console.warn(
+              `[pending-status] auto sign-in attempt ${i + 1} failed:`,
+              error?.message
+            );
+          } catch (err) {
+            lastError = err;
+            console.warn(`[pending-status] auto sign-in attempt ${i + 1} exception:`, err);
+          }
+        }
+
+        console.error(
+          '[pending-status] auto sign-in failed after all retries:',
+          lastError?.message || lastError
+        );
+        return false;
+      } finally {
+        signingInRef.current = false;
+      }
+    },
+    []
+  );
+
   // เมื่อ status เปลี่ยน → จัดการตามสถานะ
   React.useEffect(() => {
     if (loading || !session) return;
 
     if (status === 'approved') {
-      // อนุมัติแล้ว — เคลียร์ pending session + redirect ไป /today
-      setDisplayMode('approved');
-      clearPendingSession();
+      // v1.9.3: อนุมัติแล้ว — sign-in กับ Supabase Auth ก่อน แล้วค่อย redirect ไป /today
+      //   ถ้า sign-in สำเร็จ → redirect ไป /today (user ใช้งานได้ทันที ไม่ต้อง login ใหม่)
+      //   ถ้า sign-in ล้มเหลว → fallback ไป /login พร้อม toast แจ้ง
+      setDisplayMode('approved_signing_in');
       toast({
         title: 'อนุมัติแล้ว! 🎉',
         description: 'กำลังนำคุณเข้าสู่ระบบ...',
       });
-      setTimeout(() => {
-        router.replace('/today');
-      }, 1200);
+
+      (async () => {
+        const ok = await performAutoSignIn(session);
+        if (ok) {
+          // sign-in สำเร็จ → เคลียร์ pending session ทั้งหมด + redirect ไป /today
+          clearPendingSession();
+          setDisplayMode('approved');
+          setTimeout(() => {
+            router.replace('/today');
+          }, 600);
+        } else {
+          // sign-in ล้มเหลว → fallback ไป /login พร้อม toast แจ้ง
+          console.warn('[pending-status] auto sign-in failed → fallback to /login');
+          clearPendingSession();
+          toast({
+            title: 'อนุมัติแล้ว',
+            description: 'กรุณาเข้าสู่ระบบด้วยตัวเองอีกครั้ง',
+          });
+          setTimeout(() => {
+            router.replace('/login');
+          }, 800);
+        }
+      })();
     } else if (status === 'rejected') {
       // ปฏิเสธ — mark rejected + sign out + เคลียร์ pending session
       setDisplayMode('rejected');
@@ -120,7 +240,7 @@ export function PendingStatusClient() {
     } else if (status === 'pending') {
       setDisplayMode('pending');
     }
-  }, [status, loading, session, router, toast]);
+  }, [status, loading, session, router, toast, performAutoSignIn]);
 
   // ── Render ──
 
@@ -146,8 +266,9 @@ export function PendingStatusClient() {
     );
   }
 
-  // Approved state — อนุมัติแล้ว กำลัง redirect
-  if (displayMode === 'approved') {
+  // v1.9.3: Approved + signing-in state — กำลัง sign-in กับ Supabase Auth
+  // (แสดง spinner เพื่อให้ user รู้ว่าระบบกำลังทำงาน ไม่ใช่ค้าง)
+  if (displayMode === 'approved_signing_in' || displayMode === 'approved') {
     return (
       <div className="yp-auth yp-login-bg">
         <div className="yp-auth__inner">
@@ -172,16 +293,32 @@ export function PendingStatusClient() {
                 border: '1px solid rgba(16, 185, 129, 0.30)',
               }}
             >
-              <CheckCircle2 className="size-9" strokeWidth={2.2} />
+              {displayMode === 'approved_signing_in' ? (
+                <Loader2
+                  className="size-9"
+                  strokeWidth={2.2}
+                  style={{ animation: 'yp-spin 0.9s linear infinite' }}
+                />
+              ) : (
+                <CheckCircle2 className="size-9" strokeWidth={2.2} />
+              )}
             </div>
             <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--yp-text-strong)', marginBottom: '6px' }}>
               คำขอได้รับการอนุมัติ
             </div>
             <div style={{ fontSize: '14px', color: 'var(--yp-text-muted)' }}>
-              กำลังนำคุณเข้าสู่ระบบ...
+              {displayMode === 'approved_signing_in'
+                ? 'กำลังนำคุณเข้าสู่ระบบ...'
+                : 'เข้าสู่ระบบสำเร็จ! กำลังพาคุณไปต่อ...'}
             </div>
           </div>
         </div>
+        <style>{`
+          @keyframes yp-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -199,7 +336,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.2 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.3 · Status</span>
             <h1>คำขอสมัคร<br />ถูกปฏิเสธ</h1>
             <p>ผู้ดูแลระบบได้ปฏิเสธคำขอสมัครของคุณ</p>
           </div>
@@ -265,7 +402,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.2 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.3 · Status</span>
             <h1>กรุณาเข้าสู่ระบบ<br />อีกครั้ง</h1>
             <p>ไม่สามารถตรวจสอบสถานะอัตโนมัติได้ — กรุณา login ด้วยตัวเอง</p>
           </div>
@@ -329,7 +466,7 @@ export function PendingStatusClient() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v1.9.2 · Pending Status</span>
+          <span className="yp-auth__demo-badge">v1.9.3 · Pending Status</span>
           <h1>รอผู้ดูแล<br />อนุมัติ</h1>
           <p>คำขอของคุณถูกส่งเรียบร้อย — หน้านี้จะอัพเดตอัตโนมัติเมื่อมีการเปลี่ยนแปลง</p>
         </div>

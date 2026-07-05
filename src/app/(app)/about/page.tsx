@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.9.2)
+// YP WORK · About Page (v1.9.3)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1 และ v1.9.2
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1, v1.9.2 และ v1.9.3
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.9.2
+                1.9.3
               </span>
             </div>
             <div style={{
@@ -96,6 +96,37 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9.3 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9.3
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-rose-500)' }}>แก้บั๊กสำคัญ:</strong> เมื่อ admin อนุมัติคำขอสมัคร ระบบ <strong>เด้งกลับไปหน้า login</strong> ทั้งที่ user รออยู่ตั้งแต่แรก — เกิดจากการที่ user ยังไม่ได้ sign-in กับ Supabase Auth จริง (pending session เป็นเพียง localStorage state) ทำให้ middleware ตรวจพบ <code>!user</code> แล้ว redirect กลับไป <code>/login</code></li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>แก้ไข:</strong> เมื่อ <code>useRealtimePendingRequest</code> ตรวจพบ <code>status=&lsquo;approved&rsquo;</code> ระบบจะ <strong>sign-in กับ Supabase Auth อัตโนมัติ</strong> ก่อน redirect ไป <code>/today</code> — user ใช้งานระบบได้ทันทีโดยไม่ต้อง login ใหม่</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>การคำนวณ credentials:</strong> นักเรียนใช้ <code>synthesizeEmail(student_id)</code> + <code>student_id</code> เป็น password (เหมือนเดิม) — ครู/อื่นๆ ใช้ email + password ที่เก็บไว้ใน pending session ตอนส่งคำขอ</li>
+            <li><strong>Race condition protection:</strong> เพิ่ม retry สูงสุด 6 ครั้ง (รวมระยะเวลา ~6 วินาที) เพื่อรอให้ auth account พร้อมหลัง admin approve — ป้องกันการ sign-in ล้มเหลวจาก delay ระหว่างการ insert <code>council_users</code> กับการที่ auth account พร้อมใช้งาน</li>
+            <li><strong>เพิ่ม field <code>password</code> ใน PendingSession</strong> (สำหรับครู/อื่นๆ) — ใช้สำหรับ sign-in อัตโนมัติเมื่อ admin อนุมัติ และถูกล้างทันทีหลัง sign-in สำเร็จ (ไม่ค้างใน localStorage)</li>
+            <li>เพิ่ม <code>clearPendingSessionPassword()</code> helper สำหรับล้าง password ออกจาก pending session หลังใช้งาน</li>
+            <li>เพิ่ม visual state <code>&ldquo;approved_signing_in&rdquo;</code> — แสดง spinner ขณะกำลัง sign-in เพื่อให้ user รู้ว่าระบบกำลังทำงาน (ไม่ใช่ค้าง)</li>
+            <li>เพิ่ม guard <code>signingInRef</code> ป้องกันการ sign-in ซ้ำซ้อนจาก realtime events ที่มาพร้อมกัน</li>
+            <li>เมื่อ sign-in ล้มเหลวหลัง retry ครบ — fallback ไป <code>/login</code> พร้อม toast แจ้งเตือน (กรณี edge case)</li>
+            <li>อัปเดต <code>register-form.tsx</code> และ <code>login/page.tsx</code> — เก็บ password ของครู/อื่นๆ ใน pending session เพื่อใช้ตอน sign-in อัตโนมัติ</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.9.2 ── */}

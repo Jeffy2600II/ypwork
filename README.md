@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.9.0** — ระบบ login ที่รองรับผู้ใช้ที่ส่งคำขอแล้ว (pending login) + auto-login หลังส่งคำขอ + ดูสถานะแบบ realtime
+> **เวอร์ชันปัจจุบัน: v1.9.3** — auto sign-in ทันทีเมื่อ admin อนุมัติคำขอสมัคร (user ไม่ต้อง login ใหม่)
 
 ---
 
@@ -119,6 +119,82 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.9.2 → v1.9.3 (Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม** และ **ไม่ต้องแก้ฐานข้อมูลใด ๆ**
+
+การแก้ไขใน v1.9.3:
+
+1. **★ แก้บั๊กสำคัญ ★ — auto sign-in ทันทีเมื่อ admin อนุมัติคำขอสมัคร:**
+   - **อาการก่อนหน้านี้:** เมื่อ admin อนุมัติคำขอสมัคร ระบบเด้งกลับไปหน้า `/login` ทั้งที่ user รออยู่ตั้งแต่แรก ต้อง login ใหม่อีกครั้ง
+   - **สาเหตุ:** pending-status-client เพียงแค่ `router.replace('/today')` หลังตรวจพบ `status='approved'` — แต่ user ยังไม่ได้ sign-in กับ Supabase Auth จริง (pending session เป็นเพียง localStorage state) → middleware ตรวจพบ `!user` → redirect กลับไป `/login`
+   - **การแก้ไข:** เมื่อ `useRealtimePendingRequest` ตรวจพบ `status='approved'` ระบบจะ **sign-in กับ Supabase Auth อัตโนมัติ** ก่อน redirect ไป `/today` — user ใช้งานระบบได้ทันทีโดยไม่ต้อง login ใหม่
+
+2. **การคำนวณ credentials สำหรับ auto sign-in:**
+   - **นักเรียน:** email = `synthesizeEmail(student_id)` (`student_<code>@yplabs.internal`), password = `student_id` (เหมือน flow login ปกติ)
+   - **ครู/อื่นๆ:** email = `session.email`, password = `session.password` (เก็บใน pending session ตอนส่งคำขอ)
+
+3. **Race condition protection:**
+   - เพิ่ม retry สูงสุด 6 ครั้ง (delays: 0ms, 600ms, 800ms, 1000ms, 1500ms, 2000ms — รวมระยะเวลา ~6 วินาที)
+   - รอให้ auth account พร้อมหลัง admin approve — ป้องกันการ sign-in ล้มเหลวจาก delay ระหว่างการ insert `council_users` กับการที่ auth account พร้อมใช้งาน
+   - มี guard `signingInRef` ป้องกันการ sign-in ซ้ำซ้อนจาก realtime events ที่มาพร้อมกัน
+
+4. **เพิ่ม field `password` ใน `PendingSession` interface:**
+   - ใช้สำหรับเก็บ password ของครู/อื่นๆ (นักเรียนไม่ต้องเก็บ เพราะคำนวณได้จาก `student_id`)
+   - password ถูกล้างทันทีหลัง sign-in สำเร็จผ่าน `clearPendingSessionPassword()` (ไม่ค้างใน localStorage)
+
+5. **Visual state ใหม่:**
+   - เพิ่ม state `approved_signing_in` — แสดง spinner ขณะกำลัง sign-in เพื่อให้ user รู้ว่าระบบกำลังทำงาน (ไม่ใช่ค้าง)
+   - เมื่อ sign-in สำเร็จ → แสดง CheckCircle2 + ข้อความ "เข้าสู่ระบบสำเร็จ! กำลังพาคุณไปต่อ..." แล้ว redirect ไป `/today`
+   - เมื่อ sign-in ล้มเหลวหลัง retry ครบ → fallback ไป `/login` พร้อม toast แจ้ง (กรณี edge case)
+
+6. **ไฟล์ที่แก้ไข:**
+   - `src/lib/pending-session.ts` — เพิ่ม `password` field ใน PendingSession + `clearPendingSessionPassword()` helper
+   - `src/app/pending-status/pending-status-client.tsx` — เพิ่ม `performAutoSignIn()` + retry logic + signing-in visual state
+   - `src/app/register/register-form.tsx` — เก็บ password ของครู/อื่นๆ ใน pending session
+   - `src/app/login/page.tsx` — เก็บ password ของครู/อื่นๆ ใน pending session (เมื่อ user login แล้วยัง pending)
+   - `src/app/(app)/about/page.tsx` — เพิ่ม changelog สำหรับ v1.9.3 + อัปเดต version string
+
+7. **การไหลของข้อมูล (Data flow) ใหม่:**
+   ```
+   ┌─────────────────┐              ┌──────────────────┐
+   │ /pending-status │ ◄──────────  │  admin approves  │
+   │ (realtime UI)   │   realtime   │  คำขอสมัคร       │
+   └─────────────────┘              └──────────────────┘
+            │                                 │
+            │ status='approved'               │
+            ▼                                 │
+   ┌──────────────────────┐                   │
+   │ 1. auto sign-in      │                   │
+   │    Supabase Auth     │                   │
+   │    (retry 6x)        │                   │
+   └──────────────────────┘                   │
+            │                                 │
+            │ sign-in สำเร็จ                  │
+            ▼                                 │
+   ┌──────────────────────┐                   │
+   │ 2. clear pending     │                   │
+   │    session           │                   │
+   └──────────────────────┘                   │
+            │                                 │
+            ▼                                 │
+   ┌──────────────────────┐                   │
+   │ 3. redirect to /today│ ← user ใช้งานได้   │
+   │    (full access)     │   ทันที!           │
+   └──────────────────────┘                   │
+                                              │
+            ถ้า sign-in ล้มเหลวหลัง retry:    │
+            ┌──────────────────────┐           │
+            │ fallback to /login   │           │
+            │ (พร้อม toast แจ้ง)   │           │
+            └──────────────────────┘           │
+   ```
+
+8. **ความปลอดภัย:**
+   - password ของครู/อื่นๆ ถูกเก็บใน localStorage ฝั่ง client เท่านั้น (เหมือนเดิม — pending session)
+   - password ถูกล้างทันทีหลัง sign-in สำเร็จผ่าน `clearPendingSessionPassword()`
+   - ไม่ส่ง password ไปที่ server ใด ๆ — ใช้เฉพาะ `supabase.auth.signInWithPassword()` ฝั่ง client
 
 #### สำหรับอัปเกรดจาก v1.8.3 → v1.9.0 (Frontend-only — ไม่ต้องรัน SQL)
 

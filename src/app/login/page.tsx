@@ -175,6 +175,8 @@ export default function LoginPage() {
           full_name: result.pendingRequest.full_name,
           account_type: result.pendingRequest.account_type,
           submitted_at: result.pendingRequest.submitted_at || new Date().toISOString(),
+          // v1.9.3: นักเรียนไม่ต้องเก็บ password (คำนวณได้จาก student_id)
+          password: null,
         });
         toast({
           title: 'คำขอยังอยู่ระหว่างพิจารณา',
@@ -266,6 +268,9 @@ export default function LoginPage() {
           full_name: result.pendingRequest.full_name,
           account_type: result.pendingRequest.account_type,
           submitted_at: result.pendingRequest.submitted_at || new Date().toISOString(),
+          // v1.9.3: เก็บ password ของครู/อื่นๆ เพื่อใช้ sign-in อัตโนมัติเมื่อ admin อนุมัติ
+          // (user กรอก password เอง และอยู่ในเครื่องของตัวเอง เป็นความปลอดภัยที่ยอมรับได้)
+          password: password,
         });
         toast({
           title: 'คำขอยังอยู่ระหว่างพิจารณา',

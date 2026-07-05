@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Auth Utilities (v1.9.2 — pending login flow FIXED)
+// YP WORK · Auth Utilities (v1.9.3 — auto sign-in on approval)
 // ═══════════════════════════════════════════════════════════════
 // Auth flow (เหมือน YP Labs ที่ใช้งานได้จริง):
 // - นักเรียน: กรอก national_id (13 หลัก) + student_code (5 หลัก)

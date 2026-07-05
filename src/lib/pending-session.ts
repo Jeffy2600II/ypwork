@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Pending Session Manager (v1.9)
+// YP WORK · Pending Session Manager (v1.9.3)
 // ═══════════════════════════════════════════════════════════════
 // จัดการสถานะ "pending" ของผู้ใช้ที่ส่งคำขอสมัครแล้ว แต่ยังไม่ถูกอนุมัติ
 //
@@ -11,6 +11,16 @@
 //   - เมื่อ admin อนุมัติ → ระบบ realtime ตรวจพบและพา user เข้าสู่ระบบได้เลย
 //   - เมื่อ admin ปฏิเสธ (delete row ใน council_join_requests) → ระบบ sign out
 //     และจำ student_id/email ไว้ใน localStorage เพื่อแจ้งเตือนเมื่อกลับมา
+//
+// ★ v1.9.3 — Auto sign-in เมื่อถูกอนุมัติ:
+//   - ก่อนหน้านี้ pending-status เพียงแค่ redirect ไป /today หลัง approved
+//     แต่ user ยังไม่ได้ sign-in กับ Supabase Auth จริง → middleware บล็อก
+//     → ส่งกลับ /login ทำให้ user ต้อง login ใหม่ทั้งที่รออยู่ตั้งแต่แรก
+//   - ตอนนี้ pending session เก็บ password (สำหรับครู/อื่นๆ) ด้วย
+//     เพื่อให้ระบบ sign-in ให้อัตโนมัติได้ทันทีเมื่อ admin อนุมัติ
+//   - สำหรับนักเรียน: password คือ student_id (synthesized email pattern)
+//     จึงไม่ต้องเก็บ password ใน pending session
+//   - password ถูก clear ทันทีหลัง sign-in สำเร็จ ไม่ค้างใน localStorage
 //
 // ★ ทำไมใช้ localStorage ไม่ใช่ cookie:
 //   - cookie middleware อ่านได้ แต่ต้องการ httpOnly + signed ถึงจะปลอดภัย
@@ -38,6 +48,12 @@ export interface PendingSession {
   account_type: RegisterAccountType;
   /** เวลาที่ส่งคำขอ (ISO string) */
   submitted_at: string;
+  /**
+   * v1.9.3: password สำหรับครู/อื่นๆ — ใช้เมื่อ admin อนุมัติเพื่อ sign-in อัตโนมัติ
+   * สำหรับนักเรียน: เก็บเป็น null เพราะ password คือ student_id (คำนวณได้จาก student_id)
+   * ค่านี้จะถูกล้างทันทีหลัง sign-in สำเร็จ
+   */
+  password?: string | null;
 }
 
 /** บัญชีที่เคยถูกปฏิเสธ — เก็บไว้แสดงข้อความ "ถูกปฏิเสธ" เมื่อกลับมา login */
@@ -84,6 +100,27 @@ export function clearPendingSession(): void {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.removeItem(PENDING_KEY);
+    window.dispatchEvent(new CustomEvent('yp-pending-session-change'));
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * v1.9.3: ล้างเฉพาะ password ออกจาก pending session — เรียกหลัง sign-in สำเร็จ
+ * เพื่อไม่ให้ password ค้างใน localStorage หลังใช้งานเสร็จ
+ * (ส่วนอื่น ๆ ของ pending session ยังคงอยู่ จนกว่าจะเคลียร์ทั้งหมด)
+ */
+export function clearPendingSessionPassword(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return;
+    if (parsed.password === undefined || parsed.password === null) return;
+    parsed.password = null;
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(parsed));
     window.dispatchEvent(new CustomEvent('yp-pending-session-change'));
   } catch {
     // ignore
