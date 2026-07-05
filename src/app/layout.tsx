@@ -24,7 +24,12 @@ export const metadata: Metadata = {
   keywords: ["YP Work", "สภานักเรียน", "จัดตารางงาน", "student council"],
   authors: [{ name: "YP Work" }],
   icons: {
-    icon: "/logo.svg",
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
   },
   openGraph: {
     title: "YP Work · สมองของสภานักเรียน",

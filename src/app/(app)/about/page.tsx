@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.9.3)
+// YP WORK · About Page (v1.9.5)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1, v1.9.2 และ v1.9.3
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1, v1.9.2, v1.9.3, v1.9.4 และ v1.9.5
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.9.3
+                1.9.5
               </span>
             </div>
             <div style={{
@@ -96,6 +96,58 @@ export default async function AboutPage() {
               </span>
             </div>
           </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9.5 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9.5
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>เปลี่ยนโลโก้เว็บใหม่:</strong> ใช้โลโก้จากโฟลเดอร์ <code>assets/icons/</code> ของ demo v8.2 (ไอคอนที่มีพื้นหลัง gradient indigo→purple + ตัวอักษร Y สีขาว + จุด check มุมขวาบน) แทนรูปภาพ abstract ที่ใช้ใน v1.9.4</li>
+            <li>เปลี่ยนให้ใช้ <code>/logo.svg</code> เป็นหลักในหน้า auth (vector, คมชัดทุกขนาด) และใช้ <code>/icon-192.png</code>, <code>/icon-512.png</code> เป็น fallback ใน favicon + apple-touch-icon</li>
+            <li>ปรับ CSS <code>.yp-auth__logo--image</code> ให้ <strong>โปร่งใส</strong> (ไม่มีพื้นขาว) เพราะไอคอนใหม่มี gradient bg เป็นของตัวเอง ที่ตรงกับพื้นหลัง auth page</li>
+            <li>เปลี่ยน <code>object-fit</code> จาก <code>contain</code> เป็น <code>cover</code> — ให้ gradient เต็มกรอบ 46×46px อย่างพอดี</li>
+            <li>โครงสร้างไฟล์ใน <code>public/</code> ตรงกับ demo: <code>logo.svg</code>, <code>logo.png</code>, <code>icon-192.png</code>, <code>icon-512.png</code></li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
+        </div>
+
+        {/* ── WHAT'S NEW IN v1.9.4 (เดิม) ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v1.9.4
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>อัปเดตโลโก้เว็บ:</strong> เปลี่ยนโลโก้บนหน้า login, register, pending-status และ favicon ให้ใช้รูปภาพใหม่ (<code>/logo.png</code>, 720×720 PNG พื้นหลังโปร่งใส) แทนตัวอักษร &ldquo;YP&rdquo; เดิม</li>
+            <li>เพิ่ม CSS modifier <code>.yp-auth__logo--image</code> — ใช้พื้นหลังสีขาวทึบแทน glass-blur เดิม เพื่อให้กราฟิกสีเข้มของโลโก้ใหม่มองเห็นชัดบนพื้นหลัง indigo gradient</li>
+            <li>เพิ่มกฎ <code>.yp-auth__logo img</code> สำหรับจัดขนาดรูปภาพ (<code>object-fit: contain</code>) ให้ fit ในกรอบ 46×46px อย่างพอดี</li>
+            <li>อัปเดต <code>layout.tsx</code> — เพิ่ม <code>apple-touch-icon</code> และกำหนด MIME type สำหรับ icon ทั้ง PNG และ SVG (fallback)</li>
+            <li>คง <code>/logo.svg</code> เดิมไว้เป็น fallback สำหรับ browser ที่ไม่รองรับ PNG transparency</li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
         </div>
 
         {/* ── WHAT'S NEW IN v1.9.3 ── */}

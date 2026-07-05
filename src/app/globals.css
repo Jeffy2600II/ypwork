@@ -1161,6 +1161,26 @@ body.yp-sheet-open .fab {
   font-size: var(--yp-text-lg);
   letter-spacing: -0.02em;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* v1.9.5 — image logo variant: transparent backdrop because the demo icon has its own
+   indigo→purple gradient background that matches the auth page background */
+.yp-auth__logo--image {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+}
+
+.yp-auth__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
 }
 
 .yp-auth__brand-text { color: white; }

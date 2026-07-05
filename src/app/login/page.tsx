@@ -331,7 +331,9 @@ export default function LoginPage() {
       <div className="yp-auth__inner">
         {/* ── BRAND ── */}
         <div className="yp-auth__brand">
-          <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
           <div className="yp-auth__brand-text">
             <div className="yp-auth__brand-name">YP Work</div>
             <div className="yp-auth__brand-tag">Student Council Hub</div>

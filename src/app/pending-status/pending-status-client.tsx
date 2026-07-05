@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Pending Status Client (v1.9.3 — Auto sign-in on approval)
+// YP WORK · Pending Status Client (v1.9.5 — Logo from demo icons / v1.9.3 — Auto sign-in on approval)
 // ═══════════════════════════════════════════════════════════════
 // แสดงสถานะคำขอสมัครแบบ realtime:
 //   - อ่าน pending session จาก localStorage
@@ -250,7 +250,9 @@ export function PendingStatusClient() {
       <div className="yp-auth yp-login-bg">
         <div className="yp-auth__inner">
           <div className="yp-auth__brand">
-            <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
             <div className="yp-auth__brand-text">
               <div className="yp-auth__brand-name">YP Work</div>
               <div className="yp-auth__brand-tag">Student Council Hub</div>
@@ -273,7 +275,9 @@ export function PendingStatusClient() {
       <div className="yp-auth yp-login-bg">
         <div className="yp-auth__inner">
           <div className="yp-auth__brand">
-            <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
             <div className="yp-auth__brand-text">
               <div className="yp-auth__brand-name">YP Work</div>
               <div className="yp-auth__brand-tag">Student Council Hub</div>
@@ -329,14 +333,16 @@ export function PendingStatusClient() {
       <div className="yp-auth yp-login-bg">
         <div className="yp-auth__inner">
           <div className="yp-auth__brand">
-            <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
             <div className="yp-auth__brand-text">
               <div className="yp-auth__brand-name">YP Work</div>
               <div className="yp-auth__brand-tag">Student Council Hub</div>
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.3 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.5 · Status</span>
             <h1>คำขอสมัคร<br />ถูกปฏิเสธ</h1>
             <p>ผู้ดูแลระบบได้ปฏิเสธคำขอสมัครของคุณ</p>
           </div>
@@ -395,14 +401,16 @@ export function PendingStatusClient() {
       <div className="yp-auth yp-login-bg">
         <div className="yp-auth__inner">
           <div className="yp-auth__brand">
-            <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
             <div className="yp-auth__brand-text">
               <div className="yp-auth__brand-name">YP Work</div>
               <div className="yp-auth__brand-tag">Student Council Hub</div>
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.3 · Status</span>
+            <span className="yp-auth__demo-badge">v1.9.5 · Status</span>
             <h1>กรุณาเข้าสู่ระบบ<br />อีกครั้ง</h1>
             <p>ไม่สามารถตรวจสอบสถานะอัตโนมัติได้ — กรุณา login ด้วยตัวเอง</p>
           </div>
@@ -457,7 +465,9 @@ export function PendingStatusClient() {
       <div className="yp-auth__inner">
         {/* ── BRAND ── */}
         <div className="yp-auth__brand">
-          <div className="yp-auth__logo" aria-hidden="true">YP</div>
+          <div className="yp-auth__logo yp-auth__logo--image" aria-hidden="true">
+            <img src="/logo.svg" alt="" />
+          </div>
           <div className="yp-auth__brand-text">
             <div className="yp-auth__brand-name">YP Work</div>
             <div className="yp-auth__brand-tag">Student Council Hub</div>
@@ -466,7 +476,7 @@ export function PendingStatusClient() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v1.9.3 · Pending Status</span>
+          <span className="yp-auth__demo-badge">v1.9.5 · Pending Status</span>
           <h1>รอผู้ดูแล<br />อนุมัติ</h1>
           <p>คำขอของคุณถูกส่งเรียบร้อย — หน้านี้จะอัพเดตอัตโนมัติเมื่อมีการเปลี่ยนแปลง</p>
         </div>

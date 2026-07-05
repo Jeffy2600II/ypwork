@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.9.3** — auto sign-in ทันทีเมื่อ admin อนุมัติคำขอสมัคร (user ไม่ต้อง login ใหม่)
+> **เวอร์ชันปัจจุบัน: v1.9.5** — เปลี่ยนโลโก้เว็บให้ใช้ไอคอนจาก demo v8.2 (gradient indigo→purple + ตัวอักษร Y สีขาว + จุด check) แทนรูป abstract ใน v1.9.4
 
 ---
 
@@ -119,6 +119,85 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.9.4 → v1.9.5 (Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม** และ **ไม่ต้องแก้ฐานข้อมูลใด ๆ**
+
+การแก้ไขใน v1.9.5:
+
+1. **เปลี่ยนแหล่งที่มาของโลโก้:**
+   - เปลี่ยนจากรูป abstract ที่ user อัปโหลด (ใน v1.9.4) → ใช้ไอคอนจาก `assets/icons/` ของ demo v8.2 แทน
+   - ไอคอนนี้มีพื้นหลัง gradient indigo→purple (#4F46E5 → #7C3AED) + ตัวอักษร Y สีขาวสไตลิสต์ + จุด check สีขาวมุมขวาบน
+
+2. **ไฟล์โลโก้ใน `public/` (วางตามโครงสร้างของ demo):**
+   - `public/logo.svg` (ใหม่ — เขียนทับ v1.9.4) — SVG จาก `assets/icons/icon.svg` ของ demo (512×512, vector, คมชัดทุกขนาด)
+   - `public/logo.png` (ใหม่ — เขียนทับ v1.9.4) — 512×512 PNG จาก `assets/icons/icon-512.png` ของ demo
+   - `public/icon-192.png` (ใหม่) — 192×192 PNG สำหรับ apple-touch-icon
+   - `public/icon-512.png` (ใหม่) — 512×512 PNG สำหรับ PWA icon
+
+3. **การอัปเดต favicon ใน `layout.tsx`:**
+   - เปลี่ยน icon config ให้ตรงกับ demo v8.2:
+     - SVG (primary) → สำหรับ browser ที่รองรับ SVG (คมชัดทุกขนาด)
+     - PNG 192×192 + 512×512 (fallback) → สำหรับ browser ที่ไม่รองรับ SVG
+   - `apple-touch-icon` ใช้ `icon-192.png`
+
+4. **ปรับ CSS สำหรับโลโก้ภาพ:**
+   - เปลี่ยน `.yp-auth__logo--image` ให้ **โปร่งใส** (background: transparent, border: transparent, ไม่มี padding) — เพราะไอคอนใหม่มี gradient bg เป็นของตัวเอง ที่ตรงกับพื้นหลัง auth page
+   - เปลี่ยน `object-fit` จาก `contain` → `cover` — ให้ gradient เต็มกรอบ 46×46px อย่างพอดี (แทนที่จะมีช่องว่างรอบๆ)
+   - ค่า `overflow: hidden` ของ `.yp-auth__logo` จะ clip รูปให้เป็นมุมมนตาม `border-radius`
+
+5. **Markup ใน auth pages (7 จุด):**
+   - เปลี่ยนจาก `<img src="/logo.png" alt="" />` → `<img src="/logo.svg" alt="" />`
+   - ใช้ SVG เป็นหลักเพราะ vector คมชัดกว่า PNG ในขนาดเล็ก
+
+6. **ไฟล์ที่แก้ไข:**
+   - `public/logo.svg` (เขียนทับ) — คัดลอกจาก `assets/icons/icon.svg` ของ demo
+   - `public/logo.png` (เขียนทับ) — คัดลอกจาก `assets/icons/icon-512.png` ของ demo
+   - `public/icon-192.png` (ใหม่) — คัดลอกจาก `assets/icons/icon-192.png` ของ demo
+   - `public/icon-512.png` (ใหม่) — คัดลอกจาก `assets/icons/icon-512.png` ของ demo
+   - `src/app/layout.tsx` — อัปเดต `metadata.icons` ให้มี SVG + PNG 192 + PNG 512 + apple-touch-icon
+   - `src/app/globals.css` — ปรับ `.yp-auth__logo--image` ให้โปร่งใส + เปลี่ยน `object-fit` เป็น `cover`
+   - `src/app/login/page.tsx` — เปลี่ยน img src จาก `/logo.png` → `/logo.svg`
+   - `src/app/register/register-form.tsx` — เปลี่ยน img src จาก `/logo.png` → `/logo.svg`
+   - `src/app/pending-status/pending-status-client.tsx` — เปลี่ยน img src (5 จุด) + version badge v1.9.4 → v1.9.5
+   - `src/app/(app)/about/page.tsx` — เพิ่ม changelog สำหรับ v1.9.5 + อัปเดต version string
+   - `package.json` — version 1.9.4 → 1.9.5
+   - `README.md` — อัปเดต version + เพิ่ม section สำหรับอัปเกรด v1.9.4 → v1.9.5
+
+7. **ไม่ต้องรัน SQL** — เป็นการแก้ code เพียวอย่างเดียว
+
+#### สำหรับอัปเกรดจาก v1.9.3 → v1.9.4 (Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม** และ **ไม่ต้องแก้ฐานข้อมูลใด ๆ**
+
+การแก้ไขใน v1.9.4:
+
+1. **อัปเดตโลโก้เว็บ:**
+   - เปลี่ยนโลโก้บนหน้า login, register, pending-status (ทั้ง 5 จุด) และ favicon ให้ใช้รูปภาพใหม่ (`/public/logo.png` — 720×720 PNG พื้นหลังโปร่งใส) แทนตัวอักษร "YP" เดิม
+   - คง `/public/logo.svg` เดิมไว้เป็น fallback สำหรับ browser ที่ไม่รองรับ PNG transparency
+
+2. **CSS สำหรับรองรับโลโก้ภาพ:**
+   - เพิ่ม modifier `.yp-auth__logo--image` — ใช้พื้นหลังสีขาวทึบ (solid white) แทน glass-blur (rgba(255,255,255,0.18) + backdrop-filter) เดิม เพื่อให้กราฟิกสีเข้มของโลโก้ใหม่มองเห็นชัดบนพื้นหลัง indigo gradient
+   - เพิ่มกฎ `.yp-auth__logo img` สำหรับจัดขนาดรูปภาพ (`object-fit: contain`, `width/height: 100%`) ให้ fit ในกรอบ 46×46px อย่างพอดี
+   - เพิ่ม `overflow: hidden` ใน `.yp-auth__logo` เพื่อ clip รูปภาพให้เป็นมุมมนตาม `border-radius`
+
+3. **Favicon update ใน `layout.tsx`:**
+   - เพิ่ม `apple-touch-icon` (PNG) สำหรับ iOS home screen
+   - กำหนด MIME type สำหรับ icon ทั้ง PNG (primary) และ SVG (fallback)
+
+4. **ไฟล์ที่แก้ไข:**
+   - `public/logo.png` (ใหม่) — รูปภาพโลโก้ใหม่ (คัดลอกจากไฟล์ที่ user อัปโหลด)
+   - `src/app/layout.tsx` — อัปเดต `metadata.icons` ให้ใช้ PNG เป็น primary + SVG เป็น fallback + เพิ่ม apple-touch-icon
+   - `src/app/globals.css` — เพิ่ม `.yp-auth__logo--image` modifier + `.yp-auth__logo img` rules + `overflow: hidden`
+   - `src/app/login/page.tsx` — เปลี่ยน `<div className="yp-auth__logo">YP</div>` เป็น `<div className="yp-auth__logo yp-auth__logo--image"><img src="/logo.png" alt="" /></div>`
+   - `src/app/register/register-form.tsx` — เปลี่ยน logo div เหมือน login page
+   - `src/app/pending-status/pending-status-client.tsx` — เปลี่ยน logo div ทั้ง 5 จุด + อัปเดต version badge v1.9.3 → v1.9.4
+   - `src/app/(app)/about/page.tsx` — เพิ่ม changelog สำหรับ v1.9.4 + อัปเดต version string
+   - `package.json` — version 1.9.3 → 1.9.4
+   - `README.md` — อัปเดต version + เพิ่ม section สำหรับอัปเกรด v1.9.3 → v1.9.4
+
+5. **ไม่ต้องรัน SQL** — เป็นการแก้ code เพียวอย่างเดียว
 
 #### สำหรับอัปเกรดจาก v1.9.2 → v1.9.3 (Frontend-only — ไม่ต้องรัน SQL)
 
