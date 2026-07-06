@@ -18,6 +18,7 @@ import {
   THAI_MONTHS,
 } from '@/lib/utils/date';
 import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
+import { InfoButton } from '@/components/ui/info-button';
 
 type FilterKey = 'all' | 'group' | 'task' | 'mine' | 'overdue';
 
@@ -79,7 +80,35 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
     <div className="yp-page yp-page-enter">
       {/* ── PAGE HEADER ── */}
       <div className="yp-page-header" style={{ paddingBottom: '6px' }}>
-        <div className="yp-page-header__eyebrow">รายการงาน</div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <div className="yp-page-header__eyebrow">รายการงาน</div>
+          <InfoButton
+            size="sm"
+            side="right"
+            align="start"
+            title="รายการงานทั้งหมด"
+            content={
+              <>
+                หน้านี้แสดงงานทั้งหมดในระบบ เรียงตามวันที่
+                <br />
+                <br />
+                <strong>กลุ่มงาน</strong> — งานที่มีหลาย task ย่อย (เหมาะกับงานใหญ่)
+                <br />
+                <strong>งานเดี่ยว</strong> — งานเดียวที่ไม่มี task ย่อย
+                <br />
+                <strong>ที่ฉันมีส่วนร่วม</strong> — งานที่มี task มอบหมายให้คุณ
+                <br />
+                <strong>เลยกำหนด</strong> — งานที่เลย deadline และยังไม่เสร็จ
+              </>
+            }
+          />
+        </div>
         <h1 className="yp-page-header__title">งานทั้งหมด</h1>
         <p className="yp-page-header__subtitle">
           {filtered.length} รายการ · เรียงตามวันที่

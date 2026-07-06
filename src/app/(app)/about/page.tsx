@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v1.9.5)
+// YP WORK · About Page (v2.0.0)
 // ═══════════════════════════════════════════════════════════════
-// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1, v1.9.2, v1.9.3, v1.9.4 และ v1.9.5
+// หน้าเกี่ยวกับ YP Work — สร้างใน v1.4, อัปเดตใน v1.5, v1.6, v1.7, v1.8, v1.8.1, v1.8.2, v1.8.3, v1.9, v1.9.1, v1.9.2, v1.9.3, v1.9.4, v1.9.5 และ v2.0.0
 // อ้างอิงจาก demo v8.2 profile.js → about modal
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,7 +62,7 @@ export default async function AboutPage() {
             }}>
               <span style={{ color: 'var(--yp-text-muted)' }}>เวอร์ชัน</span>
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-text-heading)' }}>
-                1.9.5
+                2.0.0
               </span>
             </div>
             <div style={{
@@ -94,6 +94,84 @@ export default async function AboutPage() {
               <span style={{ fontWeight: 'var(--yp-fw-semibold)', color: 'var(--yp-indigo-600)' }}>
                 Realtime (Push-based)
               </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── WHAT'S NEW IN v2.0.0 ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            อัปเดตใน v2.0.0 (Major Release)
+          </h2>
+          <ul style={{
+            margin: 0,
+            paddingLeft: 'var(--yp-space-5)',
+            fontSize: 'var(--yp-text-sm)',
+            color: 'var(--yp-text-body)',
+            lineHeight: 2,
+          }}>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>★ ปุ่มข้อมูล (InfoButton):</strong> เพิ่มปุ่ม <code>(i)</code> ในจุดต่าง ๆ ของระบบ — คลิกเพื่อดูคำอธิบายสั้น ๆ ของแต่ละ feature
+              <ul style={{ marginTop: 4 }}>
+                <li>หน้า login — อธิบายประเภทผู้ใช้ + ฟิลด์เลขบัตร</li>
+                <li>หน้า register — อธิบายทุกฟิลด์ (ชื่อ, เลขบัตร, รหัสนักเรียน, email, password, ปี, ฝ่าย)</li>
+                <li>หน้า pending-status — อธิบาย flow การอนุมัติ</li>
+                <li>หน้า today — อธิบาย hero stats + overdue + department overview</li>
+                <li>หน้า events-list — อธิบาย filter 5 แบบ</li>
+                <li>หน้า calendar — อธิบายวิธีใช้ปฏิทิน</li>
+                <li>หน้า profile — อธิบายสถิติและการอัพเดต realtime</li>
+              </ul>
+            </li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>★ บังคับเลือกฝ่ายสำหรับนักเรียน:</strong> นักเรียนต้องเลือกฝ่ายงานไม่งั้นส่งคำขอไม่ได้ — ครู/อื่นๆ ยัง optional เหมือนเดิม</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>★ ระบบ Tutorial/Onboarding:</strong> เพิ่ม <code>src/lib/tutorial.ts</code> + <code>useTutorial</code> hook + <code>TourSpotlight</code> component สำหรับ spotlight จุดสำคัญ — ใช้ browser storage (localStorage) จดจำว่า user ดู tutorial ไหนแล้ว</li>
+            <li><strong style={{ color: 'var(--yp-indigo-600)' }}>Page transitions ที่เร็วขึ้น:</strong> เพิ่ม CSS animation <code>yp-page-fade-in</code> (0.22s) + รองรับ View Transitions API (Chrome 111+) สำหรับ route changes ที่เนียนขึ้น</li>
+            <li><strong>ปรับปรุงคุณภาพระบบ:</strong> เพิ่ม loading states, error boundaries, retry logic ในจุดสำคัญ</li>
+            <li>เพิ่ม CSS สำหรับ <code>.yp-info-btn</code>, <code>.yp-help-section</code>, <code>.yp-loading-instant</code></li>
+            <li>ไม่ต้องรัน SQL เพิ่ม — เป็นการแก้ code เพียวอย่างเดียว</li>
+          </ul>
+        </div>
+
+        {/* ── HELP & TUTORIAL SECTION (v2.0.0 — onboarding) ── */}
+        <div className="yp-card" style={{ marginBottom: 'var(--yp-space-4)' }}>
+          <h2 style={{
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 'var(--yp-fw-bold)',
+            color: 'var(--yp-text-heading)',
+            margin: '0 0 var(--yp-space-3)',
+          }}>
+            วิธีใช้งานเบื้องต้น
+          </h2>
+          <div className="yp-help-section" style={{ marginBottom: 'var(--yp-space-3)' }}>
+            <div className="yp-help-section__title">การ login</div>
+            <div className="yp-help-section__body">
+              <p>ระบบรองรับ 2 ประเภทผู้ใช้:</p>
+              <ul>
+                <li><strong>นักเรียน</strong> — login ด้วย เลขบัตร 13 หลัก + รหัสนักเรียน 5 หลัก</li>
+                <li><strong>ครู/อื่นๆ</strong> — login ด้วย email + password</li>
+              </ul>
+              <p>หากยังไม่มีบัญชี → กด “ส่งคำขอสมัคร” แล้วรอผู้ดูแลอนุมัติ</p>
+            </div>
+          </div>
+          <div className="yp-help-section" style={{ marginBottom: 'var(--yp-space-3)' }}>
+            <div className="yp-help-section__title">การสร้างงาน</div>
+            <div className="yp-help-section__body">
+              <p>กดปุ่ม <code>+</code> (FAB) ที่มุมล่างขวาเพื่อสร้างงานใหม่</p>
+              <ul>
+                <li><strong>กลุ่มงาน</strong> — งานใหญ่ที่มีหลาย task ย่อย</li>
+                <li><strong>งานเดี่ยว</strong> — งานเดียวที่ไม่มี task</li>
+              </ul>
+              <p>งานสามารถมอบหมายให้สมาชิกในฝ่ายได้ และติดตาม status แบบ realtime</p>
+            </div>
+          </div>
+          <div className="yp-help-section">
+            <div className="yp-help-section__title">Realtime</div>
+            <div className="yp-help-section__body">
+              <p>ทุกการเปลี่ยนแปลง (เพิ่ม/แก้ไข/ลบ งาน, task, สมาชิก) อัพเดต <strong>ทันที</strong> โดยไม่ต้อง refresh หน้า</p>
+              <p>ระบบใช้ Supabase Realtime — เห็นภาพรวมเดียวกันกับคนในฝ่ายเสมอ</p>
             </div>
           </div>
         </div>

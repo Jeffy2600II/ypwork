@@ -3,7 +3,7 @@
 > **สมองของสภานักเรียน** — แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย
 > Next.js 16 + TypeScript + React + Supabase · โฮสต์ที่ Vercel
 >
-> **เวอร์ชันปัจจุบัน: v1.9.5** — เปลี่ยนโลโก้เว็บให้ใช้ไอคอนจาก demo v8.2 (gradient indigo→purple + ตัวอักษร Y สีขาว + จุด check) แทนรูป abstract ใน v1.9.4
+> **เวอร์ชันปัจจุบัน: v2.0.0 (Major Release)** — เพิ่มปุ่มข้อมูล (InfoButton) ในจุดต่าง ๆ ของระบบ + บังคับเลือกฝ่ายสำหรับนักเรียน + ระบบ Tutorial/Onboarding (localStorage-based) + ปรับปรุง page transitions ให้เร็วขึ้น
 
 ---
 
@@ -119,6 +119,98 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # สำหรับ server-sid
 - Seed data สำหรับ 6 ฝ่ายงาน
 
 **หมายเหตุ**: ใช้ร่วมกับ YP Labs — แชร์ตาราง `council_users` และ `council_join_requests`
+
+#### สำหรับอัปเกรดจาก v1.9.5 → v2.0.0 (Major Release — Frontend-only — ไม่ต้องรัน SQL)
+
+อัปเกรดนี้เป็น frontend-only — **ไม่ต้องรัน SQL เพิ่ม** และ **ไม่ต้องแก้ฐานข้อมูลใด ๆ**
+
+การแก้ไขใน v2.0.0:
+
+1. **★ เพิ่มปุ่มข้อมูล (InfoButton) ★**
+   - สร้าง reusable component `src/components/ui/info-button.tsx`
+   - ปุ่มวงกลมเล็ก ๆ ที่มี icon `i` — คลิกเพิ่มเพื่อเปิด popover อธิบาย feature
+   - ใช้ Radix Popover → ปิดได้ด้วย click นอก / Escape / ปุ่ม X
+   - ป้องกัน event bubbling → ไม่ trigger parent onClick
+   - รองรับ dark backgrounds (auth pages) — auto-invert colors
+   - ติดตั้งในจุดต่าง ๆ:
+     * login (hero + mode toggle + national-id field)
+     * register (ทุก field — ชื่อ, เลขบัตร, รหัสนักเรียน, email, password, ปี, ฝ่าย)
+     * pending-status (hero)
+     * today (hero + overdue section + department overview)
+     * events-list (page header — อธิบาย filter 5 แบบ)
+     * calendar (hero — อธิบายวิธีใช้)
+     * profile (hero — อธิบายสถิติ)
+
+2. **★ บังคับเลือกฝ่ายสำหรับนักเรียน ★**
+   - อัปเดต `register-form.tsx` — เพิ่ม validation block ก่อน submit:
+     - ถ้า `accountType === 'student'` และ `!departmentId` → หยุด + toast + error message
+   - ปรับ label ของ department field:
+     - นักเรียน: แสดง `*` (required) + "(บังคับ)" ใน InfoButton title
+     - ครู/อื่นๆ: แสดง "(ไม่บังคับ)" ใน label + InfoButton
+   - เปลี่ยน placeholder ของ select จาก "— ยังไม่ระบุฝ่าย —" → "— เลือกฝ่ายงาน —"
+   - ปรับ error message เมื่อไม่มีฝ่ายในระบบ — เพิ่ม note สำหรับนักเรียน
+
+3. **★ ระบบ Tutorial/Onboarding (ใช้ browser storage) ★**
+   - สร้าง `src/lib/tutorial.ts` — localStorage-based tracker:
+     * `hasSeenTutorial(key)`, `markTutorialSeen(key)`, `resetAllTutorials()`, `getTutorialStats()`
+     * ใช้ `yp_tutorial_v1` storage key + custom event `yp-tutorial-change` สำหรับ cross-component sync
+   - สร้าง `src/lib/hooks/use-tutorial.ts` — reactive React hooks:
+     * `useTutorial(key)` — สำหรับ component เดี่ยว
+     * `useTutorialStats()` — สำหรับ tutorial index page
+   - สร้าง `src/components/ui/tour-spotlight.tsx` — spotlight overlay + tooltip:
+     * ใช้ `data-tour-target` attribute ระบุ element ที่จะเน้น
+     * แสดง 4-mask overlay + highlight ring + tooltip card
+     * ปิดได้ด้วย X / click นอก / Escape / ปุ่ม "เข้าใจแล้ว"
+     * mark tutorial seen เมื่อปิด → ไม่รบกวนซ้ำ
+     * SSR-safe (ใช้ createPortal + mounted check)
+
+4. **Page transitions ที่เร็วขึ้น**
+   - เพิ่ม CSS keyframes `yp-page-fade-in` (0.22s ease-out) — smooth fade + slide-up
+   - รองรับ View Transitions API (Chrome 111+ / Edge 111+) ผ่าน `@supports (view-transition-name: none)`
+   - ปรับ `.yp-page-enter` และ `.yp-shell-content-enter` ให้ใช้ animation ใหม่
+   - เพิ่ม skeleton loading state สำหรับหน้าอื่น ๆ ที่ยังไม่มี loading.tsx เฉพาะเจาะจง
+
+5. **ปรับปรุงคุณภาพระบบ (stability)**
+   - ป้องกัน race condition ใน InfoButton popover state
+   - ป้องกัน event bubbling ในปุ่มที่อยู่ใน form / card
+   - เพิ่ม CSS สำหรับ loading state (`.yp-loading-instant`, `.yp-loading-instant__spinner`)
+   - ปรับปรุง error handling ใน register form — error messages ชัดเจนขึ้น
+
+6. **CSS ใหม่ใน `globals.css`**
+   - `.yp-info-btn` — สไตล์ปุ่มข้อมูล (3 sizes, hover/active/focus states)
+   - `.yp-info-btn` บน auth backgrounds — auto-invert colors (glass-blur style)
+   - `@keyframes yp-page-fade-in` — page transition animation
+   - View Transitions API support
+   - `.yp-help-section` — สำหรับ help section ใน about page
+   - `.yp-loading-instant` — instant loading state
+   - `[data-tour-target].yp-tour-active` — tour spotlight marker
+
+7. **เพิ่ม Help & Tutorial section ใน about page**
+   - Section "วิธีใช้งานเบื้องต้น" ที่อธิบาย:
+     * การ login (2 ประเภทผู้ใช้)
+     * การสร้างงาน (กลุ่มงาน vs งานเดี่ยว)
+     * Realtime (อัพเดตทันทีไม่ต้อง refresh)
+
+8. **ไฟล์ที่สร้างใหม่**
+   - `src/components/ui/info-button.tsx` — InfoButton + InfoLabel components
+   - `src/components/ui/tour-spotlight.tsx` — TourSpotlight component
+   - `src/lib/tutorial.ts` — tutorial tracker (localStorage-based)
+   - `src/lib/hooks/use-tutorial.ts` — useTutorial + useTutorialStats hooks
+
+9. **ไฟล์ที่แก้ไข**
+   - `package.json` — version 1.9.5 → 2.0.0
+   - `src/app/globals.css` — เพิ่ม CSS สำหรับ InfoButton + page transitions + help section
+   - `src/app/login/page.tsx` — เพิ่ม InfoButton ใน hero + mode toggle + national-id field
+   - `src/app/register/register-form.tsx` — บังคับฝ่ายสำหรับนักเรียน + InfoButton ในทุก field
+   - `src/app/pending-status/pending-status-client.tsx` — เพิ่ม InfoButton + version badge → v2.0.0
+   - `src/modules/today/today-client.tsx` — เพิ่ม InfoButton ใน hero + overdue + dept overview
+   - `src/modules/events/events-list-view.tsx` — เพิ่ม InfoButton ใน page header
+   - `src/modules/calendar/calendar-view.tsx` — เพิ่ม InfoButton ใน hero
+   - `src/modules/profile/profile-view.tsx` — เพิ่ม InfoButton ใน hero
+   - `src/app/(app)/about/page.tsx` — เพิ่ม changelog v2.0.0 + Help & Tutorial section + version display
+   - `README.md` — อัปเดต version + เพิ่ม section สำหรับอัปเกรด v1.9.5 → v2.0.0
+
+10. **ไม่ต้องรัน SQL** — เป็นการแก้ code เพียวอย่างเดียว
 
 #### สำหรับอัปเกรดจาก v1.9.4 → v1.9.5 (Frontend-only — ไม่ต้องรัน SQL)
 

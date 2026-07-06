@@ -28,6 +28,7 @@ import { AlertCircle, Flag, Check, Clock } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import type { YPEvent, Department, UserProfile, SessionUser } from '@/lib/types';
 import { useRealtimeEvents, useRealtimeDepartments, useRealtimeDeptMembers, useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
+import { InfoButton } from '@/components/ui/info-button';
 
 export interface TodayClientProps {
   initialEvents: YPEvent[];
@@ -115,7 +116,36 @@ export function TodayClient({
       {/* ── HERO ── */}
       <div className="yp-today-hero yp-hero-enter">
         <div className="yp-today-hero__content">
-          <div className="yp-today-hero__greeting">{greeting}</div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <div className="yp-today-hero__greeting">{greeting}</div>
+            <InfoButton
+              size="sm"
+              side="bottom"
+              align="start"
+              title="หน้านี้คืออะไร?"
+              content={
+                <>
+                  <strong>หน้าแรก (Today)</strong> แสดงภาพรวมงานของคุณในวันนี้
+                  <br />
+                  <br />
+                  <strong>งานวันนี้</strong> — งานที่มีกำหนดวันนี้
+                  <br />
+                  <strong>กำลังจะถึง</strong> — งานในอนาคตอันใกล้
+                  <br />
+                  <strong>เลยกำหนด</strong> — งานที่เลย deadline และยังไม่เสร็จ
+                  <br />
+                  <br />
+                  ทุกอย่างอัพเดต <strong>realtime</strong> — ไม่ต้อง refresh
+                </>
+              }
+            />
+          </div>
           <div className="yp-today-hero__name">{user.full_name}</div>
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
@@ -139,7 +169,23 @@ export function TodayClient({
       {overdue.length > 0 ? (
         <section className="yp-today-section">
           <div className="yp-today-section__head">
-            <h2 className="yp-today-section__title">งานที่เลยกำหนด</h2>
+            <h2 className="yp-today-section__title">
+              งานที่เลยกำหนด
+              <InfoButton
+                size="sm"
+                side="right"
+                align="start"
+                title="งานที่เลยกำหนด"
+                content={
+                  <>
+                    งานที่ deadline ผ่านไปแล้ว แต่ยังไม่เสร็จสิ้น (status ไม่ใช่ done)
+                    <br />
+                    <br />
+                    <strong>ควรทำก่อน!</strong> งานเหล่านี้กำลังค้างอยู่
+                  </>
+                }
+              />
+            </h2>
             <span className="yp-today-section__count">
               {overdue.length} รายการ
             </span>
@@ -214,6 +260,26 @@ export function TodayClient({
           <div className="yp-today-section__head">
             <h2 className="yp-today-section__title">
               {dept.icon || '◎'} ภาพรวม{dept.name}
+              <InfoButton
+                size="sm"
+                side="right"
+                align="start"
+                title="ภาพรวมฝ่าย"
+                content={
+                  <>
+                    สถิติงานของฝ่าย {dept.name} ที่คุณสังกัด
+                    <br />
+                    <br />
+                    <strong>งานทั้งหมด</strong> — จำนวนงานที่ฝ่ายรับผิดชอบ
+                    <br />
+                    <strong>เสร็จแล้ว</strong> — status = done
+                    <br />
+                    <strong>กำลังทำ</strong> — status = ongoing หรือ planning
+                    <br />
+                    <strong>เลยกำหนด</strong> — เลย deadline และยังไม่เสร็จ
+                  </>
+                }
+              />
             </h2>
           </div>
 

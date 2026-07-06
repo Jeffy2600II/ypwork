@@ -19,6 +19,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { YPEvent } from '@/lib/types';
 import { THAI_MONTHS, getLocalTodayStr } from '@/lib/utils/date';
 import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
+import { InfoButton } from '@/components/ui/info-button';
 
 const THAI_DAYS_SHORT = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
 
@@ -196,7 +197,35 @@ export function CalendarView({
         </div>
 
         <div className="yp-cal-hero__title-wrap">
-          <span className="yp-cal-hero__eyebrow">ปฏิทินกิจกรรม</span>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <span className="yp-cal-hero__eyebrow">ปฏิทินกิจกรรม</span>
+            <InfoButton
+              size="sm"
+              side="bottom"
+              align="start"
+              title="วิธีใช้ปฏิทิน"
+              content={
+                <>
+                  ปฏิทินแสดงกิจกรรมทั้งหมดในแต่ละเดือน
+                  <br />
+                  <br />
+                  <strong>จุดสี</strong> ใต้วันที่ = มีงานในวันนั้น
+                  <br />
+                  <strong>คลิกวันที่</strong> = ดูงานในวันนั้น (วันเดียว → หน้ารายละเอียดงาน, หลายงาน → หน้ารวมวัน)
+                  <br />
+                  <strong>ปุ่ม ‹ ›</strong> = เดือนก่อน/ถัดไป
+                  <br />
+                  <strong>ปุ่ม “วันนี้”</strong> = กลับมาเดือนปัจจุบัน
+                </>
+              }
+            />
+          </span>
           <span className="yp-cal-hero__title">
             {THAI_MONTHS[viewMonth]} {viewYear + 543}
           </span>

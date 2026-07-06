@@ -32,6 +32,7 @@ import {
   useRealtimeSessionUser,
   type ProfileStats,
 } from '@/lib/hooks/use-realtime';
+import { InfoButton } from '@/components/ui/info-button';
 
 export interface ProfileViewProps {
   user: SessionUser;
@@ -94,6 +95,36 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
       {/* ── HERO ── */}
       <section className="yp-profile-hero yp-hero-enter" aria-labelledby="profile-hero-title">
         <div className="yp-profile-hero__glow" aria-hidden="true" />
+        <div
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 2,
+          }}
+        >
+          <InfoButton
+            size="md"
+            side="bottom"
+            align="end"
+            title="หน้าโปรไฟล์"
+            content={
+              <>
+                หน้านี้แสดงข้อมูลส่วนตัวและสถิติของคุณ
+                <br />
+                <br />
+                <strong>งานในฝ่าย</strong> — งานทั้งหมดของฝ่ายที่คุณสังกัด
+                <br />
+                <strong>task ของฉัน</strong> — task ที่มอบหมายให้คุณ
+                <br />
+                <strong>เสร็จแล้ว</strong> — task ที่คุณทำเสร็จ
+                <br />
+                <br />
+                ทุกอย่างอัพเดต <strong>realtime</strong>
+              </>
+            }
+          />
+        </div>
         <div className="yp-profile-hero__avatar" aria-hidden="true">
           <Avatar
             name={user.full_name}

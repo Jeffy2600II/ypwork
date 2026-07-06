@@ -49,6 +49,7 @@ import {
   clearPendingSession,
   clearRejectedAccount,
 } from '@/lib/pending-session';
+import { InfoButton } from '@/components/ui/info-button';
 
 type LoginMode = 'student' | 'other';
 
@@ -343,7 +344,31 @@ export default function LoginPage() {
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
           <span className="yp-auth__demo-badge">DEMO · Supabase</span>
-          <h1>สมองของ<br />สภานักเรียน</h1>
+          <h1>
+            สมองของ
+            <br />
+            สภานักเรียน
+            <InfoButton
+              size="md"
+              side="bottom"
+              align="start"
+              title="YP Work คืออะไร?"
+              content={
+                <>
+                  <strong>YP Work</strong> คือแพลตฟอร์มภายในสำหรับสภานักเรียน
+                  <br />
+                  ช่วยให้จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อยได้ในที่เดียว
+                  <br />
+                  <strong>ไม่ลืมอีกต่อไป!</strong>
+                  <br />
+                  <br />
+                  ระบบเชื่อมต่อกับ Supabase (ฐานข้อมูล + Auth)
+                  ทุกการอัพเดตเกิดขึ้นแบบ <strong>realtime</strong>
+                  เห็นการเปลี่ยนแปลงทันทีไม่ต้อง refresh
+                </>
+              }
+            />
+          </h1>
           <p>จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
         </div>
 
@@ -353,6 +378,39 @@ export default function LoginPage() {
           <p className="yp-auth__card-sub">{subText}</p>
 
           {/* ── MODE TOGGLE ── */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 12,
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.85em',
+                color: 'var(--yp-text-muted, #94A3B8)',
+              }}
+            >
+              เลือกประเภทผู้ใช้
+            </span>
+            <InfoButton
+              size="sm"
+              side="right"
+              align="start"
+              title="ประเภทผู้ใช้"
+              content={
+                <>
+                  <strong>นักเรียน:</strong> login ด้วย เลขบัตร 13 หลัก + รหัสนักเรียน 5 หลัก
+                  <br />
+                  <strong>ครู/อื่นๆ:</strong> login ด้วย email + password ที่ลงทะเบียนไว้
+                  <br />
+                  <br />
+                  หากยังไม่มีบัญชี → กด “ส่งคำขอสมัคร” ด้านล่าง
+                </>
+              }
+            />
+          </div>
           <div className="yp-auth__mode-toggle" role="tablist" aria-label="เลือกประเภทผู้ใช้">
             <button
               type="button"
@@ -383,6 +441,19 @@ export default function LoginPage() {
               <div className={`field${errors.nationalId ? ' has-error' : ''}`}>
                 <label className="field__label" htmlFor="national-id">
                   เลขบัตรประจำตัวประชาชน<span className="yp-required">*</span>
+                  <InfoButton
+                    size="sm"
+                    side="right"
+                    align="start"
+                    title="เลขบัตรประชาชน"
+                    content={
+                      <>
+                        เลขบัตรประชาชน 13 หลักตามบัตรประชาชนจริง
+                        <br />
+                        ระบบใช้เลขบัตรเพื่อยืนยันตัวตน ไม่ถูกส่งต่อให้บุคคลที่สาม
+                      </>
+                    }
+                  />
                 </label>
                 <div className="input-group">
                   <span className="input-group__addon" aria-hidden="true">

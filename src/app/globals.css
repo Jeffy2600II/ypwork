@@ -4330,3 +4330,168 @@ body.yp-sheet-open .fab {
     background: var(--yp-bg-card-soft, #F1F5F9);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* v2.0.0 — InfoButton + Page Transitions + Tutorial UI              */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* ── InfoButton: small circular (i) button ── */
+.yp-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: var(--yp-indigo-600, #4F46E5);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  line-height: 0;
+}
+
+.yp-info-btn:hover,
+.yp-info-btn:focus-visible {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.45);
+  transform: scale(1.08);
+  outline: none;
+}
+
+.yp-info-btn:active {
+  transform: scale(0.96);
+}
+
+/* On dark auth backgrounds (login/register/pending) — invert colors */
+.yp-auth .yp-info-btn,
+.yp-auth__hero .yp-info-btn {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.yp-auth .yp-info-btn:hover,
+.yp-auth__hero .yp-info-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Page transition: smoother fade-in on route change ── */
+@keyframes yp-page-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.yp-page-enter,
+.yp-shell-content-enter {
+  animation: yp-page-fade-in 0.22s ease-out;
+}
+
+/* Native View Transitions API (Chrome/Edge 111+) — smoother route changes */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.18s;
+    animation-timing-function: ease-out;
+  }
+}
+
+/* ── Prefetch hint: prefetch-enabled links show subtle loading bar ── */
+.yp-prefetch-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(to right, #4F46E5, #7C3AED);
+  z-index: 10000;
+  transition: width 0.2s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* ── Tour spotlight helper: dim background — applied via inline style ── */
+/* (no CSS needed — TourSpotlight uses inline styles for precise control) */
+
+/* ── Tour target marker: subtle pulsing ring while tour is active ── */
+[data-tour-target].yp-tour-active {
+  outline: 2px solid rgba(99, 102, 241, 0.65);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* ── InfoSection: collapsible help section used on about page ── */
+.yp-help-section {
+  background: var(--yp-bg-card-soft, #F8FAFC);
+  border: 1px solid var(--yp-border, rgba(0,0,0,0.06));
+  border-radius: var(--yp-radius-md, 12px);
+  padding: 14px 16px;
+}
+
+.yp-help-section__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.yp-help-section__body {
+  font-size: var(--yp-text-sm);
+  line-height: 1.7;
+  color: var(--yp-text-body);
+}
+
+.yp-help-section__body p {
+  margin: 0 0 8px;
+}
+
+.yp-help-section__body p:last-child {
+  margin-bottom: 0;
+}
+
+.yp-help-section__body code {
+  background: rgba(99, 102, 241, 0.10);
+  color: var(--yp-indigo-700, #4338CA);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.92em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+.yp-help-section__body ul {
+  margin: 6px 0 8px;
+  padding-left: 18px;
+}
+
+.yp-help-section__body li {
+  margin: 2px 0;
+}
+
+/* ── Loading state: instant skeleton ── */
+.yp-loading-instant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  color: var(--yp-text-muted);
+  font-size: var(--yp-text-sm);
+}
+
+.yp-loading-instant__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(99, 102, 241, 0.25);
+  border-top-color: var(--yp-indigo-600, #4F46E5);
+  border-radius: 50%;
+  animation: yp-spin 0.8s linear infinite;
+}
+
+@keyframes yp-spin {
+  to { transform: rotate(360deg); }
+}

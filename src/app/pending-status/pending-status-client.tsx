@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Pending Status Client (v1.9.5 — Logo from demo icons / v1.9.3 — Auto sign-in on approval)
+// YP WORK · Pending Status Client (v2.0.0 — InfoButton + tutorial / v1.9.3 — Auto sign-in on approval)
 // ═══════════════════════════════════════════════════════════════
 // แสดงสถานะคำขอสมัครแบบ realtime:
 //   - อ่าน pending session จาก localStorage
@@ -57,6 +57,7 @@ import { useRealtimePendingRequest } from '@/lib/hooks/use-realtime';
 import { createClient } from '@/lib/supabase/client';
 import { synthesizeEmail } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { InfoButton } from '@/components/ui/info-button';
 
 type DisplayMode = 'loading' | 'pending' | 'approved' | 'approved_signing_in' | 'rejected' | 'unknown' | 'no_session';
 
@@ -342,7 +343,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.5 · Status</span>
+            <span className="yp-auth__demo-badge">v2.0.0 · Status</span>
             <h1>คำขอสมัคร<br />ถูกปฏิเสธ</h1>
             <p>ผู้ดูแลระบบได้ปฏิเสธคำขอสมัครของคุณ</p>
           </div>
@@ -410,7 +411,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v1.9.5 · Status</span>
+            <span className="yp-auth__demo-badge">v2.0.0 · Status</span>
             <h1>กรุณาเข้าสู่ระบบ<br />อีกครั้ง</h1>
             <p>ไม่สามารถตรวจสอบสถานะอัตโนมัติได้ — กรุณา login ด้วยตัวเอง</p>
           </div>
@@ -476,8 +477,33 @@ export function PendingStatusClient() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v1.9.5 · Pending Status</span>
-          <h1>รอผู้ดูแล<br />อนุมัติ</h1>
+          <span className="yp-auth__demo-badge">v2.0.0 · Pending Status</span>
+          <h1>
+            รอผู้ดูแล
+            <br />
+            อนุมัติ
+            <InfoButton
+              size="md"
+              side="bottom"
+              align="start"
+              title="สถานะคำขอสมัคร"
+              content={
+                <>
+                  คำขอของคุณถูกส่งไปยังผู้ดูแลเรียบร้อยแล้ว
+                  <br />
+                  ตอนนี้อยู่ในสถานะ <strong>รออนุมัติ</strong>
+                  <br />
+                  <br />
+                  <strong>เมื่ออนุมัติ</strong> — ระบบจะ sign-in ให้อัตโนมัติ และพาคุณไปหน้าแรกได้เลย ไม่ต้อง login ใหม่
+                  <br />
+                  <strong>หากปฏิเสธ</strong> — ระบบจะแสดงข้อความ และให้คุณส่งคำขอใหม่ได้
+                  <br />
+                  <br />
+                  หน้านี้อัพเดต <strong>realtime</strong> — ไม่ต้อง refresh
+                </>
+              }
+            />
+          </h1>
           <p>คำขอของคุณถูกส่งเรียบร้อย — หน้านี้จะอัพเดตอัตโนมัติเมื่อมีการเปลี่ยนแปลง</p>
         </div>
 

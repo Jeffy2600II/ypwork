@@ -1,9 +1,16 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Register Form (client component — v1.9)
+// YP WORK · Register Form (client component — v2.0.0)
 // ═══════════════════════════════════════════════════════════════
-// v1.9 changes (NEW):
+// v2.0.0 changes (NEW):
+//   - ★ บังคับเลือกฝ่ายสำหรับนักเรียน ★ — ครู/อื่นๆ ยัง optional
+//     นักเรียนต้องเลือกฝ่ายไม่งั้นส่งคำขอไม่ได้
+//   - เพิ่ม InfoButton อธิบายแต่ละ field ในฟอร์ม
+//   - เพิ่ม InfoButton อธิบายแต่ละ account type
+//   - ปรับปรุง error messages ให้ชัดเจนขึ้น
+//
+// v1.9 changes (baseline):
 //   - ★ เมื่อส่งคำขอสำเร็จ → login อัตโนมัติเป็น "pending user" ★
 //     ระบบจะ set pending session (localStorage) และพา user ไปยังหน้า
 //     /pending-status ทันที — ไม่ต้องไปกด login เอง
@@ -68,6 +75,7 @@ import { useRealtimeDepartments, useRealtimeYears } from '@/lib/hooks/use-realti
 import type { CouncilYear } from '@/lib/hooks/use-realtime';
 import type { Department, RegisterAccountType } from '@/lib/types';
 import { setPendingSession, clearRejectedAccount } from '@/lib/pending-session';
+import { InfoButton } from '@/components/ui/info-button';
 
 interface FieldErrors {
   fullName?: string;
@@ -189,6 +197,18 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
     if (Object.keys(next).length > 0) {
       setErrors(next);
       toast({ title: 'กรุณาตรวจสอบข้อมูลที่กรอก', variant: 'destructive' });
+      return;
+    }
+
+    // v2.0.0: ★ บังคับเลือกฝ่ายสำหรับนักเรียน ★
+    // นักเรียนต้องเลือกฝ่าย — ครู/อื่นๆ ยัง optional
+    if (accountType === 'student' && !departmentId) {
+      toast({
+        title: 'กรุณาเลือกฝ่ายงาน',
+        description: 'นักเรียนต้องเลือกฝ่ายงานที่จะสังกัด',
+        variant: 'destructive',
+      });
+      setErrors({ department: 'นักเรียนต้องเลือกฝ่ายงาน' });
       return;
     }
 
@@ -384,6 +404,19 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                 <div className={`field${errors.fullName ? ' has-error' : ''}`}>
                   <label className="field__label" htmlFor="full-name">
                     ชื่อ-นามสกุล<span className="yp-required">*</span>
+                    <InfoButton
+                      size="sm"
+                      side="right"
+                      align="start"
+                      title="ชื่อ-นามสกุล"
+                      content={
+                        <>
+                          กรอกชื่อจริงและนามสกุล เช่น <strong>สมชาย ใจดี</strong>
+                          <br />
+                          ผู้ดูแลจะเห็นชื่อนี้ตอนพิจารณาอนุมัติคำขอ — ควรใช้ชื่อจริง ไม่ใช่ชื่อเล่น
+                        </>
+                      }
+                    />
                   </label>
                   <div className="input-group">
                     <span className="input-group__addon" aria-hidden="true">
@@ -411,6 +444,21 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                     <div className={`field${errors.nationalId ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="national-id">
                         เลขบัตรประชาชน (13 หลัก)<span className="yp-required">*</span>
+                        <InfoButton
+                          size="sm"
+                          side="right"
+                          align="start"
+                          title="เลขบัตรประชาชน"
+                          content={
+                            <>
+                              เลขบัตรประชาชน 13 หลักตามบัตรประชาชนจริง
+                              <br />
+                              <strong>ความปลอดภัย:</strong> ระบบเก็บเลขบัตรเพื่อยืนยันตัวตนเท่านั้น ไม่ถูกส่งต่อให้บุคคลที่สาม
+                              <br />
+                              ใช้สำหรับ login และตรวจสอบสถานะคำขอ
+                            </>
+                          }
+                        />
                       </label>
                       <div className="input-group">
                         <span className="input-group__addon" aria-hidden="true">
@@ -437,6 +485,21 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                     <div className={`field${errors.studentCode ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="student-code">
                         รหัสนักเรียน (5 หลัก)<span className="yp-required">*</span>
+                        <InfoButton
+                          size="sm"
+                          side="right"
+                          align="start"
+                          title="รหัสนักเรียน"
+                          content={
+                            <>
+                              รหัสนักเรียน 5 หลักตามบัตรนักเรียน
+                              <br />
+                              <strong>ใช้เป็น password:</strong> หลังอนุมัติ คุณจะ login ด้วย เลขบัตร + รหัสนักเรียน
+                              <br />
+                              จดจำรหัสนี้ไว้ใช้ login ทุกครั้ง
+                            </>
+                          }
+                        />
                       </label>
                       <div className="input-group">
                         <span className="input-group__addon" aria-hidden="true">
@@ -466,6 +529,21 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                     <div className={`field${errors.email ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="email">
                         อีเมล<span className="yp-required">*</span>
+                        <InfoButton
+                          size="sm"
+                          side="right"
+                          align="start"
+                          title="อีเมล"
+                          content={
+                            <>
+                              อีเมลที่ใช้ติดต่อได้จริง เช่น <strong>teacher@school.ac.th</strong>
+                              <br />
+                              <strong>ใช้เป็น username:</strong> หลังอนุมัติ คุณจะ login ด้วย email + password ที่ตั้งไว้
+                              <br />
+                              ผู้ดูแลจะส่งสถานะคำขอไปที่อีเมลนี้
+                            </>
+                          }
+                        />
                       </label>
                       <div className="input-group">
                         <span className="input-group__addon" aria-hidden="true">
@@ -491,6 +569,21 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                     <div className={`field${errors.password ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="password">
                         รหัสผ่าน<span className="yp-required">*</span>
+                        <InfoButton
+                          size="sm"
+                          side="right"
+                          align="start"
+                          title="รหัสผ่าน"
+                          content={
+                            <>
+                              ตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร
+                              <br />
+                              <strong>แนะนำ:</strong> ใช้ตัวอักษร + ตัวเลขผสมกัน เช่น <code>school2026</code>
+                              <br />
+                              จดจำรหัสผ่านนี้ไว้ใช้ login ทุกครั้ง
+                            </>
+                          }
+                        />
                       </label>
                       <div className="input-group">
                         <span className="input-group__addon" aria-hidden="true">
@@ -519,6 +612,23 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                   <label className="field__label" htmlFor="year-select">
                     ปีการศึกษา
                     {isStudent ? <span className="yp-required">*</span> : null}
+                    <InfoButton
+                      size="sm"
+                      side="right"
+                      align="start"
+                      title="ปีการศึกษา"
+                      content={
+                        <>
+                          เลือกปีการศึกษาที่กำลังศึกษาอยู่
+                          <br />
+                          <strong>นักเรียน:</strong> บังคับเลือก
+                          <br />
+                          <strong>ครู/อื่นๆ:</strong> ไม่บังคับ — ระบบจะใช้ปีปัจจุบันอัตโนมัติ
+                          <br />
+                          ปีที่แสดง <code>(ปิดรับ)</code> = ผู้ดูแลปิดรับสมัครปีนั้นแล้ว
+                        </>
+                      }
+                    />
                   </label>
                   <div className="input-group">
                     <span className="input-group__addon" aria-hidden="true">
@@ -564,20 +674,41 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                   {errors.year ? <div className="field__error">{errors.year}</div> : null}
                 </div>
 
-                {/* ── DEPARTMENT (v1.7 — optional) ── */}
+                {/* ── DEPARTMENT (v2.0.0 — บังคับสำหรับนักเรียน / optional สำหรับครูอื่นๆ) ── */}
                 <div className={`field${errors.department ? ' has-error' : ''}`}>
                   <label className="field__label" htmlFor="department-select">
                     ฝ่ายงาน
-                    <span
-                      style={{
-                        marginLeft: '6px',
-                        fontSize: '0.85em',
-                        color: 'var(--yp-text-muted)',
-                        fontWeight: 400,
-                      }}
-                    >
-                      (ถ้ารู้ว่าจะสังกัดฝ่ายไหน)
-                    </span>
+                    {isStudent ? (
+                      <span className="yp-required">*</span>
+                    ) : (
+                      <span
+                        style={{
+                          marginLeft: '6px',
+                          fontSize: '0.85em',
+                          color: 'var(--yp-text-muted)',
+                          fontWeight: 400,
+                        }}
+                      >
+                        (ไม่บังคับ)
+                      </span>
+                    )}
+                    <InfoButton
+                      size="sm"
+                      side="right"
+                      align="start"
+                      title={isStudent ? 'ฝ่ายงาน (บังคับ)' : 'ฝ่ายงาน (ไม่บังคับ)'}
+                      content={
+                        <>
+                          เลือกฝ่ายงานที่คุณจะสังกัดในสภานักเรียน
+                          <br />
+                          <strong>นักเรียน:</strong> บังคับเลือก — ต้องเลือกฝ่ายไม่งั้นส่งคำขอไม่ได้
+                          <br />
+                          <strong>ครู/อื่นๆ:</strong> ไม่บังคับ — ผู้ดูแลจะกำหนดฝ่ายให้ภายหลังได้
+                          <br />
+                          ฝ่ายมี 6 ฝ่ายหลัก: กิจกรรม, วิชาการ, กีฬา, ศิลปะ, สังคม, อาสา
+                        </>
+                      }
+                    />
                   </label>
                   <div className="input-group">
                     <span className="input-group__addon" aria-hidden="true">
@@ -590,7 +721,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                       onChange={handleDepartmentChange}
                       disabled={submitting || liveDepartments.length === 0}
                     >
-                      <option value="">— ยังไม่ระบุฝ่าย —</option>
+                      <option value="">— เลือกฝ่ายงาน —</option>
                       {liveDepartments.map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.icon} {d.name}
@@ -606,7 +737,8 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                         marginTop: '4px',
                       }}
                     >
-                      ยังไม่มีฝ่ายในระบบ — สามารถข้ามไปก่อนและเลือกภายหลังได้
+                      ยังไม่มีฝ่ายในระบบ — ผู้ดูแลต้องเพิ่มฝ่ายในตาราง <code>departments</code> ก่อน
+                      {isStudent ? ' (นักเรียนต้องเลือกฝ่าย — กรุณาติดต่อผู้ดูแล)' : ''}
                     </div>
                   ) : null}
                   {errors.department ? (
