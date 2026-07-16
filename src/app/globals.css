@@ -4,15 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.9.6 (Indigo Trust theme — Premium Polish)
+   YP WORK · Global CSS v3.9.7 (Indigo Trust theme — Premium Polish)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.6)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.7)
 
-   v3.9.6 — Terminology Update: "ส่งคำขอ" → "ลงทะเบียน"
-   • เปลี่ยนคำศัพท์ในกระบวนการสร้างบัญชีจาก "ส่งคำขอ" เป็น "ลงทะเบียน"
-     เพื่อให้ดูเป็นมืออาชีพและคุ้นเคยมากขึ้น
-   • ครอบคลุมทุกหน้า: login, register, pending-status, about
-   • รวมถึงข้อความ toast, error messages, ปุ่ม, หัวข้อ, และคำอธิบาย
+   v3.9.7 — Left-Rail Layout Fix (Desktop)
+   • แก้ปัญหาเนื้อหาทับซ้อนกับแถบนำทางด้านซ้าย (left-rail) บนหน้าจอขนาดใหญ่
+   • เพิ่ม CSS variable `--yp-left-rail-width` (0px on mobile, 96-120px on desktop)
+   • `.app-main` มี `padding-left: var(--yp-left-rail-width)` เพื่อเว้นที่ให้ left-rail
+   • `.top-bar` มี `left: var(--yp-left-rail-width)` เพื่อเริ่มหลัง left-rail
+   • ค่า width ที่แต่ละ breakpoint:
+     - ≥900px:  96px
+     - ≥1280px: 108px
+     - ≥1536px: 120px
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
@@ -304,6 +308,11 @@
   --yp-nav-top-h:      52px;
   --yp-page-pad-x:     1.125rem;   /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
   --yp-fab-size:       56px;
+
+  /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
+     ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
+     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail */
+  --yp-left-rail-width: 0px;
 
   --yp-bottom-nav-margin: var(--yp-space-3);
   --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
@@ -1095,6 +1104,8 @@ body.yp-sheet-open .fab {
 @media (min-width: 900px) {
   :root {
     --yp-nav-top-h: 56px;
+    /* ★ v3.9.7: เปิด left-rail บน desktop — ความกว้าง 96px */
+    --yp-left-rail-width: 96px;
   }
 
   .app-shell {
@@ -1105,6 +1116,15 @@ body.yp-sheet-open .fab {
     flex: 1;
     min-width: 0;
     padding-bottom: var(--yp-space-8);
+    /* ★ v3.9.7: เว้นที่ด้านซ้ายให้ left-rail — ก่อนหน้านี้เนื้อหาทับซ้อนกับ left-rail
+       เพราะ bottom-nav เป็น position:fixed จึงไม่อยู่ใน flex flow */
+    padding-left: var(--yp-left-rail-width);
+  }
+
+  /* ★ v3.9.7: Top-bar ต้องเริ่มหลัง left-rail ด้วย — ก่อนหน้านี้ left:0 ทำให้
+     left-rail ทับส่วนซ้ายของ top-bar (back button / title) */
+  .top-bar {
+    left: var(--yp-left-rail-width);
   }
 
   .bottom-nav {
@@ -1182,6 +1202,11 @@ body.yp-sheet-open .fab {
 
 /* ★ v3.5.0: Large desktop (≥1280px) — ปรับ left-rail ให้กว้างขึ้น + content max-width */
 @media (min-width: 1280px) {
+  :root {
+    /* ★ v3.9.7: left-rail กว้างขึ้นที่ 1280px+ */
+    --yp-left-rail-width: 108px;
+  }
+
   .bottom-nav {
     width: 108px;
   }
@@ -1198,9 +1223,11 @@ body.yp-sheet-open .fab {
     font-size: 12px;
   }
 
-  /* ★ v3.5.0: Center content with max-width on large screens */
+  /* ★ v3.5.0: Center content with max-width on large screens
+     ★ v3.9.7: รวม --yp-left-rail-width เข้าไปใน padding-left
+     ก่อนหน้านี้ padding-left ไม่ได้รวม rail width → เนื้อหายังทับ left-rail */
   .app-main {
-    padding-left: calc(var(--yp-space-6, 24px) + var(--yp-safe-left, 0px));
+    padding-left: calc(var(--yp-left-rail-width) + var(--yp-space-6, 24px) + var(--yp-safe-left, 0px));
     padding-right: calc(var(--yp-space-6, 24px) + var(--yp-safe-right, 0px));
   }
 
@@ -1214,6 +1241,11 @@ body.yp-sheet-open .fab {
 
 /* ★ v3.5.0: Extra large desktop (≥1536px) — ใหญ่ขึ้นอีก */
 @media (min-width: 1536px) {
+  :root {
+    /* ★ v3.9.7: left-rail กว้างขึ้นที่ 1536px+ */
+    --yp-left-rail-width: 120px;
+  }
+
   .bottom-nav {
     width: 120px;
   }

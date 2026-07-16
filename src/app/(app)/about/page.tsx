@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v3.9.6)
+// YP WORK · About Page (v3.9.7)
 // ═══════════════════════════════════════════════════════════════
 // หน้าเกี่ยวกับ YP Work — แสดงข้อมูลเวอร์ชันปัจจุบัน + changelog
 // ═══════════════════════════════════════════════════════════════
@@ -51,7 +51,7 @@ export default async function AboutPage() {
           <div className="yp-info-list">
             <div className="yp-info-row">
               <span className="yp-info-row__label">เวอร์ชัน</span>
-              <span className="yp-info-row__value">3.9.6</span>
+              <span className="yp-info-row__value">3.9.7</span>
             </div>
             <div className="yp-info-row">
               <span className="yp-info-row__label">ธีม</span>
@@ -72,9 +72,36 @@ export default async function AboutPage() {
           </div>
         </div>
 
+        {/* ── WHAT'S NEW (v3.9.7) ── */}
+        <div className="yp-card">
+          <h2 className="yp-section-title">อัปเดตล่าสุด (v3.9.7) — Left-Rail Layout Fix</h2>
+          <ul className="yp-feature-list">
+            <li>
+              <strong>แก้ปัญหาเนื้อหาทับซ้อนกับแถบนำทางด้านซ้ายบนหน้าจอขนาดใหญ่:</strong>
+              อาการ: บน desktop (≥900px) แถบนำทางด้านซ้าย (left-rail) ทับเนื้อหา
+              เพราะ <code>.bottom-nav</code> เป็น <code>position: fixed</code> จึงไม่ได้
+              เป็นส่วนหนึ่งของ flex flow — <code>.app-main</code> จึงขยายเต็ม viewport
+              และเนื้อหาไปอยู่ใต้ left-rail
+            </li>
+            <li>
+              <strong>วิธีแก้:</strong>
+              <ul>
+                <li>เพิ่ม CSS variable <code>--yp-left-rail-width</code> (0px บนมือถือ, 96-120px บน desktop)</li>
+                <li><code>.app-main</code> มี <code>padding-left: var(--yp-left-rail-width)</code> เว้นที่ให้ left-rail</li>
+                <li><code>.top-bar</code> มี <code>left: var(--yp-left-rail-width)</code> เริ่มหลัง left-rail</li>
+                <li>ค่า width ที่แต่ละ breakpoint: ≥900px = 96px, ≥1280px = 108px, ≥1536px = 120px</li>
+              </ul>
+            </li>
+            <li>
+              <strong>ผลลัพธ์:</strong> เนื้อหาทุกหน้า (today, calendar, events, profile, about)
+              ไม่ทับซ้อนกับ left-rail บน desktop และ top-bar ก็ไม่ถูก left-rail บัง
+            </li>
+          </ul>
+        </div>
+
         {/* ── WHAT'S NEW (v3.9.6) ── */}
         <div className="yp-card">
-          <h2 className="yp-section-title">อัปเดตล่าสุด (v3.9.6) — Terminology Update</h2>
+          <h2 className="yp-section-title">อัปเดตก่อนหน้า (v3.9.6) — Terminology Update</h2>
           <ul className="yp-feature-list">
             <li>
               <strong>เปลี่ยนคำศัพท์ "ส่งคำขอ" → "ลงทะเบียน":</strong>

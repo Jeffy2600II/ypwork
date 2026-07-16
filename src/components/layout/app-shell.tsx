@@ -1,11 +1,12 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.9.6
+// YP WORK · App Shell — v3.9.7
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.9.6: Terminology Update — "ส่งคำขอ" → "ลงทะเบียน"
-//   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การเปลี่ยนคำศัพท์
-//     อยู่ใน src/app/login/, src/app/register/, src/app/pending-status/
+// ★ v3.9.7: Left-Rail Layout Fix (Desktop)
+//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง — การแก้ layout
+//     อยู่ใน src/app/globals.css (.app-main, .top-bar, --yp-left-rail-width)
+//   - แก้ปัญหาเนื้อหาทับซ้อนกับ left-rail บน desktop (≥900px)
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ
