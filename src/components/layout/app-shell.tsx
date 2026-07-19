@@ -1,12 +1,11 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.9.7
+// YP WORK · App Shell — v3.9.8
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.9.7: Left-Rail Layout Fix (Desktop)
-//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง — การแก้ layout
-//     อยู่ใน src/app/globals.css (.app-main, .top-bar, --yp-left-rail-width)
-//   - แก้ปัญหาเนื้อหาทับซ้อนกับ left-rail บน desktop (≥900px)
+// ★ v3.9.8: About Page Refresh
+//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
+//   - การเปลี่ยนแปลงอยู่ใน src/app/(app)/about/page.tsx
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ

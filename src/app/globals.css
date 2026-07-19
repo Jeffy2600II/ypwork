@@ -4,19 +4,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.9.7 (Indigo Trust theme — Premium Polish)
+   YP WORK · Global CSS v3.9.8 (Indigo Trust theme — Premium Polish)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.7)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.8)
 
-   v3.9.7 — Left-Rail Layout Fix (Desktop)
-   • แก้ปัญหาเนื้อหาทับซ้อนกับแถบนำทางด้านซ้าย (left-rail) บนหน้าจอขนาดใหญ่
-   • เพิ่ม CSS variable `--yp-left-rail-width` (0px on mobile, 96-120px on desktop)
-   • `.app-main` มี `padding-left: var(--yp-left-rail-width)` เพื่อเว้นที่ให้ left-rail
-   • `.top-bar` มี `left: var(--yp-left-rail-width)` เพื่อเริ่มหลัง left-rail
-   • ค่า width ที่แต่ละ breakpoint:
-     - ≥900px:  96px
-     - ≥1280px: 108px
-     - ≥1536px: 120px
+   v3.9.8 — About Page Refresh
+   • ลบประวัติการอัพเดท (changelog) ทั้งหมดออกจากหน้า About
+   • เพิ่มส่วน "ผู้พัฒนา" ใหม่: พัฒนาโดย นายนนทกร นนท์สุราช ร่วมกับ Rowingsco
+   • อัปเดตคำอธิบายแพลตฟอร์มด้วยความเป็นมาใหม่
+   • เพิ่ม code comment ใน about/page.tsx สำหรับ AI ในอนาคต
+     ว่าห้ามเพิ่ม changelog ในหน้า About อีกต่อไป
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
