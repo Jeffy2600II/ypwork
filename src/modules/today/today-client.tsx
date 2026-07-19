@@ -18,6 +18,7 @@
 
 import * as React from 'react';
 import { EventCard } from '@/modules/events/event-card';
+import { TodayTaskCard } from '@/modules/today/today-task-card';
 import {
   getTimeGreeting,
   getLocalTodayStr,
@@ -27,7 +28,7 @@ import {
 } from '@/lib/utils/date';
 import { AlertCircle, Flag, Check, Clock } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
-import type { YPEvent, Department, UserProfile, SessionUser } from '@/lib/types';
+import type { YPEvent, Department, UserProfile, SessionUser, Task } from '@/lib/types';
 import { useRealtimeEvents, useRealtimeDepartments, useRealtimeDeptMembers, useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
 
 export interface TodayClientProps {
@@ -87,7 +88,41 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  const todays = events.filter((e) => e.date === todayStr);
+  // ★ v3.9.9: "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+  //   ประกอบด้วย:
+  //   1. todaysEvents — event ที่ date = วันนี้ (เหมือนเดิม)
+  //   2. todaysStandaloneTasks — task ย่อยที่ due_date = วันนี้ แต่ parent event
+  //      อยู่ในวันอื่น (เพื่อกัน duplicate — ถ้า parent event อยู่ในวันนี้อยู่แล้ว
+  //      task เหล่านั้นจะแสดงผ่าน EventCard ของ parent อยู่แล้วในส่วน progress)
+  const todaysEvents = events.filter((e) => e.date === todayStr);
+  const todaysStandaloneTasks = React.useMemo(() => {
+    const list: { task: Task; event: YPEvent }[] = [];
+    for (const ev of events) {
+      // ข้าม event ที่เป็นวันนี้ — task ของมันจะแสดงใน EventCard ของ parent แล้ว
+      if (ev.date === todayStr) continue;
+      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "งานวันนี้")
+      //   ยกเว้นถ้า user อยากเห็น — แต่ default คือซ่อน task ที่เสร็จแล้ว
+      //   เพื่อให้ "งานวันนี้" โฟกัสที่สิ่งที่ต้องทำ
+      for (const t of ev.tasks || []) {
+        if (t.due_date === todayStr && t.status !== 'done') {
+          list.push({ task: t, event: ev });
+        }
+      }
+    }
+    // เรียงตาม priority (high > medium > low) แล้วตาม title
+    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    list.sort((a, b) => {
+      const pa = PRIORITY_ORDER[a.task.priority] ?? 3;
+      const pb = PRIORITY_ORDER[b.task.priority] ?? 3;
+      if (pa !== pb) return pa - pb;
+      return a.task.title.localeCompare(b.task.title, 'th');
+    });
+    return list;
+  }, [events, todayStr]);
+
+  // จำนวนรายการ "งานวันนี้" รวม = events ของวันนี้ + standalone tasks
+  const todayTotalCount = todaysEvents.length + todaysStandaloneTasks.length;
+
   const upcoming = events
     .filter((e) => e.date > todayStr)
     .slice(0, 4);
@@ -123,7 +158,7 @@ export function TodayClient({
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{todays.length}</div>
+              <div className="yp-today-hero__stat-value">{todayTotalCount}</div>
               <div className="yp-today-hero__stat-label">งานวันนี้</div>
             </div>
             <div className="yp-today-hero__stat">
@@ -164,10 +199,10 @@ export function TodayClient({
             งานวันนี้
           </h2>
           <span className="yp-today-section__count">
-            {todays.length} รายการ
+            {todayTotalCount} รายการ
           </span>
         </div>
-        {todays.length === 0 ? (
+        {todayTotalCount === 0 ? (
           <div className="yp-empty">
             <div className="yp-empty__icon" aria-hidden="true">
               <span role="img" aria-label="ว่าง">
@@ -181,8 +216,18 @@ export function TodayClient({
           </div>
         ) : (
           <div>
-            {todays.map((ev) => (
-              <EventCard key={ev.id} event={ev} />
+            {/* ★ v3.9.9: แสดง event ของวันนี้ก่อน (แบบเดิม) */}
+            {todaysEvents.map((ev) => (
+              <EventCard key={`ev-${ev.id}`} event={ev} />
+            ))}
+            {/* ★ v3.9.9: แสดง task ย่อยที่ due_date = วันนี้ แต่ parent event
+                อยู่ในวันอื่น — ทำให้เห็นทุกงานที่ต้องทำวันนี้จริง ๆ */}
+            {todaysStandaloneTasks.map(({ task, event }) => (
+              <TodayTaskCard
+                key={`task-${task.id}`}
+                task={task}
+                parentEvent={event}
+              />
             ))}
           </div>
         )}

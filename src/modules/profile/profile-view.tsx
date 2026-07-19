@@ -31,6 +31,8 @@ import {
   type ProfileStats,
 } from '@/lib/hooks/use-realtime';
 import { clearAllAuthStorage } from '@/lib/pending-session';
+// ★ v3.9.9: ล้าง sessionStorage cache ตอน logout เพื่อกันข้อมูลเดิมค้าง
+import { clearAllYPWorkCache } from '@/lib/utils/session-cache';
 
 export interface ProfileViewProps {
   user: SessionUser;
@@ -88,6 +90,8 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
     try {
       // ★ ล้าง localStorage ก่อน — สำคัญมาก
       clearAllAuthStorage();
+      // ★ v3.9.9: ล้าง sessionStorage cache ด้วย — กันข้อมูลเดิมค้างจาก user เดิม
+      clearAllYPWorkCache();
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);

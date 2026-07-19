@@ -50,6 +50,8 @@ import { createClient } from '@/lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { YPEvent, Task, UserProfile, Department, SessionUser } from '@/lib/types';
 import { getUserColor } from '@/lib/utils/user-color';
+// ★ v3.9.9: sessionStorage cache — เก็บข้อมูลไว้กลับเข้าหน้าเดิมเร็วขึ้น
+import { getCached, setCached } from '@/lib/utils/session-cache';
 
 // ═══════════════════════════════════════════════════════════════
 // Shared client (singleton) — ใช้ client เดียวกันทั้ง app
@@ -183,7 +185,15 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
   error: string | null;
   reload: () => void;
 } {
-  const [events, setEvents] = React.useState<YPEvent[]>(initialEvents);
+  // ★ v3.9.9: อ่าน sessionStorage cache ตอน mount — ถ้ามี cache ให้ใช้แทน initialEvents
+  //   ทำให้กลับเข้าหน้าเดิมเร็วขึ้น (instant render) แทนที่จะรอ fetch ใหม่
+  //   cache หมดอายุใน 5 นาที (ตาม TTL ใน session-cache.ts)
+  //   realtime subscription ยังคงทำงานปกติ — cache แค่ช่วย initial state
+  const CACHE_KEY = 'events';
+  const cachedEvents = getCached<YPEvent[]>(CACHE_KEY);
+  const initialData = cachedEvents && cachedEvents.length > 0 ? cachedEvents : initialEvents;
+
+  const [events, setEvents] = React.useState<YPEvent[]>(initialData);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
@@ -211,6 +221,9 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
             // skip — เก็บ initial data
           } else {
             setEvents(rows);
+            // ★ v3.9.9: เขียน cache ทุกครั้งที่ reload สำเร็จ
+            //   ครั้งต่อไปที่ user กลับเข้าหน้านี้จะได้ข้อมูลล่าสุดเป็น initial state
+            setCached(CACHE_KEY, rows);
           }
           setError(null);
         }
@@ -324,7 +337,14 @@ export function useRealtimeEventById(
   removeTask: (taskId: string) => void;
   addTask: (task: Task) => void;
 } {
-  const [event, setEvent] = React.useState<YPEvent | null>(initialEvent);
+  // ★ v3.9.9: อ่าน sessionStorage cache ตอน mount — ถ้ามี cache ให้ใช้แทน initialEvent
+  //   cache key ขึ้นกับ eventId ของแต่ละงาน
+  //   ทำให้กลับเข้าหน้า detail เดิมเร็วขึ้น (instant render)
+  const CACHE_KEY = eventId ? `event:${eventId}` : null;
+  const cachedEvent = CACHE_KEY ? getCached<YPEvent>(CACHE_KEY) : null;
+  const initialData = cachedEvent ?? initialEvent;
+
+  const [event, setEvent] = React.useState<YPEvent | null>(initialData);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
@@ -351,6 +371,10 @@ export function useRealtimeEventById(
             // skip — เก็บ initial data
           } else {
             setEvent(row);
+            // ★ v3.9.9: เขียน cache ทุกครั้งที่ reload สำเร็จ (ถ้า row ไม่ null)
+            if (row && CACHE_KEY) {
+              setCached(CACHE_KEY, row);
+            }
           }
           setError(null);
         }
@@ -363,7 +387,7 @@ export function useRealtimeEventById(
       .finally(() => {
         if (myToken === reloadTokenRef.current) setLoading(false);
       });
-  }, [eventId]);
+  }, [eventId, CACHE_KEY]);
 
   // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
   //   ถ้า user กลับเข้าหน้า detail ภายใน 30 วินาที Next.js จะใช้ cached

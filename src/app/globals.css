@@ -4,16 +4,22 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.9.8 (Indigo Trust theme — Premium Polish)
+   YP WORK · Global CSS v3.9.9 (Indigo Trust theme — Premium Polish)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.8)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.9)
 
-   v3.9.8 — About Page Refresh
-   • ลบประวัติการอัพเดท (changelog) ทั้งหมดออกจากหน้า About
-   • เพิ่มส่วน "ผู้พัฒนา" ใหม่: พัฒนาโดย นายนนทกร นนท์สุราช ร่วมกับ Rowingsco
-   • อัปเดตคำอธิบายแพลตฟอร์มด้วยความเป็นมาใหม่
-   • เพิ่ม code comment ใน about/page.tsx สำหรับ AI ในอนาคต
-     ว่าห้ามเพิ่ม changelog ในหน้า About อีกต่อไป
+   v3.9.9 — Today Dashboard + Session Cache
+   • "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+     - event ที่ date = วันนี้ (เหมือนเดิม)
+     - task ย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
+     - แสดงผ่าน TodayTaskCard component ใหม่ (มี badge "จาก: <event>")
+   • เพิ่ม sessionStorage cache (client-side, per-session)
+     - cache ข้อมูล events + event detail ไว้ที่ฝั่งผู้ใช้
+     - กลับเข้าหน้าเดิม → instant render จาก cache แทนรอ fetch ใหม่
+     - cache TTL 5 นาที, หมดอายุอัตโนมัติ
+     - ล้าง cache ตอน logout (clearAllYPWorkCache)
+     - realtime subscription ยังคงทำงานปกติ — cache แค่ช่วย initial state
+   • เพิ่ม CSS สำหรับ .yp-today-task-card (badge "จาก:" ของ task ย่อย)
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
@@ -1995,6 +2001,27 @@ body.yp-sheet-open .fab {
 
 /* ── Event card sub-parts (uses .yp-event-card from above) ── */
 .yp-event-card + .yp-event-card { margin-top: var(--yp-space-4); }
+
+/* ★ v3.9.9: TodayTaskCard — ใช้ .yp-event-card เป็น base แล้วเพิ่ม badge "จาก:" */
+.yp-today-task-card {
+  /* ลด opacity เล็กน้อย เพื่อให้ event ของวันนี้โดดเด่นกว่า task ย่อย */
+  /* (แต่ยังอ่านง่าย) */
+}
+
+.yp-today-task-card__parent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+
+.yp-today-task-card__parent svg {
+  color: var(--accent, var(--yp-indigo-500));
+  opacity: 0.7;
+}
 
 .yp-event-card__head {
   display: flex;
