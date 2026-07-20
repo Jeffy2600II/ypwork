@@ -1,16 +1,20 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.9.9
+// YP WORK · App Shell — v3.10.0
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.9.9: Today Dashboard + Session Cache
+// ★ v3.10.0: Task Cards Redesign + Morning/Afternoon Grouping
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //   - การเปลี่ยนแปลงอยู่ใน:
-//     - src/lib/utils/session-cache.ts (ใหม่ — cache utility)
-//     - src/lib/hooks/use-realtime.ts (เพิ่ม cache ให้ useRealtimeEvents + useRealtimeEventById)
-//     - src/modules/today/today-client.tsx (แสดง task ย่อยที่ due_date = วันนี้)
-//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ task ย่อย)
-//     - src/modules/profile/profile-view.tsx (ล้าง cache ตอน logout)
+//     - src/lib/types/index.ts (เพิ่ม start_time field)
+//     - src/lib/hooks/use-realtime.ts (normalizeTask รองรับ start_time)
+//     - src/lib/db/event-loader.ts (query รวม start_time)
+//     - src/app/api/events/[id]/tasks/route.ts (รองรับ start_time ตอน create)
+//     - src/app/api/tasks/[id]/route.ts (รองรับ start_time ตอน patch)
+//     - src/app/api/events/[id]/detail/route.ts (ส่ง start_time กลับ)
+//     - src/modules/events/event-detail-client.tsx (เวลาเริ่มทำ + แยกช่วงเช้า/บ่าย)
+//     - src/app/globals.css (CSS สำหรับ .yp-task-group)
+//     - ypwork-v3.10.0-add-task-start-time.sql (DB migration)
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ

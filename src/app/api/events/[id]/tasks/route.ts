@@ -7,6 +7,7 @@
 //   title: string,
 //   priority?: 'low' | 'medium' | 'high' (default 'medium'),
 //   due_date?: string | null (YYYY-MM-DD),
+//   start_time?: string | null (HH:MM, ★ v3.10.0),
 //   estimated_time?: string,
 //   notes?: string,
 //   tags?: string[],
@@ -23,6 +24,8 @@ import { apiCacheHeaders } from '@/lib/api/cache';
 
 const VALID_PRIORITIES = ['low', 'medium', 'high'] as const;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// ★ v3.10.0: เวลาเริ่มทำ (HH:MM format)
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  const { title, priority, due_date, estimated_time, notes, tags, assignee_id } = body || {};
+  const { title, priority, due_date, start_time, estimated_time, notes, tags, assignee_id } = body || {};
 
   if (!title || typeof title !== 'string' || !title.trim()) {
     return NextResponse.json(
@@ -75,6 +78,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   if (due_date !== undefined && due_date !== null && (typeof due_date !== 'string' || !DATE_RE.test(due_date))) {
     return NextResponse.json(
       { success: false, error: 'วันที่กำหนดส่งไม่ถูกต้อง' },
+      { status: 400 }
+    );
+  }
+
+  // ★ v3.10.0: validate start_time (HH:MM format)
+  if (start_time !== undefined && start_time !== null && (typeof start_time !== 'string' || !TIME_RE.test(start_time))) {
+    return NextResponse.json(
+      { success: false, error: 'เวลาเริ่มทำไม่ถูกต้อง (ต้องเป็น HH:MM)' },
       { status: 400 }
     );
   }
@@ -109,12 +120,13 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
         status: 'todo',
         priority: finalPriority,
         due_date: due_date || null,
+        start_time: start_time || null,  // ★ v3.10.0
         estimated_time: estimated_time || '',
         notes: notes || '',
         tags: Array.isArray(tags) ? tags : [],
         sort_order: count || 0,
       })
-      .select('id, event_id, title, due_date, status, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
+      .select('id, event_id, title, due_date, start_time, status, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
       .limit(1)
       .maybeSingle();
 

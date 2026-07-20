@@ -4,22 +4,22 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.9.9 (Indigo Trust theme — Premium Polish)
+   YP WORK · Global CSS v3.10.0 (Indigo Trust theme — Premium Polish)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.9)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.10.0)
 
-   v3.9.9 — Today Dashboard + Session Cache
-   • "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
-     - event ที่ date = วันนี้ (เหมือนเดิม)
-     - task ย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
-     - แสดงผ่าน TodayTaskCard component ใหม่ (มี badge "จาก: <event>")
-   • เพิ่ม sessionStorage cache (client-side, per-session)
-     - cache ข้อมูล events + event detail ไว้ที่ฝั่งผู้ใช้
-     - กลับเข้าหน้าเดิม → instant render จาก cache แทนรอ fetch ใหม่
-     - cache TTL 5 นาที, หมดอายุอัตโนมัติ
-     - ล้าง cache ตอน logout (clearAllYPWorkCache)
-     - realtime subscription ยังคงทำงานปกติ — cache แค่ช่วย initial state
-   • เพิ่ม CSS สำหรับ .yp-today-task-card (badge "จาก:" ของ task ย่อย)
+   v3.10.0 — Task Cards Redesign + Morning/Afternoon Grouping
+   • เปลี่ยน concept จาก "กำหนดส่ง" (deadline) → "เวลาเริ่มทำ" (start time)
+     - เพิ่ม `start_time` field (HH:MM) ใน ypwork_tasks (DB migration)
+     - อัปเดต task forms ให้กรอกเวลาเริ่มทำแทนกำหนดส่ง
+     - อัปเดต TaskRow แสดง "เริ่ม HH:MM · วันที่" แทน "กำหนด"
+   • แยก task list เป็นช่วงเช้า/บ่าย/ไม่ระบุเวลา
+     - ช่วงเช้า = start_time ก่อน 13:00 (amber accent)
+     - ช่วงบ่าย = start_time ตั้งแต่ 13:00 ขึ้นไป (indigo accent)
+     - ไม่ระบุเวลา = ไม่มี start_time (muted)
+   • ออกแบบ TaskRow ใหม่ — แต่ละ task เป็น card ของตัวเอง (wider, more spacious)
+     - ก่อนหน้านี้: list แบบมี border-bottom คั่น
+     - ตอนนี้: card เดี่ยว ๆ มี border รอบด้าน + shadow + accent hover
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
@@ -3688,6 +3688,94 @@ body.yp-sheet-open .fab {
 .yp-card--tasklist {
   padding: 10px var(--yp-space-5) 14px;
   border-color: color-mix(in srgb, var(--accent, var(--yp-border-subtle)) 14%, var(--yp-border-subtle));
+}
+
+/* ★ v3.10.0: Task group — แยกช่วงเช้า/บ่าย/ไม่ระบุเวลา */
+.yp-task-group {
+  margin-bottom: var(--yp-space-3);
+}
+
+.yp-task-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.yp-task-group__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-task-group__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.yp-task-group__label {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.yp-task-group__count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-semibold);
+  padding: 2px 8px;
+  background: var(--yp-bg-card-soft);
+  border-radius: var(--yp-radius-pill);
+}
+
+/* สี accent ตามช่วงเวลา */
+.yp-task-group--morning .yp-task-group__label {
+  color: #F59E0B;  /* amber — ช่วงเช้า */
+}
+
+.yp-task-group--afternoon .yp-task-group__label {
+  color: var(--yp-indigo-600);  /* indigo — ช่วงบ่าย */
+}
+
+.yp-task-group--notime .yp-task-group__label {
+  color: var(--yp-text-muted);  /* muted — ไม่ระบุเวลา */
+}
+
+.yp-task-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ★ v3.10.0: แยกแต่ละ task row ให้เป็น card เดี่ยว ๆ (wider, more spacious)
+   ก่อนหน้านี้ task rows เป็น list แบบมี border-bottom คั่น
+   ตอนนี้แต่ละ task เป็น card ของตัวเอง มี border รอบด้าน + shadow */
+.yp-task-group__items .yp-task-row {
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-xs);
+  margin-bottom: 0;
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: var(--yp-bg-card);
+  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.03);
+}
+
+.yp-task-group__items .yp-task-row:last-of-type {
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-task-group__items .yp-task-row:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 20%, var(--yp-border-subtle));
+}
+
+/* ★ v3.10.0: ตัวคั่นระหว่างเวลาและวันที่ใน chip "เริ่ม 14:30 · วันนี้" */
+.yp-task-row__chip-sep {
+  opacity: 0.5;
+  margin: 0 2px;
+  font-weight: bold;
 }
 
 .yp-task-empty {

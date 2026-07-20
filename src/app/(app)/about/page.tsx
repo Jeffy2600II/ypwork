@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v3.9.9)
+// YP WORK · About Page (v3.10.0)
 // ═══════════════════════════════════════════════════════════════
 // หน้าเกี่ยวกับ YP Work — แสดงข้อมูลแพลตฟอร์ม + ผู้พัฒนา + วิธีใช้งาน
 // ═══════════════════════════════════════════════════════════════
@@ -95,7 +95,7 @@ export default async function AboutPage() {
           <div className="yp-info-list">
             <div className="yp-info-row">
               <span className="yp-info-row__label">เวอร์ชัน</span>
-              <span className="yp-info-row__value">3.9.9</span>
+              <span className="yp-info-row__value">3.10.0</span>
             </div>
             <div className="yp-info-row">
               <span className="yp-info-row__label">ธีม</span>

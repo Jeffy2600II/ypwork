@@ -671,21 +671,81 @@ export function EventDetailClient({
                 </div>
               </div>
             ) : (
-              (event.tasks || []).map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  onStatusClick={() => {
-                    setActiveTaskId(t.id);
-                    setStatusPickerOpen(true);
-                  }}
-                  onEdit={() => {
-                    setEditTaskId(t.id);
-                    setEditTaskOpen(true);
-                  }}
-                  onDelete={() => requestDeleteTask(t.id)}
-                />
-              ))
+              <>
+                {/* ★ v3.10.0: แยก task ออกเป็นช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา
+                    เรียงตามเวลาเริ่มทำ (start_time) ภายในแต่ละช่วง
+                    ช่วงเช้า = ก่อน 13:00, ช่วงบ่าย = 13:00 ขึ้นไป */}
+                {(() => {
+                  const tasks = event.tasks || [];
+                  // แยกกลุ่มตาม start_time
+                  const morning = tasks
+                    .filter((t) => t.start_time && t.start_time < '13:00')
+                    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+                  const afternoon = tasks
+                    .filter((t) => t.start_time && t.start_time >= '13:00')
+                    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+                  const noTime = tasks.filter((t) => !t.start_time);
+
+                  const renderTask = (t: Task) => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      onStatusClick={() => {
+                        setActiveTaskId(t.id);
+                        setStatusPickerOpen(true);
+                      }}
+                      onEdit={() => {
+                        setEditTaskId(t.id);
+                        setEditTaskOpen(true);
+                      }}
+                      onDelete={() => requestDeleteTask(t.id)}
+                    />
+                  );
+
+                  return (
+                    <>
+                      {morning.length > 0 ? (
+                        <div className="yp-task-group yp-task-group--morning">
+                          <div className="yp-task-group__header">
+                            <span className="yp-task-group__icon">☀️</span>
+                            <span className="yp-task-group__label">ช่วงเช้า</span>
+                            <span className="yp-task-group__count">{morning.length} งาน</span>
+                          </div>
+                          <div className="yp-task-group__items">
+                            {morning.map(renderTask)}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {afternoon.length > 0 ? (
+                        <div className="yp-task-group yp-task-group--afternoon">
+                          <div className="yp-task-group__header">
+                            <span className="yp-task-group__icon">🌤️</span>
+                            <span className="yp-task-group__label">ช่วงบ่าย</span>
+                            <span className="yp-task-group__count">{afternoon.length} งาน</span>
+                          </div>
+                          <div className="yp-task-group__items">
+                            {afternoon.map(renderTask)}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {noTime.length > 0 ? (
+                        <div className="yp-task-group yp-task-group--notime">
+                          <div className="yp-task-group__header">
+                            <span className="yp-task-group__icon">🕒</span>
+                            <span className="yp-task-group__label">ไม่ระบุเวลา</span>
+                            <span className="yp-task-group__count">{noTime.length} งาน</span>
+                          </div>
+                          <div className="yp-task-group__items">
+                            {noTime.map(renderTask)}
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  );
+                })()}
+              </>
             )}
 
             <button
@@ -777,6 +837,7 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_time: payload.startTime || null,   // ★ v3.10.0
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
                 tags: payload.tags,
@@ -827,6 +888,7 @@ export function EventDetailClient({
                     title: payload.title,
                     priority: payload.priority,
                     due_date: payload.dueDate || null,
+                    start_time: payload.startTime || null,   // ★ v3.10.0
                     estimated_time: payload.estimatedTime,
                     notes: payload.notes,
                     tags: payload.tags,
@@ -849,6 +911,7 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_time: payload.startTime || null,   // ★ v3.10.0
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
                 tags: payload.tags,
@@ -1054,7 +1117,7 @@ export function EventDetailClient({
                   <div className="yp-manage-task-picker__meta">
                     {sLabel}
                     {t.priority === 'high' ? ' · เร่งด่วน' : ''}
-                    {t.due_date ? ' · มีกำหนด' : ''}
+                    {t.due_date ? ' · มีเวลาเริ่ม' : ''}
                   </div>
                 </div>
                 <ChevronRight />
@@ -1179,6 +1242,8 @@ function TaskRow({
 }) {
   const assignee = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
   const dueLabel = task.due_date ? relativeDay(task.due_date) : '';
+  // ★ v3.10.0: ใช้ "เวลาเริ่มทำ" (start_time) แทน "กำหนดส่ง"
+  const startTimeLabel = task.start_time || '';
   const overdue = task.due_date && isPast(task.due_date) && task.status !== 'done';
   const priority = task.priority || 'medium';
   const priorityLbl =
@@ -1252,12 +1317,26 @@ function TaskRow({
             </span>
           ) : null}
 
-          {dueLabel ? (
+          {/* ★ v3.10.0: แสดง "เวลาเริ่มทำ" (start_time) แทน "กำหนดส่ง"
+              ถ้ามี start_time → แสดงเวลา HH:MM
+              ถ้าไม่มี start_time แต่มี due_date → แสดง "วันที่เริ่ม" (relativeDay)
+              ถ้ามีทั้งคู่ → แสดงเวลาคู่กับวันที่ */}
+          {startTimeLabel ? (
+            <span
+              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
+            >
+              <Clock width={11} height={11} />
+              <span className="yp-task-row__chip-label">เริ่ม</span>
+              {startTimeLabel}
+              {dueLabel ? <span className="yp-task-row__chip-sep">·</span> : null}
+              {dueLabel}
+            </span>
+          ) : dueLabel ? (
             <span
               className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
             >
               {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
-              <span className="yp-task-row__chip-label">กำหนด</span>
+              <span className="yp-task-row__chip-label">เริ่ม</span>
               {dueLabel}
             </span>
           ) : null}
@@ -1314,6 +1393,7 @@ interface TaskPayload {
   priority: TaskPriority;
   assigneeId: string | null;
   dueDate: string | null;
+  startTime: string | null;   // ★ v3.10.0: เวลาเริ่มทำ (HH:MM)
   estimatedTime: string;
   tags: string[];
   notes: string;
@@ -1338,6 +1418,7 @@ function AddTaskSheet({
   const [priority, setPriority] = React.useState<TaskPriority>('medium');
   const [assigneeId, setAssigneeId] = React.useState<string>('');
   const [dueDate, setDueDate] = React.useState<string>(event.date || '');
+  const [startTime, setStartTime] = React.useState<string>('');   // ★ v3.10.0
   const [estimatedTime, setEstimatedTime] = React.useState('');
   const [tagsStr, setTagsStr] = React.useState('');
   const [notes, setNotes] = React.useState('');
@@ -1361,6 +1442,7 @@ function AddTaskSheet({
       priority,
       assigneeId: assigneeId || null,
       dueDate: dueDate || null,
+      startTime: startTime || null,   // ★ v3.10.0
       estimatedTime: estimatedTime.trim(),
       tags,
       notes: notes.trim(),
@@ -1472,7 +1554,7 @@ function AddTaskSheet({
 
       {/* Assignee + schedule */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
+        <div className="yp-form-modal__section-title">มอบหมายและเวลาเริ่มทำ</div>
         <div className="field">
           <label className="field__label" htmlFor="task-assignee">
             ผู้รับผิดชอบ
@@ -1495,7 +1577,7 @@ function AddTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="task-due">
-            กำหนดส่ง{' '}
+            วันที่เริ่มทำ{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -1508,6 +1590,27 @@ function AddTaskSheet({
             onChange={(e) => setDueDate(e.target.value)}
             disabled={submitting}
           />
+        </div>
+        {/* ★ v3.10.0: เวลาเริ่มทำ (HH:MM) — ใช้สำหรับแยกช่วงเช้า/บ่าย */}
+        <div className="field">
+          <label className="field__label" htmlFor="task-start-time">
+            เวลาเริ่มทำ{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ — ใช้แยกช่วงเช้า/บ่าย)
+            </span>
+          </label>
+          <input
+            id="task-start-time"
+            type="time"
+            className="yp-input"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            ช่วงเช้า = ก่อน 13:00 · ช่วงบ่าย = 13:00 ขึ้นไป —
+            ระบบจะจัดกลุ่ม task ตามเวลานี้ในหน้างาน
+          </div>
         </div>
         <div className="field">
           <label className="field__label" htmlFor="task-est">
@@ -1614,6 +1717,7 @@ function EditTaskSheet({
     task.assignees && task.assignees.length > 0 ? task.assignees[0].auth_uid : ''
   );
   const [dueDate, setDueDate] = React.useState<string>(task.due_date || '');
+  const [startTime, setStartTime] = React.useState<string>(task.start_time || '');   // ★ v3.10.0
   const [estimatedTime, setEstimatedTime] = React.useState(task.estimated_time || '');
   const [tagsStr, setTagsStr] = React.useState(
     Array.isArray(task.tags) ? task.tags.join(', ') : ''
@@ -1639,6 +1743,7 @@ function EditTaskSheet({
       priority,
       assigneeId: assigneeId || null,
       dueDate: dueDate || null,
+      startTime: startTime || null,   // ★ v3.10.0
       estimatedTime: estimatedTime.trim(),
       tags,
       notes: notes.trim(),
@@ -1750,7 +1855,7 @@ function EditTaskSheet({
 
       {/* Assignee + schedule */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
+        <div className="yp-form-modal__section-title">มอบหมายและเวลาเริ่มทำ</div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-assignee">
             ผู้รับผิดชอบ
@@ -1773,7 +1878,7 @@ function EditTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-due">
-            กำหนดส่ง{' '}
+            วันที่เริ่มทำ{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -1786,6 +1891,27 @@ function EditTaskSheet({
             onChange={(e) => setDueDate(e.target.value)}
             disabled={submitting}
           />
+        </div>
+        {/* ★ v3.10.0: เวลาเริ่มทำ (HH:MM) — EditTaskSheet */}
+        <div className="field">
+          <label className="field__label" htmlFor="ed-task-start-time">
+            เวลาเริ่มทำ{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ — ใช้แยกช่วงเช้า/บ่าย)
+            </span>
+          </label>
+          <input
+            id="ed-task-start-time"
+            type="time"
+            className="yp-input"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            ช่วงเช้า = ก่อน 13:00 · ช่วงบ่าย = 13:00 ขึ้นไป —
+            ระบบจะจัดกลุ่ม task ตามเวลานี้ในหน้างาน
+          </div>
         </div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-est">
