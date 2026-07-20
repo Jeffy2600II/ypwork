@@ -43,6 +43,7 @@ import {
   formatDate,
   relativeDay,
   statusLabel,
+  statusChipClass,   // ★ v3.10.0 รอบที่ 3: แก้ ReferenceError — เพิ่ม import ที่หายไป
   priorityLabel,
   isPast,
   eventProgress,
