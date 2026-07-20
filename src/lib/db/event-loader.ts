@@ -99,6 +99,7 @@ function toEvent(e: any, assigneesMap: Map<string, UserProfile[]>): YPEvent {
       event_id: t.event_id,
       title: t.title,
       due_date: t.due_date ?? null,
+      start_time: t.start_time ?? null,  // ★ v3.10.0
       status: t.status,
       priority: t.priority,
       estimated_time: t.estimated_time ?? '',
@@ -134,7 +135,7 @@ const EVENT_FIELDS = `
     id, name, color, icon, description
   ),
   tasks:ypwork_tasks (
-    id, event_id, title, due_date, status, priority,
+    id, event_id, title, due_date, start_time, status, priority,
     estimated_time, notes, tags, sort_order, created_at, updated_at
   )
 `;

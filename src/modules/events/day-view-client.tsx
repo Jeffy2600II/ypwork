@@ -29,7 +29,7 @@ export function DayViewClient({
   return (
     <div className="yp-page yp-page-enter">
       <div className="yp-page-header">
-        <div className="yp-page-header__eyebrow">รายการในวันที่</div>
+        <div className="yp-page-header__eyebrow">งานในวันที่</div>
         <h1 className="yp-page-header__title">{formattedTitle}</h1>
         <p className="yp-page-header__subtitle">
           {events.length} รายการ{loading ? ' · กำลังซิงค์…' : ''}
@@ -43,9 +43,9 @@ export function DayViewClient({
               📭
             </span>
           </div>
-          <div className="yp-empty__title">ไม่มีรายการในวันนี้</div>
+          <div className="yp-empty__title">ไม่มีงานในวันนี้</div>
           <div className="yp-empty__desc">
-            กดปุ่ม + เพื่อสร้างรายการใหม่สำหรับวันนี้
+            กดปุ่ม + เพื่อสร้างงานใหม่สำหรับวันนี้
           </div>
         </div>
       ) : (

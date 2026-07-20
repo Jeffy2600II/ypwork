@@ -11,6 +11,7 @@ import type { YPEvent } from '@/lib/types';
 import {
   relativeDay,
   eventProgress,
+  resolveEventStatus,
   statusLabel,
   statusChipClass,
 } from '@/lib/utils/date';
@@ -27,6 +28,9 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   const totalTasks = event.tasks?.length || 0;
   const doneTasks = event.tasks?.filter((t) => t.status === 'done').length || 0;
   const progress = eventProgress(event.tasks || []);
+  // ★ v3.10.0 (รอบ 8): กลุ่มรายการ — คำนวณสถานะจากรายการย่อยจริง แบบเรียลไทม์
+  //   แทนการอ่าน event.status ตรง ๆ (ซึ่งอาจค้างไม่ตรงกับความเป็นจริง)
+  const displayStatus = resolveEventStatus(event);
 
   const metaParts: string[] = [relativeDay(event.date)];
   if (event.time) metaParts.push(event.time);
@@ -38,7 +42,7 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
       href={`/events/${event.id}`}
       className="yp-event-card"
       style={{ ['--accent' as string]: accent }}
-      aria-label={`รายการ: ${event.title}`}
+      aria-label={`งาน: ${event.title}`}
     >
       <div className="yp-event-card__head">
         <div
@@ -53,9 +57,9 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
           <div className="yp-event-card__meta">{metaParts.join(' · ')}</div>
         </div>
 
-        <span className={`yp-chip ${statusChipClass(event.status)}`}>
+        <span className={`yp-chip ${statusChipClass(displayStatus)}`}>
           <span className="yp-chip-dot" aria-hidden="true" />
-          {statusLabel(event.status)}
+          {statusLabel(displayStatus)}
         </span>
       </div>
 

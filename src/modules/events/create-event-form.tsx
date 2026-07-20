@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · Create Event Form (client component)
 // ═══════════════════════════════════════════════════════════════
-// ฟอร์มสร้างรายการ: type, title, date, time, location, description,
+// ฟอร์มสร้างงาน: type, title, date, time, location, description,
 // department, color
 // หลัง submit → insert ลง ypwork_events → redirect ไป /events/[id]
 // ═══════════════════════════════════════════════════════════════
@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Layers, Flag } from 'lucide-react';
 import type { Department, EventType } from '@/lib/types';
 import { getLocalTodayStr } from '@/lib/utils/date';   // ★ v3.9.4: Thailand timezone
-import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoOption, InfoExample, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoTldr, InfoCompare } from '@/components/ui/info-button';
+import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoOption, InfoExample, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoHighlight, InfoTldr, InfoCompare, InfoQuote } from '@/components/ui/info-button';
 
 const COLOR_OPTIONS = [
   '#4F46E5',
@@ -124,7 +124,7 @@ export function CreateEventForm({
     setError(null);
 
     if (!title.trim()) {
-      setError('กรุณากรอกชื่อรายการ');
+      setError('กรุณากรอกชื่องาน');
       return;
     }
     if (!date) {
@@ -154,7 +154,7 @@ export function CreateEventForm({
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
-          throw new Error(data.error || 'ไม่สามารถแก้ไขรายการ');
+          throw new Error(data.error || 'ไม่สามารถแก้ไขงาน');
         }
         router.replace(`/events/${editEvent.id}`);
       } else {
@@ -174,7 +174,7 @@ export function CreateEventForm({
         });
         const data = await res.json();
         if (!res.ok || !data.success || !data.id) {
-          throw new Error(data.error || 'ไม่สามารถสร้างรายการ');
+          throw new Error(data.error || 'ไม่สามารถสร้างงาน');
         }
         router.replace(`/events/${data.id}`);
       }
@@ -188,15 +188,15 @@ export function CreateEventForm({
     <div className="yp-page yp-page-enter">
       <div className="yp-page-header">
         <div className="yp-page-header__eyebrow">
-          {isEdit ? 'แก้ไขรายการ' : 'สร้างรายการใหม่'}
+          {isEdit ? 'แก้ไขงาน' : 'สร้างงานใหม่'}
         </div>
         <h1 className="yp-page-header__title">
-          {isEdit ? 'แก้ไขรายละเอียดรายการ' : 'สร้างรายการใหม่'}
+          {isEdit ? 'แก้ไขรายละเอียดงาน' : 'สร้างงานใหม่'}
         </h1>
         <p className="yp-page-header__subtitle">
           {isEdit
-            ? 'ปรับปรุงข้อมูลรายการแล้วกดบันทึก'
-            : 'เลือกประเภทรายการและกรอกรายละเอียด'}
+            ? 'ปรับปรุงข้อมูลงานแล้วกดบันทึก'
+            : 'เลือกประเภทงานและกรอกรายละเอียด'}
         </p>
       </div>
 
@@ -210,84 +210,98 @@ export function CreateEventForm({
         {/* ── TYPE PICKER ── */}
         <div className="yp-form-card">
           <div className="yp-form-card__header">
-            <h2 className="yp-form-card__title">ประเภทรายการ</h2>
+            <h2 className="yp-form-card__title">ประเภทงาน</h2>
             <p className="yp-form-card__subtitle">
-              เลือกให้ตรงกับลักษณะงานจริง — มีผลต่อวิธีจัดการรายการนั้น
+              เลือกให้ตรงกับลักษณะของงานจริง — จะมีผลต่อวิธีจัดการงานนั้น
               <InfoButton
                 size="sm"
                 content={
                   <>
                     <InfoSheetHeader
                       icon={<Layers size={20} strokeWidth={2} />}
-                      title="ประเภทรายการ"
-                      subtitle="เลือกให้ตรงกับลักษณะงานจริง — มีผลต่อวิธีจัดการรายการนั้น"
+                      title="ประเภทงาน"
+                      subtitle="เลือกให้ตรงกับลักษณะของงานจริง — จะมีผลต่อวิธีจัดการงานนั้น"
                     />
 
                     <InfoTldr>
-                      มี 2 ประเภทให้เลือก:{' '}
-                      <InfoPill>กลุ่มรายการ</InfoPill>{' '}
-                      ใช้เมื่อต้องแบ่งงานเป็นหลายส่วนย่อย ส่วน{' '}
-                      <InfoPill>รายการ</InfoPill>{' '}
-                      ใช้กับงานที่ทำครั้งเดียวจบ ไม่ต้องแบ่งย่อย
+                      เพื่อจัดการสะดวกและดูแลง่าย เราจึงแยกประเภทของงาน —
+                      <InfoPill>กลุ่มงาน</InfoPill>{' '}
+                      คืองานใหญ่ที่มี task ย่อย,{' '}
+                      <InfoPill>งานเดี่ยว</InfoPill>{' '}
+                      คืองานเล็กที่ทำทีเดียวจบ
                     </InfoTldr>
+
+                    <p>
+                      ลองนึกถึงความแตกต่างระหว่าง &ldquo;จัดงานวันแม่&rdquo; กับ &ldquo;ซื้อกระดาษ A4 ให้ครู&rdquo; —
+                      งานแรกต้องทำหลายอย่างมาก (ตกแต่งบูธ, ซ้อมร้องเพลง, ดูแลวันจริง) กว่าจะเสร็จ
+                      ส่วนงานที่สองไปซื้อทีเดียวจบ เพราะงานทั้งสองมี{' '}
+                      <InfoHighlight>ความซับซ้อนต่างกันมาก</InfoHighlight>{' '}
+                      ระบบจึงแยกประเภทเพื่อให้จัดการได้เหมาะสม — งานใหญ่แบ่งเป็น task ย่อย
+                      ส่วนงานเล็กเปลี่ยนสถานะเลย
+                    </p>
 
                     <InfoSectionTitle>เปรียบเทียบ 2 ประเภท</InfoSectionTitle>
 
                     <InfoCompare
                       left={{
-                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />กลุ่มรายการ</>,
+                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />กลุ่มงาน</>,
                         tone: 'accent',
                         items: [
-                          <>มี <strong>รายการย่อย</strong> ได้หลายรายการ</>,
-                          <>เปลี่ยนสถานะไม่ได้โดยตรง — เปลี่ยนที่รายการย่อยแต่ละอัน</>,
-                          <>เพิ่มรายการย่อยได้เรื่อย ๆ</>,
-                          <>มอบหมายรายการย่อยให้คนละฝ่ายได้</>,
+                          <>มี <strong>task ย่อย</strong> หลายขั้นตอน</>,
+                          <>เปลี่ยนสถานะไม่ได้โดยตรง — เปลี่ยนที่ task</>,
+                          <>สร้าง task เพิ่มได้เรื่อย ๆ</>,
+                          <>มอบหมาย task ให้คนละฝ่ายได้</>,
                         ],
                       }}
                       right={{
-                        title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />รายการ</>,
+                        title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />งานเดี่ยว</>,
                         items: [
-                          <>ไม่มีรายการย่อย — ทำทีเดียวจบ</>,
-                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำอยู่&rdquo; / &ldquo;เสร็จสมบูรณ์&rdquo; ได้เลย</>,
+                          <>ไม่มี task ย่อย — ทำทีเดียวจบ</>,
+                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำ&rdquo; / &ldquo;เสร็จแล้ว&rdquo; ได้เลย</>,
                           <>เหมาะกับงานที่ไม่ซับซ้อน</>,
-                          <>เปลี่ยนเป็นกลุ่มรายการทีหลังได้</>,
+                          <>เปลี่ยนเป็นกลุ่มงานทีหลังได้</>,
                         ],
                       }}
                     />
 
-                    <InfoSectionTitle>ตัวอย่างการใช้งานจริง</InfoSectionTitle>
+                    <InfoSectionTitle>ตัวอย่างจริงในแต่ละประเภท</InfoSectionTitle>
 
                     <InfoKeyValue>
                       <InfoKeyValueRow
-                        k={<><InfoPill>กลุ่มรายการ</InfoPill></>}
+                        k={<><InfoPill>กลุ่มงาน</InfoPill></>}
                         v={<>วันแม่ · วันวิทยาศาสตร์ · วันกีฬาสี · วันครู</>}
                       />
                       <InfoKeyValueRow
-                        k={<><InfoPill>รายการ</InfoPill></>}
+                        k={<><InfoPill>งานเดี่ยว</InfoPill></>}
                         v={<>ส่งเอกสาร · ขออนุมัติเวที · ส่งรายงานการประชุม · ซื้อของ</>}
                       />
                     </InfoKeyValue>
 
-                    <InfoSectionTitle>เลือกประเภทไหนดี?</InfoSectionTitle>
+                    <InfoSectionTitle>เลือกยังไงให้ถูก?</InfoSectionTitle>
 
                     <InfoSteps>
-                      <InfoStep title="งานนี้ต้องแบ่งเป็นหลายส่วนไหม?">
-                        ถ้าใช่ → เลือก <InfoPill>กลุ่มรายการ</InfoPill>
-                        (สร้างรายการย่อยเพื่อแบ่งงานกันทำ)
+                      <InfoStep title="งานนี้ต้องทำหลายขั้นตอนก่อนจะเสร็จ?">
+                        ถ้าใช่ → เลือก <InfoPill>กลุ่มงาน</InfoPill>
+                        (เพราะต้องสร้าง task ย่อยเพื่อแบ่งงานกันทำ)
                       </InfoStep>
-                      <InfoStep title="งานนี้ทำทีเดียวจบไหม?">
-                        ถ้าใช่ → เลือก <InfoPill>รายการ</InfoPill>
-                        (เปลี่ยนสถานะได้เลย ไม่ต้องสร้างรายการย่อย)
+                      <InfoStep title="งานนี้ทำทีเดียวจบ?">
+                        ถ้าใช่ → เลือก <InfoPill>งานเดี่ยว</InfoPill>
+                        (เปลี่ยนสถานะได้เลย ไม่ต้องสร้าง task)
                       </InfoStep>
-                      <InfoStep title="ยังไม่แน่ใจ?">
-                        เริ่มจาก <strong>รายการ</strong> ก่อน — ถ้าทำไปแล้วเห็นว่ามีหลายส่วนย่อย
-                        ค่อยเปลี่ยนเป็น <strong>กลุ่มรายการ</strong> ทีหลังได้
+                      <InfoStep title="ไม่แน่ใจ?">
+                        เริ่มจาก <strong>งานเดี่ยว</strong> ก่อน — ถ้าทำไปเห็นว่ามีหลายขั้นตอน
+                        แก้เป็น <strong>กลุ่มงาน</strong> ทีหลังได้
                       </InfoStep>
                     </InfoSteps>
 
-                    <InfoCallout type="tip" title="เลือกผิดแก้ไขได้ ไม่เสียหาย">
-                      เลือกผิดก็แก้ไขได้ภายหลัง — เข้าไปที่รายการนั้นแล้วกด &ldquo;แก้ไข&rdquo;
-                      ระบบจะปรับประเภทให้ (ถ้ามีรายการย่อยอยู่แล้วจะถูกเก็บไว้)
+                    <InfoQuote author="ตัวอย่าง: วันแม่">
+                      &ldquo;วันแม่แห่งชาติ&rdquo; → มี task ย่อย ซื้อของ / ตกแต่งบูธ /
+                      ซ้อมร้องเพลง / ดูแลวันจริง — แต่ละ task มอบหมายให้คนละฝ่ายทำได้
+                    </InfoQuote>
+
+                    <InfoCallout type="tip" title="เลือกผิดก็ไม่เสียหาย">
+                      เลือกผิดก็แก้ไขได้ภายหลัง — เข้าไปที่งานนั้นแล้วกด &ldquo;แก้ไข&rdquo;
+                      ระบบจะปรับประเภทให้ (ถ้ามี task อยู่แล้วจะถูกเก็บไว้)
                     </InfoCallout>
                   </>
                 }
@@ -304,9 +318,9 @@ export function CreateEventForm({
               <div className="yp-type-option__icon">
                 <Layers width={20} height={20} />
               </div>
-              <div className="yp-type-option__title">กลุ่มรายการ</div>
+              <div className="yp-type-option__title">กลุ่มงาน</div>
               <div className="yp-type-option__desc">
-                สร้างรายการย่อยภายในได้ เช่น วันแม่ วันภาษาไทย
+                งานใหญ่ที่มี task ย่อย เช่น วันแม่ วันภาษาไทย
               </div>
             </button>
 
@@ -319,9 +333,9 @@ export function CreateEventForm({
               <div className="yp-type-option__icon">
                 <Flag width={20} height={20} />
               </div>
-              <div className="yp-type-option__title">รายการ</div>
+              <div className="yp-type-option__title">งานเดี่ยว</div>
               <div className="yp-type-option__desc">
-                รายการเดียวจบ เช่น ส่งเอกสาร ขออนุมัติ
+                Task เดียวจบ เช่น ส่งเอกสาร ขออนุมัติ
               </div>
             </button>
           </div>
@@ -330,13 +344,13 @@ export function CreateEventForm({
         {/* ── FIELDS ── */}
         <div className="yp-form-card">
           <div className="yp-form-card__header">
-            <h2 className="yp-form-card__title">รายละเอียดรายการ</h2>
-            <p className="yp-form-card__subtitle">กรอกข้อมูลให้ครบถ้วนเพื่อให้ทีมเข้าใจรายการได้ชัดเจน</p>
+            <h2 className="yp-form-card__title">รายละเอียดงาน</h2>
+            <p className="yp-form-card__subtitle">กรอกข้อมูลให้ครบถ้วนเพื่อให้ทีมเข้าใจงานได้ชัดเจน</p>
           </div>
         <div className="yp-form-modal__section">
           <div className="field">
             <label className="field__label" htmlFor="ev-title">
-              ชื่อรายการ <span className="yp-required">*</span>
+              ชื่องาน <span className="yp-required">*</span>
             </label>
             <input
               id="ev-title"
@@ -434,7 +448,7 @@ export function CreateEventForm({
           </div>
 
           <div className="field">
-            <label className="field__label">สีประจำรายการ</label>
+            <label className="field__label">สีประจำงาน</label>
             <div className="yp-color-picker">
               {COLOR_OPTIONS.map((c) => (
                 <button
@@ -472,7 +486,7 @@ export function CreateEventForm({
               ? 'กำลังบันทึก...'
               : isEdit
               ? 'บันทึกการแก้ไข'
-              : 'สร้างรายการ'}
+              : 'สร้างงาน'}
           </button>
         </div>
       </form>

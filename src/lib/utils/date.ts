@@ -186,21 +186,49 @@ export function eventProgress(tasks: { status: string }[]): number {
   return Math.round((done / tasks.length) * 100);
 }
 
-/** แปลง status code เป็น label ภาษาไทย
- *  ★ v3.10.0 รอบที่ 5: เปลี่ยน labels ให้ชัดเจนขึ้น ป้องกันความเข้าใจผิด
- *    - 'todo' เดิม = "ยังไม่เริ่ม" → ใหม่ = "รอเริ่ม" (ชัดเจนว่ารออยู่ ไม่ได้เริ่ม)
- *      (คำว่า "ยังไม่เริ่ม" ทำให้เพื่อนเข้าใจผิดว่างานยังไม่ได้ทำอะไรเลย
- *       ทั้งที่อาจมีบางขั้นตอน done แล้ว — "รอเริ่ม" ชัดเจนกว่า)
- *    - 'ongoing' เดิม = "กำลังทำ" → ใหม่ = "กำลังทำอยู่" (เน้นว่ากำลังทำอยู่จริง)
- *    - 'done' เดิม = "เสร็จแล้ว" → ใหม่ = "เสร็จสมบูรณ์" (ชัดเจนว่าเสร็จจริง)
- *    - 'planning' เดิม = "วางแผน" → คงไว้ (ชัดเจนอยู่แล้ว)
+/**
+ * ★ v3.10.0 (รอบ 8): สถานะที่ควรแสดงผลจริงของ "กลุ่มรายการ"
+ * ─────────────────────────────────────────────────────────────
+ * ปัญหาเดิม: การ์ดของกลุ่มรายการใน หน้าโฮม/today ใช้ค่า `event.status`
+ * ที่เก็บไว้ใน DB ตรง ๆ ซึ่งเป็นค่าที่ตั้งไว้ตอนสร้างกลุ่มรายการเท่านั้น
+ * และไม่เคยถูกอัปเดตอัตโนมัติเมื่อรายการย่อยข้างในเปลี่ยนสถานะ — ทำให้
+ * กลุ่มรายการที่ทำเสร็จไปแล้วยังคงขึ้นป้าย "ยังไม่เริ่ม" ค้างอยู่
+ *
+ * ฟังก์ชันนี้คำนวณสถานะของกลุ่มรายการจากรายการย่อยจริง ๆ แทน (ดึงมาจาก
+ * event.tasks ที่อัปเดตแบบเรียลไทม์อยู่แล้วผ่าน useRealtimeEvents) กฎ:
+ *   - ไม่ใช่กลุ่มรายการ (type === 'task') → ใช้ status ที่เก็บไว้ตามเดิม
+ *     (รายการเดี่ยวเปลี่ยนสถานะเองได้โดยตรงอยู่แล้ว ไม่ต้องคำนวณ)
+ *   - กลุ่มรายการที่ยังไม่มีรายการย่อยเลย → ใช้ status ที่เก็บไว้ (fallback)
+ *   - ทุกรายการย่อยเสร็จหมด → 'done'
+ *   - ยังไม่มีรายการย่อยไหนเริ่มเลย (ทุกอันเป็น 'todo') → 'todo'
+ *   - นอกเหนือจากนั้น (เสร็จบางส่วน/กำลังทำอยู่บางส่วน) → 'ongoing'
  */
+export function resolveEventStatus(event: {
+  type: string;
+  status: EventStatus;
+  tasks?: { status: string }[];
+}): EventStatus {
+  if (event.type !== 'group') return event.status;
+
+  const tasks = event.tasks || [];
+  if (tasks.length === 0) return event.status;
+
+  const doneCount = tasks.filter((t) => t.status === 'done').length;
+  if (doneCount === tasks.length) return 'done';
+
+  const noneStarted = tasks.every((t) => t.status === 'todo');
+  if (noneStarted) return 'todo';
+
+  return 'ongoing';
+}
+
+/** แปลง status code เป็น label ภาษาไทย */
 export function statusLabel(status: EventStatus | TaskStatus): string {
   const labels: Record<string, string> = {
     planning: 'วางแผน',
-    todo: 'รอเริ่ม',
-    ongoing: 'กำลังทำอยู่',
-    done: 'เสร็จสมบูรณ์',
+    todo: 'ยังไม่เริ่ม',
+    ongoing: 'กำลังทำ',
+    done: 'เสร็จแล้ว',
   };
   return labels[status] || status;
 }

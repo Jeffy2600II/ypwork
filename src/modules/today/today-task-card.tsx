@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · TodayTaskCard (v3.10.0 — sub-task card สำหรับ today dashboard)
+// YP WORK · TodayTaskCard (v3.9.9 — sub-task card สำหรับ today dashboard)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0: แสดง รายการย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
-//   ทำให้ "รายการวันนี้" แสดงผลครบทุกรายการที่ต้องทำวันนี้จริง ๆ
+// ★ v3.9.9: แสดง task ย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
+//   ทำให้ "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
 //   ไม่ใช่แค่ event ที่ date = วันนี้
 //
 // Layout คล้าย EventCard แต่มี:
-//   - "↪ จาก: <event title>" badge บอกว่าเป็น รายการย่อยของรายการไหน
+//   - "↪ จาก: <event title>" badge บอกว่าเป็น task ย่อยของงานไหน
 //   - icon เป็น CheckSquare (แทน Layers/Flag ของ event)
 //   - link ไปยัง parent event (เพราะ task ไม่มีหน้าของตัวเอง)
 // ═══════════════════════════════════════════════════════════════
@@ -32,7 +32,7 @@ export function TodayTaskCard({ task, parentEvent }: TodayTaskCardProps) {
       href={`/events/${parentEvent.id}`}
       className="yp-event-card yp-today-task-card"
       style={{ ['--accent' as string]: accent }}
-      aria-label={`รายการย่อย: ${task.title} (จาก: ${parentEvent.title})`}
+      aria-label={`Task: ${task.title} (จากงาน: ${parentEvent.title})`}
     >
       <div className="yp-event-card__head">
         <div

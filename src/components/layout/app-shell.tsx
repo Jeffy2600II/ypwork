@@ -1,16 +1,18 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0
+// YP WORK · App Shell — v3.10.0 รอบที่ 2
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.9.9: Today Dashboard + Session Cache
+// ★ v3.10.0 รอบที่ 2: Task Cards Redesign + Sub-tasks in Today/Upcoming
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //   - การเปลี่ยนแปลงอยู่ใน:
-//     - src/lib/utils/session-cache.ts (ใหม่ — cache utility)
-//     - src/lib/hooks/use-realtime.ts (เพิ่ม cache ให้ useRealtimeEvents + useRealtimeEventById)
-//     - src/modules/today/today-client.tsx (แสดง รายการย่อยที่ due_date = วันนี้)
-//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ รายการย่อย)
-//     - src/modules/profile/profile-view.tsx (ล้าง cache ตอน logout)
+//     - src/modules/events/event-detail-client.tsx (TaskRow v2 layout + labels)
+//     - src/modules/today/today-client.tsx (sub-tasks ใน today + upcoming)
+//     - src/app/globals.css (.yp-task-row--v2 CSS)
+//
+// ★ v3.10.0 รอบที่ 1 (เดิม): Task Cards Redesign + Morning/Afternoon Grouping
+//   - เพิ่ม start_time field + แยก task list เป็นช่วงเช้า/บ่าย
+//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ
@@ -85,7 +87,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { key: 'today',    label: 'หน้าแรก',   href: '/today',    icon: Home },
   { key: 'calendar', label: 'ปฏิทิน',    href: '/calendar', icon: CalendarDays },
-  { key: 'events',   label: 'รายการ',     href: '/events',   icon: ListTodo },
+  { key: 'events',   label: 'งาน',       href: '/events',   icon: ListTodo },
   { key: 'profile',  label: 'โปรไฟล์',   href: '/profile',  icon: UserIcon },
 ];
 
@@ -207,7 +209,7 @@ export function AppShell({
         <Link
           href="/events/create"
           prefetch={true}
-          aria-label="สร้างรายการใหม่"
+          aria-label="สร้างงานใหม่"
           className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
         >
           <Plus className="size-5" strokeWidth={2.4} />

@@ -32,7 +32,7 @@ export default async function EventsListPage() {
   const events = await fetchEventsWithRelations(supabase);
 
   return (
-    <AppShell user={user} activeNav="events" title="รายการทั้งหมด" showFAB>
+    <AppShell user={user} activeNav="events" title="งานทั้งหมด" showFAB>
       <EventsListView events={events} user={user} />
     </AppShell>
   );
