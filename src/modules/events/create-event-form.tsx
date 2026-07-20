@@ -224,18 +224,18 @@ export function CreateEventForm({
                     />
 
                     <InfoTldr>
-                      มี 2 ประเภท —{' '}
-                      <InfoPill>ชุดรายการ</InfoPill>{' '}
-                      สร้างรายการย่อยภายในได้ ใช้แบ่งงานเป็นหลายส่วน,{' '}
+                      มี 2 ประเภทให้เลือก:{' '}
+                      <InfoPill>กลุ่มรายการ</InfoPill>{' '}
+                      ใช้เมื่อต้องแบ่งงานเป็นหลายส่วนย่อย ส่วน{' '}
                       <InfoPill>รายการ</InfoPill>{' '}
-                      รายการทั่วไป ไม่มีรายการย่อย
+                      ใช้กับงานที่ทำครั้งเดียวจบ ไม่ต้องแบ่งย่อย
                     </InfoTldr>
 
                     <InfoSectionTitle>เปรียบเทียบ 2 ประเภท</InfoSectionTitle>
 
                     <InfoCompare
                       left={{
-                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />ชุดรายการ</>,
+                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />กลุ่มรายการ</>,
                         tone: 'accent',
                         items: [
                           <>มี <strong>รายการย่อย</strong> ได้หลายรายการ</>,
@@ -248,18 +248,18 @@ export function CreateEventForm({
                         title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />รายการ</>,
                         items: [
                           <>ไม่มีรายการย่อย — ทำทีเดียวจบ</>,
-                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำ&rdquo; / &ldquo;เสร็จแล้ว&rdquo; ได้เลย</>,
+                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำอยู่&rdquo; / &ldquo;เสร็จสมบูรณ์&rdquo; ได้เลย</>,
                           <>เหมาะกับงานที่ไม่ซับซ้อน</>,
-                          <>เปลี่ยนเป็นชุดรายการทีหลังได้</>,
+                          <>เปลี่ยนเป็นกลุ่มรายการทีหลังได้</>,
                         ],
                       }}
                     />
 
-                    <InfoSectionTitle>ตัวอย่างจริงในแต่ละประเภท</InfoSectionTitle>
+                    <InfoSectionTitle>ตัวอย่างการใช้งานจริง</InfoSectionTitle>
 
                     <InfoKeyValue>
                       <InfoKeyValueRow
-                        k={<><InfoPill>ชุดรายการ</InfoPill></>}
+                        k={<><InfoPill>กลุ่มรายการ</InfoPill></>}
                         v={<>วันแม่ · วันวิทยาศาสตร์ · วันกีฬาสี · วันครู</>}
                       />
                       <InfoKeyValueRow
@@ -268,24 +268,24 @@ export function CreateEventForm({
                       />
                     </InfoKeyValue>
 
-                    <InfoSectionTitle>เลือกยังไงให้ถูก?</InfoSectionTitle>
+                    <InfoSectionTitle>เลือกประเภทไหนดี?</InfoSectionTitle>
 
                     <InfoSteps>
-                      <InfoStep title="ต้องแบ่งงานออกเป็นหลายส่วนไหม?">
-                        ถ้าใช่ → เลือก <InfoPill>ชุดรายการ</InfoPill>
+                      <InfoStep title="งานนี้ต้องแบ่งเป็นหลายส่วนไหม?">
+                        ถ้าใช่ → เลือก <InfoPill>กลุ่มรายการ</InfoPill>
                         (สร้างรายการย่อยเพื่อแบ่งงานกันทำ)
                       </InfoStep>
-                      <InfoStep title="ทำทีเดียวจบไหม?">
+                      <InfoStep title="งานนี้ทำทีเดียวจบไหม?">
                         ถ้าใช่ → เลือก <InfoPill>รายการ</InfoPill>
                         (เปลี่ยนสถานะได้เลย ไม่ต้องสร้างรายการย่อย)
                       </InfoStep>
-                      <InfoStep title="ไม่แน่ใจ?">
-                        เริ่มจาก <strong>รายการ</strong> ก่อน — ถ้าทำไปเห็นว่ามีหลายส่วน
-                        แก้เป็น <strong>ชุดรายการ</strong> ทีหลังได้
+                      <InfoStep title="ยังไม่แน่ใจ?">
+                        เริ่มจาก <strong>รายการ</strong> ก่อน — ถ้าทำไปแล้วเห็นว่ามีหลายส่วนย่อย
+                        ค่อยเปลี่ยนเป็น <strong>กลุ่มรายการ</strong> ทีหลังได้
                       </InfoStep>
                     </InfoSteps>
 
-                    <InfoCallout type="tip" title="เลือกผิดก็ไม่เสียหาย">
+                    <InfoCallout type="tip" title="เลือกผิดแก้ไขได้ ไม่เสียหาย">
                       เลือกผิดก็แก้ไขได้ภายหลัง — เข้าไปที่รายการนั้นแล้วกด &ldquo;แก้ไข&rdquo;
                       ระบบจะปรับประเภทให้ (ถ้ามีรายการย่อยอยู่แล้วจะถูกเก็บไว้)
                     </InfoCallout>
@@ -304,7 +304,7 @@ export function CreateEventForm({
               <div className="yp-type-option__icon">
                 <Layers width={20} height={20} />
               </div>
-              <div className="yp-type-option__title">ชุดรายการ</div>
+              <div className="yp-type-option__title">กลุ่มรายการ</div>
               <div className="yp-type-option__desc">
                 สร้างรายการย่อยภายในได้ เช่น วันแม่ วันภาษาไทย
               </div>

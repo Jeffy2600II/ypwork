@@ -3684,10 +3684,23 @@ body.yp-sheet-open .fab {
   line-height: 1.6;
 }
 
-/* Task list card */
+/* Task list card (ใช้เฉพาะตอนยังไม่มีรายการย่อย — empty state) */
 .yp-card--tasklist {
   padding: 10px var(--yp-space-5) 14px;
   border-color: color-mix(in srgb, var(--accent, var(--yp-border-subtle)) 14%, var(--yp-border-subtle));
+}
+
+/* ★ v3.10.0: yp-task-list — คอนเทนเนอร์ของรายการย่อย (มีรายการแล้ว)
+   จัดวางแบบเดียวกับรายการวันนี้/กำลังจะถึงในหน้าโฮม คือแต่ละรายการ
+   เป็นการ์ดของตัวเอง เว้นระยะห่างระหว่างการ์ด แทนที่จะรวมกันอยู่ใน
+   การ์ดเดียวคั่นด้วยเส้นแบ่ง — ตัวการ์ดของรายการย่อย (.yp-task-row)
+   ยังคงโครงสร้างและเนื้อหาเดิมทุกอย่าง เปลี่ยนแค่การจัดวาง container */
+.yp-task-list {
+  display: flex;
+  flex-direction: column;
+}
+.yp-task-list .yp-add-task-btn--standalone {
+  margin-top: var(--yp-space-4);
 }
 
 .yp-task-empty {
@@ -3981,24 +3994,28 @@ body.yp-sheet-open .fab {
   flex-shrink: 0;
 }
 
-/* Task row */
+/* Task row — ★ v3.10.0: การ์ดของตัวเอง (เหมือน container layout ของ
+   yp-event-card ในรายการวันนี้/กำลังจะถึง) แทนที่จะเป็นแถวคั่นเส้นแบ่ง
+   ในการ์ดเดียวกัน — เนื้อหาภายในแถว (ไอคอน/ชื่อ/ป้ายสถานะ ฯลฯ) ไม่เปลี่ยน */
 .yp-task-row {
   display: flex;
   align-items: flex-start;
   gap: var(--yp-space-3);
-  padding: 14px 0;
-  border-bottom: 1px solid var(--yp-border-subtle);
+  padding: var(--yp-space-5) var(--yp-space-4);
   cursor: pointer;
-  transition: background var(--yp-t-fast);
-  margin: 0 calc(-1 * var(--yp-space-2));
-  padding-left: var(--yp-space-2);
-  padding-right: var(--yp-space-2);
-  border-radius: var(--yp-radius-xs);
+  transition: background var(--yp-t-fast), border-color var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  background: var(--yp-bg-card);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
 }
+.yp-task-row + .yp-task-row { margin-top: var(--yp-space-4); }
 .yp-task-row:hover {
   background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-indigo);
 }
-.yp-task-row:last-of-type { border-bottom: none; }
 
 .yp-task-status-dot {
   width: 16px; height: 16px;

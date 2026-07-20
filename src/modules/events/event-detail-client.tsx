@@ -437,7 +437,7 @@ export function EventDetailClient({
         <div className="yp-detail-hero yp-hero-enter">
           <div className="yp-detail-hero__type">
             <Layers />
-            ชุดรายการ
+            กลุ่มรายการ
           </div>
           <h1 className="yp-detail-hero__title">{event.title}</h1>
           <div className="yp-detail-hero__meta">
@@ -606,16 +606,16 @@ export function EventDetailClient({
                   <InfoSheetHeader
                     icon={<Layers size={20} strokeWidth={2} />}
                     title="รายการย่อย"
-                    subtitle="แต่ละรายการย่อยของชุดรายการ — ทำเสร็จทีละรายการ จนครบ"
+                    subtitle="แต่ละรายการย่อยของกลุ่มรายการ — ทำเสร็จทีละรายการ จนครบ"
                   />
 
                   <InfoTldr>
-                    รายการย่อย คือส่วนย่อยของ <InfoPill>ชุดรายการ</InfoPill>{' '}
+                    รายการย่อย คือส่วนย่อยของ <InfoPill>กลุ่มรายการ</InfoPill>{' '}
                     — แตะรายการย่อยเพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
                   </InfoTldr>
 
                   <p>
-                    ชุดรายการประกอบด้วย <InfoHighlight>รายการย่อยหลายรายการ</InfoHighlight>{' '}
+                    กลุ่มรายการประกอบด้วย <InfoHighlight>รายการย่อยหลายรายการ</InfoHighlight>{' '}
                     ที่แต่ละรายการทำหน้าที่เฉพาะ — เช่น วันแม่อาจมีรายการย่อย: ซื้อของ, ตกแต่งบูธ,
                     ซ้อมร้องเพลง, ดูแลวันจริง แต่ละรายการมีสถานะของตัวเอง
                     และสามารถมอบหมายให้คนละฝ่ายทำได้
@@ -630,10 +630,10 @@ export function EventDetailClient({
                     </InfoStep>
                     <InfoStep title="เปลี่ยนสถานะรายการย่อย">
                       แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังทำอยู่ / เสร็จสมบูรณ์)
-                      สถานะของชุดรายการจะคำนวณใหม่อัตโนมัติ
+                      สถานะของกลุ่มรายการจะคำนวณใหม่อัตโนมัติ
                     </InfoStep>
                     <InfoStep title="แก้ไขรายการย่อย">
-                      กดปุ่มดินสอ → แก้ไขชื่อ, วันที่, assignee ได้
+                      กดปุ่มดินสอ → แก้ไขชื่อ วันที่ หรือผู้รับผิดชอบได้
                     </InfoStep>
                     <InfoStep title="ลบรายการย่อย">
                       กดปุ่มถังขยะ — ระบบจะถามยืนยันก่อนลบ
@@ -643,8 +643,8 @@ export function EventDetailClient({
                   <InfoSectionTitle>สถานะรวมคำนวณยังไง?</InfoSectionTitle>
                   <InfoKeyValue>
                     <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกรายการย่อยยังเป็น &ldquo;วางแผน&rdquo;" />
-                    <InfoKeyValueRow k={<><InfoPill>กำลังทำ</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังทำอยู่&rdquo; แต่ยังไม่ครบเสร็จ" />
-                    <InfoKeyValueRow k={<><InfoPill>เสร็จแล้ว</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
+                    <InfoKeyValueRow k={<><InfoPill>กำลังทำอยู่</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังทำอยู่&rdquo; แต่ยังไม่ครบเสร็จ" />
+                    <InfoKeyValueRow k={<><InfoPill>เสร็จสมบูรณ์</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
                   </InfoKeyValue>
 
                   <InfoCallout type="info" title="เคล็ดลับการแบ่งรายการย่อย">
@@ -659,8 +659,8 @@ export function EventDetailClient({
             </span>
           </h2>
 
-          <div className="yp-card yp-card--tasklist">
-            {totalTasks === 0 ? (
+          {totalTasks === 0 ? (
+            <div className="yp-card yp-card--tasklist">
               <div className="yp-task-empty">
                 <div className="yp-task-empty__icon">
                   <Layers width={20} height={20} />
@@ -670,8 +670,22 @@ export function EventDetailClient({
                   กดปุ่มด้านล่างเพื่อเพิ่มรายการย่อยแรกให้รายการนี้
                 </div>
               </div>
-            ) : (
-              (event.tasks || []).map((t) => (
+              <button
+                type="button"
+                className="yp-add-task-btn"
+                onClick={() => setAddTaskOpen(true)}
+              >
+                <Plus />
+                <span>เพิ่มรายการย่อย</span>
+              </button>
+            </div>
+          ) : (
+            // ★ v3.10.0: คอนเทนเนอร์ของรายการย่อย ปรับให้จัดวางแบบเดียวกับ
+            //   รายการวันนี้/กำลังจะถึงในหน้าโฮม — การ์ดแต่ละรายการแยกจากกัน
+            //   มีระยะห่างระหว่างการ์ด แทนที่จะรวมอยู่ในการ์ดเดียวคั่นด้วยเส้นแบ่ง
+            //   (ไม่ได้แก้ไขตัวการ์ดของรายการย่อยเอง — แก้แค่ container ที่ห่อ)
+            <div className="yp-task-list">
+              {(event.tasks || []).map((t) => (
                 <TaskRow
                   key={t.id}
                   task={t}
@@ -685,18 +699,18 @@ export function EventDetailClient({
                   }}
                   onDelete={() => requestDeleteTask(t.id)}
                 />
-              ))
-            )}
+              ))}
 
-            <button
-              type="button"
-              className="yp-add-task-btn"
-              onClick={() => setAddTaskOpen(true)}
-            >
-              <Plus />
-              <span>เพิ่มรายการย่อย</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                className="yp-add-task-btn yp-add-task-btn--standalone"
+                onClick={() => setAddTaskOpen(true)}
+              >
+                <Plus />
+                <span>เพิ่มรายการย่อย</span>
+              </button>
+            </div>
+          )}
 
           <div className="yp-task-list-hint">แตะรายการย่อยเพื่อเปลี่ยนสถานะ</div>
         </section>
@@ -965,7 +979,7 @@ export function EventDetailClient({
                 <div className="yp-manage-sheet__body">
                   <div className="yp-manage-sheet__title">เพิ่มรายการย่อย</div>
                   <div className="yp-manage-sheet__desc">
-                    สร้างรายการย่อยใหม่ในชุดรายการนี้
+                    สร้างรายการย่อยใหม่ในกลุ่มรายการนี้
                   </div>
                 </div>
                 <ChevronRight />
@@ -1030,8 +1044,7 @@ export function EventDetailClient({
       >
         <div className="yp-manage-task-picker">
           {(event.tasks || []).map((t) => {
-            const sLabel =
-              t.status === 'done' ? 'เสร็จแล้ว' : t.status === 'ongoing' ? 'กำลังทำ' : 'รอทำ';
+            const sLabel = statusLabel(t.status);
             return (
               <button
                 key={t.id}
@@ -1164,7 +1177,7 @@ export function EventDetailClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TaskRow — render row ของรายการย่อยในชุดรายการ (เหมือน demo task-row.js)
+// TaskRow — render row ของรายการย่อยในกลุ่มรายการ (เหมือน demo task-row.js)
 // ═══════════════════════════════════════════════════════════════
 function TaskRow({
   task,
