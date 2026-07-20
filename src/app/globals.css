@@ -4,22 +4,28 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0 (Indigo Trust theme — Premium Polish)
+   YP WORK · Global CSS v3.10.0 รอบที่ 2 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.10.0)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.10.0 รอบที่ 2)
 
-   v3.10.0 — Task Cards Redesign + Morning/Afternoon Grouping
-   • เปลี่ยน concept จาก "กำหนดส่ง" (deadline) → "เวลาเริ่มทำ" (start time)
-     - เพิ่ม `start_time` field (HH:MM) ใน ypwork_tasks (DB migration)
-     - อัปเดต task forms ให้กรอกเวลาเริ่มทำแทนกำหนดส่ง
-     - อัปเดต TaskRow แสดง "เริ่ม HH:MM · วันที่" แทน "กำหนด"
-   • แยก task list เป็นช่วงเช้า/บ่าย/ไม่ระบุเวลา
-     - ช่วงเช้า = start_time ก่อน 13:00 (amber accent)
-     - ช่วงบ่าย = start_time ตั้งแต่ 13:00 ขึ้นไป (indigo accent)
-     - ไม่ระบุเวลา = ไม่มี start_time (muted)
-   • ออกแบบ TaskRow ใหม่ — แต่ละ task เป็น card ของตัวเอง (wider, more spacious)
-     - ก่อนหน้านี้: list แบบมี border-bottom คั่น
-     - ตอนนี้: card เดี่ยว ๆ มี border รอบด้าน + shadow + accent hover
+   ★★★ หมายเหตุเรื่องหมายเลขเวอร์ชั่น ★★★
+   ตั้งแต่ v3.10.0 เป็นต้นไป:
+   - หมายเลขเวอร์ชั่นในเว็บ (package.json, about page) จะคงเป็น 3.10.0
+   - แต่ในไฟล์/comments/การสนทนา จะระบุ "รอบที่ X" เพื่อติดตามรอบการปรับปรุง
+   - เช่น "v3.10.0 รอบที่ 2" = การปรับปรุงครั้งที่ 2 ภายในเวอร์ชั่น 3.10.0
+   - ทำให้ทราบว่ารอบไหนมีปัญหา แก้ไขตรงไหน กลับไปหาตัวจับได้ง่าย
+
+   v3.10.0 รอบที่ 2 — Task Cards Redesign + Sub-tasks in Today/Upcoming
+   • เปลี่ยน labels: "เวลาเริ่มทำ" → "เริ่มกี่โมง", "เวลาโดยประมาณ" → "ใช้เวลาประมาณ"
+   • ออกแบบ TaskRow v2 — layout แบบ EventCard (wider, card-style)
+     - head row: status dot + title/meta + status chip + actions
+     - footer row: priority + tags + overdue badge
+     - ก่อนหน้านี้: inline row แบบ compact มี chips รวมกัน
+     - ตอนนี้: card แบบกว้าง เหมือน EventCard ในหน้า home
+   • แสดง standalone sub-tasks ใน "กำลังจะถึง" ของ today dashboard
+     - ก่อนหน้านี้: แสดงเฉพาะ events ที่ date > วันนี้
+     - ตอนนี้: รวม tasks ที่ due_date > วันนี้ แต่ parent event ในวันอื่น
+   • CSS สำหรับ .yp-task-row--v2 (layout ใหม่แบบ card-style)
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
@@ -4087,6 +4093,136 @@ body.yp-sheet-open .fab {
   background: var(--yp-bg-card-soft);
 }
 .yp-task-row:last-of-type { border-bottom: none; }
+
+/* ★ v3.10.0u2: TaskRow v2 — layout แบบ EventCard (wider, card-style)
+   แทนที่ layout เดิมที่เป็น inline row แบบ compact
+   โครงสร้าง: head (icon + title/meta + chip + actions) + footer (priority/tags) */
+.yp-task-row--v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--yp-space-4);
+  border-bottom: none;
+  margin: 0;
+}
+
+.yp-task-row--v2 .yp-task-row__head {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+}
+
+/* ★ v3.10.0u2: main content (title + meta line) — เหมือน .yp-event-card__main */
+.yp-task-row--v2 .yp-task-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: var(--yp-space-2);
+}
+
+.yp-task-row--v2 .yp-task-row__title {
+  font-size: 0.9375rem;
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-task-row--v2 .yp-task-row__meta-line {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+/* ★ v3.10.0u2: actions — ปุ่มเล็ก ๆ ฝั่งขวา */
+.yp-task-row--v2 .yp-task-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.yp-task-row--v2 .yp-task-row__edit,
+.yp-task-row--v2 .yp-task-row__delete {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--yp-text-muted);
+  cursor: pointer;
+  border-radius: var(--yp-radius-xs);
+  transition: background var(--yp-t-fast), color var(--yp-t-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.yp-task-row--v2 .yp-task-row__edit:hover {
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+}
+
+.yp-task-row--v2 .yp-task-row__delete:hover {
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+}
+
+/* ★ v3.10.0u2: footer row — priority + tags + overdue badge */
+.yp-task-row--v2 .yp-task-row__footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-left: calc(16px + var(--yp-space-3));  /* align with title (dot width + gap) */
+}
+
+.yp-task-row--v2 .yp-task-row__chip--overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--yp-radius-pill);
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+  border: 1px solid rgba(244, 63, 94, 0.24);
+  font-size: 11px;
+  font-weight: var(--yp-fw-bold);
+}
+
+.yp-task-row--v2 .yp-task-row__notes {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.5;
+  padding-left: calc(16px + var(--yp-space-3));
+  padding-top: 2px;
+  white-space: pre-wrap;
+}
+
+/* ★ v3.10.0u2: status dot ใน v2 — ใหญ่ขึ้นเล็กน้อย เหมือน icon ของ EventCard */
+.yp-task-row--v2 .yp-task-status-dot {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+/* ★ v3.10.0u2: done state — title สีจางลง */
+.yp-task-row--v2.is-done .yp-task-row__title {
+  text-decoration: line-through;
+  color: var(--yp-text-muted);
+}
+
+.yp-task-row--v2.is-done .yp-task-row__meta-line {
+  opacity: 0.6;
+}
 
 .yp-task-status-dot {
   width: 16px; height: 16px;

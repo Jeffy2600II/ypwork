@@ -1,20 +1,18 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0
+// YP WORK · App Shell — v3.10.0 รอบที่ 2
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0: Task Cards Redesign + Morning/Afternoon Grouping
+// ★ v3.10.0 รอบที่ 2: Task Cards Redesign + Sub-tasks in Today/Upcoming
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //   - การเปลี่ยนแปลงอยู่ใน:
-//     - src/lib/types/index.ts (เพิ่ม start_time field)
-//     - src/lib/hooks/use-realtime.ts (normalizeTask รองรับ start_time)
-//     - src/lib/db/event-loader.ts (query รวม start_time)
-//     - src/app/api/events/[id]/tasks/route.ts (รองรับ start_time ตอน create)
-//     - src/app/api/tasks/[id]/route.ts (รองรับ start_time ตอน patch)
-//     - src/app/api/events/[id]/detail/route.ts (ส่ง start_time กลับ)
-//     - src/modules/events/event-detail-client.tsx (เวลาเริ่มทำ + แยกช่วงเช้า/บ่าย)
-//     - src/app/globals.css (CSS สำหรับ .yp-task-group)
-//     - ypwork-v3.10.0-add-task-start-time.sql (DB migration)
+//     - src/modules/events/event-detail-client.tsx (TaskRow v2 layout + labels)
+//     - src/modules/today/today-client.tsx (sub-tasks ใน today + upcoming)
+//     - src/app/globals.css (.yp-task-row--v2 CSS)
+//
+// ★ v3.10.0 รอบที่ 1 (เดิม): Task Cards Redesign + Morning/Afternoon Grouping
+//   - เพิ่ม start_time field + แยก task list เป็นช่วงเช้า/บ่าย
+//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ

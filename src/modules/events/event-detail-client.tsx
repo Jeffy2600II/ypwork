@@ -96,7 +96,7 @@ const PRIORITY_META: Record<
   high: { label: 'เร่งด่วน', desc: 'ต้องทำก่อนอื่น', dotClass: 'is-high' },
 };
 
-// ★ v3.8.0: Predefined "เวลาโดยประมาณ" options — เปลี่ยนจาก text input
+// ★ v3.8.0: Predefined "ใช้เวลาประมาณ" options — เปลี่ยนจาก text input
 //   เป็น select เพื่อกัน user พิมพ์ค่าที่ไม่มาตรฐาน
 //   value = ค่าที่เก็บใน DB, label = ค่าที่แสดง
 //   '' = ไม่ระบุ (ส่ง empty string ไป DB)
@@ -1250,9 +1250,24 @@ function TaskRow({
     priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
   const tags = Array.isArray(task.tags) ? task.tags : [];
 
+  // ★ v3.10.0u2: สร้าง meta line แบบ EventCard — รวมข้อมูลสำคัญเป็นบรรทัดเดียว
+  //   "เริ่ม 14:30 · วันนี้ · ใช้เวลา 2 ชม · โดย นาย A"
+  const metaParts: string[] = [];
+  if (startTimeLabel) {
+    metaParts.push(`เริ่ม ${startTimeLabel}`);
+  } else if (dueLabel) {
+    metaParts.push(`เริ่ม ${dueLabel}`);
+  }
+  if (task.estimated_time) {
+    metaParts.push(`ใช้เวลา ${task.estimated_time}`);
+  }
+  if (assignee) {
+    metaParts.push(`โดย ${assignee.full_name.split(' ')[0]}`);
+  }
+
   return (
     <div
-      className={`yp-task-row yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
+      className={`yp-task-row yp-task-row--v2 yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
       data-task-id={task.id}
       role="button"
       tabIndex={0}
@@ -1265,37 +1280,67 @@ function TaskRow({
       }}
       aria-label={`เปลี่ยนสถานะ task: ${task.title}`}
     >
-      <button
-        type="button"
-        className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
-        aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onStatusClick();
-        }}
-        style={{
-          border: '2px solid',
-          background: 'transparent',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-      />
-      <div className="yp-task-row__body">
-        <div className="yp-task-row__title">{task.title}</div>
-        <div className="yp-task-row__meta">
-          <span
-            className={`yp-task-row__chip yp-task-row__status yp-task-row__status--${task.status}`}
+      {/* ★ v3.10.0u2: Head row — เหมือน EventCard head
+          icon (status dot) + title/meta + status chip + actions */}
+      <div className="yp-task-row__head">
+        <button
+          type="button"
+          className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
+          aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onStatusClick();
+          }}
+          style={{
+            border: '2px solid',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        />
+        <div className="yp-task-row__main">
+          <div className="yp-task-row__title">{task.title}</div>
+          {metaParts.length > 0 ? (
+            <div className="yp-task-row__meta-line">{metaParts.join(' · ')}</div>
+          ) : null}
+        </div>
+        <span
+          className={`yp-chip ${statusChipClass(task.status)}`}
+        >
+          <span className="yp-chip-dot" aria-hidden="true" />
+          {statusLabel(task.status)}
+        </span>
+        {/* ★ v3.10.0u2: Actions ฝั่งขวา — เหมือน EventCard ไม่มี actions
+            แต่ task ต้องมี edit/delete เลยใส่เป็นปุ่มเล็ก ๆ */}
+        <div className="yp-task-row__actions">
+          <button
+            type="button"
+            className="yp-task-row__edit"
+            aria-label="แก้ไข task"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
           >
-            {task.status === 'done' ? (
-              <Check width={11} height={11} />
-            ) : task.status === 'ongoing' ? (
-              <RefreshCw width={11} height={11} />
-            ) : (
-              <Clock width={11} height={11} />
-            )}
-            {statusLabel(task.status)}
-          </span>
+            <Pencil width={14} height={14} />
+          </button>
+          <button
+            type="button"
+            className="yp-task-row__delete"
+            aria-label="ลบ task"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            <Trash2 width={14} height={14} />
+          </button>
+        </div>
+      </div>
 
+      {/* ★ v3.10.0u2: Footer row — priority + tags (เหมือน progress row ของ EventCard) */}
+      {(priority !== 'medium' || tags.length > 0 || task.notes) ? (
+        <div className="yp-task-row__footer">
           {priority !== 'medium' ? (
             <span
               className={`yp-task-row__chip yp-task-row__priority is-priority-${priority}`}
@@ -1303,84 +1348,21 @@ function TaskRow({
               {priorityLbl}
             </span>
           ) : null}
-
-          {assignee ? (
-            <span className="yp-task-row__chip yp-task-row__chip--assignee">
-              <span className="yp-task-row__avatar">
-                <Avatar
-                  name={assignee.full_name}
-                  color={assignee.color || '#4F46E5'}
-                  size={16}
-                />
-              </span>
-              {assignee.full_name.split(' ')[0]}
-            </span>
-          ) : null}
-
-          {/* ★ v3.10.0: แสดง "เวลาเริ่มทำ" (start_time) แทน "กำหนดส่ง"
-              ถ้ามี start_time → แสดงเวลา HH:MM
-              ถ้าไม่มี start_time แต่มี due_date → แสดง "วันที่เริ่ม" (relativeDay)
-              ถ้ามีทั้งคู่ → แสดงเวลาคู่กับวันที่ */}
-          {startTimeLabel ? (
-            <span
-              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
-            >
-              <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">เริ่ม</span>
-              {startTimeLabel}
-              {dueLabel ? <span className="yp-task-row__chip-sep">·</span> : null}
-              {dueLabel}
-            </span>
-          ) : dueLabel ? (
-            <span
-              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
-            >
-              {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
-              <span className="yp-task-row__chip-label">เริ่ม</span>
-              {dueLabel}
-            </span>
-          ) : null}
-
-          {task.estimated_time ? (
-            <span className="yp-task-row__chip yp-task-row__chip--est">
-              <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">ใช้เวลา</span>
-              {task.estimated_time}
-            </span>
-          ) : null}
-
           {tags.map((t) => (
             <span key={t} className="yp-task-row__tag">
               #{t}
             </span>
           ))}
+          {overdue ? (
+            <span className="yp-task-row__chip yp-task-row__chip--overdue">
+              <AlertTriangle width={11} height={11} />
+              เลยเวลาเริ่ม
+            </span>
+          ) : null}
         </div>
-        {task.notes ? <div className="yp-task-row__notes">{task.notes}</div> : null}
-      </div>
-      <div className="yp-task-row__actions">
-        <button
-          type="button"
-          className="yp-task-row__edit"
-          aria-label="แก้ไข task"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-        >
-          <Pencil />
-        </button>
-        <button
-          type="button"
-          className="yp-task-row__delete"
-          aria-label="ลบ task"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <Trash2 />
-        </button>
-      </div>
+      ) : null}
+
+      {task.notes ? <div className="yp-task-row__notes">{task.notes}</div> : null}
     </div>
   );
 }
@@ -1554,7 +1536,7 @@ function AddTaskSheet({
 
       {/* Assignee + schedule */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและเวลาเริ่มทำ</div>
+        <div className="yp-form-modal__section-title">มอบหมายและเวลา</div>
         <div className="field">
           <label className="field__label" htmlFor="task-assignee">
             ผู้รับผิดชอบ
@@ -1594,7 +1576,7 @@ function AddTaskSheet({
         {/* ★ v3.10.0: เวลาเริ่มทำ (HH:MM) — ใช้สำหรับแยกช่วงเช้า/บ่าย */}
         <div className="field">
           <label className="field__label" htmlFor="task-start-time">
-            เวลาเริ่มทำ{' '}
+            เริ่มกี่โมง{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ — ใช้แยกช่วงเช้า/บ่าย)
             </span>
@@ -1614,7 +1596,7 @@ function AddTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="task-est">
-            เวลาโดยประมาณ{' '}
+            ใช้เวลาประมาณ{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -1855,7 +1837,7 @@ function EditTaskSheet({
 
       {/* Assignee + schedule */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและเวลาเริ่มทำ</div>
+        <div className="yp-form-modal__section-title">มอบหมายและเวลา</div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-assignee">
             ผู้รับผิดชอบ
@@ -1895,7 +1877,7 @@ function EditTaskSheet({
         {/* ★ v3.10.0: เวลาเริ่มทำ (HH:MM) — EditTaskSheet */}
         <div className="field">
           <label className="field__label" htmlFor="ed-task-start-time">
-            เวลาเริ่มทำ{' '}
+            เริ่มกี่โมง{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ — ใช้แยกช่วงเช้า/บ่าย)
             </span>
@@ -1915,7 +1897,7 @@ function EditTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-est">
-            เวลาโดยประมาณ{' '}
+            ใช้เวลาประมาณ{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
