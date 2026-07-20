@@ -414,7 +414,9 @@ export function EventDetailClient({
   // ★ v3.10.0 รอบที่ 10: แบ่งรายการย่อยเป็นช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา
   //   ตาม start_time ของแต่ละรายการ — ช่วยให้เห็นภาพรวมของวันได้ง่ายขึ้น
   //   เมื่อกลุ่มรายการมีรายการย่อยจำนวนมาก โดยไม่กระทบตัวการ์ดของรายการย่อยเอง
-  //   (ไม่แสดงหัวข้อช่วงเวลา ถ้ามีแค่กลุ่มเดียวที่ไม่ว่าง — กันความรกเกินจำเป็น)
+  // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อกลุ่มเสมอเมื่อมีรายการย่อย (ไม่ใช่แค่ตอนมี
+  //   มากกว่า 1 กลุ่ม) — ก่อนหน้านี้ถ้ารายการย่อยทั้งหมด "ไม่ระบุเวลา" อย่างเดียว
+  //   จะไม่เห็นข้อความบอกเลย ทำให้ผู้ใช้ไม่รู้ว่าระบบมีการจัดกลุ่มช่วงเวลานี้อยู่
   const taskTimeGroups = React.useMemo(() => {
     const tasks = event?.tasks || [];
     const morning: Task[] = [];
@@ -437,15 +439,12 @@ export function EventDetailClient({
     morning.sort(sortByStart);
     afternoon.sort(sortByStart);
 
-    const nonEmptyGroups = [morning.length > 0, afternoon.length > 0, unscheduled.length > 0]
-      .filter(Boolean).length;
-
     return {
       morning,
       afternoon,
       unscheduled,
-      // แสดงหัวข้อช่วงเวลาเฉพาะตอนมีมากกว่า 1 กลุ่มที่ไม่ว่าง
-      showGroupHeadings: nonEmptyGroups > 1,
+      // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อช่วงเวลาเสมอ ตราบใดที่มีรายการย่อยอย่างน้อย 1 รายการ
+      showGroupHeadings: tasks.length > 0,
     };
   }, [event?.tasks]);
 
@@ -553,7 +552,7 @@ export function EventDetailClient({
             </div>
             <div className="yp-stat__body">
               <div className="yp-stat__value">{doneTasks}</div>
-              <div className="yp-stat__label">เสร็จแล้ว</div>
+              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
           </div>
           <div className="yp-stat yp-accented">
@@ -732,80 +731,57 @@ export function EventDetailClient({
             <div className="yp-task-list">
               {taskTimeGroups.showGroupHeadings ? (
                 <>
-                  {taskTimeGroups.morning.length > 0 ? (
-                    <div className="yp-task-time-group">
-                      <div className="yp-task-time-group__label">
-                        <Sunrise width={13} height={13} strokeWidth={2} />
-                        ช่วงเช้า
-                        <span className="yp-task-time-group__count">{taskTimeGroups.morning.length}</span>
-                      </div>
-                      {taskTimeGroups.morning.map((t) => (
-                        <TaskRow
-                          key={t.id}
-                          task={t}
-                          onStatusClick={() => {
-                            setActiveTaskId(t.id);
-                            setStatusPickerOpen(true);
-                          }}
-                          onEdit={() => {
-                            setEditTaskId(t.id);
-                            setEditTaskOpen(true);
-                          }}
-                          onDelete={() => requestDeleteTask(t.id)}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
+                  <TaskTimeGroup
+                    icon={<Sunrise width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงเช้า"
+                    caption="เริ่มก่อน 12:00 น."
+                    count={taskTimeGroups.morning.length}
+                    tasks={taskTimeGroups.morning}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
 
-                  {taskTimeGroups.afternoon.length > 0 ? (
-                    <div className="yp-task-time-group">
-                      <div className="yp-task-time-group__label">
-                        <Sunset width={13} height={13} strokeWidth={2} />
-                        ช่วงบ่าย
-                        <span className="yp-task-time-group__count">{taskTimeGroups.afternoon.length}</span>
-                      </div>
-                      {taskTimeGroups.afternoon.map((t) => (
-                        <TaskRow
-                          key={t.id}
-                          task={t}
-                          onStatusClick={() => {
-                            setActiveTaskId(t.id);
-                            setStatusPickerOpen(true);
-                          }}
-                          onEdit={() => {
-                            setEditTaskId(t.id);
-                            setEditTaskOpen(true);
-                          }}
-                          onDelete={() => requestDeleteTask(t.id)}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
+                  <TaskTimeGroup
+                    icon={<Sunset width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงบ่าย"
+                    caption="เริ่มตั้งแต่ 12:00 น. เป็นต้นไป"
+                    count={taskTimeGroups.afternoon.length}
+                    tasks={taskTimeGroups.afternoon}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
 
-                  {taskTimeGroups.unscheduled.length > 0 ? (
-                    <div className="yp-task-time-group">
-                      <div className="yp-task-time-group__label yp-task-time-group__label--muted">
-                        <CircleDashed width={13} height={13} strokeWidth={2} />
-                        ไม่ระบุเวลา
-                        <span className="yp-task-time-group__count">{taskTimeGroups.unscheduled.length}</span>
-                      </div>
-                      {taskTimeGroups.unscheduled.map((t) => (
-                        <TaskRow
-                          key={t.id}
-                          task={t}
-                          onStatusClick={() => {
-                            setActiveTaskId(t.id);
-                            setStatusPickerOpen(true);
-                          }}
-                          onEdit={() => {
-                            setEditTaskId(t.id);
-                            setEditTaskOpen(true);
-                          }}
-                          onDelete={() => requestDeleteTask(t.id)}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
+                  <TaskTimeGroup
+                    icon={<CircleDashed width={14} height={14} strokeWidth={2} />}
+                    label="ไม่ระบุเวลา"
+                    caption="ยังไม่ได้กำหนดเวลาเริ่ม"
+                    count={taskTimeGroups.unscheduled.length}
+                    tasks={taskTimeGroups.unscheduled}
+                    muted
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
                 </>
               ) : (
                 (event.tasks || []).map((t) => (
@@ -1299,6 +1275,63 @@ export function EventDetailClient({
           {toast.msg}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TaskTimeGroup — ★ v3.10.0 รอบที่ 11: ส่วนย่อยของรายการย่อยที่แบ่งตาม
+//   ช่วงเวลา (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา) — มีทั้งป้ายชื่อ + คำอธิบายสั้นๆ
+//   ให้ผู้ใช้เห็นชัดเจนว่ากลุ่มนี้หมายถึงอะไร ไม่ใช่แค่หัวข้อลอยๆ
+// ═══════════════════════════════════════════════════════════════
+function TaskTimeGroup({
+  icon,
+  label,
+  caption,
+  count,
+  tasks,
+  muted = false,
+  onStatusClick,
+  onEdit,
+  onDelete,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  caption: string;
+  count: number;
+  tasks: Task[];
+  muted?: boolean;
+  onStatusClick: (taskId: string) => void;
+  onEdit: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
+}) {
+  if (count === 0) return null;
+
+  return (
+    <div className={`yp-task-time-group${muted ? ' is-muted' : ''}`}>
+      <div className="yp-task-time-group__head">
+        <span className="yp-task-time-group__icon" aria-hidden="true">
+          {icon}
+        </span>
+        <div className="yp-task-time-group__text">
+          <div className="yp-task-time-group__label">
+            {label}
+            <span className="yp-task-time-group__count">{count}</span>
+          </div>
+          <div className="yp-task-time-group__caption">{caption}</div>
+        </div>
+      </div>
+      <div className="yp-task-time-group__body">
+        {tasks.map((t) => (
+          <TaskRow
+            key={t.id}
+            task={t}
+            onStatusClick={() => onStatusClick(t.id)}
+            onEdit={() => onEdit(t.id)}
+            onDelete={() => onDelete(t.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
