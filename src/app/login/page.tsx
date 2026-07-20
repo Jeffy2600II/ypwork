@@ -385,7 +385,7 @@ export default function LoginPage() {
             <br />
             สภานักเรียน
           </h1>
-          <p>จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
+          <p>จัดตารางรายการ กลุ่มรายการ ฝ่ายงาน และรายการย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
         </div>
 
         {/* ── CARD ── */}
@@ -747,7 +747,7 @@ export default function LoginPage() {
 
         {/* ── FOOTER ── */}
         <div className="yp-auth__footer">
-          © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+          © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
         </div>
       </div>
     </div>

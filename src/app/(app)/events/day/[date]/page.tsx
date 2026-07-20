@@ -57,7 +57,7 @@ export default async function DayViewPage({ params }: PageProps) {
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (
-        id, event_id, title, due_date, status, priority,
+        id, event_id, title, due_date, start_time, status, priority,
         estimated_time, notes, tags, sort_order, created_at, updated_at
       )
     `

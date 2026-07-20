@@ -23,9 +23,9 @@ import {
   getTimeGreeting,
   getLocalTodayStr,
   getThailandTodayParts,   // ★ v3.9.4: Thailand timezone
+  resolveEventStatus,      // ★ v3.10.0 รอบที่ 9: กันสถานะกลุ่มรายการค้าง
   THAI_DAYS,
   THAI_MONTHS,
-  resolveEventStatus,
 } from '@/lib/utils/date';
 import { AlertCircle, Flag, Check, Clock } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
@@ -89,90 +89,59 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ★ v3.10.0 รอบที่ 2: "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+  // ★ v3.10.0: "รายการวันนี้" แสดงผลครบทุกรายการที่ต้องทำวันนี้จริง ๆ
   //   ประกอบด้วย:
   //   1. todaysEvents — event ที่ date = วันนี้ (เหมือนเดิม)
-  //   2. todaysStandaloneTasks — task ย่อยที่ due_date = วันนี้ หรือ start_time = วันนี้
-  //      แต่ parent event อยู่ในวันอื่น (เพื่อกัน duplicate — ถ้า parent event
-  //      อยู่ในวันนี้อยู่แล้ว task เหล่านั้นจะแสดงผ่าน EventCard ของ parent แล้ว)
-  //   ★ v3.10.0 รอบที่ 2: เพิ่มการตรวจ start_time ด้วย — task ที่ตั้งเวลาเริ่มวันนี้
-  //      แม้ due_date จะเป็นวันอื่น ก็ต้องแสดงใน "งานวันนี้"
+  //   2. todaysStandaloneTasks — รายการย่อยที่ due_date = วันนี้ แต่ parent event
+  //      อยู่ในวันอื่น (เพื่อกัน duplicate — ถ้า parent event อยู่ในวันนี้อยู่แล้ว
+  //      task เหล่านั้นจะแสดงผ่าน EventCard ของ parent อยู่แล้วในส่วน progress)
   const todaysEvents = events.filter((e) => e.date === todayStr);
   const todaysStandaloneTasks = React.useMemo(() => {
     const list: { task: Task; event: YPEvent }[] = [];
     for (const ev of events) {
       // ข้าม event ที่เป็นวันนี้ — task ของมันจะแสดงใน EventCard ของ parent แล้ว
       if (ev.date === todayStr) continue;
-      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "งานวันนี้")
+      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "รายการวันนี้")
+      //   ยกเว้นถ้า user อยากเห็น — แต่ default คือซ่อน task ที่เสร็จแล้ว
+      //   เพื่อให้ "รายการวันนี้" โฟกัสที่สิ่งที่ต้องทำ
       for (const t of ev.tasks || []) {
-        if (t.status === 'done') continue;
-        // ★ v3.10.0 รอบที่ 2: แสดง task ถ้า due_date = วันนี้ หรือ start_time = วันนี้
-        //   (start_time เป็น HH:MM เท่านั้น เราใช้ due_date เป็นตัวกำหนดวัน
-        //    แต่ถ้า task มี due_date = วันนี้ ถือว่าเป็นงานวันนี้)
-        if (t.due_date === todayStr) {
+        if (t.due_date === todayStr && t.status !== 'done') {
           list.push({ task: t, event: ev });
         }
       }
     }
-    // เรียงตาม priority (high > medium > low) แล้วตาม title
+    // เรียงตาม priority (high > medium > low) แล้วตามเวลาเริ่ม แล้วตาม title
     const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
     list.sort((a, b) => {
       const pa = PRIORITY_ORDER[a.task.priority] ?? 3;
       const pb = PRIORITY_ORDER[b.task.priority] ?? 3;
       if (pa !== pb) return pa - pb;
-      // ★ v3.10.0 รอบที่ 2: ถ้า priority เท่ากัน เรียงตาม start_time
+      // ★ v3.10.0 รอบที่ 9: รายการที่ระบุเวลาเริ่มไว้ขึ้นก่อน เรียงตามเวลา
+      //   รายการที่ไม่ระบุเวลาจะอยู่ท้ายกลุ่ม priority เดียวกัน
       const sa = a.task.start_time || '';
       const sb = b.task.start_time || '';
       if (sa && sb && sa !== sb) return sa.localeCompare(sb);
+      if (sa && !sb) return -1;
+      if (!sa && sb) return 1;
       return a.task.title.localeCompare(b.task.title, 'th');
     });
     return list;
   }, [events, todayStr]);
 
-  // จำนวนรายการ "งานวันนี้" รวม = events ของวันนี้ + standalone tasks
+  // จำนวนรายการ "รายการวันนี้" รวม = events ของวันนี้ + standalone tasks
   const todayTotalCount = todaysEvents.length + todaysStandaloneTasks.length;
 
-  // ★ v3.10.0 รอบที่ 2: "กำลังจะถึง" รวมทั้ง events และ standalone tasks
-  //   ที่ due_date > วันนี้ (กำลังจะมาถึง)
-  const upcomingEvents = events
+  const upcoming = events
     .filter((e) => e.date > todayStr)
     .slice(0, 4);
-  const upcomingStandaloneTasks = React.useMemo(() => {
-    const list: { task: Task; event: YPEvent }[] = [];
-    for (const ev of events) {
-      for (const t of ev.tasks || []) {
-        if (t.status === 'done') continue;
-        // ★ v3.10.0 รอบที่ 2: task ที่ due_date > วันนี้ (กำลังจะมาถึง)
-        if (t.due_date && t.due_date > todayStr) {
-          // ข้ามถ้า parent event อยู่ใน "กำลังจะถึง" อยู่แล้ว — จะแสดงใน EventCard
-          if (ev.date > todayStr) continue;
-          list.push({ task: t, event: ev });
-        }
-      }
-    }
-    // เรียงตาม due_date แล้วตาม start_time
-    list.sort((a, b) => {
-      const da = a.task.due_date || '';
-      const db = b.task.due_date || '';
-      if (da !== db) return da.localeCompare(db);
-      const sa = a.task.start_time || '';
-      const sb = b.task.start_time || '';
-      if (sa && sb) return sa.localeCompare(sb);
-      return a.task.title.localeCompare(b.task.title, 'th');
-    });
-    return list.slice(0, 4);  // จำกัด 4 รายการเหมือน events
-  }, [events, todayStr]);
-
-  // จำนวนรายการ "กำลังจะถึง" รวม = events + standalone tasks
-  const upcomingTotalCount = upcomingEvents.length + upcomingStandaloneTasks.length;
-
+  // ★ v3.10.0 รอบที่ 9: ใช้ resolveEventStatus แทน e.status ตรงๆ
+  //   กันกลุ่มรายการที่รายการย่อยเสร็จหมดแล้วแต่ status เดิมค้างอยู่
+  //   ถูกนับเป็น "เลยกำหนด" ทั้งที่จริงเสร็จแล้ว
   const overdue = events.filter(
     (e) => e.date < todayStr && resolveEventStatus(e) !== 'done'
   );
 
   // dept stats คำนวณจาก events ทั้งหมด (realtime)
-  // ★ v3.10.0 (รอบ 8): ใช้ resolveEventStatus() แทน e.status ตรง ๆ
-  //   เพื่อให้กลุ่มรายการนับสถานะจากรายการย่อยจริง ไม่ใช่ค่าที่ค้างอยู่ใน DB
   const deptStats = React.useMemo(() => {
     if (!dept) return initialDeptStats;
     const deptEvents = events.filter(
@@ -202,10 +171,10 @@ export function TodayClient({
           <div className="yp-today-hero__stats">
             <div className="yp-today-hero__stat">
               <div className="yp-today-hero__stat-value">{todayTotalCount}</div>
-              <div className="yp-today-hero__stat-label">งานวันนี้</div>
+              <div className="yp-today-hero__stat-label">รายการวันนี้</div>
             </div>
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{upcomingTotalCount}</div>
+              <div className="yp-today-hero__stat-value">{upcoming.length}</div>
               <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
             </div>
             <div className="yp-today-hero__stat">
@@ -221,7 +190,7 @@ export function TodayClient({
         <section className="yp-today-section">
           <div className="yp-today-section__head">
             <h2 className="yp-today-section__title">
-              งานที่เลยกำหนด
+              รายการที่เลยกำหนด
             </h2>
             <span className="yp-today-section__count">
               {overdue.length} รายการ
@@ -239,7 +208,7 @@ export function TodayClient({
       <section className="yp-today-section">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">
-            งานวันนี้
+            รายการวันนี้
           </h2>
           <span className="yp-today-section__count">
             {todayTotalCount} รายการ
@@ -252,9 +221,9 @@ export function TodayClient({
                 🌤️
               </span>
             </div>
-            <div className="yp-empty__title">ไม่มีงานวันนี้</div>
+            <div className="yp-empty__title">ไม่มีรายการวันนี้</div>
             <div className="yp-empty__desc">
-              ว่าง ๆ ลองดูงานที่กำลังจะถึงด้านล่าง
+              ว่าง ๆ ลองดูรายการที่กำลังจะถึงด้านล่าง
             </div>
           </div>
         ) : (
@@ -263,8 +232,8 @@ export function TodayClient({
             {todaysEvents.map((ev) => (
               <EventCard key={`ev-${ev.id}`} event={ev} />
             ))}
-            {/* ★ v3.9.9: แสดง task ย่อยที่ due_date = วันนี้ แต่ parent event
-                อยู่ในวันอื่น — ทำให้เห็นทุกงานที่ต้องทำวันนี้จริง ๆ */}
+            {/* ★ v3.9.9: แสดง รายการย่อยที่ due_date = วันนี้ แต่ parent event
+                อยู่ในวันอื่น — ทำให้เห็นทุกรายการที่ต้องทำวันนี้จริง ๆ */}
             {todaysStandaloneTasks.map(({ task, event }) => (
               <TodayTaskCard
                 key={`task-${task.id}`}
@@ -281,32 +250,23 @@ export function TodayClient({
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">กำลังจะถึง</h2>
           <span className="yp-today-section__count">
-            {upcomingTotalCount} รายการ
+            {upcoming.length} รายการ
           </span>
         </div>
-        {upcomingTotalCount === 0 ? (
+        {upcoming.length === 0 ? (
           <div className="yp-empty">
             <div className="yp-empty__icon" aria-hidden="true">
               <span role="img" aria-label="ว่าง">
                 📅
               </span>
             </div>
-            <div className="yp-empty__title">ยังไม่มีงานที่กำลังจะถึง</div>
-            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างงานใหม่</div>
+            <div className="yp-empty__title">ยังไม่มีรายการที่กำลังจะถึง</div>
+            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
           <div>
-            {/* ★ v3.10.0 รอบที่ 2: แสดง events ที่กำลังจะถึง */}
-            {upcomingEvents.map((ev) => (
-              <EventCard key={`ev-${ev.id}`} event={ev} />
-            ))}
-            {/* ★ v3.10.0 รอบที่ 2: แสดง standalone tasks ที่กำลังจะถึง */}
-            {upcomingStandaloneTasks.map(({ task, event }) => (
-              <TodayTaskCard
-                key={`task-${task.id}`}
-                task={task}
-                parentEvent={event}
-              />
+            {upcoming.map((ev) => (
+              <EventCard key={ev.id} event={ev} />
             ))}
           </div>
         )}
@@ -327,7 +287,7 @@ export function TodayClient({
                 <Flag width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.total}</div>
-              <div className="yp-stat__label">งานทั้งหมด</div>
+              <div className="yp-stat__label">รายการทั้งหมด</div>
             </div>
             <div
               className="yp-stat"

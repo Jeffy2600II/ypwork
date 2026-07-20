@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · API · PATCH/DELETE /api/events/[id] (v3.8.0)
 // ═══════════════════════════════════════════════════════════════
-// PATCH  — แก้ไขงาน (ใช้ adminClient bypass RLS)
-// DELETE — ลบงาน (cascade ลบ tasks + assignees ด้วย FK)
+// PATCH  — แก้ไขรายการ (ใช้ adminClient bypass RLS)
+// DELETE — ลบรายการ (cascade ลบ tasks + assignees ด้วย FK)
 //
 // ★ v3.8.0: เพิ่ม apiCacheHeaders.noStore() ทุก response
 //   → กัน browser  replay mutation บน back/forward button
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (body.title !== undefined) {
     if (typeof body.title !== 'string' || !body.title.trim()) {
       return NextResponse.json(
-        { success: false, error: 'ชื่องานไม่ถูกต้อง' },
+        { success: false, error: 'ชื่อรายการไม่ถูกต้อง' },
         { status: 400 }
       );
     }
@@ -111,7 +111,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     if (error) {
       console.error('[/api/events/[id] PATCH] error:', error.message);
       return NextResponse.json(
-        { success: false, error: `ไม่สามารถแก้ไขงาน: ${error.message}` },
+        { success: false, error: `ไม่สามารถแก้ไขรายการ: ${error.message}` },
         { status: 500, headers: apiCacheHeaders.noStore() }
       );
     }
@@ -157,7 +157,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
     if (error) {
       console.error('[/api/events/[id] DELETE] error:', error.message);
       return NextResponse.json(
-        { success: false, error: `ไม่สามารถลบงาน: ${error.message}` },
+        { success: false, error: `ไม่สามารถลบรายการ: ${error.message}` },
         { status: 500, headers: apiCacheHeaders.noStore() }
       );
     }

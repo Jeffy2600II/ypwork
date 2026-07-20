@@ -4,28 +4,22 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0 รอบที่ 2 (Indigo Trust theme)
+   YP WORK · Global CSS v3.9.9 (Indigo Trust theme — Premium Polish)
    ═══════════════════════════════════════════════════════════════
-   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.10.0 รอบที่ 2)
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.9)
 
-   ★★★ หมายเหตุเรื่องหมายเลขเวอร์ชั่น ★★★
-   ตั้งแต่ v3.10.0 เป็นต้นไป:
-   - หมายเลขเวอร์ชั่นในเว็บ (package.json, about page) จะคงเป็น 3.10.0
-   - แต่ในไฟล์/comments/การสนทนา จะระบุ "รอบที่ X" เพื่อติดตามรอบการปรับปรุง
-   - เช่น "v3.10.0 รอบที่ 2" = การปรับปรุงครั้งที่ 2 ภายในเวอร์ชั่น 3.10.0
-   - ทำให้ทราบว่ารอบไหนมีปัญหา แก้ไขตรงไหน กลับไปหาตัวจับได้ง่าย
-
-   v3.10.0 รอบที่ 2 — Task Cards Redesign + Sub-tasks in Today/Upcoming
-   • เปลี่ยน labels: "เวลาเริ่มทำ" → "เริ่มกี่โมง", "เวลาโดยประมาณ" → "ใช้เวลาประมาณ"
-   • ออกแบบ TaskRow v2 — layout แบบ EventCard (wider, card-style)
-     - head row: status dot + title/meta + status chip + actions
-     - footer row: priority + tags + overdue badge
-     - ก่อนหน้านี้: inline row แบบ compact มี chips รวมกัน
-     - ตอนนี้: card แบบกว้าง เหมือน EventCard ในหน้า home
-   • แสดง standalone sub-tasks ใน "กำลังจะถึง" ของ today dashboard
-     - ก่อนหน้านี้: แสดงเฉพาะ events ที่ date > วันนี้
-     - ตอนนี้: รวม tasks ที่ due_date > วันนี้ แต่ parent event ในวันอื่น
-   • CSS สำหรับ .yp-task-row--v2 (layout ใหม่แบบ card-style)
+   v3.9.9 — Today Dashboard + Session Cache
+   • "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+     - event ที่ date = วันนี้ (เหมือนเดิม)
+     - task ย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
+     - แสดงผ่าน TodayTaskCard component ใหม่ (มี badge "จาก: <event>")
+   • เพิ่ม sessionStorage cache (client-side, per-session)
+     - cache ข้อมูล events + event detail ไว้ที่ฝั่งผู้ใช้
+     - กลับเข้าหน้าเดิม → instant render จาก cache แทนรอ fetch ใหม่
+     - cache TTL 5 นาที, หมดอายุอัตโนมัติ
+     - ล้าง cache ตอน logout (clearAllYPWorkCache)
+     - realtime subscription ยังคงทำงานปกติ — cache แค่ช่วย initial state
+   • เพิ่ม CSS สำหรับ .yp-today-task-card (badge "จาก:" ของ task ย่อย)
 
    ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
    เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
@@ -3690,163 +3684,23 @@ body.yp-sheet-open .fab {
   line-height: 1.6;
 }
 
-/* Task list card */
+/* Task list card (ใช้เฉพาะตอนยังไม่มีรายการย่อย — empty state) */
 .yp-card--tasklist {
   padding: 10px var(--yp-space-5) 14px;
   border-color: color-mix(in srgb, var(--accent, var(--yp-border-subtle)) 14%, var(--yp-border-subtle));
 }
 
-/* ★ v3.10.0 รอบที่ 4: .yp-task-list-home — layout แบบ home page สำหรับ task list
-   ไม่มีกรอบครอบ (no card wrapper) เหมือน "งานวันนี้" / "กำลังจะถึง" ในหน้า home
-   แต่ละ TaskRow เป็นการ์ดเดี่ยว ๆ มี border + shadow ของตัวเอง
-   ทำให้พื้นที่แสดงผลกว้างขึ้นและเหมือนกับหน้า home */
-.yp-task-list-home {
+/* ★ v3.10.0: yp-task-list — คอนเทนเนอร์ของรายการย่อย (มีรายการแล้ว)
+   จัดวางแบบเดียวกับรายการวันนี้/กำลังจะถึงในหน้าโฮม คือแต่ละรายการ
+   เป็นการ์ดของตัวเอง เว้นระยะห่างระหว่างการ์ด แทนที่จะรวมกันอยู่ใน
+   การ์ดเดียวคั่นด้วยเส้นแบ่ง — ตัวการ์ดของรายการย่อย (.yp-task-row)
+   ยังคงโครงสร้างและเนื้อหาเดิมทุกอย่าง เปลี่ยนแค่การจัดวาง container */
+.yp-task-list {
   display: flex;
   flex-direction: column;
-  gap: var(--yp-space-3);
 }
-
-/* ★ v3.10.0 รอบที่ 4: แต่ละ TaskRow ใน .yp-task-list-home เป็นการ์ดเดี่ยว ๆ
-   เหมือน EventCard — มี border รอบด้าน + shadow + accent hover
-   (ก่อนหน้านี้ TaskRow อยู่ในกรอบใหญ่ .yp-card.yp-card--tasklist
-    ทำให้ดูเป็น list แบบมี border-bottom คั่น ไม่เหมือนการ์ด) */
-.yp-task-list-home .yp-task-row {
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
-  padding: var(--yp-space-4) var(--yp-space-5);
-  margin: 0;
-  border-bottom: 1px solid var(--yp-border-subtle);
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03);
-  transition:
-    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 280ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.yp-task-list-home .yp-task-row:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 4px 12px rgba(30, 27, 70, 0.08),
-    0 8px 24px rgba(30, 27, 70, 0.06);
-  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, var(--yp-border-subtle));
-}
-
-.yp-task-list-home .yp-task-row:active {
-  transform: scale(0.99);
-}
-
-/* ★ v3.10.0 รอบที่ 4: task-group items — ให้แต่ละ task row ใน group
-   เป็นการ์ดเดี่ยว ๆ เหมือนกัน (override กฎเดิมที่ใช้ border แบบ list) */
-.yp-task-list-home .yp-task-group__items {
-  display: flex;
-  flex-direction: column;
-  gap: var(--yp-space-3);
-}
-
-/* ★ v3.10.0 รอบที่ 4: add-task button ใน .yp-task-list-home
-   ให้ดูเหมือนปุ่มเพิ่มการ์ดใหม่ (เหมือนหน้า home ที่กด + สร้างงาน) */
-.yp-task-list-home .yp-add-task-btn {
-  margin-top: var(--yp-space-2);
-}
-
-/* ★ v3.10.0 รอบที่ 4: empty state ใน .yp-task-list-home
-   ให้เป็นการ์ดเดี่ยว ๆ เหมือนกัน */
-.yp-task-list-home .yp-task-empty {
-  background: var(--yp-bg-card);
-  border: 1px dashed var(--yp-border-default);
-  border-radius: var(--yp-radius-lg);
-  padding: var(--yp-space-8) var(--yp-space-4);
-}
-
-/* ★ v3.10.0: Task group — แยกช่วงเช้า/บ่าย/ไม่ระบุเวลา */
-.yp-task-group {
-  margin-bottom: var(--yp-space-3);
-}
-
-.yp-task-group:last-of-type {
-  margin-bottom: 0;
-}
-
-.yp-task-group__header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 4px 6px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--yp-border-subtle);
-}
-
-.yp-task-group__icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.yp-task-group__label {
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.yp-task-group__count {
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--yp-text-faint);
-  font-weight: var(--yp-fw-semibold);
-  padding: 2px 8px;
-  background: var(--yp-bg-card-soft);
-  border-radius: var(--yp-radius-pill);
-}
-
-/* สี accent ตามช่วงเวลา */
-.yp-task-group--morning .yp-task-group__label {
-  color: #F59E0B;  /* amber — ช่วงเช้า */
-}
-
-.yp-task-group--afternoon .yp-task-group__label {
-  color: var(--yp-indigo-600);  /* indigo — ช่วงบ่าย */
-}
-
-.yp-task-group--notime .yp-task-group__label {
-  color: var(--yp-text-muted);  /* muted — ไม่ระบุเวลา */
-}
-
-.yp-task-group__items {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* ★ v3.10.0: แยกแต่ละ task row ให้เป็น card เดี่ยว ๆ (wider, more spacious)
-   ก่อนหน้านี้ task rows เป็น list แบบมี border-bottom คั่น
-   ตอนนี้แต่ละ task เป็น card ของตัวเอง มี border รอบด้าน + shadow */
-.yp-task-group__items .yp-task-row {
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-xs);
-  margin-bottom: 0;
-  padding: var(--yp-space-3) var(--yp-space-4);
-  background: var(--yp-bg-card);
-  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.03);
-}
-
-.yp-task-group__items .yp-task-row:last-of-type {
-  border-bottom: 1px solid var(--yp-border-subtle);
-}
-
-.yp-task-group__items .yp-task-row:hover {
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
-  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 20%, var(--yp-border-subtle));
-}
-
-/* ★ v3.10.0: ตัวคั่นระหว่างเวลาและวันที่ใน chip "เริ่ม 14:30 · วันนี้" */
-.yp-task-row__chip-sep {
-  opacity: 0.5;
-  margin: 0 2px;
-  font-weight: bold;
+.yp-task-list .yp-add-task-btn--standalone {
+  margin-top: var(--yp-space-4);
 }
 
 .yp-task-empty {
@@ -4140,153 +3994,27 @@ body.yp-sheet-open .fab {
   flex-shrink: 0;
 }
 
-/* Task row */
+/* Task row — ★ v3.10.0: การ์ดของตัวเอง (เหมือน container layout ของ
+   yp-event-card ในรายการวันนี้/กำลังจะถึง) แทนที่จะเป็นแถวคั่นเส้นแบ่ง
+   ในการ์ดเดียวกัน — เนื้อหาภายในแถว (ไอคอน/ชื่อ/ป้ายสถานะ ฯลฯ) ไม่เปลี่ยน */
 .yp-task-row {
   display: flex;
   align-items: flex-start;
   gap: var(--yp-space-3);
-  padding: 14px 0;
-  border-bottom: 1px solid var(--yp-border-subtle);
+  padding: var(--yp-space-5) var(--yp-space-4);
   cursor: pointer;
-  transition: background var(--yp-t-fast);
-  margin: 0 calc(-1 * var(--yp-space-2));
-  padding-left: var(--yp-space-2);
-  padding-right: var(--yp-space-2);
-  border-radius: var(--yp-radius-xs);
+  transition: background var(--yp-t-fast), border-color var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  background: var(--yp-bg-card);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
 }
+.yp-task-row + .yp-task-row { margin-top: var(--yp-space-4); }
 .yp-task-row:hover {
   background: var(--yp-bg-card-soft);
-}
-.yp-task-row:last-of-type { border-bottom: none; }
-
-/* ★ v3.10.0u2: TaskRow v2 — layout แบบ EventCard (wider, card-style)
-   แทนที่ layout เดิมที่เป็น inline row แบบ compact
-   โครงสร้าง: head (icon + title/meta + chip + actions) + footer (priority/tags) */
-.yp-task-row--v2 {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: var(--yp-space-4);
-  border-bottom: none;
-  margin: 0;
-}
-
-.yp-task-row--v2 .yp-task-row__head {
-  display: flex;
-  align-items: center;
-  gap: var(--yp-space-3);
-}
-
-/* ★ v3.10.0u2: main content (title + meta line) — เหมือน .yp-event-card__main */
-.yp-task-row--v2 .yp-task-row__main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding-right: var(--yp-space-2);
-}
-
-.yp-task-row--v2 .yp-task-row__title {
-  font-size: 0.9375rem;
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-strong);
-  line-height: 1.35;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.yp-task-row--v2 .yp-task-row__meta-line {
-  font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
-  line-height: 1.45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.01em;
-}
-
-/* ★ v3.10.0u2: actions — ปุ่มเล็ก ๆ ฝั่งขวา */
-.yp-task-row--v2 .yp-task-row__actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.yp-task-row--v2 .yp-task-row__edit,
-.yp-task-row--v2 .yp-task-row__delete {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: 0;
-  color: var(--yp-text-muted);
-  cursor: pointer;
-  border-radius: var(--yp-radius-xs);
-  transition: background var(--yp-t-fast), color var(--yp-t-fast);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.yp-task-row--v2 .yp-task-row__edit:hover {
-  background: var(--yp-bg-indigo-soft);
-  color: var(--yp-indigo-600);
-}
-
-.yp-task-row--v2 .yp-task-row__delete:hover {
-  background: rgba(244, 63, 94, 0.10);
-  color: #BE123C;
-}
-
-/* ★ v3.10.0u2: footer row — priority + tags + overdue badge */
-.yp-task-row--v2 .yp-task-row__footer {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding-left: calc(16px + var(--yp-space-3));  /* align with title (dot width + gap) */
-}
-
-.yp-task-row--v2 .yp-task-row__chip--overdue {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: var(--yp-radius-pill);
-  background: rgba(244, 63, 94, 0.10);
-  color: #BE123C;
-  border: 1px solid rgba(244, 63, 94, 0.24);
-  font-size: 11px;
-  font-weight: var(--yp-fw-bold);
-}
-
-.yp-task-row--v2 .yp-task-row__notes {
-  font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
-  line-height: 1.5;
-  padding-left: calc(16px + var(--yp-space-3));
-  padding-top: 2px;
-  white-space: pre-wrap;
-}
-
-/* ★ v3.10.0u2: status dot ใน v2 — ใหญ่ขึ้นเล็กน้อย เหมือน icon ของ EventCard */
-.yp-task-row--v2 .yp-task-status-dot {
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
-}
-
-/* ★ v3.10.0u2: done state — title สีจางลง */
-.yp-task-row--v2.is-done .yp-task-row__title {
-  text-decoration: line-through;
-  color: var(--yp-text-muted);
-}
-
-.yp-task-row--v2.is-done .yp-task-row__meta-line {
-  opacity: 0.6;
+  border-color: var(--yp-border-indigo);
 }
 
 .yp-task-status-dot {

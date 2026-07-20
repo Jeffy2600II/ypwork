@@ -74,7 +74,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
     <AppShell
       user={user}
       activeNav="events"
-      title={editEvent ? 'แก้ไขงาน' : 'สร้างงาน'}
+      title={editEvent ? 'แก้ไขรายการ' : 'สร้างรายการ'}
       showBack
       showBottomNav={false}
     >

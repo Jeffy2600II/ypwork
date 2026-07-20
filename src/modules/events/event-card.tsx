@@ -28,8 +28,8 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   const totalTasks = event.tasks?.length || 0;
   const doneTasks = event.tasks?.filter((t) => t.status === 'done').length || 0;
   const progress = eventProgress(event.tasks || []);
-  // ★ v3.10.0 (รอบ 8): กลุ่มรายการ — คำนวณสถานะจากรายการย่อยจริง แบบเรียลไทม์
-  //   แทนการอ่าน event.status ตรง ๆ (ซึ่งอาจค้างไม่ตรงกับความเป็นจริง)
+  // ★ v3.10.0 รอบที่ 9: กลุ่มรายการไม่มี status ของตัวเอง — คำนวณจากรายการย่อยจริง
+  //   แทนการอ่าน event.status ตรงๆ ซึ่งอาจค้างอยู่ค่าเดิมไม่ตรงกับความคืบหน้าจริง
   const displayStatus = resolveEventStatus(event);
 
   const metaParts: string[] = [relativeDay(event.date)];
@@ -42,7 +42,7 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
       href={`/events/${event.id}`}
       className="yp-event-card"
       style={{ ['--accent' as string]: accent }}
-      aria-label={`งาน: ${event.title}`}
+      aria-label={`รายการ: ${event.title}`}
     >
       <div className="yp-event-card__head">
         <div

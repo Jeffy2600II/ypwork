@@ -266,23 +266,23 @@ export function CalendarView({
             </span>
             <span className="yp-cal-legend__item">
               <span className="yp-cal-legend__swatch yp-cal-legend__swatch--dot" />
-              <span>มีงาน</span>
+              <span>มีรายการ</span>
             </span>
           </div>
         </div>
       ) : (
         /* ── LIST VIEW — grouped by day, compact ── */
         <div className="yp-cal-list-v2">
-          {/* ★ v3.9.4: Month summary header — แสดงจำนวนงานทั้งเดือน */}
+          {/* ★ v3.9.4: Month summary header — แสดงจำนวนรายการทั้งเดือน */}
           <div className="yp-cal-list-summary">
-            <span className="yp-cal-list-summary__label">งานในเดือนนี้</span>
+            <span className="yp-cal-list-summary__label">รายการในเดือนนี้</span>
             <span className="yp-cal-list-summary__count">{monthEvents.length}</span>
           </div>
 
           {eventsByDay.length === 0 ? (
             <div className="yp-cal-list-v2__empty">
               <Calendar width={28} height={28} strokeWidth={1.5} />
-              <span>ยังไม่มีงานในเดือนนี้</span>
+              <span>ยังไม่มีรายการในเดือนนี้</span>
             </div>
           ) : (
             eventsByDay.map(([dateStr, dayEvents]) => {
@@ -305,7 +305,7 @@ export function CalendarView({
                       </div>
                       {isTodayDay ? <span className="yp-cal-list-day__today-badge">วันนี้</span> : null}
                     </div>
-                    <span className="yp-cal-list-day__count">{dayEvents.length} งาน</span>
+                    <span className="yp-cal-list-day__count">{dayEvents.length} รายการ</span>
                   </div>
 
                   {/* Event items — ★ v3.9.4: improved card-like layout */}

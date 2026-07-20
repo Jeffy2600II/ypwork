@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · API · PATCH/DELETE /api/tasks/[id] (v3.8.0)
 // ═══════════════════════════════════════════════════════════════
-// PATCH  — แก้ไข task (title, priority, due_date, estimated_time, notes, tags)
+// PATCH  — แก้ไข task (title, priority, due_date, start_time, estimated_time, notes, tags)
 // DELETE — ลบ task (cascade ลบ assignees ด้วย FK)
 //
 // ★ v3.8.0: เพิ่ม apiCacheHeaders.noStore() ทุก response
@@ -14,8 +14,7 @@ import { apiCacheHeaders } from '@/lib/api/cache';
 
 const VALID_PRIORITIES = ['low', 'medium', 'high'] as const;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-// ★ v3.10.0: เวลาเริ่มทำ (HH:MM format)
-const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;   // ★ v3.10.0 รอบที่ 9: HH:MM
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -81,11 +80,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     update.due_date = body.due_date || null;
   }
 
-  // ★ v3.10.0: start_time field (HH:MM format)
+  // ★ v3.10.0 รอบที่ 9: start_time (HH:MM) — ไม่บังคับ
   if (body.start_time !== undefined) {
     if (body.start_time !== null && (typeof body.start_time !== 'string' || !TIME_RE.test(body.start_time))) {
       return NextResponse.json(
-        { success: false, error: 'เวลาเริ่มทำไม่ถูกต้อง (ต้องเป็น HH:MM)' },
+        { success: false, error: 'เวลาเริ่มไม่ถูกต้อง' },
         { status: 400 }
       );
     }

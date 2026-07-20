@@ -129,7 +129,7 @@ function normalizeTask(t: RawTask): Task {
     event_id: t.event_id,
     title: t.title,
     due_date: t.due_date ?? null,
-    start_time: t.start_time ?? null,  // ★ v3.10.0
+    start_time: t.start_time ?? null,   // ★ v3.10.0 รอบที่ 9
     status: t.status,
     priority: t.priority,
     estimated_time: t.estimated_time ?? '',

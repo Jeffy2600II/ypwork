@@ -398,7 +398,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__footer">
-            © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+            © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
           </div>
         </div>
       </div>
@@ -462,7 +462,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__footer">
-            © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+            © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
           </div>
         </div>
       </div>
@@ -652,7 +652,7 @@ export function PendingStatusClient() {
 
         {/* ── FOOTER ── */}
         <div className="yp-auth__footer">
-          © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+          © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
         </div>
 
         {/* ── inline animation styles ── */}
