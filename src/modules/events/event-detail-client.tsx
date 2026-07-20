@@ -29,6 +29,9 @@ import {
   ChevronRight,
   AlertTriangle,
   RefreshCw,
+  Sunrise,
+  Sunset,
+  CircleDashed,
 } from 'lucide-react';
 import type {
   YPEvent,
@@ -77,7 +80,7 @@ const STATUS_META: Record<
   },
   ongoing: {
     color: '#6366F1',
-    label: 'กำลังทำอยู่',
+    label: 'กำลังดำเนินการ',
     desc: 'กำลังดำเนินการอยู่',
   },
   done: {
@@ -247,7 +250,7 @@ export function EventDetailClient({
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
 
-      setToast({ msg: 'เปลี่ยนสถานะรายการย่อย แล้ว', type: 'success' });
+      setToast({ msg: 'เปลี่ยนสถานะรายการย่อยเรียบร้อยแล้ว', type: 'success' });
       // Realtime will sync from server — no need to refetch
     } catch (e: any) {
       // revert on error
@@ -391,7 +394,7 @@ export function EventDetailClient({
       setEditTaskId(null);
       setActiveTaskId(null);
 
-      setToast({ msg: 'ลบรายการย่อย แล้ว', type: 'success' });
+      setToast({ msg: 'ลบรายการย่อยเรียบร้อยแล้ว', type: 'success' });
     } catch (e: any) {
       setLocalError(`ไม่สามารถลบรายการย่อย: ${e.message || ''}`);
     } finally {
@@ -407,6 +410,43 @@ export function EventDetailClient({
   const totalTasks = event?.tasks?.length || 0;
   const doneTasks = event?.tasks?.filter((t) => t.status === 'done').length || 0;
   const progress = eventProgress(event?.tasks || []);
+
+  // ★ v3.10.0 รอบที่ 10: แบ่งรายการย่อยเป็นช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา
+  //   ตาม start_time ของแต่ละรายการ — ช่วยให้เห็นภาพรวมของวันได้ง่ายขึ้น
+  //   เมื่อกลุ่มรายการมีรายการย่อยจำนวนมาก โดยไม่กระทบตัวการ์ดของรายการย่อยเอง
+  // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อกลุ่มเสมอเมื่อมีรายการย่อย (ไม่ใช่แค่ตอนมี
+  //   มากกว่า 1 กลุ่ม) — ก่อนหน้านี้ถ้ารายการย่อยทั้งหมด "ไม่ระบุเวลา" อย่างเดียว
+  //   จะไม่เห็นข้อความบอกเลย ทำให้ผู้ใช้ไม่รู้ว่าระบบมีการจัดกลุ่มช่วงเวลานี้อยู่
+  const taskTimeGroups = React.useMemo(() => {
+    const tasks = event?.tasks || [];
+    const morning: Task[] = [];
+    const afternoon: Task[] = [];
+    const unscheduled: Task[] = [];
+    for (const t of tasks) {
+      if (!t.start_time) {
+        unscheduled.push(t);
+        continue;
+      }
+      const hour = parseInt(t.start_time.split(':')[0] || '', 10);
+      if (!Number.isNaN(hour) && hour < 12) {
+        morning.push(t);
+      } else {
+        afternoon.push(t);
+      }
+    }
+    const sortByStart = (a: Task, b: Task) =>
+      (a.start_time || '').localeCompare(b.start_time || '');
+    morning.sort(sortByStart);
+    afternoon.sort(sortByStart);
+
+    return {
+      morning,
+      afternoon,
+      unscheduled,
+      // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อช่วงเวลาเสมอ ตราบใดที่มีรายการย่อยอย่างน้อย 1 รายการ
+      showGroupHeadings: tasks.length > 0,
+    };
+  }, [event?.tasks]);
 
   const activeTask =
     activeTaskId != null
@@ -448,7 +488,7 @@ export function EventDetailClient({
                 แทนที่จะไม่แสดงอะไรเลย — user จะได้รู้ว่า field นี้มี แค่ยังไม่ได้ตั้ง */}
             {event.time ? (
               <span className="yp-detail-hero__meta-item">
-                <Clock /> {event.time}
+                <Clock /> ณ เวลา {event.time}
               </span>
             ) : (
               <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
@@ -478,7 +518,7 @@ export function EventDetailClient({
             {/* ★ v3.8.0: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint) */}
             {event.time ? (
               <span className="yp-single-hero__meta-item">
-                <Clock /> {event.time}
+                <Clock /> ณ เวลา {event.time}
               </span>
             ) : (
               <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
@@ -512,7 +552,7 @@ export function EventDetailClient({
             </div>
             <div className="yp-stat__body">
               <div className="yp-stat__value">{doneTasks}</div>
-              <div className="yp-stat__label">เสร็จแล้ว</div>
+              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
           </div>
           <div className="yp-stat yp-accented">
@@ -598,6 +638,7 @@ export function EventDetailClient({
       {isGroup ? (
         <section className="yp-detail-section">
           <h2 className="yp-detail-section__title">
+            <span className="yp-detail-section__title-group">
             รายการย่อย
             <InfoButton
               size="sm"
@@ -629,7 +670,7 @@ export function EventDetailClient({
                       ด้านล่างรายการ กรอกชื่อ + วันที่ + มอบหมายได้
                     </InfoStep>
                     <InfoStep title="เปลี่ยนสถานะรายการย่อย">
-                      แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังทำอยู่ / เสร็จสมบูรณ์)
+                      แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังดำเนินการ / เสร็จสมบูรณ์)
                       สถานะของกลุ่มรายการจะคำนวณใหม่อัตโนมัติ
                     </InfoStep>
                     <InfoStep title="แก้ไขรายการย่อย">
@@ -643,7 +684,7 @@ export function EventDetailClient({
                   <InfoSectionTitle>สถานะรวมคำนวณยังไง?</InfoSectionTitle>
                   <InfoKeyValue>
                     <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกรายการย่อยยังเป็น &ldquo;วางแผน&rdquo;" />
-                    <InfoKeyValueRow k={<><InfoPill>กำลังทำอยู่</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังทำอยู่&rdquo; แต่ยังไม่ครบเสร็จ" />
+                    <InfoKeyValueRow k={<><InfoPill>กำลังดำเนินการ</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังดำเนินการ&rdquo; แต่ยังไม่ครบเสร็จ" />
                     <InfoKeyValueRow k={<><InfoPill>เสร็จสมบูรณ์</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
                   </InfoKeyValue>
 
@@ -654,6 +695,7 @@ export function EventDetailClient({
                 </>
               }
             />
+            </span>
             <span className="yp-detail-section__count">
               {doneTasks}/{totalTasks}
             </span>
@@ -684,22 +726,80 @@ export function EventDetailClient({
             //   รายการวันนี้/กำลังจะถึงในหน้าโฮม — การ์ดแต่ละรายการแยกจากกัน
             //   มีระยะห่างระหว่างการ์ด แทนที่จะรวมอยู่ในการ์ดเดียวคั่นด้วยเส้นแบ่ง
             //   (ไม่ได้แก้ไขตัวการ์ดของรายการย่อยเอง — แก้แค่ container ที่ห่อ)
+            // ★ v3.10.0 รอบที่ 10: แสดงรายการย่อยแยกตามช่วงเวลา
+            //   (ช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา) เสมอเมื่อมีรายการย่อยอย่างน้อย 1 รายการ
             <div className="yp-task-list">
-              {(event.tasks || []).map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  onStatusClick={() => {
-                    setActiveTaskId(t.id);
-                    setStatusPickerOpen(true);
-                  }}
-                  onEdit={() => {
-                    setEditTaskId(t.id);
-                    setEditTaskOpen(true);
-                  }}
-                  onDelete={() => requestDeleteTask(t.id)}
-                />
-              ))}
+              {taskTimeGroups.showGroupHeadings ? (
+                <>
+                  <TaskTimeGroup
+                    icon={<Sunrise width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงเช้า"
+                    caption="เริ่มก่อน 12:00 น."
+                    count={taskTimeGroups.morning.length}
+                    tasks={taskTimeGroups.morning}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
+
+                  <TaskTimeGroup
+                    icon={<Sunset width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงบ่าย"
+                    caption="เริ่มตั้งแต่ 12:00 น. เป็นต้นไป"
+                    count={taskTimeGroups.afternoon.length}
+                    tasks={taskTimeGroups.afternoon}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
+
+                  <TaskTimeGroup
+                    icon={<CircleDashed width={14} height={14} strokeWidth={2} />}
+                    label="ไม่ระบุเวลา"
+                    caption="ยังไม่ได้กำหนดเวลาเริ่ม"
+                    count={taskTimeGroups.unscheduled.length}
+                    tasks={taskTimeGroups.unscheduled}
+                    muted
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
+                </>
+              ) : (
+                (event.tasks || []).map((t) => (
+                  <TaskRow
+                    key={t.id}
+                    task={t}
+                    onStatusClick={() => {
+                      setActiveTaskId(t.id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={() => {
+                      setEditTaskId(t.id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={() => requestDeleteTask(t.id)}
+                  />
+                ))
+              )}
 
               <button
                 type="button"
@@ -804,7 +904,7 @@ export function EventDetailClient({
               // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
               addTask(data.task as Task);
               setAddTaskOpen(false);
-              setToast({ msg: 'เพิ่มรายการย่อย แล้ว', type: 'success' });
+              setToast({ msg: 'เพิ่มรายการย่อยเรียบร้อยแล้ว', type: 'success' });
             }
           } catch (e: any) {
             setLocalError(`ไม่สามารถเพิ่มรายการย่อย: ${e.message || 'unknown error'}`);
@@ -873,7 +973,7 @@ export function EventDetailClient({
 
               setEditTaskOpen(false);
               setEditTaskId(null);
-              setToast({ msg: 'บันทึกการแก้ไขแล้ว', type: 'success' });
+              setToast({ msg: 'บันทึกการแก้ไขเรียบร้อยแล้ว', type: 'success' });
             } catch (e: any) {
               setLocalError(`ไม่สามารถแก้ไขรายการย่อย: ${e.message || 'unknown error'}`);
             } finally {
@@ -926,7 +1026,7 @@ export function EventDetailClient({
             });
 
             setEditEventOpen(false);
-            setToast({ msg: 'บันทึกแล้ว', type: 'success' });
+            setToast({ msg: 'บันทึกเรียบร้อยแล้ว', type: 'success' });
           } catch (e: any) {
             setLocalError(`ไม่สามารถแก้ไขรายการ: ${e.message || 'unknown error'}`);
           } finally {
@@ -1180,6 +1280,63 @@ export function EventDetailClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
+// TaskTimeGroup — ★ v3.10.0 รอบที่ 11: ส่วนย่อยของรายการย่อยที่แบ่งตาม
+//   ช่วงเวลา (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา) — มีทั้งป้ายชื่อ + คำอธิบายสั้นๆ
+//   ให้ผู้ใช้เห็นชัดเจนว่ากลุ่มนี้หมายถึงอะไร ไม่ใช่แค่หัวข้อลอยๆ
+// ═══════════════════════════════════════════════════════════════
+function TaskTimeGroup({
+  icon,
+  label,
+  caption,
+  count,
+  tasks,
+  muted = false,
+  onStatusClick,
+  onEdit,
+  onDelete,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  caption: string;
+  count: number;
+  tasks: Task[];
+  muted?: boolean;
+  onStatusClick: (taskId: string) => void;
+  onEdit: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
+}) {
+  if (count === 0) return null;
+
+  return (
+    <div className={`yp-task-time-group${muted ? ' is-muted' : ''}`}>
+      <div className="yp-task-time-group__head">
+        <span className="yp-task-time-group__icon" aria-hidden="true">
+          {icon}
+        </span>
+        <div className="yp-task-time-group__text">
+          <div className="yp-task-time-group__label">
+            {label}
+            <span className="yp-task-time-group__count">{count}</span>
+          </div>
+          <div className="yp-task-time-group__caption">{caption}</div>
+        </div>
+      </div>
+      <div className="yp-task-time-group__body">
+        {tasks.map((t) => (
+          <TaskRow
+            key={t.id}
+            task={t}
+            onStatusClick={() => onStatusClick(t.id)}
+            onEdit={() => onEdit(t.id)}
+            onDelete={() => onDelete(t.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 // TaskRow — render row ของรายการย่อยในกลุ่มรายการ (เหมือน demo task-row.js)
 // ═══════════════════════════════════════════════════════════════
 function TaskRow({
@@ -1271,7 +1428,7 @@ function TaskRow({
           {task.start_time ? (
             <span className="yp-task-row__chip yp-task-row__chip--due">
               <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">เริ่ม</span>
+              <span className="yp-task-row__chip-label">เริ่ม ณ เวลา</span>
               {task.start_time}
             </span>
           ) : null}
@@ -1539,7 +1696,7 @@ function AddTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="task-start">
-            เวลาเริ่ม{' '}
+            เริ่ม ณ เวลา{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -1838,7 +1995,7 @@ function EditTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-start">
-            เวลาเริ่ม{' '}
+            เริ่ม ณ เวลา{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -2047,7 +2204,7 @@ function EditEventSheet({
         />
       </div>
       <div className="field">
-        <label className="field__label" htmlFor="ed-time">เวลา</label>
+        <label className="field__label" htmlFor="ed-time">เริ่ม ณ เวลา</label>
         <input
           id="ed-time"
           type="time"

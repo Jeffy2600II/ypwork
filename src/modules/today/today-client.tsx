@@ -297,7 +297,7 @@ export function TodayClient({
                 <Check width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.done}</div>
-              <div className="yp-stat__label">เสร็จแล้ว</div>
+              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
             <div
               className="yp-stat"
@@ -307,7 +307,7 @@ export function TodayClient({
                 <Clock width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.ongoing}</div>
-              <div className="yp-stat__label">กำลังทำ</div>
+              <div className="yp-stat__label">กำลังดำเนินการ</div>
             </div>
             <div
               className="yp-stat"

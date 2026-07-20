@@ -248,7 +248,7 @@ export function CreateEventForm({
                         title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />รายการ</>,
                         items: [
                           <>ไม่มีรายการย่อย — ทำทีเดียวจบ</>,
-                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำอยู่&rdquo; / &ldquo;เสร็จสมบูรณ์&rdquo; ได้เลย</>,
+                          <>เปลี่ยนสถานะเป็น &ldquo;กำลังดำเนินการ&rdquo; / &ldquo;เสร็จสมบูรณ์&rdquo; ได้เลย</>,
                           <>เหมาะกับงานที่ไม่ซับซ้อน</>,
                           <>เปลี่ยนเป็นกลุ่มรายการทีหลังได้</>,
                         ],
@@ -367,7 +367,7 @@ export function CreateEventForm({
 
           <div className="field">
             <label className="field__label" htmlFor="ev-time">
-              เวลา (ไม่บังคับ)
+              เริ่ม ณ เวลา (ไม่บังคับ)
             </label>
             <input
               id="ev-time"

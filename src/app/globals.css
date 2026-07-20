@@ -154,8 +154,12 @@
   --yp-text-faint:     #9794B0;
   --yp-text-inverse:   #FFFFFF;
 
-  /* ── SURFACE ── */
-  --yp-bg-page:        #F5F4FB;
+  /* ── SURFACE ──
+     ★ v3.10.0 รอบที่ 13: เพิ่มความต่างระหว่างพื้นหลังหน้ากับพื้นผิวการ์ด
+     (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
+     พื้นผิวคนละชั้น) ปรับพื้นหลังหน้าให้เข้มขึ้นเล็กน้อยเพื่อให้การ์ดขาว
+     ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
+  --yp-bg-page:        #EFEDF9;
   --yp-bg-card:        #FFFFFF;
   --yp-bg-card-soft:   #FAF9FE;
   --yp-bg-elevated:    #FFFFFF;
@@ -163,10 +167,13 @@
   --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
   --yp-bg-cream:       #FAF9F6;
 
-  /* ── BORDER ── */
-  --yp-border-subtle:   rgba(79, 70, 229, 0.06);
-  --yp-border-default:  rgba(79, 70, 229, 0.10);
-  --yp-border-strong:   rgba(30, 27, 70, 0.16);
+  /* ── BORDER ──
+     ★ v3.10.0 รอบที่ 13: ลดความเข้มของเส้นขอบลงเล็กน้อย ให้ shadow เป็นตัว
+     สร้างมิติหลักแทน — เส้นขอบที่เบาลงทำให้ผิวหน้าดูสะอาดตา ไม่รก
+     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง */
+  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
+  --yp-border-default:  rgba(79, 70, 229, 0.08);
+  --yp-border-strong:   rgba(30, 27, 70, 0.14);
   --yp-border-indigo:   rgba(79, 70, 229, 0.22);
   --yp-border-indigo-strong: rgba(99, 102, 241, 0.45);
   --yp-focus-ring:      rgba(79, 70, 229, 0.16);
@@ -215,19 +222,22 @@
      ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
   --yp-hero-pattern-plus-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%234F46E5' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%237C3AED' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
 
-  /* ── SPACING ── */
+  /* ── SPACING ──
+     ★ v3.10.0 รอบที่ 13: ขยายจังหวะระยะห่างขึ้นเล็กน้อยทั่วทั้งระบบ
+     ให้เนื้อหามีที่หายใจมากขึ้น รู้สึกสงบ นิ่ง ไม่อึดอัด — ปรับที่ระดับ 4
+     ขึ้นไปเท่านั้น (ระดับเล็ก 1-3 คงเดิม กันของชิ้นเล็กในฟอร์ม/ชิป ห่างเกินไป) */
   --yp-space-1:  0.25rem;
   --yp-space-2:  0.5rem;
   --yp-space-3:  0.75rem;
-  --yp-space-4:  1rem;
-  --yp-space-5:  1.25rem;
-  --yp-space-6:  1.5rem;
-  --yp-space-7:  1.75rem;
-  --yp-space-8:  2rem;
-  --yp-space-10: 2.5rem;
-  --yp-space-12: 3rem;
-  --yp-space-16: 4rem;
-  --yp-space-20: 5rem;
+  --yp-space-4:  1.0625rem;
+  --yp-space-5:  1.375rem;
+  --yp-space-6:  1.625rem;
+  --yp-space-7:  1.875rem;
+  --yp-space-8:  2.25rem;
+  --yp-space-10: 2.75rem;
+  --yp-space-12: 3.25rem;
+  --yp-space-16: 4.25rem;
+  --yp-space-20: 5.25rem;
 
   /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
      (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
@@ -279,12 +289,16 @@
   --yp-fw-extrabold: 800;
   --yp-fw-black:    900;
 
-  /* ── SHADOWS ── */
-  --yp-shadow-xs: 0 1px 4px rgba(30, 27, 70, 0.07);
-  --yp-shadow-sm: 0 2px 8px rgba(30, 27, 70, 0.08);
-  --yp-shadow-md: 0 4px 14px rgba(30, 27, 70, 0.10);
-  --yp-shadow-lg: 0 8px 24px rgba(30, 27, 70, 0.13);
-  --yp-shadow-indigo: 0 4px 16px rgba(79, 70, 229, 0.16);
+  /* ── SHADOWS ──
+     ★ v3.10.0 รอบที่ 13: เปลี่ยนจาก shadow ชั้นเดียวเป็นสองชั้น
+     (เงาสัมผัสแคบชัด + เงากระจายกว้างเบา) — ให้ความรู้สึกว่าการ์ด "วางอยู่"
+     บนพื้นผิวจริง มีน้ำหนัก มั่นคง แทนที่จะเป็นฮาโล่บางๆ ลอยอยู่เฉยๆ
+     (เทคนิคเดียวกับที่ Stripe/Linear ใช้กับการ์ดระดับ elevation ต่างๆ) */
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.05), 0 1px 5px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.06), 0 3px 10px rgba(30, 27, 70, 0.07);
+  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.06), 0 8px 20px rgba(30, 27, 70, 0.09);
+  --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
+  --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
 
   /* ── TRANSITIONS ── */
@@ -322,11 +336,11 @@
   --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
   --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
 
-  --yp-card-pad:    1.125rem;
-  --yp-card-pad-lg: 1.5rem;
-  --yp-section-gap: 1.5rem;
-  --yp-content-gap: 1rem;
-  --yp-stack-gap:   0.6875rem;
+  --yp-card-pad:    1.25rem;
+  --yp-card-pad-lg: 1.625rem;
+  --yp-section-gap: 1.75rem;
+  --yp-content-gap: 1.125rem;
+  --yp-stack-gap:   0.75rem;
 
   /* ── Z-INDEX ── */
   --yp-z-sticky:  100;
@@ -1147,9 +1161,9 @@ body.yp-sheet-open .fab {
     box-shadow:
       2px 0 16px rgba(30, 27, 70, 0.06),
       0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 244, 251, 0.95) 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(245, 244, 251, 0.78) 100%);
+    backdrop-filter: saturate(200%) blur(24px);
+    -webkit-backdrop-filter: saturate(200%) blur(24px);
   }
 
   .bottom-nav__item {
@@ -3703,6 +3717,72 @@ body.yp-sheet-open .fab {
   margin-top: var(--yp-space-4);
 }
 
+/* ★ v3.10.0 รอบที่ 11: หัวข้อกลุ่มช่วงเวลาของรายการย่อย (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา)
+   ออกแบบใหม่ — มี icon chip + label + caption อธิบายสั้นๆ ให้เห็นชัดว่ากลุ่มนี้
+   คืออะไร (ก่อนหน้านี้มีแค่ label ลอยๆ บางทีผู้ใช้ไม่ทันสังเกต) */
+.yp-task-time-group + .yp-task-time-group {
+  margin-top: var(--yp-space-6);
+}
+.yp-task-time-group__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--yp-space-1);
+  margin-bottom: var(--yp-space-3);
+}
+.yp-task-time-group__icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--yp-radius-pill);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(124, 58, 237, 0.14));
+  color: var(--yp-indigo-600, #4F46E5);
+}
+.yp-task-time-group__text {
+  flex: 1;
+  min-width: 0;
+}
+.yp-task-time-group__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading, #1E293B);
+  letter-spacing: 0.01em;
+}
+.yp-task-time-group__caption {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-faint);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.yp-task-time-group__count {
+  margin-left: auto;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-faint);
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  padding: 1px 9px;
+  border-radius: var(--yp-radius-pill);
+}
+.yp-task-time-group__body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Muted variant — "ไม่ระบุเวลา" กลุ่ม ดูเบากว่ากลุ่มที่มีเวลาจริง */
+.yp-task-time-group.is-muted .yp-task-time-group__icon {
+  background: var(--yp-bg-card-soft);
+  color: var(--yp-text-faint);
+}
+.yp-task-time-group.is-muted .yp-task-time-group__label {
+  color: var(--yp-text-muted);
+}
+
 .yp-task-empty {
   text-align: center;
   padding: var(--yp-space-6) var(--yp-space-4) var(--yp-space-5);
@@ -4003,7 +4083,11 @@ body.yp-sheet-open .fab {
   gap: var(--yp-space-3);
   padding: var(--yp-space-5) var(--yp-space-4);
   cursor: pointer;
-  transition: background var(--yp-t-fast), border-color var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  transition:
+    background 160ms var(--yp-ease-m3-decelerate),
+    border-color var(--yp-t-fast),
+    box-shadow var(--yp-t-fast),
+    transform 160ms var(--yp-ease-m3-decelerate);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   background: var(--yp-bg-card);
@@ -4062,6 +4146,7 @@ body.yp-sheet-open .fab {
 
 .yp-task-row__title {
   font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-body);
   line-height: 1.4;
   word-break: break-word;
@@ -4074,11 +4159,13 @@ body.yp-sheet-open .fab {
 .yp-task-row__meta {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
+/* ★ v3.10.0 รอบที่ 11: ตัดกรอบ (border) ของ chip ออก ให้ผิวเรียบขึ้น
+   สะอาดตาขึ้น (เดิมมีทั้งกรอบการ์ดใหญ่ + กรอบ chip เล็กซ้อนกัน ดูรกเกินไป) */
 .yp-task-row__chip {
   display: inline-flex;
   align-items: center;
@@ -4088,15 +4175,14 @@ body.yp-sheet-open .fab {
   font-weight: var(--yp-fw-medium);
   padding: 4px 10px;
   background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-subtle);
+  border: 1px solid transparent;
   border-radius: var(--yp-radius-pill);
   letter-spacing: 0.01em;
 }
 .yp-task-row__chip svg { width: 11px; height: 11px; stroke-width: 2; }
 .yp-task-row__chip.is-overdue {
   color: #BE123C;
-  background: rgba(244, 63, 94, 0.06);
-  border-color: rgba(244, 63, 94, 0.20);
+  background: rgba(244, 63, 94, 0.08);
   font-weight: var(--yp-fw-bold);
 }
 
@@ -6143,8 +6229,10 @@ body.yp-sheet-open .fab {
 
 /* v3.1.0: yp-info-sheet__inner ใช้ใน Window Framework — Window จัด padding แล้ว
    แต่เก็บ padding บางส่วนไว้สำหรับ content breathing room */
+/* ★ v3.10.0 รอบที่ 10: เพิ่มระยะหายใจด้านล่างอีกเล็กน้อย — เนื้อหายาวๆ
+   (list ปุ่มขั้นตอน, key-value, callout) เดิมชิดขอบล่างของ sheet ไปหน่อย */
 .yp-info-sheet__inner {
-  padding: 0 0 16px;
+  padding: 0 0 28px;
 }
 
 /* Header inside sheet */
@@ -9133,10 +9221,13 @@ textarea {
 }
 
 /* ── v3.9.2 TOP BAR — Apple HIG translucency ── */
+/* ★ v3.10.0 รอบที่ 10: เพิ่มระดับความเบลอให้ใกล้เคียง iOS translucent
+   material มากขึ้น (ลด opacity พื้นหลังลง ให้เนื้อหาด้านหลังโปร่งแสงชัดขึ้น
+   พร้อมเพิ่ม blur/saturate) */
 .top-bar {
-  background: rgba(247, 246, 252, 0.72);
-  backdrop-filter: saturate(200%) blur(20px);
-  -webkit-backdrop-filter: saturate(200%) blur(20px);
+  background: rgba(247, 246, 252, 0.62);
+  backdrop-filter: saturate(220%) blur(28px);
+  -webkit-backdrop-filter: saturate(220%) blur(28px);
   box-shadow: 0 1px 0 rgba(30, 27, 70, 0.04);
   /* Subtle bottom border that fades in on scroll */
   transition:
@@ -9146,7 +9237,7 @@ textarea {
 
 /* When user has scrolled down — slightly stronger edge */
 .top-bar.is-scrolled {
-  background: rgba(247, 246, 252, 0.85);
+  background: rgba(247, 246, 252, 0.80);
   box-shadow:
     0 1px 0 rgba(30, 27, 70, 0.06),
     0 1px 2px rgba(30, 27, 70, 0.03);
@@ -9313,10 +9404,12 @@ body.yp-sheet-open .fab {
 /* ── v3.9.2 BOTTOM NAV — Material 3 + เอกลักษณ์ความโค้งมนเดิม ── */
 /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (var(--yp-radius-lg) = 48px) — กันเสียความเป็นตัวตน
      v3.9.2 ลดเหลือ 22px ตาม Material 3 spec แต่ทำให้ bottom-nav ดูแบน */
+/* ★ v3.10.0 รอบที่ 10: เพิ่มระดับความเบลอให้ใกล้เคียง iOS translucent
+   material เดียวกับ top-bar (ลด opacity พื้นหลังลง เพิ่ม blur/saturate) */
 .bottom-nav {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: saturate(180%) blur(16px);
-  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(220%) blur(28px);
+  -webkit-backdrop-filter: saturate(220%) blur(28px);
   box-shadow:
     0 -1px 0 rgba(30, 27, 70, 0.04),
     0 -2px 12px rgba(30, 27, 70, 0.05);
@@ -9772,10 +9865,13 @@ body.yp-sheet-open .bottom-nav {
   }
 
   /* Bottom-nav (left-rail) — Material 3 Navigation Rail + โค้งมนเดิม */
+  /* ★ v3.10.0 รอบที่ 11: บล็อกนี้ (@media min-width:900px) มาทีหลังบล็อก
+     .bottom-nav หลักในไฟล์ ทำให้ชนะบน desktop — ต้องอัพเดตความเบลอที่นี่ด้วย
+     ไม่งั้นค่าที่แก้ไว้รอบที่ 10 จะใช้ได้แค่บนมือถือ (< 900px) เท่านั้น */
   .bottom-nav {
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(220%) blur(28px);
+    -webkit-backdrop-filter: saturate(220%) blur(28px);
     /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (48px = --yp-radius-lg) */
     border-radius: var(--yp-radius-lg) var(--yp-radius-sm) var(--yp-radius-sm) var(--yp-radius-lg);
   }
@@ -10280,6 +10376,19 @@ body.yp-sheet-open .bottom-nav {
   gap: 8px;
 }
 
+/* ★ v3.10.0 รอบที่ 10: title + InfoButton ต้องอยู่ใน flex item เดียวกัน
+   ก่อนหน้านี้ title text / InfoButton / count เป็น 3 flex children แยกกัน
+   ทำให้ justify-content:space-between ดันปุ่ม (i) ไปอยู่กึ่งกลางระหว่าง
+   title กับ count แทนที่จะติดกับคำว่า "รายการย่อย" ตามที่ตั้งใจ
+   → ห่อ title + InfoButton ไว้ใน .yp-detail-section__title-group เดียว
+     แล้วปล่อยให้ space-between ดันแค่ [group] กับ [count] ออกจากกัน */
+.yp-detail-section__title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    v3.9.2 — INFO SHEET (bottom sheet): Gemini-inspired redesign
    ═══════════════════════════════════════════════════════════════
@@ -10510,14 +10619,26 @@ body {
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
+/* ★ v3.10.0 รอบที่ 10: การ์ด active นุ่มนวลขึ้น — ยืดระยะเวลาเล็กน้อย
+   และเปลี่ยนมาใช้ decelerate easing (แทน standard) ให้ความรู้สึกซับ/ปล่อย
+   นุ่มกว่าเดิม ไม่ใช่การ "สะดุด" แบบทันที */
 .yp-card:active {
-  transform: scale(0.995);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  transform: scale(0.99);
+  transition: transform 160ms var(--yp-ease-m3-decelerate);
 }
 
 .yp-event-card:active {
+  transform: scale(0.982);
+  transition: transform 160ms var(--yp-ease-m3-decelerate);
+}
+
+/* ★ v3.10.0 รอบที่ 10: การ์ดรายการย่อย (yp-task-row) ก่อนหน้านี้ไม่มี
+   active/press feedback เลยเวลาแตะเพื่อเปลี่ยนสถานะ — เพิ่มให้นุ่มนวล
+   สอดคล้องกับการ์ดอื่นๆ ทั้งเว็บ */
+.yp-task-row:active {
   transform: scale(0.985);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  background: var(--yp-bg-card-soft);
+  transition: transform 160ms var(--yp-ease-m3-decelerate), background 160ms var(--yp-ease-m3-decelerate);
 }
 
 .yp-stat:active {

@@ -89,17 +89,6 @@ export const SECURITY_HEADERS: Record<string, string> = {
 };
 
 /**
- * ★ v3.4.0: Authenticated route headers — ใช้กับหน้าที่ login แล้ว
- * เพิ่ม Cache-Control: no-store เพื่อป้องกัน back button leak
- */
-export const AUTHENTICATED_HEADERS: Record<string, string> = {
-  ...SECURITY_HEADERS,
-  'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-  'Pragma': 'no-cache',
-  'Expires': '0',
-};
-
-/**
  * Headers สำหรับใส่ใน next.config.ts ในรูปแบบที่ Next.js ต้องการ
  */
 export const securityHeadersForNextConfig = Object.entries(SECURITY_HEADERS).map(
@@ -113,18 +102,6 @@ export function applySecurityHeaders(
   response: { headers: { set: (name: string, value: string) => void } }
 ): void {
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
-    response.headers.set(key, value);
-  }
-}
-
-/**
- * ★ v3.4.0: Apply authenticated headers — รวม Cache-Control: no-store
- * ใช้กับหน้าที่ login แล้ว (จะถูกเรียกใน middleware หลัง auth check)
- */
-export function applyAuthenticatedHeaders(
-  response: { headers: { set: (name: string, value: string) => void } }
-): void {
-  for (const [key, value] of Object.entries(AUTHENTICATED_HEADERS)) {
     response.headers.set(key, value);
   }
 }

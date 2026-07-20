@@ -158,7 +158,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
         </div>
         <div className="yp-profile-stat yp-profile-stat--success">
           <span className="yp-profile-stat__value">{liveStats.myDone}</span>
-          <span className="yp-profile-stat__label">ทำเสร็จ</span>
+          <span className="yp-profile-stat__label">เสร็จสมบูรณ์</span>
         </div>
         <div className="yp-profile-stat yp-profile-stat--warning">
           <span className="yp-profile-stat__value">{liveStats.myPending}</span>

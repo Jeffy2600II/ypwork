@@ -45,7 +45,7 @@ export function TodayTaskCard({ task, parentEvent }: TodayTaskCardProps) {
         <div className="yp-event-card__main">
           <div className="yp-event-card__title">{task.title}</div>
           <div className="yp-event-card__meta">
-            {task.start_time ? <span>{task.start_time}</span> : null}
+            {task.start_time ? <span>ณ เวลา {task.start_time}</span> : null}
             <span className="yp-today-task-card__parent">
               <CornerDownRight width={11} height={11} />
               จาก: {parentEvent.title}

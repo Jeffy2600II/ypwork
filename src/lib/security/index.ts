@@ -14,10 +14,8 @@ export {
 
 export {
   SECURITY_HEADERS,
-  AUTHENTICATED_HEADERS,
   securityHeadersForNextConfig,
   applySecurityHeaders,
-  applyAuthenticatedHeaders,
 } from './headers';
 
 export {

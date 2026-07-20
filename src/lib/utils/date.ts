@@ -225,12 +225,14 @@ export function resolveEventStatus(event: {
  *    - 'ongoing' เดิม = "กำลังทำ" → ใหม่ = "กำลังทำอยู่" (เน้นว่ากำลังทำอยู่จริง)
  *    - 'done' เดิม = "เสร็จแล้ว" → ใหม่ = "เสร็จสมบูรณ์" (ชัดเจนว่าเสร็จจริง)
  *    - 'planning' เดิม = "วางแผน" → คงไว้ (ชัดเจนอยู่แล้ว)
+ *  ★ v3.10.0 รอบที่ 10: ปรับคำให้เป็นทางการมากขึ้นทั่วทั้งเว็บ
+ *    - 'ongoing' "กำลังทำอยู่" → "กำลังดำเนินการ" (ทางการขึ้น มาตรฐานเดียวกันทั้งเว็บ)
  */
 export function statusLabel(status: EventStatus | TaskStatus): string {
   const labels: Record<string, string> = {
     planning: 'วางแผน',
     todo: 'รอเริ่ม',
-    ongoing: 'กำลังทำอยู่',
+    ongoing: 'กำลังดำเนินการ',
     done: 'เสร็จสมบูรณ์',
   };
   return labels[status] || status;
