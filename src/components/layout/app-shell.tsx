@@ -1,18 +1,16 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0 รอบที่ 2
+// YP WORK · App Shell — v3.9.9
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 2: Task Cards Redesign + Sub-tasks in Today/Upcoming
+// ★ v3.9.9: Today Dashboard + Session Cache
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //   - การเปลี่ยนแปลงอยู่ใน:
-//     - src/modules/events/event-detail-client.tsx (TaskRow v2 layout + labels)
-//     - src/modules/today/today-client.tsx (sub-tasks ใน today + upcoming)
-//     - src/app/globals.css (.yp-task-row--v2 CSS)
-//
-// ★ v3.10.0 รอบที่ 1 (เดิม): Task Cards Redesign + Morning/Afternoon Grouping
-//   - เพิ่ม start_time field + แยก task list เป็นช่วงเช้า/บ่าย
-//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
+//     - src/lib/utils/session-cache.ts (ใหม่ — cache utility)
+//     - src/lib/hooks/use-realtime.ts (เพิ่ม cache ให้ useRealtimeEvents + useRealtimeEventById)
+//     - src/modules/today/today-client.tsx (แสดง task ย่อยที่ due_date = วันนี้)
+//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ task ย่อย)
+//     - src/modules/profile/profile-view.tsx (ล้าง cache ตอน logout)
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ

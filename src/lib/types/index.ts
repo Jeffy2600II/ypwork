@@ -53,13 +53,6 @@ export interface Task {
   event_id: string;
   title: string;
   due_date: string | null;
-  /** ★ v3.10.0: เวลาเริ่มทำ (HH:MM format, e.g. "14:30")
-   *   ใช้แทน "กำหนดส่ง" เดิม — เปลี่ยน concept จาก deadline → start time
-   *   ใช้สำหรับ:
-   *     - แยก task ออกเป็นช่วงเช้า (ก่อน 13:00) / ช่วงบ่าย (13:00 ขึ้นไป)
-   *     - แสดงเวลาที่ควรเริ่มทำ task นั้น
-   *   ถ้าเป็น null = ไม่ระบุเวลาเริ่ม */
-  start_time: string | null;
   status: TaskStatus;
   priority: TaskPriority;
   estimated_time: string;

@@ -379,13 +379,13 @@ export default function LoginPage() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.10.0 · Supabase</span>
+          <span className="yp-auth__demo-badge">v3.9.9 · Supabase</span>
           <h1>
             สมองของ
             <br />
             สภานักเรียน
           </h1>
-          <p>จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
+          <p>จัดตารางงาน งานหลายขั้นตอน ฝ่ายงาน และขั้นตอนย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
         </div>
 
         {/* ── CARD ── */}

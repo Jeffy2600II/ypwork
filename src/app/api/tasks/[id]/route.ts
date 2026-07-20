@@ -14,8 +14,6 @@ import { apiCacheHeaders } from '@/lib/api/cache';
 
 const VALID_PRIORITIES = ['low', 'medium', 'high'] as const;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-// ★ v3.10.0: เวลาเริ่มทำ (HH:MM format)
-const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -79,17 +77,6 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       );
     }
     update.due_date = body.due_date || null;
-  }
-
-  // ★ v3.10.0: start_time field (HH:MM format)
-  if (body.start_time !== undefined) {
-    if (body.start_time !== null && (typeof body.start_time !== 'string' || !TIME_RE.test(body.start_time))) {
-      return NextResponse.json(
-        { success: false, error: 'เวลาเริ่มทำไม่ถูกต้อง (ต้องเป็น HH:MM)' },
-        { status: 400 }
-      );
-    }
-    update.start_time = body.start_time || null;
   }
 
   if (body.estimated_time !== undefined) update.estimated_time = body.estimated_time || '';

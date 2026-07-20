@@ -23,8 +23,8 @@ type FilterKey = 'all' | 'group' | 'task' | 'mine' | 'overdue';
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'ทั้งหมด' },
-  { key: 'group', label: 'กลุ่มงาน' },
-  { key: 'task', label: 'งานเดี่ยว' },
+  { key: 'group', label: 'งานหลายขั้นตอน' },
+  { key: 'task', label: 'งานเดียว' },
   { key: 'mine', label: 'ที่ฉันมีส่วนร่วม' },
   { key: 'overdue', label: 'เลยกำหนด' },
 ];

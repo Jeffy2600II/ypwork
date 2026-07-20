@@ -225,9 +225,9 @@ export function CreateEventForm({
 
                     <InfoTldr>
                       เพื่อจัดการสะดวกและดูแลง่าย เราจึงแยกประเภทของงาน —
-                      <InfoPill>กลุ่มงาน</InfoPill>{' '}
-                      คืองานใหญ่ที่มี task ย่อย,{' '}
-                      <InfoPill>งานเดี่ยว</InfoPill>{' '}
+                      <InfoPill>งานหลายขั้นตอน</InfoPill>{' '}
+                      คืองานใหญ่ที่มี ขั้นตอนย่อย,{' '}
+                      <InfoPill>งานเดียว</InfoPill>{' '}
                       คืองานเล็กที่ทำทีเดียวจบ
                     </InfoTldr>
 
@@ -236,7 +236,7 @@ export function CreateEventForm({
                       งานแรกต้องทำหลายอย่างมาก (ตกแต่งบูธ, ซ้อมร้องเพลง, ดูแลวันจริง) กว่าจะเสร็จ
                       ส่วนงานที่สองไปซื้อทีเดียวจบ เพราะงานทั้งสองมี{' '}
                       <InfoHighlight>ความซับซ้อนต่างกันมาก</InfoHighlight>{' '}
-                      ระบบจึงแยกประเภทเพื่อให้จัดการได้เหมาะสม — งานใหญ่แบ่งเป็น task ย่อย
+                      ระบบจึงแยกประเภทเพื่อให้จัดการได้เหมาะสม — งานใหญ่แบ่งเป็น ขั้นตอนย่อย
                       ส่วนงานเล็กเปลี่ยนสถานะเลย
                     </p>
 
@@ -244,22 +244,22 @@ export function CreateEventForm({
 
                     <InfoCompare
                       left={{
-                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />กลุ่มงาน</>,
+                        title: <><Layers size={14} strokeWidth={2.4} className="yp-icon-inline" />งานหลายขั้นตอน</>,
                         tone: 'accent',
                         items: [
-                          <>มี <strong>task ย่อย</strong> หลายขั้นตอน</>,
+                          <>มี <strong>ขั้นตอนย่อย</strong> หลายขั้นตอน</>,
                           <>เปลี่ยนสถานะไม่ได้โดยตรง — เปลี่ยนที่ task</>,
                           <>สร้าง task เพิ่มได้เรื่อย ๆ</>,
                           <>มอบหมาย task ให้คนละฝ่ายได้</>,
                         ],
                       }}
                       right={{
-                        title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />งานเดี่ยว</>,
+                        title: <><Flag size={14} strokeWidth={2.4} className="yp-icon-inline" />งานเดียว</>,
                         items: [
-                          <>ไม่มี task ย่อย — ทำทีเดียวจบ</>,
+                          <>ไม่มี ขั้นตอนย่อย — ทำทีเดียวจบ</>,
                           <>เปลี่ยนสถานะเป็น &ldquo;กำลังทำ&rdquo; / &ldquo;เสร็จแล้ว&rdquo; ได้เลย</>,
                           <>เหมาะกับงานที่ไม่ซับซ้อน</>,
-                          <>เปลี่ยนเป็นกลุ่มงานทีหลังได้</>,
+                          <>เปลี่ยนเป็นงานหลายขั้นตอนทีหลังได้</>,
                         ],
                       }}
                     />
@@ -268,11 +268,11 @@ export function CreateEventForm({
 
                     <InfoKeyValue>
                       <InfoKeyValueRow
-                        k={<><InfoPill>กลุ่มงาน</InfoPill></>}
+                        k={<><InfoPill>งานหลายขั้นตอน</InfoPill></>}
                         v={<>วันแม่ · วันวิทยาศาสตร์ · วันกีฬาสี · วันครู</>}
                       />
                       <InfoKeyValueRow
-                        k={<><InfoPill>งานเดี่ยว</InfoPill></>}
+                        k={<><InfoPill>งานเดียว</InfoPill></>}
                         v={<>ส่งเอกสาร · ขออนุมัติเวที · ส่งรายงานการประชุม · ซื้อของ</>}
                       />
                     </InfoKeyValue>
@@ -281,21 +281,21 @@ export function CreateEventForm({
 
                     <InfoSteps>
                       <InfoStep title="งานนี้ต้องทำหลายขั้นตอนก่อนจะเสร็จ?">
-                        ถ้าใช่ → เลือก <InfoPill>กลุ่มงาน</InfoPill>
-                        (เพราะต้องสร้าง task ย่อยเพื่อแบ่งงานกันทำ)
+                        ถ้าใช่ → เลือก <InfoPill>งานหลายขั้นตอน</InfoPill>
+                        (เพราะต้องสร้าง ขั้นตอนย่อยเพื่อแบ่งงานกันทำ)
                       </InfoStep>
                       <InfoStep title="งานนี้ทำทีเดียวจบ?">
-                        ถ้าใช่ → เลือก <InfoPill>งานเดี่ยว</InfoPill>
+                        ถ้าใช่ → เลือก <InfoPill>งานเดียว</InfoPill>
                         (เปลี่ยนสถานะได้เลย ไม่ต้องสร้าง task)
                       </InfoStep>
                       <InfoStep title="ไม่แน่ใจ?">
-                        เริ่มจาก <strong>งานเดี่ยว</strong> ก่อน — ถ้าทำไปเห็นว่ามีหลายขั้นตอน
-                        แก้เป็น <strong>กลุ่มงาน</strong> ทีหลังได้
+                        เริ่มจาก <strong>งานเดียว</strong> ก่อน — ถ้าทำไปเห็นว่ามีหลายขั้นตอน
+                        แก้เป็น <strong>งานหลายขั้นตอน</strong> ทีหลังได้
                       </InfoStep>
                     </InfoSteps>
 
                     <InfoQuote author="ตัวอย่าง: วันแม่">
-                      &ldquo;วันแม่แห่งชาติ&rdquo; → มี task ย่อย ซื้อของ / ตกแต่งบูธ /
+                      &ldquo;วันแม่แห่งชาติ&rdquo; → มี ขั้นตอนย่อย ซื้อของ / ตกแต่งบูธ /
                       ซ้อมร้องเพลง / ดูแลวันจริง — แต่ละ task มอบหมายให้คนละฝ่ายทำได้
                     </InfoQuote>
 
@@ -318,9 +318,9 @@ export function CreateEventForm({
               <div className="yp-type-option__icon">
                 <Layers width={20} height={20} />
               </div>
-              <div className="yp-type-option__title">กลุ่มงาน</div>
+              <div className="yp-type-option__title">งานหลายขั้นตอน</div>
               <div className="yp-type-option__desc">
-                งานใหญ่ที่มี task ย่อย เช่น วันแม่ วันภาษาไทย
+                งานใหญ่ที่มี ขั้นตอนย่อย เช่น วันแม่ วันภาษาไทย
               </div>
             </button>
 
@@ -333,7 +333,7 @@ export function CreateEventForm({
               <div className="yp-type-option__icon">
                 <Flag width={20} height={20} />
               </div>
-              <div className="yp-type-option__title">งานเดี่ยว</div>
+              <div className="yp-type-option__title">งานเดียว</div>
               <div className="yp-type-option__desc">
                 Task เดียวจบ เช่น ส่งเอกสาร ขออนุมัติ
               </div>

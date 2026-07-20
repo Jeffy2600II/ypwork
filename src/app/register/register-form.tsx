@@ -403,7 +403,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.10.0 · Supabase</span>
+          <span className="yp-auth__demo-badge">v3.9.9 · Supabase</span>
           <h1>ลงทะเบียน<br />บัญชีใหม่</h1>
           <p>ผู้ดูแลระบบจะตรวจสอบและอนุมัติบัญชีของคุณหลังจากลงทะเบียน</p>
         </div>
