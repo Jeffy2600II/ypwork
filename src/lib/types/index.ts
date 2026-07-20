@@ -47,7 +47,7 @@ export type TaskStatus = 'todo' | 'ongoing' | 'done';
 /** ลำดับความสำคัญ */
 export type TaskPriority = 'low' | 'medium' | 'high';
 
-/** Task ย่อย */
+/** รายการย่อย (Task) */
 export interface Task {
   id: string;
   event_id: string;

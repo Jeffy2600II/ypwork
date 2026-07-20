@@ -38,7 +38,7 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
       href={`/events/${event.id}`}
       className="yp-event-card"
       style={{ ['--accent' as string]: accent }}
-      aria-label={`งาน: ${event.title}`}
+      aria-label={`รายการ: ${event.title}`}
     >
       <div className="yp-event-card__head">
         <div

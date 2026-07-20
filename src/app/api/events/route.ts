@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
 
   if (typeof body.title !== 'string' || !body.title.trim() || body.title.length > 200) {
     return NextResponse.json(
-      { success: false, error: 'ชื่องานไม่ถูกต้อง (ต้องมี 1-200 ตัวอักษร)' },
+      { success: false, error: 'ชื่อรายการไม่ถูกต้อง (ต้องมี 1-200 ตัวอักษร)' },
       { status: 400 }
     );
   }
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('[/api/events POST] insert error:', error.message);
       return NextResponse.json(
-        { success: false, error: `ไม่สามารถสร้างงาน: ${error.message}` },
+        { success: false, error: `ไม่สามารถสร้างรายการ: ${error.message}` },
         { status: 500 }
       );
     }

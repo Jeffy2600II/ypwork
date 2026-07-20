@@ -23,8 +23,8 @@ type FilterKey = 'all' | 'group' | 'task' | 'mine' | 'overdue';
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'ทั้งหมด' },
-  { key: 'group', label: 'งานหลายขั้นตอน' },
-  { key: 'task', label: 'งานเดียว' },
+  { key: 'group', label: 'ชุดรายการ' },
+  { key: 'task', label: 'รายการ' },
   { key: 'mine', label: 'ที่ฉันมีส่วนร่วม' },
   { key: 'overdue', label: 'เลยกำหนด' },
 ];
@@ -79,8 +79,8 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
     <div className="yp-page yp-page-enter">
       {/* ── PAGE HEADER ── */}
       <div className="yp-page-header">
-        <div className="yp-page-header__eyebrow">รายการงาน</div>
-        <h1 className="yp-page-header__title">งานทั้งหมด</h1>
+        <div className="yp-page-header__eyebrow">รายการ</div>
+        <h1 className="yp-page-header__title">รายการทั้งหมด</h1>
         <p className="yp-page-header__subtitle">
           {filtered.length} รายการ · เรียงตามวันที่
         </p>
@@ -109,8 +109,8 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
               📭
             </span>
           </div>
-          <div className="yp-empty__title">ยังไม่มีงานในหมวดนี้</div>
-          <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างงานใหม่</div>
+          <div className="yp-empty__title">ยังไม่มีรายการในหมวดนี้</div>
+          <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
         </div>
       ) : (
         <div key={filter} className="yp-events-list-container">

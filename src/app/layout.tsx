@@ -21,8 +21,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "YP Work · สมองของสภานักเรียน",
   description:
-    "แพลตฟอร์มภายในสำหรับจัดตารางงาน งานหลายขั้นตอน ฝ่ายงาน และขั้นตอนย่อย — สภานักเรียน",
-  keywords: ["YP Work", "สภานักเรียน", "จัดตารางงาน", "student council"],
+    "แพลตฟอร์มภายในสำหรับจัดตารางรายการ ชุดรายการ ฝ่ายงาน และรายการย่อย — สภานักเรียน",
+  keywords: ["YP Work", "สภานักเรียน", "จัดตารางรายการ", "student council"],
   authors: [{ name: "YP Work" }],
   icons: {
     icon: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "YP Work · สมองของสภานักเรียน",
-    description: "จัดตารางงาน งานหลายขั้นตอน ฝ่ายงาน และขั้นตอนย่อย ในที่เดียว",
+    description: "จัดตารางรายการ ชุดรายการ ฝ่ายงาน และรายการย่อย ในที่เดียว",
     type: "website",
   },
 };

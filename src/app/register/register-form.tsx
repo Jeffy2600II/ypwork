@@ -403,7 +403,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.9.9 · Supabase</span>
+          <span className="yp-auth__demo-badge">v3.10.0 · Supabase</span>
           <h1>ลงทะเบียน<br />บัญชีใหม่</h1>
           <p>ผู้ดูแลระบบจะตรวจสอบและอนุมัติบัญชีของคุณหลังจากลงทะเบียน</p>
         </div>
@@ -741,7 +741,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
 
         {/* ── FOOTER ── */}
         <div className="yp-auth__footer">
-          © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+          © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
         </div>
       </div>
     </div>

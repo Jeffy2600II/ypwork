@@ -352,7 +352,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v3.9.9 · Status</span>
+            <span className="yp-auth__demo-badge">v3.10.0 · Status</span>
             <h1>การลงทะเบียน<br />ถูกปฏิเสธ</h1>
             <p>ผู้ดูแลระบบได้ปฏิเสธการลงทะเบียนของคุณ</p>
           </div>
@@ -398,7 +398,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__footer">
-            © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+            © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
           </div>
         </div>
       </div>
@@ -420,7 +420,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__hero">
-            <span className="yp-auth__demo-badge">v3.9.9 · Status</span>
+            <span className="yp-auth__demo-badge">v3.10.0 · Status</span>
             <h1>กรุณาเข้าสู่ระบบ<br />อีกครั้ง</h1>
             <p>ไม่สามารถตรวจสอบสถานะอัตโนมัติได้ — กรุณา login ด้วยตัวเอง</p>
           </div>
@@ -462,7 +462,7 @@ export function PendingStatusClient() {
             </div>
           </div>
           <div className="yp-auth__footer">
-            © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+            © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
           </div>
         </div>
       </div>
@@ -486,7 +486,7 @@ export function PendingStatusClient() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.9.9 · Pending Status</span>
+          <span className="yp-auth__demo-badge">v3.10.0 · Pending Status</span>
           <h1>
             รอผู้ดูแล
             <br />
@@ -652,7 +652,7 @@ export function PendingStatusClient() {
 
         {/* ── FOOTER ── */}
         <div className="yp-auth__footer">
-          © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+          © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
         </div>
 
         {/* ── inline animation styles ── */}

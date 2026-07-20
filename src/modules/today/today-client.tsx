@@ -88,10 +88,10 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ★ v3.9.9: "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+  // ★ v3.10.0: "รายการวันนี้" แสดงผลครบทุกรายการที่ต้องทำวันนี้จริง ๆ
   //   ประกอบด้วย:
   //   1. todaysEvents — event ที่ date = วันนี้ (เหมือนเดิม)
-  //   2. todaysStandaloneTasks — ขั้นตอนย่อยที่ due_date = วันนี้ แต่ parent event
+  //   2. todaysStandaloneTasks — รายการย่อยที่ due_date = วันนี้ แต่ parent event
   //      อยู่ในวันอื่น (เพื่อกัน duplicate — ถ้า parent event อยู่ในวันนี้อยู่แล้ว
   //      task เหล่านั้นจะแสดงผ่าน EventCard ของ parent อยู่แล้วในส่วน progress)
   const todaysEvents = events.filter((e) => e.date === todayStr);
@@ -100,9 +100,9 @@ export function TodayClient({
     for (const ev of events) {
       // ข้าม event ที่เป็นวันนี้ — task ของมันจะแสดงใน EventCard ของ parent แล้ว
       if (ev.date === todayStr) continue;
-      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "งานวันนี้")
+      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "รายการวันนี้")
       //   ยกเว้นถ้า user อยากเห็น — แต่ default คือซ่อน task ที่เสร็จแล้ว
-      //   เพื่อให้ "งานวันนี้" โฟกัสที่สิ่งที่ต้องทำ
+      //   เพื่อให้ "รายการวันนี้" โฟกัสที่สิ่งที่ต้องทำ
       for (const t of ev.tasks || []) {
         if (t.due_date === todayStr && t.status !== 'done') {
           list.push({ task: t, event: ev });
@@ -120,7 +120,7 @@ export function TodayClient({
     return list;
   }, [events, todayStr]);
 
-  // จำนวนรายการ "งานวันนี้" รวม = events ของวันนี้ + standalone tasks
+  // จำนวนรายการ "รายการวันนี้" รวม = events ของวันนี้ + standalone tasks
   const todayTotalCount = todaysEvents.length + todaysStandaloneTasks.length;
 
   const upcoming = events
@@ -159,7 +159,7 @@ export function TodayClient({
           <div className="yp-today-hero__stats">
             <div className="yp-today-hero__stat">
               <div className="yp-today-hero__stat-value">{todayTotalCount}</div>
-              <div className="yp-today-hero__stat-label">งานวันนี้</div>
+              <div className="yp-today-hero__stat-label">รายการวันนี้</div>
             </div>
             <div className="yp-today-hero__stat">
               <div className="yp-today-hero__stat-value">{upcoming.length}</div>
@@ -178,7 +178,7 @@ export function TodayClient({
         <section className="yp-today-section">
           <div className="yp-today-section__head">
             <h2 className="yp-today-section__title">
-              งานที่เลยกำหนด
+              รายการที่เลยกำหนด
             </h2>
             <span className="yp-today-section__count">
               {overdue.length} รายการ
@@ -196,7 +196,7 @@ export function TodayClient({
       <section className="yp-today-section">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">
-            งานวันนี้
+            รายการวันนี้
           </h2>
           <span className="yp-today-section__count">
             {todayTotalCount} รายการ
@@ -209,9 +209,9 @@ export function TodayClient({
                 🌤️
               </span>
             </div>
-            <div className="yp-empty__title">ไม่มีงานวันนี้</div>
+            <div className="yp-empty__title">ไม่มีรายการวันนี้</div>
             <div className="yp-empty__desc">
-              ว่าง ๆ ลองดูงานที่กำลังจะถึงด้านล่าง
+              ว่าง ๆ ลองดูรายการที่กำลังจะถึงด้านล่าง
             </div>
           </div>
         ) : (
@@ -220,8 +220,8 @@ export function TodayClient({
             {todaysEvents.map((ev) => (
               <EventCard key={`ev-${ev.id}`} event={ev} />
             ))}
-            {/* ★ v3.9.9: แสดง ขั้นตอนย่อยที่ due_date = วันนี้ แต่ parent event
-                อยู่ในวันอื่น — ทำให้เห็นทุกงานที่ต้องทำวันนี้จริง ๆ */}
+            {/* ★ v3.9.9: แสดง รายการย่อยที่ due_date = วันนี้ แต่ parent event
+                อยู่ในวันอื่น — ทำให้เห็นทุกรายการที่ต้องทำวันนี้จริง ๆ */}
             {todaysStandaloneTasks.map(({ task, event }) => (
               <TodayTaskCard
                 key={`task-${task.id}`}
@@ -248,8 +248,8 @@ export function TodayClient({
                 📅
               </span>
             </div>
-            <div className="yp-empty__title">ยังไม่มีงานที่กำลังจะถึง</div>
-            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างงานใหม่</div>
+            <div className="yp-empty__title">ยังไม่มีรายการที่กำลังจะถึง</div>
+            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
           <div>
@@ -275,7 +275,7 @@ export function TodayClient({
                 <Flag width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.total}</div>
-              <div className="yp-stat__label">งานทั้งหมด</div>
+              <div className="yp-stat__label">รายการทั้งหมด</div>
             </div>
             <div
               className="yp-stat"

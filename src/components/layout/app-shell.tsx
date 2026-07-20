@@ -1,15 +1,15 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.9.9
+// YP WORK · App Shell — v3.10.0
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.9.9: Today Dashboard + Session Cache
 //   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
 //   - การเปลี่ยนแปลงอยู่ใน:
 //     - src/lib/utils/session-cache.ts (ใหม่ — cache utility)
 //     - src/lib/hooks/use-realtime.ts (เพิ่ม cache ให้ useRealtimeEvents + useRealtimeEventById)
-//     - src/modules/today/today-client.tsx (แสดง task ย่อยที่ due_date = วันนี้)
-//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ task ย่อย)
+//     - src/modules/today/today-client.tsx (แสดง รายการย่อยที่ due_date = วันนี้)
+//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ รายการย่อย)
 //     - src/modules/profile/profile-view.tsx (ล้าง cache ตอน logout)
 //
 // ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
@@ -85,7 +85,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { key: 'today',    label: 'หน้าแรก',   href: '/today',    icon: Home },
   { key: 'calendar', label: 'ปฏิทิน',    href: '/calendar', icon: CalendarDays },
-  { key: 'events',   label: 'งาน',       href: '/events',   icon: ListTodo },
+  { key: 'events',   label: 'รายการ',     href: '/events',   icon: ListTodo },
   { key: 'profile',  label: 'โปรไฟล์',   href: '/profile',  icon: UserIcon },
 ];
 
@@ -207,7 +207,7 @@ export function AppShell({
         <Link
           href="/events/create"
           prefetch={true}
-          aria-label="สร้างงานใหม่"
+          aria-label="สร้างรายการใหม่"
           className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
         >
           <Plus className="size-5" strokeWidth={2.4} />

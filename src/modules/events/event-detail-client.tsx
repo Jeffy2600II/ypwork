@@ -247,7 +247,7 @@ export function EventDetailClient({
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
 
-      setToast({ msg: 'เปลี่ยนสถานะขั้นตอน แล้ว', type: 'success' });
+      setToast({ msg: 'เปลี่ยนสถานะรายการย่อย แล้ว', type: 'success' });
       // Realtime will sync from server — no need to refetch
     } catch (e: any) {
       // revert on error
@@ -273,7 +273,7 @@ export function EventDetailClient({
       if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
     } catch (e: any) {
       patchEvent({ status: oldStatus });
-      setLocalError(`ไม่สามารถอัพเดตสถานะงาน: ${e.message || 'unknown error'}`);
+      setLocalError(`ไม่สามารถอัพเดตสถานะรายการ: ${e.message || 'unknown error'}`);
     }
   };
 
@@ -391,9 +391,9 @@ export function EventDetailClient({
       setEditTaskId(null);
       setActiveTaskId(null);
 
-      setToast({ msg: 'ลบขั้นตอน แล้ว', type: 'success' });
+      setToast({ msg: 'ลบรายการย่อย แล้ว', type: 'success' });
     } catch (e: any) {
-      setLocalError(`ไม่สามารถลบขั้นตอน: ${e.message || ''}`);
+      setLocalError(`ไม่สามารถลบรายการย่อย: ${e.message || ''}`);
     } finally {
       setSubmitting(false);
     }
@@ -437,7 +437,7 @@ export function EventDetailClient({
         <div className="yp-detail-hero yp-hero-enter">
           <div className="yp-detail-hero__type">
             <Layers />
-            งานหลายขั้นตอน
+            ชุดรายการ
           </div>
           <h1 className="yp-detail-hero__title">{event.title}</h1>
           <div className="yp-detail-hero__meta">
@@ -468,7 +468,7 @@ export function EventDetailClient({
             <div className="yp-single-hero__icon">
               <Flag />
             </div>
-            <div className="yp-single-hero__label">งานเดียว</div>
+            <div className="yp-single-hero__label">รายการ</div>
           </div>
           <h1 className="yp-single-hero__title">{event.title}</h1>
           <div className="yp-single-hero__meta">
@@ -503,7 +503,7 @@ export function EventDetailClient({
             </div>
             <div className="yp-stat__body">
               <div className="yp-stat__value">{totalTasks}</div>
-              <div className="yp-stat__label">จำนวนขั้นตอน</div>
+              <div className="yp-stat__label">จำนวนรายการย่อย</div>
             </div>
           </div>
           <div className="yp-stat yp-accented" style={{ ['--accent' as string]: '#10B981' }}>
@@ -598,58 +598,58 @@ export function EventDetailClient({
       {isGroup ? (
         <section className="yp-detail-section">
           <h2 className="yp-detail-section__title">
-            Task ย่อย
+            รายการย่อย
             <InfoButton
               size="sm"
               content={
                 <>
                   <InfoSheetHeader
                     icon={<Layers size={20} strokeWidth={2} />}
-                    title="Task ย่อย"
-                    subtitle="แต่ละขั้นตอนของงานหลายขั้นตอน — ทำเสร็จทีละขั้นตอน จนครบ"
+                    title="รายการย่อย"
+                    subtitle="แต่ละรายการย่อยของชุดรายการ — ทำเสร็จทีละรายการ จนครบ"
                   />
 
                   <InfoTldr>
-                    Task ย่อย = <InfoPill>ขั้นตอนย่อย</InfoPill>{' '}
-                    ของงานใหญ่ — แตะขั้นตอนเพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
+                    รายการย่อย คือส่วนย่อยของ <InfoPill>ชุดรายการ</InfoPill>{' '}
+                    — แตะรายการย่อยเพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
                   </InfoTldr>
 
                   <p>
-                    งานหลายขั้นตอนประกอบด้วย <InfoHighlight>หลาย ขั้นตอนย่อย</InfoHighlight>{' '}
-                    ที่แต่ละขั้นตอนทำหน้าที่เฉพาะ — เช่น วันแม่อาจมีขั้นตอน: ซื้อของ, ตกแต่งบูธ,
-                    ซ้อมร้องเพลง, ดูแลวันจริง แต่ละขั้นตอนมีสถานะของตัวเอง
+                    ชุดรายการประกอบด้วย <InfoHighlight>รายการย่อยหลายรายการ</InfoHighlight>{' '}
+                    ที่แต่ละรายการทำหน้าที่เฉพาะ — เช่น วันแม่อาจมีรายการย่อย: ซื้อของ, ตกแต่งบูธ,
+                    ซ้อมร้องเพลง, ดูแลวันจริง แต่ละรายการมีสถานะของตัวเอง
                     และสามารถมอบหมายให้คนละฝ่ายทำได้
                   </p>
 
-                  <InfoSectionTitle>วิธีใช้งาน task</InfoSectionTitle>
+                  <InfoSectionTitle>วิธีใช้งานรายการย่อย</InfoSectionTitle>
 
                   <InfoSteps>
-                    <InfoStep title="เพิ่มขั้นตอน ใหม่">
-                      กดปุ่ม <InfoPill>+ เพิ่มขั้นตอน</InfoPill>{' '}
+                    <InfoStep title="เพิ่มรายการย่อยใหม่">
+                      กดปุ่ม <InfoPill>+ เพิ่มรายการย่อย</InfoPill>{' '}
                       ด้านล่างรายการ กรอกชื่อ + วันที่ + มอบหมายได้
                     </InfoStep>
-                    <InfoStep title="เปลี่ยนสถานะขั้นตอน">
-                      แตะที่ขั้นตอน → เลือกสถานะ (วางแผน / กำลังทำอยู่ / เสร็จสมบูรณ์)
-                      สถานะของงานหลายขั้นตอนจะคำนวณใหม่อัตโนมัติ
+                    <InfoStep title="เปลี่ยนสถานะรายการย่อย">
+                      แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังทำอยู่ / เสร็จสมบูรณ์)
+                      สถานะของชุดรายการจะคำนวณใหม่อัตโนมัติ
                     </InfoStep>
-                    <InfoStep title="แก้ไขขั้นตอน">
+                    <InfoStep title="แก้ไขรายการย่อย">
                       กดปุ่มดินสอ → แก้ไขชื่อ, วันที่, assignee ได้
                     </InfoStep>
-                    <InfoStep title="ลบขั้นตอน">
+                    <InfoStep title="ลบรายการย่อย">
                       กดปุ่มถังขยะ — ระบบจะถามยืนยันก่อนลบ
                     </InfoStep>
                   </InfoSteps>
 
                   <InfoSectionTitle>สถานะรวมคำนวณยังไง?</InfoSectionTitle>
                   <InfoKeyValue>
-                    <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกขั้นตอนยังเป็น &ldquo;วางแผน&rdquo;" />
-                    <InfoKeyValueRow k={<><InfoPill>กำลังทำ</InfoPill></>} v="มีอย่างน้อย 1 ขั้นตอนเป็น &ldquo;กำลังทำอยู่&rdquo; แต่ยังไม่ครบเสร็จ" />
-                    <InfoKeyValueRow k={<><InfoPill>เสร็จแล้ว</InfoPill></>} v="ทุกขั้นตอนเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
+                    <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกรายการย่อยยังเป็น &ldquo;วางแผน&rdquo;" />
+                    <InfoKeyValueRow k={<><InfoPill>กำลังทำ</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังทำอยู่&rdquo; แต่ยังไม่ครบเสร็จ" />
+                    <InfoKeyValueRow k={<><InfoPill>เสร็จแล้ว</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
                   </InfoKeyValue>
 
-                  <InfoCallout type="info" title="เคล็ดลับการแบ่งขั้นตอน">
-                    แบ่งขั้นตอน ให้<strong>แต่ละขั้นตอนทำได้ใน 1-2 ชั่วโมง</strong> —
-                    ถ้า ขั้นตอนใหญ่เกินไป แยกเป็น ขั้นตอนย่อยกว่านั้น ทำให้ติดตามความคืบหน้าได้แม่นยำกว่า
+                  <InfoCallout type="info" title="เคล็ดลับการแบ่งรายการย่อย">
+                    แบ่งรายการย่อยให้<strong>แต่ละรายการทำได้ใน 1-2 ชั่วโมง</strong> —
+                    ถ้ารายการย่อยใหญ่เกินไป แยกเป็นรายการย่อยที่เล็กลงอีก ทำให้ติดตามความคืบหน้าได้แม่นยำกว่า
                   </InfoCallout>
                 </>
               }
@@ -665,9 +665,9 @@ export function EventDetailClient({
                 <div className="yp-task-empty__icon">
                   <Layers width={20} height={20} />
                 </div>
-                <div className="yp-task-empty__title">ยังไม่มี task</div>
+                <div className="yp-task-empty__title">ยังไม่มีรายการย่อย</div>
                 <div className="yp-task-empty__desc">
-                  กดปุ่มด้านล่างเพื่อเพิ่มขั้นตอน แรกให้งานนี้
+                  กดปุ่มด้านล่างเพื่อเพิ่มรายการย่อยแรกให้รายการนี้
                 </div>
               </div>
             ) : (
@@ -694,11 +694,11 @@ export function EventDetailClient({
               onClick={() => setAddTaskOpen(true)}
             >
               <Plus />
-              <span>เพิ่มขั้นตอน</span>
+              <span>เพิ่มรายการย่อย</span>
             </button>
           </div>
 
-          <div className="yp-task-list-hint">แตะขั้นตอนเพื่อเปลี่ยนสถานะ</div>
+          <div className="yp-task-list-hint">แตะรายการย่อยเพื่อเปลี่ยนสถานะ</div>
         </section>
       ) : null}
 
@@ -710,7 +710,7 @@ export function EventDetailClient({
           onClick={() => setManageOpen(true)}
         >
           <Pencil />
-          จัดการงาน
+          จัดการรายการ
         </button>
       </section>
 
@@ -723,7 +723,7 @@ export function EventDetailClient({
           setStatusPickerOpen(false);
           setActiveTaskId(null);
         }}
-        title="สถานะของขั้นตอน"
+        title="สถานะของรายการย่อย"
         description={activeTask?.title}
       >
         <div className="yp-status-picker">
@@ -789,10 +789,10 @@ export function EventDetailClient({
               // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
               addTask(data.task as Task);
               setAddTaskOpen(false);
-              setToast({ msg: 'เพิ่มขั้นตอน แล้ว', type: 'success' });
+              setToast({ msg: 'เพิ่มรายการย่อย แล้ว', type: 'success' });
             }
           } catch (e: any) {
-            setLocalError(`ไม่สามารถเพิ่มขั้นตอน: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถเพิ่มรายการย่อย: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -858,7 +858,7 @@ export function EventDetailClient({
               setEditTaskId(null);
               setToast({ msg: 'บันทึกการแก้ไขแล้ว', type: 'success' });
             } catch (e: any) {
-              setLocalError(`ไม่สามารถแก้ไขขั้นตอน: ${e.message || 'unknown error'}`);
+              setLocalError(`ไม่สามารถแก้ไขรายการย่อย: ${e.message || 'unknown error'}`);
             } finally {
               setSubmitting(false);
             }
@@ -911,7 +911,7 @@ export function EventDetailClient({
             setEditEventOpen(false);
             setToast({ msg: 'บันทึกแล้ว', type: 'success' });
           } catch (e: any) {
-            setLocalError(`ไม่สามารถแก้ไขงาน: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถแก้ไขรายการ: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -925,7 +925,7 @@ export function EventDetailClient({
       <BottomSheet
         open={manageOpen}
         onClose={() => setManageOpen(false)}
-        title="จัดการงาน"
+        title="จัดการรายการ"
         description={event.title}
       >
         <div className="yp-manage-sheet">
@@ -941,9 +941,9 @@ export function EventDetailClient({
               <Pencil />
             </div>
             <div className="yp-manage-sheet__body">
-              <div className="yp-manage-sheet__title">แก้ไขงาน</div>
+              <div className="yp-manage-sheet__title">แก้ไขรายการ</div>
               <div className="yp-manage-sheet__desc">
-                เปลี่ยนชื่องาน วันที่ เวลา สถานที่ รายละเอียด สี
+                เปลี่ยนชื่อรายการ วันที่ เวลา สถานที่ รายละเอียด สี
               </div>
             </div>
             <ChevronRight />
@@ -963,9 +963,9 @@ export function EventDetailClient({
                   <Plus />
                 </div>
                 <div className="yp-manage-sheet__body">
-                  <div className="yp-manage-sheet__title">เพิ่มขั้นตอน ย่อย</div>
+                  <div className="yp-manage-sheet__title">เพิ่มรายการย่อย</div>
                   <div className="yp-manage-sheet__desc">
-                    สร้าง ขั้นตอนใหม่ในงานหลายขั้นตอนนี้
+                    สร้างรายการย่อยใหม่ในชุดรายการนี้
                   </div>
                 </div>
                 <ChevronRight />
@@ -984,9 +984,9 @@ export function EventDetailClient({
                     <Pencil />
                   </div>
                   <div className="yp-manage-sheet__body">
-                    <div className="yp-manage-sheet__title">แก้ไข ขั้นตอนย่อย</div>
+                    <div className="yp-manage-sheet__title">แก้ไขรายการย่อย</div>
                     <div className="yp-manage-sheet__desc">
-                      เลือก ขั้นตอนที่ต้องการแก้ไข ({totalTasks} รายการ)
+                      เลือกรายการย่อยที่ต้องการแก้ไข ({totalTasks} รายการ)
                     </div>
                   </div>
                   <ChevronRight />
@@ -1006,12 +1006,12 @@ export function EventDetailClient({
             </div>
             <div className="yp-manage-sheet__body">
               <div className="yp-manage-sheet__title yp-text-danger">
-                ลบงานนี้
+                ลบรายการนี้
               </div>
               <div className="yp-manage-sheet__desc">
                 {isGroup
-                  ? `จะลบ ขั้นตอนทั้งหมด ${totalTasks} รายการด้วย`
-                  : 'จะลบงานนี้ออกจากระบบ'}{' '}
+                  ? `จะลบรายการย่อยทั้งหมด ${totalTasks} รายการด้วย`
+                  : 'จะลบรายการนี้ออกจากระบบ'}{' '}
                 — ไม่สามารถย้อนกลับได้
               </div>
             </div>
@@ -1021,12 +1021,12 @@ export function EventDetailClient({
       </BottomSheet>
 
       {/* ═══════════════════════════════════════════════════════════════
-          EDIT TASK PICKER — แสดงรายการขั้นตอนให้เลือกเพื่อแก้ไข
+          EDIT TASK PICKER — แสดงรายการย่อยให้เลือกเพื่อแก้ไข
           ═══════════════════════════════════════════════════════════════ */}
       <BottomSheet
         open={editTaskPickerOpen}
         onClose={() => setEditTaskPickerOpen(false)}
-        title="เลือก ขั้นตอนที่จะแก้ไข"
+        title="เลือกรายการย่อยที่จะแก้ไข"
       >
         <div className="yp-manage-task-picker">
           {(event.tasks || []).map((t) => {
@@ -1073,7 +1073,7 @@ export function EventDetailClient({
           setConfirmDeleteTaskOpen(false);
           setDeleteTaskId(null);
         }}
-        title="ลบขั้นตอน?"
+        title="ลบรายการย่อย?"
         footer={
           <div className="yp-form-actions">
             <button
@@ -1103,7 +1103,7 @@ export function EventDetailClient({
             <AlertTriangle width={20} height={20} />
           </div>
           <div className="yp-confirm-body__text">
-            คุณแน่ใจหรือไม่ว่าต้องการลบขั้นตอน{' '}
+            คุณแน่ใจหรือไม่ว่าต้องการลบรายการย่อย{' '}
             <strong>“{event.tasks?.find((t) => t.id === deleteTaskId)?.title || ''}”</strong>
             {' '}— ไม่สามารถย้อนกลับได้
           </div>
@@ -1116,7 +1116,7 @@ export function EventDetailClient({
       <BottomSheet
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        title="ลบงานนี้?"
+        title="ลบรายการนี้?"
         description={event.title}
         footer={
           <div className="yp-form-actions">
@@ -1134,7 +1134,7 @@ export function EventDetailClient({
               onClick={handleDelete}
               disabled={submitting}
             >
-              {submitting ? 'กำลังลบ...' : 'ลบงาน'}
+              {submitting ? 'กำลังลบ...' : 'ลบรายการ'}
             </button>
           </div>
         }
@@ -1146,7 +1146,7 @@ export function EventDetailClient({
           <div className="yp-confirm-body__text">
             ลบ <strong>“{event.title}”</strong>
             {isGroup && totalTasks > 0
-              ? ` และ ขั้นตอนทั้งหมด ${totalTasks} รายการ`
+              ? ` และรายการย่อยทั้งหมด ${totalTasks} รายการ`
               : ''}
             {' '}— ไม่สามารถย้อนกลับได้
           </div>
@@ -1164,7 +1164,7 @@ export function EventDetailClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TaskRow — render row ของ ขั้นตอนในงานหลายขั้นตอน (เหมือน demo task-row.js)
+// TaskRow — render row ของรายการย่อยในชุดรายการ (เหมือน demo task-row.js)
 // ═══════════════════════════════════════════════════════════════
 function TaskRow({
   task,
@@ -1198,7 +1198,7 @@ function TaskRow({
           onStatusClick();
         }
       }}
-      aria-label={`เปลี่ยนสถานะขั้นตอน: ${task.title}`}
+      aria-label={`เปลี่ยนสถานะรายการย่อย: ${task.title}`}
     >
       <button
         type="button"
@@ -1282,7 +1282,7 @@ function TaskRow({
         <button
           type="button"
           className="yp-task-row__edit"
-          aria-label="แก้ไขขั้นตอน"
+          aria-label="แก้ไขรายการย่อย"
           onClick={(e) => {
             e.stopPropagation();
             onEdit();
@@ -1293,7 +1293,7 @@ function TaskRow({
         <button
           type="button"
           className="yp-task-row__delete"
-          aria-label="ลบขั้นตอน"
+          aria-label="ลบรายการย่อย"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
@@ -1307,7 +1307,7 @@ function TaskRow({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AddTaskSheet — Bottom sheet สำหรับเพิ่มขั้นตอน (ครบทุก field)
+// AddTaskSheet — Bottom sheet สำหรับเพิ่มรายการย่อย (ครบทุก field)
 // ═══════════════════════════════════════════════════════════════
 interface TaskPayload {
   title: string;
@@ -1371,7 +1371,7 @@ function AddTaskSheet({
     <BottomSheet
       open={open}
       onClose={onClose}
-      title="เพิ่มขั้นตอน ใหม่"
+      title="เพิ่มรายการย่อยใหม่"
       footer={
         <div className="yp-form-actions">
           <button
@@ -1391,7 +1391,7 @@ function AddTaskSheet({
             {submitting ? 'กำลังเพิ่ม...' : (
               <>
                 <Plus width={16} height={16} />
-                <span className="yp-btn__text-with-icon">เพิ่มขั้นตอน</span>
+                <span className="yp-btn__text-with-icon">เพิ่มรายการย่อย</span>
               </>
             )}
           </button>
@@ -1400,7 +1400,7 @@ function AddTaskSheet({
     >
       {/* Parent chip */}
       <div className="yp-form-modal__parent">
-        <span className="yp-form-modal__parent-label">ในงาน</span>
+        <span className="yp-form-modal__parent-label">ในรายการ</span>
         <span
           className="yp-form-modal__parent-chip"
           style={{ ['--accent' as string]: event.color || '#4F46E5' }}
@@ -1532,7 +1532,7 @@ function AddTaskSheet({
             ))}
           </select>
           <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการ ขั้นตอนเพื่อประเมินเวลารวม
+            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการย่อยเพื่อประเมินเวลารวม
           </div>
         </div>
       </div>
@@ -1559,7 +1559,7 @@ function AddTaskSheet({
             คั่นด้วยจุลภาค — จะแสดงเป็น{' '}
             <span className="yp-text-tag">#ด้านเอกสาร</span>{' '}
             <span className="yp-text-tag">#ด้านสถานที่</span>{' '}
-            เพื่อกรองและจัดกลุ่มขั้นตอน
+            เพื่อกรองและจัดกลุ่มรายการย่อย
           </div>
         </div>
       </div>
@@ -1576,7 +1576,7 @@ function AddTaskSheet({
           <textarea
             id="task-notes"
             className="yp-textarea"
-            placeholder="อธิบายขอบเขตของ ขั้นตอนนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
+            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={submitting}
@@ -1649,7 +1649,7 @@ function EditTaskSheet({
     <BottomSheet
       open={open}
       onClose={onClose}
-      title="แก้ไขขั้นตอน"
+      title="แก้ไขรายการย่อย"
       footer={
         <div className="yp-form-actions">
           <button
@@ -1678,7 +1678,7 @@ function EditTaskSheet({
     >
       {/* Parent chip */}
       <div className="yp-form-modal__parent">
-        <span className="yp-form-modal__parent-label">ในงาน</span>
+        <span className="yp-form-modal__parent-label">ในรายการ</span>
         <span
           className="yp-form-modal__parent-chip"
           style={{ ['--accent' as string]: event.color || '#4F46E5' }}
@@ -1819,7 +1819,7 @@ function EditTaskSheet({
             ) : null}
           </select>
           <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการ ขั้นตอนเพื่อประเมินเวลารวม
+            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการย่อยเพื่อประเมินเวลารวม
           </div>
         </div>
       </div>
@@ -1846,7 +1846,7 @@ function EditTaskSheet({
             คั่นด้วยจุลภาค — จะแสดงเป็น{' '}
             <span className="yp-text-tag">#ด้านเอกสาร</span>{' '}
             <span className="yp-text-tag">#ด้านสถานที่</span>{' '}
-            เพื่อกรองและจัดกลุ่มขั้นตอน
+            เพื่อกรองและจัดกลุ่มรายการย่อย
           </div>
         </div>
       </div>
@@ -1863,7 +1863,7 @@ function EditTaskSheet({
           <textarea
             id="ed-task-notes"
             className="yp-textarea"
-            placeholder="อธิบายขอบเขตของ ขั้นตอนนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
+            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={submitting}
@@ -1876,7 +1876,7 @@ function EditTaskSheet({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// EditEventSheet — Bottom sheet สำหรับแก้ไขงาน (เหมือน demo edit.js)
+// EditEventSheet — Bottom sheet สำหรับแก้ไขรายการ (เหมือน demo edit.js)
 // ═══════════════════════════════════════════════════════════════
 interface EventPatch {
   title: string;
@@ -1932,7 +1932,7 @@ function EditEventSheet({
     <BottomSheet
       open={open}
       onClose={onClose}
-      title="แก้ไขงาน"
+      title="แก้ไขรายการ"
       footer={
         <div className="yp-form-actions">
           <button
@@ -1955,7 +1955,7 @@ function EditEventSheet({
       }
     >
       <div className="field">
-        <label className="field__label" htmlFor="ed-title">ชื่องาน</label>
+        <label className="field__label" htmlFor="ed-title">ชื่อรายการ</label>
         <input
           id="ed-title"
           type="text"
@@ -2029,7 +2029,7 @@ function EditEventSheet({
         </select>
       </div>
       <div className="field">
-        <label className="field__label">สีประจำงาน</label>
+        <label className="field__label">สีประจำรายการ</label>
         <div className="yp-color-picker">
           {COLOR_OPTIONS.map((c) => (
             <button

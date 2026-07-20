@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · About Page (v3.9.9)
+// YP WORK · About Page (v3.10.0 r6)
 // ═══════════════════════════════════════════════════════════════
 // หน้าเกี่ยวกับ YP Work — แสดงข้อมูลแพลตฟอร์ม + ผู้พัฒนา + วิธีใช้งาน
 // ═══════════════════════════════════════════════════════════════
@@ -46,7 +46,7 @@ export default async function AboutPage() {
           <div className="yp-page-header__eyebrow">About</div>
           <h1 className="yp-page-header__title">เกี่ยวกับ YP Work</h1>
           <p className="yp-page-header__subtitle">
-            แพลตฟอร์มจัดการงานสำหรับสภานักเรียน
+            แพลตฟอร์มจัดการรายการสำหรับสภานักเรียน
           </p>
         </div>
 
@@ -54,8 +54,8 @@ export default async function AboutPage() {
         <div className="yp-card">
           <div className="yp-text-body">
             <p>
-              <strong>YP Work</strong> เป็นแพลตฟอร์มสำหรับช่วยบริหารจัดการงานและติดตามภารกิจของสภานักเรียน
-              พัฒนาขึ้นจากประสบการณ์การทำงานจริงภายในสภานักเรียน เพื่อแก้ไขปัญหาการลืมงาน
+              <strong>YP Work</strong> เป็นแพลตฟอร์มสำหรับช่วยบริหารจัดการรายการและติดตามภารกิจของสภานักเรียน
+              พัฒนาขึ้นจากประสบการณ์การทำงานจริงภายในสภานักเรียน เพื่อแก้ไขปัญหาการลืมรายการ
               การติดตามความคืบหน้า และการประสานงานระหว่างสมาชิกให้มีประสิทธิภาพมากยิ่งขึ้น
             </p>
             <p>
@@ -68,7 +68,7 @@ export default async function AboutPage() {
             </p>
             <p>
               ตลอดการพัฒนา YP Work ได้ให้ความสำคัญกับประสบการณ์ผู้ใช้งาน
-              ความรวดเร็ว ความเสถียร และการออกแบบที่ช่วยให้การจัดการงานเป็นเรื่องง่าย
+              ความรวดเร็ว ความเสถียร และการออกแบบที่ช่วยให้การจัดการรายการเป็นเรื่องง่าย
               เพื่อให้สมาชิกสภานักเรียนสามารถทำงานร่วมกันได้อย่างมีประสิทธิภาพมากขึ้น
             </p>
           </div>
@@ -95,7 +95,7 @@ export default async function AboutPage() {
           <div className="yp-info-list">
             <div className="yp-info-row">
               <span className="yp-info-row__label">เวอร์ชัน</span>
-              <span className="yp-info-row__value">3.9.9</span>
+              <span className="yp-info-row__value">3.10.0</span>
             </div>
             <div className="yp-info-row">
               <span className="yp-info-row__label">ธีม</span>
@@ -131,20 +131,20 @@ export default async function AboutPage() {
             </div>
           </div>
           <div className="yp-help-section">
-            <div className="yp-help-section__title">การสร้างงาน</div>
+            <div className="yp-help-section__title">การสร้างรายการ</div>
             <div className="yp-help-section__body">
-              <p>กดปุ่ม <code>+</code> ที่มุมล่างขวาเพื่อสร้างงานใหม่</p>
+              <p>กดปุ่ม <code>+</code> ที่มุมล่างขวาเพื่อสร้างรายการใหม่</p>
               <ul>
-                <li><strong>งานหลายขั้นตอน</strong> — งานใหญ่ที่มีหลายขั้นตอนย่อย</li>
-                <li><strong>งานเดียว</strong> — งานเดียวที่ไม่มีขั้นตอนย่อย</li>
+                <li><strong>ชุดรายการ</strong> — สร้างรายการย่อยภายในเพื่อจัดกลุ่มหรือแบ่งงานออกเป็นหลายส่วน</li>
+                <li><strong>รายการ</strong> — รายการทั่วไป ไม่สามารถสร้างรายการย่อยได้</li>
               </ul>
-              <p>งานสามารถมอบหมายให้สมาชิกในฝ่ายได้ และติดตามสถานะแบบเรียลไทม์</p>
+              <p>รายการสามารถมอบหมายให้สมาชิกในฝ่ายได้ และติดตามสถานะแบบเรียลไทม์</p>
             </div>
           </div>
           <div className="yp-help-section">
             <div className="yp-help-section__title">การอัพเดตแบบเรียลไทม์</div>
             <div className="yp-help-section__body">
-              <p>ทุกการเปลี่ยนแปลง (เพิ่ม/แก้ไข/ลบ งาน, task, สมาชิก) อัพเดต <strong>ทันที</strong> โดยไม่ต้อง refresh หน้า</p>
+              <p>ทุกการเปลี่ยนแปลง (เพิ่ม/แก้ไข/ลบ รายการ, สมาชิก) อัพเดต <strong>ทันที</strong> โดยไม่ต้อง refresh หน้า</p>
               <p>คนในฝ่ายเดียวกันจะเห็นการเปลี่ยนแปลงพร้อมกันเสมอ</p>
             </div>
           </div>
