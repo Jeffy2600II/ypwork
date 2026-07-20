@@ -660,7 +660,10 @@ export function EventDetailClient({
             </span>
           </h2>
 
-          <div className="yp-card yp-card--tasklist">
+          {/* ★ v3.10.0 รอบที่ 4: เปลี่ยนจาก .yp-card.yp-card--tasklist (กรอบใหญ่ที่ครอบทั้งหมด)
+              เป็น .yp-task-list-home (layout แบบ home page — ไม่มีกรอบครอบ, task rows
+              เป็นการ์ดเดี่ยว ๆ เหมือน EventCard ใน "งานวันนี้" / "กำลังจะถึง") */}
+          <div className="yp-task-list-home">
             {totalTasks === 0 ? (
               <div className="yp-task-empty">
                 <div className="yp-task-empty__icon">
@@ -1251,24 +1254,9 @@ function TaskRow({
     priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
   const tags = Array.isArray(task.tags) ? task.tags : [];
 
-  // ★ v3.10.0u2: สร้าง meta line แบบ EventCard — รวมข้อมูลสำคัญเป็นบรรทัดเดียว
-  //   "เริ่ม 14:30 · วันนี้ · ใช้เวลา 2 ชม · โดย นาย A"
-  const metaParts: string[] = [];
-  if (startTimeLabel) {
-    metaParts.push(`เริ่ม ${startTimeLabel}`);
-  } else if (dueLabel) {
-    metaParts.push(`เริ่ม ${dueLabel}`);
-  }
-  if (task.estimated_time) {
-    metaParts.push(`ใช้เวลา ${task.estimated_time}`);
-  }
-  if (assignee) {
-    metaParts.push(`โดย ${assignee.full_name.split(' ')[0]}`);
-  }
-
   return (
     <div
-      className={`yp-task-row yp-task-row--v2 yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
+      className={`yp-task-row yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
       data-task-id={task.id}
       role="button"
       tabIndex={0}
@@ -1281,67 +1269,37 @@ function TaskRow({
       }}
       aria-label={`เปลี่ยนสถานะ task: ${task.title}`}
     >
-      {/* ★ v3.10.0u2: Head row — เหมือน EventCard head
-          icon (status dot) + title/meta + status chip + actions */}
-      <div className="yp-task-row__head">
-        <button
-          type="button"
-          className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
-          aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onStatusClick();
-          }}
-          style={{
-            border: '2px solid',
-            background: 'transparent',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        />
-        <div className="yp-task-row__main">
-          <div className="yp-task-row__title">{task.title}</div>
-          {metaParts.length > 0 ? (
-            <div className="yp-task-row__meta-line">{metaParts.join(' · ')}</div>
-          ) : null}
-        </div>
-        <span
-          className={`yp-chip ${statusChipClass(task.status)}`}
-        >
-          <span className="yp-chip-dot" aria-hidden="true" />
-          {statusLabel(task.status)}
-        </span>
-        {/* ★ v3.10.0u2: Actions ฝั่งขวา — เหมือน EventCard ไม่มี actions
-            แต่ task ต้องมี edit/delete เลยใส่เป็นปุ่มเล็ก ๆ */}
-        <div className="yp-task-row__actions">
-          <button
-            type="button"
-            className="yp-task-row__edit"
-            aria-label="แก้ไข task"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
+      <button
+        type="button"
+        className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
+        aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onStatusClick();
+        }}
+        style={{
+          border: '2px solid',
+          background: 'transparent',
+          cursor: 'pointer',
+          padding: 0,
+        }}
+      />
+      <div className="yp-task-row__body">
+        <div className="yp-task-row__title">{task.title}</div>
+        <div className="yp-task-row__meta">
+          <span
+            className={`yp-task-row__chip yp-task-row__status yp-task-row__status--${task.status}`}
           >
-            <Pencil width={14} height={14} />
-          </button>
-          <button
-            type="button"
-            className="yp-task-row__delete"
-            aria-label="ลบ task"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            <Trash2 width={14} height={14} />
-          </button>
-        </div>
-      </div>
+            {task.status === 'done' ? (
+              <Check width={11} height={11} />
+            ) : task.status === 'ongoing' ? (
+              <RefreshCw width={11} height={11} />
+            ) : (
+              <Clock width={11} height={11} />
+            )}
+            {statusLabel(task.status)}
+          </span>
 
-      {/* ★ v3.10.0u2: Footer row — priority + tags (เหมือน progress row ของ EventCard) */}
-      {(priority !== 'medium' || tags.length > 0 || task.notes) ? (
-        <div className="yp-task-row__footer">
           {priority !== 'medium' ? (
             <span
               className={`yp-task-row__chip yp-task-row__priority is-priority-${priority}`}
@@ -1349,21 +1307,81 @@ function TaskRow({
               {priorityLbl}
             </span>
           ) : null}
+
+          {assignee ? (
+            <span className="yp-task-row__chip yp-task-row__chip--assignee">
+              <span className="yp-task-row__avatar">
+                <Avatar
+                  name={assignee.full_name}
+                  color={assignee.color || '#4F46E5'}
+                  size={16}
+                />
+              </span>
+              {assignee.full_name.split(' ')[0]}
+            </span>
+          ) : null}
+
+          {/* ★ v3.10.0: แสดง "เวลาเริ่มทำ" (start_time) แทน "กำหนดส่ง" */}
+          {startTimeLabel ? (
+            <span
+              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
+            >
+              <Clock width={11} height={11} />
+              <span className="yp-task-row__chip-label">เริ่ม</span>
+              {startTimeLabel}
+              {dueLabel ? <span className="yp-task-row__chip-sep">·</span> : null}
+              {dueLabel}
+            </span>
+          ) : dueLabel ? (
+            <span
+              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
+            >
+              {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
+              <span className="yp-task-row__chip-label">เริ่ม</span>
+              {dueLabel}
+            </span>
+          ) : null}
+
+          {task.estimated_time ? (
+            <span className="yp-task-row__chip yp-task-row__chip--est">
+              <Clock width={11} height={11} />
+              <span className="yp-task-row__chip-label">ใช้เวลา</span>
+              {task.estimated_time}
+            </span>
+          ) : null}
+
           {tags.map((t) => (
             <span key={t} className="yp-task-row__tag">
               #{t}
             </span>
           ))}
-          {overdue ? (
-            <span className="yp-task-row__chip yp-task-row__chip--overdue">
-              <AlertTriangle width={11} height={11} />
-              เลยเวลาเริ่ม
-            </span>
-          ) : null}
         </div>
-      ) : null}
-
-      {task.notes ? <div className="yp-task-row__notes">{task.notes}</div> : null}
+        {task.notes ? <div className="yp-task-row__notes">{task.notes}</div> : null}
+      </div>
+      <div className="yp-task-row__actions">
+        <button
+          type="button"
+          className="yp-task-row__edit"
+          aria-label="แก้ไข task"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+        >
+          <Pencil />
+        </button>
+        <button
+          type="button"
+          className="yp-task-row__delete"
+          aria-label="ลบ task"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 />
+        </button>
+      </div>
     </div>
   );
 }

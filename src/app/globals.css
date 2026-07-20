@@ -3696,6 +3696,71 @@ body.yp-sheet-open .fab {
   border-color: color-mix(in srgb, var(--accent, var(--yp-border-subtle)) 14%, var(--yp-border-subtle));
 }
 
+/* ★ v3.10.0 รอบที่ 4: .yp-task-list-home — layout แบบ home page สำหรับ task list
+   ไม่มีกรอบครอบ (no card wrapper) เหมือน "งานวันนี้" / "กำลังจะถึง" ในหน้า home
+   แต่ละ TaskRow เป็นการ์ดเดี่ยว ๆ มี border + shadow ของตัวเอง
+   ทำให้พื้นที่แสดงผลกว้างขึ้นและเหมือนกับหน้า home */
+.yp-task-list-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+}
+
+/* ★ v3.10.0 รอบที่ 4: แต่ละ TaskRow ใน .yp-task-list-home เป็นการ์ดเดี่ยว ๆ
+   เหมือน EventCard — มี border รอบด้าน + shadow + accent hover
+   (ก่อนหน้านี้ TaskRow อยู่ในกรอบใหญ่ .yp-card.yp-card--tasklist
+    ทำให้ดูเป็น list แบบมี border-bottom คั่น ไม่เหมือนการ์ด) */
+.yp-task-list-home .yp-task-row {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-space-4) var(--yp-space-5);
+  margin: 0;
+  border-bottom: 1px solid var(--yp-border-subtle);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yp-task-list-home .yp-task-row:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(30, 27, 70, 0.08),
+    0 8px 24px rgba(30, 27, 70, 0.06);
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, var(--yp-border-subtle));
+}
+
+.yp-task-list-home .yp-task-row:active {
+  transform: scale(0.99);
+}
+
+/* ★ v3.10.0 รอบที่ 4: task-group items — ให้แต่ละ task row ใน group
+   เป็นการ์ดเดี่ยว ๆ เหมือนกัน (override กฎเดิมที่ใช้ border แบบ list) */
+.yp-task-list-home .yp-task-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+}
+
+/* ★ v3.10.0 รอบที่ 4: add-task button ใน .yp-task-list-home
+   ให้ดูเหมือนปุ่มเพิ่มการ์ดใหม่ (เหมือนหน้า home ที่กด + สร้างงาน) */
+.yp-task-list-home .yp-add-task-btn {
+  margin-top: var(--yp-space-2);
+}
+
+/* ★ v3.10.0 รอบที่ 4: empty state ใน .yp-task-list-home
+   ให้เป็นการ์ดเดี่ยว ๆ เหมือนกัน */
+.yp-task-list-home .yp-task-empty {
+  background: var(--yp-bg-card);
+  border: 1px dashed var(--yp-border-default);
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-space-8) var(--yp-space-4);
+}
+
 /* ★ v3.10.0: Task group — แยกช่วงเช้า/บ่าย/ไม่ระบุเวลา */
 .yp-task-group {
   margin-bottom: var(--yp-space-3);
