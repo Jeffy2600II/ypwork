@@ -9230,10 +9230,18 @@ textarea {
    เพิ่มเส้นไฮไลต์บาง ๆ ด้านในขอบล่าง (inset) จำลองผิวกระจกโค้งรับแสง
    แบบวัสดุ frosted glass ของ iOS/visionOS, และเงานุ่มกระจายกว้างขึ้น
    แทนเงาแข็งบาง ๆ เดิม */
+/* ★ v3.10.0 รอบที่ 15: รอบที่ 14 เพิ่ม blur px แล้วแต่ยังมองแทบไม่เห็นว่าเบลอ —
+   ต้นเหตุจริงคือ background opacity สูงเกินไป (0.58/0.86) พื้นหลังทึบเกือบ
+   ทึบแสง จนบังเนื้อหาด้านหลังที่ควรจะเห็นเป็น "หมอกเบลอ" ไปเกือบหมด ต่อให้
+   blur มากแค่ไหนก็มองไม่เห็นผลถ้าไม่มีอะไรให้โปร่งผ่าน — รอบนี้ลด opacity
+   ลงมาก (0.58→0.32, scrolled 0.86→0.62) ให้เนื้อหาด้านหลังโปร่งแสงเห็นชัด
+   เป็นหมอกเบลอจริง ๆ พร้อมเพิ่ม blur อีกขั้น (44px→64px) และ saturate
+   (190%→210%) ให้สีที่โปร่งผ่านมาดูสดมีชีวิตชีวาแบบกระจกพรีเมียม ไม่ต้อง
+   กลัวว่าจะเบลอเกิน — ต้องการให้เห็นผลชัดเจน */
 .top-bar {
-  background: rgba(247, 246, 252, 0.58);
-  backdrop-filter: saturate(190%) blur(44px);
-  -webkit-backdrop-filter: saturate(190%) blur(44px);
+  background: rgba(247, 246, 252, 0.32);
+  backdrop-filter: saturate(210%) blur(64px);
+  -webkit-backdrop-filter: saturate(210%) blur(64px);
   box-shadow:
     inset 0 -1px 0 rgba(255, 255, 255, 0.5),
     0 1px 0 rgba(30, 27, 70, 0.04),
@@ -9246,7 +9254,7 @@ textarea {
 
 /* When user has scrolled down — slightly stronger edge */
 .top-bar.is-scrolled {
-  background: rgba(247, 246, 252, 0.86);
+  background: rgba(247, 246, 252, 0.62);
   box-shadow:
     inset 0 -1px 0 rgba(255, 255, 255, 0.6),
     0 1px 0 rgba(30, 27, 70, 0.06),
@@ -9419,10 +9427,13 @@ body.yp-sheet-open .fab {
 /* ★ v3.10.0 รอบที่ 14: เบลอพรีเมียมแบบเดียวกับ top-bar — ดู comment ที่
    .top-bar ด้านบนสำหรับเหตุผล (blur 44px, saturate 190%, ไฮไลต์กระจกด้านใน,
    เงานุ่มกระจายกว้าง) ให้แถบล่างรู้สึกเป็นวัสดุเดียวกันกับแถบบน */
+/* ★ v3.10.0 รอบที่ 15: ลด opacity ลงมาก (0.68→0.36) + เพิ่ม blur (44px→64px)
+   + saturate (190%→210%) — เหตุผลเดียวกับ .top-bar ด้านบน: opacity ที่สูง
+   เกินไปบังไม่ให้เห็นผลของ blur */
 .bottom-nav {
-  background: rgba(255, 255, 255, 0.68);
-  backdrop-filter: saturate(190%) blur(44px);
-  -webkit-backdrop-filter: saturate(190%) blur(44px);
+  background: rgba(255, 255, 255, 0.36);
+  backdrop-filter: saturate(210%) blur(64px);
+  -webkit-backdrop-filter: saturate(210%) blur(64px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     0 -1px 0 rgba(30, 27, 70, 0.04),
@@ -9884,10 +9895,12 @@ body.yp-sheet-open .bottom-nav {
      ไม่งั้นค่าที่แก้ไว้รอบที่ 10 จะใช้ได้แค่บนมือถือ (< 900px) เท่านั้น */
   /* ★ v3.10.0 รอบที่ 14: sync ค่าเบลอพรีเมียมเดียวกับ .bottom-nav หลัก
      (blur 44px, saturate 190%) — เหตุผลเดียวกับ comment ด้านบน */
+  /* ★ v3.10.0 รอบที่ 15: sync ค่าที่ปรับใหม่ (opacity 0.36, blur 64px,
+     saturate 210%) — เหตุผลเดียวกับ comment ด้านบน */
   .bottom-nav {
-    background: rgba(255, 255, 255, 0.68);
-    backdrop-filter: saturate(190%) blur(44px);
-    -webkit-backdrop-filter: saturate(190%) blur(44px);
+    background: rgba(255, 255, 255, 0.36);
+    backdrop-filter: saturate(210%) blur(64px);
+    -webkit-backdrop-filter: saturate(210%) blur(64px);
     /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (48px = --yp-radius-lg) */
     border-radius: var(--yp-radius-lg) var(--yp-radius-sm) var(--yp-radius-sm) var(--yp-radius-lg);
   }
