@@ -301,6 +301,13 @@
   --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
 
+  /* ★ v3.10.0 รอบที่ 16: grain/noise texture สำหรับผิวกระจกฝ้า (frosted glass)
+     ใช้ทับบน backdrop-filter blur ของ .top-bar / .bottom-nav — เป็นลาย
+     ที่มองเห็นได้เสมอไม่ว่าเนื้อหาข้างหลังจะเป็นสีพื้นเรียบหรือมีลวดลาย
+     (เทคนิคเดียวกับ material ของ iOS/visionOS จริง ๆ — SVG feTurbulence
+     ทำ noise แล้ว desaturate ด้วย feColorMatrix ให้เป็นเกรนขาวดำล้วน) */
+  --yp-glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
   /* ── TRANSITIONS ── */
   --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
   --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
@@ -9238,10 +9245,25 @@ textarea {
    เป็นหมอกเบลอจริง ๆ พร้อมเพิ่ม blur อีกขั้น (44px→64px) และ saturate
    (190%→210%) ให้สีที่โปร่งผ่านมาดูสดมีชีวิตชีวาแบบกระจกพรีเมียม ไม่ต้อง
    กลัวว่าจะเบลอเกิน — ต้องการให้เห็นผลชัดเจน */
+/* ★ v3.10.0 รอบที่ 16: ทฤษฎีของรอบ 14-15 (ปรับแค่ opacity/blur px) ไม่พอ —
+   ปัญหาจริงคือ backdrop-filter blur "เบลอสิ่งที่อยู่ข้างหลังจริง ๆ" เท่านั้น
+   ถ้าพื้นที่ตรงนั้นเป็นสีพื้นเรียบ ๆ (ไม่มีขอบ/ตัวอักษร/ลวดลาย) ต่อให้เบลอ
+   แรงแค่ไหนก็ได้สีเรียบเหมือนเดิม — มองไม่ออกว่า "เบลอ" เพราะไม่มีอะไรให้
+   เบลอ ไม่ใช่เรื่อง opacity ล้วน ๆ อย่างที่เข้าใจผิดไป (opacity ต่ำไปอีกทาง
+   ก็แค่ทำให้ดูใสจนแทบไม่เห็นว่ามีแถบอยู่ ไม่ใช่ทำให้ดูเบลอ)
+   วิธีแก้ที่ถูกต้อง (เทคนิคเดียวกับ frosted glass ของ Apple/iOS จริง ๆ):
+     1) เพิ่ม grain/noise texture บาง ๆ ทับบน blur (ผ่าน ::after) — เป็น
+        ลายผิวกระจกฝ้าที่ "เห็นได้เสมอ" ไม่ว่าเนื้อหาข้างหลังจะเป็นอะไร
+        (นี่คือสิ่งที่ทำให้ตาคนแยกออกว่า "นี่คือกระจกฝ้า" ไม่ใช่ "กล่องโปร่งแสง
+        ธรรมดา") — ใช้ SVG feTurbulence noise แบบเดียวกับที่ Apple ใช้จริง
+     2) ปรับ opacity กลับมาอยู่กึ่งกลาง (ไม่ใสมากจนไม่เห็น ไม่ทึบจนไม่เห็น
+        การเบลอ) — top-bar 0.52 / scrolled 0.76, bottom-nav 0.56
+     3) เพิ่ม contrast(1.12) ใน backdrop-filter — บีบให้สีที่เบลอออกมาแยกเป็น
+        หย่อมสี (blob) ชัดเจนขึ้น แทนที่จะกลืนเป็นสีเดียวแบนราบ */
 .top-bar {
-  background: rgba(247, 246, 252, 0.32);
-  backdrop-filter: saturate(210%) blur(64px);
-  -webkit-backdrop-filter: saturate(210%) blur(64px);
+  background: rgba(247, 246, 252, 0.52);
+  backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
+  -webkit-backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
   box-shadow:
     inset 0 -1px 0 rgba(255, 255, 255, 0.5),
     0 1px 0 rgba(30, 27, 70, 0.04),
@@ -9252,9 +9274,23 @@ textarea {
     box-shadow 220ms var(--yp-ease-m3-standard);
 }
 
+/* ★ v3.10.0 รอบที่ 16: grain texture ของกระจกฝ้า — เห็นได้เสมอไม่ว่าเนื้อหา
+   ข้างหลังจะเป็นสีเรียบหรือมีลวดลาย ทำให้อ่านออกว่าเป็น "กระจกฝ้า" จริง */
+.top-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--yp-glass-grain);
+  background-size: 140px 140px;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: -1;
+}
+
 /* When user has scrolled down — slightly stronger edge */
 .top-bar.is-scrolled {
-  background: rgba(247, 246, 252, 0.62);
+  background: rgba(247, 246, 252, 0.76);
   box-shadow:
     inset 0 -1px 0 rgba(255, 255, 255, 0.6),
     0 1px 0 rgba(30, 27, 70, 0.06),
@@ -9430,10 +9466,13 @@ body.yp-sheet-open .fab {
 /* ★ v3.10.0 รอบที่ 15: ลด opacity ลงมาก (0.68→0.36) + เพิ่ม blur (44px→64px)
    + saturate (190%→210%) — เหตุผลเดียวกับ .top-bar ด้านบน: opacity ที่สูง
    เกินไปบังไม่ให้เห็นผลของ blur */
+/* ★ v3.10.0 รอบที่ 16: เหตุผลเดียวกับ .top-bar ด้านบน (ดู comment ที่นั่น
+   สำหรับคำอธิบายเต็ม) — เพิ่ม grain texture ผ่าน ::after, ปรับ opacity
+   กลับมากึ่งกลาง (0.36→0.56), เพิ่ม contrast(1.12) */
 .bottom-nav {
-  background: rgba(255, 255, 255, 0.36);
-  backdrop-filter: saturate(210%) blur(64px);
-  -webkit-backdrop-filter: saturate(210%) blur(64px);
+  background: rgba(255, 255, 255, 0.56);
+  backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
+  -webkit-backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     0 -1px 0 rgba(30, 27, 70, 0.04),
@@ -9441,6 +9480,20 @@ body.yp-sheet-open .fab {
   border: 1px solid rgba(30, 27, 70, 0.04);
   /* ★ v3.9.2: คืนค่าความโค้งมนเดิมของ YP Work (48px = --yp-radius-lg) */
   border-radius: var(--yp-radius-lg);
+}
+
+/* ★ v3.10.0 รอบที่ 16: grain texture ของกระจกฝ้า (ดู .top-bar::after) */
+.bottom-nav::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--yp-glass-grain);
+  background-size: 140px 140px;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Remove old "icon::before" pattern (cascade override) */
@@ -9897,10 +9950,13 @@ body.yp-sheet-open .bottom-nav {
      (blur 44px, saturate 190%) — เหตุผลเดียวกับ comment ด้านบน */
   /* ★ v3.10.0 รอบที่ 15: sync ค่าที่ปรับใหม่ (opacity 0.36, blur 64px,
      saturate 210%) — เหตุผลเดียวกับ comment ด้านบน */
+  /* ★ v3.10.0 รอบที่ 16: sync ค่าที่ปรับใหม่ (opacity 0.56, contrast 1.12) —
+     เหตุผลเดียวกับ comment ด้านบน (grain texture มาจาก .bottom-nav::after
+     ที่ base rule อยู่แล้ว ใช้ได้ทั้งมือถือและ desktop โดยไม่ต้อง sync ซ้ำ) */
   .bottom-nav {
-    background: rgba(255, 255, 255, 0.36);
-    backdrop-filter: saturate(210%) blur(64px);
-    -webkit-backdrop-filter: saturate(210%) blur(64px);
+    background: rgba(255, 255, 255, 0.56);
+    backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
+    -webkit-backdrop-filter: saturate(220%) contrast(1.12) blur(64px);
     /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (48px = --yp-radius-lg) */
     border-radius: var(--yp-radius-lg) var(--yp-radius-sm) var(--yp-radius-sm) var(--yp-radius-lg);
   }
