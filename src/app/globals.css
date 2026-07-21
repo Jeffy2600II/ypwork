@@ -1001,7 +1001,9 @@
   justify-content: space-evenly;
   align-items: center;
   padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
-  background: var(--yp-bg-card);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
   box-shadow: 0 -2px 16px rgba(30, 27, 70, 0.08);
   border-radius: var(--yp-radius-lg);
   border: 1px solid var(--yp-border-subtle);
@@ -1168,9 +1170,9 @@ body.yp-sheet-open .fab {
     box-shadow:
       2px 0 16px rgba(30, 27, 70, 0.06),
       0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(245, 244, 251, 0.78) 100%);
-    backdrop-filter: saturate(200%) blur(24px);
-    -webkit-backdrop-filter: saturate(200%) blur(24px);
+    background: rgba(245, 244, 251, 0.88);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
   }
 
   .bottom-nav__item {
@@ -7413,13 +7415,13 @@ img,
 }
 
 /* ★ v3.5.0: Desktop — Top bar improvements
-   ★ v3.10.0 รอบที่ 17: ลบ backdrop-filter/background/box-shadow ที่เคยตั้งไว้
+   ★ v3.10.0 รอบที่ 18: ลบ backdrop-filter/background/box-shadow ที่เคยตั้งไว้
    ในบล็อกนี้ออก (เดิม blur(12px) + opacity 0.85) — เป็นค่าเก่าจาก v3.5.0
    ที่มาก่อนระบบกระจกฝ้าจริงจัง (v3.9.2+) และแอบชนกับค่าล่าสุดที่ .top-bar
    หลักด้านล่างของไฟล์ (เดิม cascade ยังทำงานถูกเพราะ block นั้นมาทีหลัง
    แต่ทิ้งไว้แบบนี้เสี่ยงสับสน/แก้ผิดจุดอีกในอนาคต) — จุดเดียวที่ควรแก้เรื่อง
    ความเบลอ/โปร่งใสของ top-bar ตอนนี้คือ .top-bar กับ .top-bar.is-scrolled
-   ที่มี comment "รอบที่ 17" กำกับไว้เท่านั้น */
+   ที่มี comment "รอบที่ 18" กำกับไว้เท่านั้น */
 @media (min-width: 900px) {
   .top-bar__title {
     font-weight: var(--yp-fw-bold);
@@ -9226,87 +9228,14 @@ textarea {
   --yp-fab-size-v39: 58px;
 }
 
-/* ── v3.9.2 TOP BAR — Apple HIG translucency ── */
-/* ★ v3.10.0 รอบที่ 10: เพิ่มระดับความเบลอให้ใกล้เคียง iOS translucent
-   material มากขึ้น (ลด opacity พื้นหลังลง ให้เนื้อหาด้านหลังโปร่งแสงชัดขึ้น
-   พร้อมเพิ่ม blur/saturate) */
-/* ★ v3.10.0 รอบที่ 14: เบลอมากขึ้นอีกขั้น + เอฟเฟกต์กระจกพรีเมียม —
-   ลด saturate ลงเล็กน้อย (220%→190%) กันดูจัดจ้านเกินไป, เพิ่ม blur
-   28px→44px ให้เนื้อหาด้านหลังกลืนเป็นหมอกนุ่ม ๆ แทนที่จะเห็นเป็นเงาซ้อน,
-   เพิ่มเส้นไฮไลต์บาง ๆ ด้านในขอบล่าง (inset) จำลองผิวกระจกโค้งรับแสง
-   แบบวัสดุ frosted glass ของ iOS/visionOS, และเงานุ่มกระจายกว้างขึ้น
-   แทนเงาแข็งบาง ๆ เดิม */
-/* ★ v3.10.0 รอบที่ 15: รอบที่ 14 เพิ่ม blur px แล้วแต่ยังมองแทบไม่เห็นว่าเบลอ —
-   ต้นเหตุจริงคือ background opacity สูงเกินไป (0.58/0.86) พื้นหลังทึบเกือบ
-   ทึบแสง จนบังเนื้อหาด้านหลังที่ควรจะเห็นเป็น "หมอกเบลอ" ไปเกือบหมด ต่อให้
-   blur มากแค่ไหนก็มองไม่เห็นผลถ้าไม่มีอะไรให้โปร่งผ่าน — รอบนี้ลด opacity
-   ลงมาก (0.58→0.32, scrolled 0.86→0.62) ให้เนื้อหาด้านหลังโปร่งแสงเห็นชัด
-   เป็นหมอกเบลอจริง ๆ พร้อมเพิ่ม blur อีกขั้น (44px→64px) และ saturate
-   (190%→210%) ให้สีที่โปร่งผ่านมาดูสดมีชีวิตชีวาแบบกระจกพรีเมียม ไม่ต้อง
-   กลัวว่าจะเบลอเกิน — ต้องการให้เห็นผลชัดเจน */
-/* ★ v3.10.0 รอบที่ 16: ทฤษฎีของรอบ 14-15 (ปรับแค่ opacity/blur px) ไม่พอ —
-   ปัญหาจริงคือ backdrop-filter blur "เบลอสิ่งที่อยู่ข้างหลังจริง ๆ" เท่านั้น
-   ถ้าพื้นที่ตรงนั้นเป็นสีพื้นเรียบ ๆ (ไม่มีขอบ/ตัวอักษร/ลวดลาย) ต่อให้เบลอ
-   แรงแค่ไหนก็ได้สีเรียบเหมือนเดิม — มองไม่ออกว่า "เบลอ" เพราะไม่มีอะไรให้
-   เบลอ ไม่ใช่เรื่อง opacity ล้วน ๆ อย่างที่เข้าใจผิดไป (opacity ต่ำไปอีกทาง
-   ก็แค่ทำให้ดูใสจนแทบไม่เห็นว่ามีแถบอยู่ ไม่ใช่ทำให้ดูเบลอ)
-   วิธีแก้ตอนนั้น: เพิ่ม grain texture + ปรับ opacity กึ่งกลาง (0.52/0.76) +
-   contrast(1.12) — แต่ยังไม่พอ (ดูรอบที่ 17)
-   ★ v3.10.0 รอบที่ 17: ตรวจจริงด้วย headless browser render (ไม่ใช่เดา) —
-   สรุปคือ backdrop-filter blur "ทำงานถูกต้องอยู่แล้ว" ปัญหาจริงคือ
-   "opacity 0.52-0.56 มันต่ำเกินไปสำหรับสายตา" — พอพื้นหลังโปร่งมาก คนจะ
-   มองว่ามันเป็น "กระจกใสมีสี" (tinted glass) ไม่ใช่ "กระจกฝ้า" (frosted
-   glass) ต่อให้เบลอแรงแค่ไหนก็ตาม เพราะกระจกฝ้าจริง ๆ (Apple thick/regular
-   material) มี opacity สูงราว 78-90% ไม่ใช่ 50-60% — ตัวที่ทำให้ "ดูฝ้า"
-   คือ opacity สูง + grain มากกว่า blur px ล้วน ๆ
-   การแก้รอบนี้ (ตรงข้ามกับทุกรอบก่อนหน้า — เพิ่ม opacity แทนที่จะลด):
-     1) เพิ่ม opacity กลับขึ้นมาชัดเจน — top-bar 0.52→0.82 / scrolled
-        0.76→0.92, bottom-nav 0.56→0.84 (ดูฝ้าทึบแบบกระจกจริง ไม่ใสเกิน)
-     2) ลด blur ลงจาก 64px→30px (ไม่จำเป็นต้องแรงขนาดนั้น — ที่ opacity สูง
-        แค่ 30px ก็ฝ้าชัดเจนแล้ว, แรงเกินไปกลับทำให้สีเนื้อหาข้างหลังเละ
-        เป็นก้อนสีเดียวและ GPU หนักขึ้นโดยไม่จำเป็น)
-     3) ลบ contrast(1.12) ออก — ที่ opacity สูงขึ้นแล้วไม่จำเป็น กลับทำให้สี
-        เพี้ยนจัดจ้านเกินไปเมื่อรวมกับพื้นทึบขึ้น
-     4) ลบ @media(min-width:900px) .top-bar บล็อกเก่าที่ยังตั้ง blur(12px)
-        ทับอยู่ (มาจาก v3.5.0 — ดูจุดที่ลบด้านล่างในไฟล์) เพื่อไม่ให้มีค่า
-        ขัดแย้งกันหลายจุดอีกต่อไป เหลือจุดเดียวที่ต้องแก้จริง ๆ */
-.top-bar {
-  background: rgba(247, 246, 252, 0.82);
-  backdrop-filter: saturate(180%) blur(30px);
-  -webkit-backdrop-filter: saturate(180%) blur(30px);
-  box-shadow:
-    inset 0 -1px 0 rgba(255, 255, 255, 0.5),
-    0 1px 0 rgba(30, 27, 70, 0.04),
-    0 8px 24px -12px rgba(30, 27, 70, 0.10);
-  /* Subtle bottom border that fades in on scroll */
-  transition:
-    background-color 220ms var(--yp-ease-m3-standard),
-    box-shadow 220ms var(--yp-ease-m3-standard);
-}
-
-/* ★ v3.10.0 รอบที่ 16: grain texture ของกระจกฝ้า — เห็นได้เสมอไม่ว่าเนื้อหา
-   ข้างหลังจะเป็นสีเรียบหรือมีลวดลาย ทำให้อ่านออกว่าเป็น "กระจกฝ้า" จริง
-   ★ รอบที่ 17: opacity เพิ่มขึ้นแล้ว เกรนเลยลดความเข้มลงเล็กน้อยพอให้ยังเห็น
-   ผิวสัมผัส แต่ไม่แย่งซีนจนดูเป็นฝุ่นเกินไป */
-.top-bar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--yp-glass-grain);
-  background-size: 140px 140px;
-  opacity: 0.25;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* When user has scrolled down — slightly stronger edge */
+/* ── v3.9.2 TOP BAR — demo 8.2 backdrop-filter ── */
+/* ★ v3.10.0 รอบที่ 18: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
+   (line ~777) มีค่า demo 8.2 อยู่แล้ว: backdrop-filter: saturate(180%) blur(10px)
+   พร้อม background rgba(245,244,251,0.88) — ไม่ต้อง override ทับซ้อน
+   จุดที่แก้รอบ 14-17 คือ override เหล่านั้นเองที่ทำให้ blur ทำงานผิด */
 .top-bar.is-scrolled {
-  background: rgba(247, 246, 252, 0.92);
-  box-shadow:
-    inset 0 -1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 0 rgba(30, 27, 70, 0.06),
-    0 10px 28px -12px rgba(30, 27, 70, 0.14);
+  background: rgba(245, 244, 251, 0.94);
+  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.08);
 }
 
 /* ── v3.9.2 FAB — Material 3 state layer + เอกลักษณ์ความโค้งมนเดิม ── */
@@ -9467,50 +9396,13 @@ body.yp-sheet-open .fab {
   animation: none !important;
 }
 
-/* ── v3.9.2 BOTTOM NAV — Material 3 + เอกลักษณ์ความโค้งมนเดิม ── */
-/* ★ v3.9.2: คืนค่าความโค้งมนเดิม (var(--yp-radius-lg) = 48px) — กันเสียความเป็นตัวตน
-     v3.9.2 ลดเหลือ 22px ตาม Material 3 spec แต่ทำให้ bottom-nav ดูแบน */
-/* ★ v3.10.0 รอบที่ 10: เพิ่มระดับความเบลอให้ใกล้เคียง iOS translucent
-   material เดียวกับ top-bar (ลด opacity พื้นหลังลง เพิ่ม blur/saturate) */
-/* ★ v3.10.0 รอบที่ 14: เบลอพรีเมียมแบบเดียวกับ top-bar — ดู comment ที่
-   .top-bar ด้านบนสำหรับเหตุผล (blur 44px, saturate 190%, ไฮไลต์กระจกด้านใน,
-   เงานุ่มกระจายกว้าง) ให้แถบล่างรู้สึกเป็นวัสดุเดียวกันกับแถบบน */
-/* ★ v3.10.0 รอบที่ 15: ลด opacity ลงมาก (0.68→0.36) + เพิ่ม blur (44px→64px)
-   + saturate (190%→210%) — เหตุผลเดียวกับ .top-bar ด้านบน: opacity ที่สูง
-   เกินไปบังไม่ให้เห็นผลของ blur */
-/* ★ v3.10.0 รอบที่ 16: เหตุผลเดียวกับ .top-bar ด้านบน (ดู comment ที่นั่น
-   สำหรับคำอธิบายเต็ม) — เพิ่ม grain texture ผ่าน ::after, ปรับ opacity
-   กลับมากึ่งกลาง (0.36→0.56), เพิ่ม contrast(1.12)
-   ★ v3.10.0 รอบที่ 17: เหตุผลเดียวกับ .top-bar ด้านบน — เพิ่ม opacity ขึ้น
-   ชัดเจน (0.56→0.84) ให้ดูเป็นกระจกฝ้าทึบจริง ไม่ใช่กระจกใสมีสี, ลด blur
-   ลง (64px→30px, ไม่จำเป็นต้องแรงขนาดนั้นที่ opacity สูงขึ้นแล้ว), ลด
-   contrast ออก (ทำสีเพี้ยนเมื่อพื้นทึบขึ้น) */
+/* ── v3.9.2 BOTTOM NAV — demo 8.2 backdrop-filter ── */
+/* ★ v3.10.0 รอบที่ 18: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
+   (mobile) มีค่า demo 8.2 อยู่แล้ว, desktop มีค่าของตัวเองใน @media
+   ไม่ต้อง override ทับซ้อน */
 .bottom-nav {
-  background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: saturate(180%) blur(30px);
-  -webkit-backdrop-filter: saturate(180%) blur(30px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 -1px 0 rgba(30, 27, 70, 0.04),
-    0 -10px 28px -10px rgba(30, 27, 70, 0.10);
-  border: 1px solid rgba(30, 27, 70, 0.04);
-  /* ★ v3.9.2: คืนค่าความโค้งมนเดิมของ YP Work (48px = --yp-radius-lg) */
   border-radius: var(--yp-radius-lg);
-}
-
-/* ★ v3.10.0 รอบที่ 16: grain texture ของกระจกฝ้า (ดู .top-bar::after)
-   ★ รอบที่ 17: ลดความเข้มลงเล็กน้อยเช่นเดียวกับ .top-bar::after */
-.bottom-nav::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: var(--yp-glass-grain);
-  background-size: 140px 140px;
-  opacity: 0.28;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  z-index: -1;
+  border: 1px solid rgba(30, 27, 70, 0.04);
 }
 
 /* Remove old "icon::before" pattern (cascade override) */
@@ -9959,23 +9851,13 @@ body.yp-sheet-open .bottom-nav {
     height: 26px;
   }
 
-  /* Bottom-nav (left-rail) — Material 3 Navigation Rail + โค้งมนเดิม */
-  /* ★ v3.10.0 รอบที่ 11: บล็อกนี้ (@media min-width:900px) มาทีหลังบล็อก
-     .bottom-nav หลักในไฟล์ ทำให้ชนะบน desktop — ต้องอัพเดตความเบลอที่นี่ด้วย
-     ไม่งั้นค่าที่แก้ไว้รอบที่ 10 จะใช้ได้แค่บนมือถือ (< 900px) เท่านั้น */
-  /* ★ v3.10.0 รอบที่ 14: sync ค่าเบลอพรีเมียมเดียวกับ .bottom-nav หลัก
-     (blur 44px, saturate 190%) — เหตุผลเดียวกับ comment ด้านบน */
-  /* ★ v3.10.0 รอบที่ 15: sync ค่าที่ปรับใหม่ (opacity 0.36, blur 64px,
-     saturate 210%) — เหตุผลเดียวกับ comment ด้านบน */
-  /* ★ v3.10.0 รอบที่ 16: sync ค่าที่ปรับใหม่ (opacity 0.56, contrast 1.12) —
-     เหตุผลเดียวกับ comment ด้านบน (grain texture มาจาก .bottom-nav::after
-     ที่ base rule อยู่แล้ว ใช้ได้ทั้งมือถือและ desktop โดยไม่ต้อง sync ซ้ำ) */
-  /* ★ v3.10.0 รอบที่ 17: sync ค่าที่ปรับใหม่ (opacity 0.84, blur 30px, ไม่มี
-     contrast) — เหตุผลเดียวกับ comment ที่ .top-bar/.bottom-nav หลัก */
+  /* Bottom-nav (left-rail) — demo 8.2 blur sync */
+  /* ★ v3.10.0 รอบที่ 18: sync ค่าให้ตรงกับ demo 8.2 — backdrop-filter
+     saturate(180%) blur(10px) + background rgba(245,244,251,0.88) */
   .bottom-nav {
-    background: rgba(255, 255, 255, 0.84);
-    backdrop-filter: saturate(180%) blur(30px);
-    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    background: rgba(245, 244, 251, 0.88);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
     /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (48px = --yp-radius-lg) */
     border-radius: var(--yp-radius-lg) var(--yp-radius-sm) var(--yp-radius-sm) var(--yp-radius-lg);
   }
