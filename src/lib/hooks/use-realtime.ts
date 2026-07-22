@@ -185,6 +185,9 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
   loading: boolean;
   error: string | null;
   reload: () => void;
+  /** ★ v3.10.0 รอบที่ 27: Optimistic patch helpers — เหมือน useRealtimeEventById */
+  patchEvent: (eventId: string, patch: Partial<YPEvent>) => void;
+  patchTask: (taskId: string, patch: Partial<Task>) => void;
 } {
   // ★ v3.9.9: อ่าน sessionStorage cache ตอน mount — ถ้ามี cache ให้ใช้แทน initialEvents
   //   ทำให้กลับเข้าหน้าเดิมเร็วขึ้น (instant render) แทนที่จะรอ fetch ใหม่
@@ -317,7 +320,26 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
     };
   }, [reload]);
 
-  return { events, loading, error, reload };
+  // ★ v3.10.0 รอบที่ 27: Optimistic patch helpers — อัพเดต state ทันที
+  //   ก่อน realtime push มาถึง ทำให้ UI เปลี่ยนทันทีไม่ต้องรีเซ็ตหน้า
+  const patchEvent = React.useCallback((eventId: string, patch: Partial<YPEvent>) => {
+    setEvents((prev) =>
+      prev.map((e) => (e.id === eventId ? { ...e, ...patch } : e))
+    );
+  }, []);
+
+  const patchTask = React.useCallback((taskId: string, patch: Partial<Task>) => {
+    setEvents((prev) =>
+      prev.map((e) => ({
+        ...e,
+        tasks: (e.tasks || []).map((t) =>
+          t.id === taskId ? { ...t, ...patch } : t
+        ),
+      }))
+    );
+  }, []);
+
+  return { events, loading, error, reload, patchEvent, patchTask };
 }
 
 // ═══════════════════════════════════════════════════════════════
