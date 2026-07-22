@@ -3,11 +3,23 @@
 
 @custom-variant dark (&:is(.dark *));
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r21 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r22 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 21
+   Senior CSS Architect Refactor — Round 22
    ─────────────────────────────────────────────────────────────
-   Fixes applied:
+   Fixes applied (r22):
+   1. Bottom-nav (mobile): ข้อความใหญ่เกินไป + จัดวางไม่กึ่งกลาง
+      - เพิ่ม base rule สำหรับ .bottom-nav__item บนมือถือ ที่หายไป
+        (เคยมีแค่ desktop left-rail ที่มี flex column + center)
+      - ลดขนาด .bottom-nav__label จากค่า default 1rem (16px) เหลือ 10.5px
+        ใกล้เคียง iOS/Android tab bar มาตรฐาน
+      - จัดกึ่งกลาง icon+label ทั้งแนวนอนและแนวตั้งผ่าน flex column + center
+      - ลดความสูงของ .bottom-nav จาก 96px → 80px ให้สมดุลกับตัวอักษรใหม่
+      - ปรับ --yp-nav-bottom-h ให้ตรงกับความสูงใหม่ เพื่อให้ page bottom
+        padding คำนวณถูกต้อง
+      - จำกัดการแก้ไขเฉพาะ @media (max-width: 899px) ไม่กระทบ desktop
+
+   Fixes applied (r21):
    1. prefers-reduced-motion: เปลี่ยนจาก transform:none/transition:none
       เป็น transition-duration:0.01ms/animation-duration:0.01ms (WCAG 2.2)
       — hover/active state ยังคงทำงานได้ตามปกติ
@@ -9304,5 +9316,85 @@ body {
   .yp-info-sheet.is-leaving {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v3.10.0 รอบที่ 22 — Bottom Nav Label Polish (mobile only)
+   ═══════════════════════════════════════════════════════════════
+   ปัญหา:
+   - บนมือถือ ข้อความในแถบนำทางด้านล่าง (bottom-nav) ใหญ่เกินไป
+     เพราะไม่มี base rule สำหรับ .bottom-nav__label บนมือถือ
+     ทำให้สืบทอดขนาด body (1rem = 16px) แทนที่จะใช้ขนาดเล็กแบบ
+     native iOS/Android navigation bar (≈10–11px)
+   - การจัดวางไม่กึ่งกลาง เพราะ .bottom-nav__item ไม่มี flex column
+     บนมือถือ (มีแค่บน desktop) ทำให้ icon กับ label ไม่ stack เป็นแนวตั้ง
+     และไม่อยู่ตรงกลางทั้งแนวนอนและแนวตั้ง
+
+   การแก้ไข (mobile-first, ใช้ @media (max-width: 899px) เพื่อจำกัดเฉพาะ
+   มือถือ ไม่กระทบ desktop left-rail ที่ทำงานถูกต้องอยู่แล้ว):
+   1) .bottom-nav__item → flex column, center, ลด padding ให้พอดี
+   2) .bottom-nav__icon → ลดขนาดลง (36px → 32px height, width auto)
+   3) .bottom-nav__label → font-size 10.5px (ใกล้ iOS tab bar 10–11px),
+      line-height 1.2, จัดกึ่งกลาง, margin-top เล็กน้อยให้หายใกล้ icon
+   4) Active label → weight medium แทน semibold (ลดความหนา ไม่ให้ดูใหญ่)
+   5) ลดความสูงของ .bottom-nav เล็กน้อย (96px → 80px) ให้สมดุลกับขนาด
+      ตัวอักษรที่เล็กลง — ก่อนหน้านี้ nav สูง 96px แต่เนื้อหาแค่ icon+label
+      ทำให้ดูมีพื้นที่ว่างเยอะเกินไป หลังลดเหลือ 80px จะพอดีกับสายตามากขึ้น
+   6) ปรับ --yp-nav-bottom-h ให้เท่ากับความสูงใหม่ (80px) เพื่อให้
+      --yp-page-bottom-pad คำนวณ padding ใต้ main content ถูกต้อง
+      (ไม่งั้นเนื้อหาจะถูกบังโดย nav)
+
+   หมายเหตุ: ไม่แตะ desktop left-rail ที่ ≥900px เพราะทำงานถูกต้องแล้ว
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 899px) {
+  /* ★ ปรับความสูงของ bottom-nav ให้พอดีกับขนาดตัวอักษรใหม่ */
+  :root {
+    --yp-nav-bottom-h: 80px;
+  }
+
+  /* ★ bottom-nav: ลด padding ให้กระชับขึ้น */
+  .bottom-nav {
+    padding: 8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  }
+
+  /* ★ item: flex column + center (เคยไม่มี base rule บนมือถือ) */
+  .bottom-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 6px 4px;
+    border-radius: var(--yp-radius-md, 14px);
+  }
+
+  /* ★ icon: เล็กลง (height 36px → 30px, width 64px → 48px)
+     ก่อนหน้านี้ icon ใหญ่เกินจะเห็นเป็นก้อน ทำให้ label ดูเล็กไม่สมดุล */
+  .bottom-nav__icon {
+    width: 48px;
+    height: 30px;
+  }
+
+  /* ★ label: 10.5px (ใกล้ iOS tab bar), center, ไม่ใหญ่เกินไป */
+  .bottom-nav__label {
+    font-size: 10.5px;
+    line-height: 1.2;
+    text-align: center;
+    font-weight: var(--yp-fw-medium);
+    letter-spacing: 0;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* ★ Active label: medium แทน semibold — ลดความหนา ดูเป็นมือถือมากขึ้น */
+  .bottom-nav__item.is-active .bottom-nav__label {
+    font-weight: var(--yp-fw-semibold);
   }
 }

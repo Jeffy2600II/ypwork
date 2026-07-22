@@ -1,8 +1,21 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0-r19
+// YP WORK · App Shell — v3.10.0-r22
 // ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 22: ปรับขนาดข้อความใน bottom-nav (มือถือ) ให้เล็กลง
+//   และจัดกึ่งกลาง — แก้ไขใน globals.css เท่านั้น
+//   - ปัญหา: ข้อความปุ่ม (หน้าแรก/ปฏิทิน/รายการ/โปรไฟล์) ใหญ่เกินไป
+//     และไม่อยู่กึ่งกลางปุ่ม เพราะไม่มี base rule สำหรับ
+//     .bottom-nav__item / .bottom-nav__label บนมือถือ
+//   - แก้: เพิ่ม base rule ใหม่ทั้งหมดใน globals.css ใต้
+//     @media (max-width: 899px) เพื่อจำกัดเฉพาะมือถือ
+//     • .bottom-nav__item → flex column + center (จัดกึ่งกลาง)
+//     • .bottom-nav__label → font-size 10.5px (ลดจาก 16px default)
+//     • .bottom-nav__icon → ลดขนาดลง (height 36→30px, width 64→48px)
+//     • .bottom-nav → ลดความสูง 96→80px + --yp-nav-bottom-h ปรับตาม
+//   - ไม่แตะ desktop left-rail (≥900px) ที่ทำงานถูกต้องอยู่แล้ว
+//
 // ★ v3.10.0 รอบที่ 19: แก้ backdrop-filter ไม่ทำงาน + ลบ CSS ซ้ำซ้อน
 //   ต้นเหตุหลักที่ทำให้ blur ไม่ขึ้น:
 //     1) .top-bar มี isolation: isolate — สร้าง stacking context ใหม่ทับ backdrop-filter
