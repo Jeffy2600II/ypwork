@@ -3,21 +3,25 @@
 
 @custom-variant dark (&:is(.dark *));
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r22 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r23 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 22
+   Senior CSS Architect Refactor — Round 23
    ─────────────────────────────────────────────────────────────
+   Fixes applied (r23) — ฟื้นคุณภาพแถบนำทาง + แก้เนื้อหาถูกบัง:
+   1. ฟื้น base rule ของ .bottom-nav__item / __icon / __label บนมือถือ
+      ตามสเปก r10 (ที่พิสูจน์แล้วว่าดูดีกว่ารอบ 22 ที่ลดขนาดมากเกินไป)
+      • .bottom-nav__item: flex column + center + gap 3px
+      • .bottom-nav__icon: 56×42px (พื้นที่สัมผัสเหมาะมือถือ)
+      • .bottom-nav__label: 11.5px + letter-spacing 0.01em
+      • Active: indigo-600 + semibold + letter-spacing 0.02em
+   2. แก้เนื้อหาถูกบังโดยแถบนำทางบนทุกหน้า:
+      • .yp-page: padding-bottom จาก var(--yp-space-6) → var(--yp-page-bottom-pad)
+      • .yp-profile-page: padding-bottom จาก var(--yp-space-8) → var(--yp-page-bottom-pad)
+      • html: เพิ่ม scroll-padding-bottom เพื่อ anchor scroll ไม่ไปซ่อนใต้ nav
+   3. จำกัดการแก้ไขส่วนที่ 1 เฉพาะ @media (max-width: 899px) — ไม่กระทบ desktop
+
    Fixes applied (r22):
-   1. Bottom-nav (mobile): ข้อความใหญ่เกินไป + จัดวางไม่กึ่งกลาง
-      - เพิ่ม base rule สำหรับ .bottom-nav__item บนมือถือ ที่หายไป
-        (เคยมีแค่ desktop left-rail ที่มี flex column + center)
-      - ลดขนาด .bottom-nav__label จากค่า default 1rem (16px) เหลือ 10.5px
-        ใกล้เคียง iOS/Android tab bar มาตรฐาน
-      - จัดกึ่งกลาง icon+label ทั้งแนวนอนและแนวตั้งผ่าน flex column + center
-      - ลดความสูงของ .bottom-nav จาก 96px → 80px ให้สมดุลกับตัวอักษรใหม่
-      - ปรับ --yp-nav-bottom-h ให้ตรงกับความสูงใหม่ เพื่อให้ page bottom
-        padding คำนวณถูกต้อง
-      - จำกัดการแก้ไขเฉพาะ @media (max-width: 899px) ไม่กระทบ desktop
+   1. Bottom-nav (mobile): ลดขนาดข้อความ + จัดกึ่งกลาง (แต่เล็กเกินไป — แก้ใน r23)
 
    Fixes applied (r21):
    1. prefers-reduced-motion: เปลี่ยนจาก transform:none/transition:none
@@ -9320,81 +9324,135 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   v3.10.0 รอบที่ 22 — Bottom Nav Label Polish (mobile only)
+   v3.10.0 รอบที่ 23 — Bottom Nav Quality Restoration + Content Padding Fix
    ═══════════════════════════════════════════════════════════════
-   ปัญหา:
-   - บนมือถือ ข้อความในแถบนำทางด้านล่าง (bottom-nav) ใหญ่เกินไป
-     เพราะไม่มี base rule สำหรับ .bottom-nav__label บนมือถือ
-     ทำให้สืบทอดขนาด body (1rem = 16px) แทนที่จะใช้ขนาดเล็กแบบ
-     native iOS/Android navigation bar (≈10–11px)
-   - การจัดวางไม่กึ่งกลาง เพราะ .bottom-nav__item ไม่มี flex column
-     บนมือถือ (มีแค่บน desktop) ทำให้ icon กับ label ไม่ stack เป็นแนวตั้ง
-     และไม่อยู่ตรงกลางทั้งแนวนอนและแนวตั้ง
+   ปัญหาที่รอบ 22 แก้ไม่ตรงจุด:
+   - ลดขนาดตัวอักษร + icon มากเกินไป (10.5px / 48×30) ทำให้แถบนำทาง
+     เล็กจนดูไม่สมดุลกับเนื้อหา และคุณภาพสู้เวอร์ชันเก่า (เช่น r10) ไม่ได้
+   - ยังไม่ได้แก้ปัญหา "เนื้อหาถูกแถบนำทางบัง" บนบางหน้าที่ใช้
+     .yp-page หรือ .yp-profile-page ที่กำหนด padding-bottom เป็นค่าคงที่
+     (เช่น var(--yp-space-6) หรือ var(--yp-space-8)) แทนที่จะใช้
+     --yp-page-bottom-pad ที่คำนวณตามความสูงของแถบนำทาง
 
-   การแก้ไข (mobile-first, ใช้ @media (max-width: 899px) เพื่อจำกัดเฉพาะ
-   มือถือ ไม่กระทบ desktop left-rail ที่ทำงานถูกต้องอยู่แล้ว):
-   1) .bottom-nav__item → flex column, center, ลด padding ให้พอดี
-   2) .bottom-nav__icon → ลดขนาดลง (36px → 32px height, width auto)
-   3) .bottom-nav__label → font-size 10.5px (ใกล้ iOS tab bar 10–11px),
-      line-height 1.2, จัดกึ่งกลาง, margin-top เล็กน้อยให้หายใกล้ icon
-   4) Active label → weight medium แทน semibold (ลดความหนา ไม่ให้ดูใหญ่)
-   5) ลดความสูงของ .bottom-nav เล็กน้อย (96px → 80px) ให้สมดุลกับขนาด
-      ตัวอักษรที่เล็กลง — ก่อนหน้านี้ nav สูง 96px แต่เนื้อหาแค่ icon+label
-      ทำให้ดูมีพื้นที่ว่างเยอะเกินไป หลังลดเหลือ 80px จะพอดีกับสายตามากขึ้น
-   6) ปรับ --yp-nav-bottom-h ให้เท่ากับความสูงใหม่ (80px) เพื่อให้
-      --yp-page-bottom-pad คำนวณ padding ใต้ main content ถูกต้อง
-      (ไม่งั้นเนื้อหาจะถูกบังโดย nav)
+   การแก้ไขรอบ 23 (แยกเป็น 2 ส่วน):
 
-   หมายเหตุ: ไม่แตะ desktop left-rail ที่ ≥900px เพราะทำงานถูกต้องแล้ว
+   ── ส่วนที่ 1: คืนคุณภาพระดับ r10 ของ base rule บนมือถือ ──
+   ก่อนหน้านี้ใน r10 มี base rule ที่ดีแต่ถูกลบออกในรอบหลังๆ ทำให้
+   .bottom-nav__item / .bottom-nav__label สืบทอดขนาด default จาก body
+   (1rem = 16px) ทำให้ตัวอักษรใหญ่เกินไปและไม่กึ่งกลาง
+   คืนค่าตามสเปก r10 (ที่พิสูจน์แล้วว่าดูดี):
+   • .bottom-nav__item: flex column + center + gap 3px + min-width 56px
+   • .bottom-nav__icon: 56×42px (พื้นที่สัมผัสเหมาะมือถือ, pill radius)
+   • .bottom-nav__label: 11.5px (ใกล้ iOS tab bar 11–12px), letter-spacing 0.01em
+   • Active: indigo-600, semibold, letter-spacing 0.02em
+
+   ── ส่วนที่ 2: แก้เนื้อหาถูกบังโดยแถบนำทาง ──
+   ทุกหน้าที่ใช้ .yp-page / .yp-profile-page ต้องมี padding-bottom ที่
+   คำนวณจาก --yp-page-bottom-pad (ไม่ใช่ค่าคงที่) เพื่อให้เนื้อหาไม่ทับซ้อน
+   กับ .bottom-nav ที่เป็น position:fixed
+   • .yp-page: padding-bottom var(--yp-space-6) → var(--yp-page-bottom-pad)
+   • .yp-profile-page: padding-bottom var(--yp-space-8) → var(--yp-page-bottom-pad)
+   • เพิ่ม scroll-padding-bottom บน html เพื่อให้ anchor scroll ไม่ไปซ่อน
+     ใต้แถบนำทาง
+   • เพิ่ม safety net: ให้ .yp-page ที่ไม่ได้อยู่ในหน้าที่ซ่อน bottom-nav
+     (เช่น today/calendar/events/profile/about) มี padding-bottom เพิ่มขึ้น
+     จากค่า default ของ .yp-page ใหม่ที่เรากำหนด
+
+   หมายเหตุ: การแก้ไขส่วนที่ 1 ทำใน @media (max-width: 899px) เพื่อจำกัดเฉพาะ
+   มือถือ ส่วนการแก้ไขส่วนที่ 2 ทำแบบ global เพราะทุกขนาดหน้าจอต้องเว้นที่
+   ให้ bottom-nav / left-rail
    ═══════════════════════════════════════════════════════════════ */
 
+/* ── ส่วนที่ 2 (global): page padding ป้องกันเนื้อหาถูกบัง ── */
+
+/* html: scroll-padding-bottom เพื่อให้ anchor/scroll-to ไม่ไปซ่อนใต้ nav */
+html {
+  scroll-padding-bottom: calc(var(--yp-page-bottom-pad) + var(--yp-space-4));
+}
+
+/* .yp-page: ใช้ --yp-page-bottom-pad แทนค่าคงที่ — รองรับทุกขนาดหน้าจอ
+   ก่อนหน้านี้ padding-bottom: var(--yp-space-6) บนมือถือแค่ 24px ไม่พอ
+   ให้รองรับแถบนำทางสูง 96px + margin 24px + safe-area */
+.yp-page {
+  padding-bottom: var(--yp-page-bottom-pad);
+}
+
+/* .yp-profile-page: เคยใช้ var(--yp-space-8) (32px) ซึ่งน้อยไป แทนที่ด้วย
+   --yp-page-bottom-pad ที่คำนวณจากความสูงของแถบนำทาง */
+.yp-profile-page {
+  padding-bottom: var(--yp-page-bottom-pad);
+}
+
+/* ── ส่วนที่ 1 (mobile only): คืนคุณภาพระดับ r10 ของ base rule ── */
 @media (max-width: 899px) {
-  /* ★ ปรับความสูงของ bottom-nav ให้พอดีกับขนาดตัวอักษรใหม่ */
-  :root {
-    --yp-nav-bottom-h: 80px;
-  }
-
-  /* ★ bottom-nav: ลด padding ให้กระชับขึ้น */
-  .bottom-nav {
-    padding: 8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px);
-  }
-
-  /* ★ item: flex column + center (เคยไม่มี base rule บนมือถือ) */
+  /* ★ .bottom-nav__item — base rule ที่หายไป (เคยมีใน r10)
+     เดิมใน r10: padding 4px 6px, flex column, gap 3px, min-width 56px */
   .bottom-nav__item {
+    background: none;
+    border: 0;
+    padding: 4px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     flex: 1 1 0;
     min-width: 0;
-    padding: 6px 4px;
     border-radius: var(--yp-radius-md, 14px);
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+    color: var(--yp-text-secondary);
+    transition: color var(--yp-t-fast, 160ms ease),
+                background var(--yp-t-fast, 160ms ease);
   }
 
-  /* ★ icon: เล็กลง (height 36px → 30px, width 64px → 48px)
-     ก่อนหน้านี้ icon ใหญ่เกินจะเห็นเป็นก้อน ทำให้ label ดูเล็กไม่สมดุล */
+  /* ★ .bottom-nav__icon — คืนขนาด 56×42 จาก r10
+     เดิมใน r10: 56×42px, pill radius, grid place-items center */
   .bottom-nav__icon {
-    width: 48px;
-    height: 30px;
+    position: relative;
+    width: 56px;
+    height: 42px;
+    border-radius: var(--yp-radius-pill, 999px);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    transition:
+      background-color 220ms var(--yp-ease-m3-standard, cubic-bezier(0.2, 0, 0, 1)),
+      transform 220ms var(--yp-ease-m3-standard, cubic-bezier(0.2, 0, 0, 1));
   }
 
-  /* ★ label: 10.5px (ใกล้ iOS tab bar), center, ไม่ใหญ่เกินไป */
+  /* ★ .bottom-nav__label — คืนขนาด 11.5px จาก r10
+     เดิมใน r10: 11.5px, letter-spacing 0.01em, white-space nowrap */
   .bottom-nav__label {
-    font-size: 10.5px;
+    font-size: 11.5px;
     line-height: 1.2;
     text-align: center;
-    font-weight: var(--yp-fw-medium);
-    letter-spacing: 0;
-    margin-top: 1px;
+    font-weight: var(--yp-fw-medium, 500);
+    letter-spacing: 0.01em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    color: var(--yp-text-secondary);
+    transition: color var(--yp-t-fast, 160ms ease);
   }
 
-  /* ★ Active label: medium แทน semibold — ลดความหนา ดูเป็นมือถือมากขึ้น */
+  /* ★ Active label — คืนค่า indigo-600 + semibold + letter-spacing 0.02em ตาม r10 */
   .bottom-nav__item.is-active .bottom-nav__label {
-    font-weight: var(--yp-fw-semibold);
+    color: var(--yp-indigo-600);
+    font-weight: var(--yp-fw-semibold, 600);
+    letter-spacing: 0.02em;
+  }
+
+  /* ★ Active item — คืนสี indigo-600 ที่ตัวเอก */
+  .bottom-nav__item.is-active {
+    color: var(--yp-indigo-600);
+  }
+
+  /* ★ Hover บน inactive — เคยมีใน r10 */
+  .bottom-nav__item:hover {
+    color: var(--yp-indigo-500);
   }
 }
