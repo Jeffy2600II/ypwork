@@ -20,9 +20,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r24 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r26 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 24
+   Senior CSS Architect Refactor — Round 26
    ─────────────────────────────────────────────────────────────
    Fixes applied (r24) — ปรับปรุง desktop left-rail + cross-device padding:
    1. Desktop (≥900px) left-rail: เพิ่ม flex column + center ให้
@@ -1680,6 +1680,609 @@
   border-radius: var(--yp-radius-pill);
   border: 1px solid var(--yp-border-subtle);
   letter-spacing: 0.02em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 26: TODAY — Smart Timeline UI
+   ═══════════════════════════════════════════════════════════════
+   - แสดงรายการตามเวลา แยกช่วงเช้า/บ่าย/ไม่ระบุเวลา
+   - กลุ่มรายการแสดงเป็น smart group (รวม sub-items ที่ติดกัน)
+   - คลิกเปลี่ยนสถานะทันที (cycle todo→ongoing→done→todo)
+   - มีปุ่มลิงก์เข้าหน้ารายละเอียด
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Time Section ── */
+.yp-today-time-section {
+  margin-bottom: var(--yp-space-5);
+}
+
+.yp-today-time-section__head {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  margin-bottom: var(--yp-space-3);
+  padding-bottom: var(--yp-space-2);
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-today-time-section__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-indigo-500);
+  font-size: var(--yp-text-xs);
+}
+
+.yp-today-time-section__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-today-time-section__label {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  letter-spacing: 0.01em;
+}
+
+.yp-today-time-section__caption {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  margin-top: 2px;
+}
+
+.yp-today-time-section__count {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-bold);
+  background: var(--yp-bg-card);
+  padding: 4px 10px;
+  border-radius: var(--yp-radius-pill);
+  border: 1px solid var(--yp-border-subtle);
+}
+
+/* ── Smart Group (กลุ่มรายการที่รวม sub-items) ── */
+.yp-smart-group {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  padding: 0;
+  margin-bottom: var(--yp-space-3);
+  overflow: hidden;
+  transition: border-color 200ms var(--yp-ease-m3-standard),
+    box-shadow 200ms var(--yp-ease-m3-standard);
+}
+
+.yp-smart-group:hover {
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 30%, var(--yp-border-default));
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
+}
+
+.yp-smart-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card));
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-smart-group__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
+  color: var(--accent, var(--yp-indigo-500));
+}
+
+.yp-smart-group__head-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  flex-wrap: wrap;
+}
+
+.yp-smart-group__head-title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  letter-spacing: 0.01em;
+}
+
+.yp-smart-group__head-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--yp-text-xs);
+  color: var(--accent, var(--yp-indigo-500));
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-smart-group__head-time svg {
+  width: 12px;
+  height: 12px;
+}
+
+.yp-smart-group__head-location {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-smart-group__detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--yp-radius-sm);
+  background: transparent;
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-muted);
+  cursor: pointer;
+  transition: all 150ms var(--yp-ease-m3-standard);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.yp-smart-group__detail-btn:hover {
+  background: var(--accent, var(--yp-indigo-500));
+  color: white;
+  border-color: var(--accent, var(--yp-indigo-500));
+}
+
+.yp-smart-group__items {
+  padding: var(--yp-space-2) 0;
+}
+
+/* ── Timeline Row (รายการย่อยในกลุ่ม) ── */
+.yp-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  padding: var(--yp-space-2) var(--yp-space-4);
+  cursor: pointer;
+  transition: background 120ms var(--yp-ease-m3-standard);
+  position: relative;
+}
+
+.yp-timeline-row:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
+}
+
+.yp-timeline-row:active {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, var(--yp-bg-card));
+}
+
+.yp-timeline-row.is-done {
+  opacity: 0.6;
+}
+
+.yp-timeline-row.is-pending {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Status dot */
+.yp-timeline-row__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms var(--yp-ease-m3-standard);
+}
+
+.yp-timeline-row__dot--todo {
+  border-color: var(--yp-warning-500, #F59E0B);
+}
+
+.yp-timeline-row__dot--ongoing {
+  border-color: var(--yp-indigo-500, #6366F1);
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 40%, transparent);
+}
+
+.yp-timeline-row__dot--done {
+  border-color: var(--yp-success-500, #10B981);
+  background: var(--yp-success-500, #10B981);
+}
+
+/* Time badge */
+.yp-timeline-row__time {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-500));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
+  padding: 2px 6px;
+  border-radius: var(--yp-radius-sm);
+  min-width: 42px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Title */
+.yp-timeline-row__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-body);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-timeline-row.is-done .yp-timeline-row__title {
+  text-decoration: line-through;
+  color: var(--yp-text-muted);
+}
+
+/* Status label */
+.yp-timeline-row__status {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  flex-shrink: 0;
+}
+
+.yp-timeline-row__status--todo {
+  color: var(--yp-warning-500, #F59E0B);
+}
+
+.yp-timeline-row__status--ongoing {
+  color: var(--yp-indigo-500, #6366F1);
+}
+
+.yp-timeline-row__status--done {
+  color: var(--yp-success-500, #10B981);
+}
+
+/* Priority */
+.yp-timeline-row__priority {
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-danger-500, #F43F5E);
+  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 10%, transparent);
+  padding: 2px 5px;
+  border-radius: var(--yp-radius-sm);
+  flex-shrink: 0;
+}
+
+/* Assignee */
+.yp-timeline-row__assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  flex-shrink: 0;
+}
+
+/* Estimated time */
+.yp-timeline-row__est {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  flex-shrink: 0;
+}
+
+/* Link button */
+.yp-timeline-row__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--yp-radius-sm);
+  color: var(--yp-text-muted);
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 150ms var(--yp-ease-m3-standard);
+}
+
+.yp-timeline-row__link:hover {
+  color: var(--accent, var(--yp-indigo-500));
+}
+
+/* ── Today Item (รายการเดี่ยว — คลิกเปลี่ยนสถานะ + ปุ่มดูรายละเอียด) ── */
+.yp-today-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  margin-bottom: var(--yp-space-3);
+  cursor: pointer;
+  transition: all 180ms var(--yp-ease-m3-standard);
+  position: relative;
+}
+
+.yp-today-item:hover {
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 30%, var(--yp-border-default));
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
+  transform: translateY(-1px);
+}
+
+.yp-today-item:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.yp-today-item.is-done {
+  opacity: 0.55;
+}
+
+.yp-today-item.is-pending {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Status dot */
+.yp-today-item__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms var(--yp-ease-m3-standard);
+  margin-top: 2px;
+}
+
+.yp-today-item__dot--todo {
+  border-color: var(--yp-warning-500, #F59E0B);
+}
+
+.yp-today-item__dot--ongoing {
+  border-color: var(--yp-indigo-500, #6366F1);
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 40%, transparent);
+}
+
+.yp-today-item__dot--done {
+  border-color: var(--yp-success-500, #10B981);
+  background: var(--yp-success-500, #10B981);
+}
+
+/* Body */
+.yp-today-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-today-item__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+.yp-today-item.is-done .yp-today-item__title {
+  text-decoration: line-through;
+  color: var(--yp-text-muted);
+}
+
+.yp-today-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  margin-top: var(--yp-space-1);
+  flex-wrap: wrap;
+}
+
+.yp-today-item__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-today-item__status svg {
+  flex-shrink: 0;
+}
+
+.yp-today-item__status--todo {
+  color: var(--yp-warning-500, #F59E0B);
+}
+
+.yp-today-item__status--ongoing {
+  color: var(--yp-indigo-500, #6366F1);
+}
+
+.yp-today-item__status--done {
+  color: var(--yp-success-500, #10B981);
+}
+
+.yp-today-item__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-today-item__chip svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.yp-today-item__chip--priority {
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-danger-500, #F43F5E);
+  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 10%, transparent);
+  padding: 2px 5px;
+  border-radius: var(--yp-radius-sm);
+}
+
+.yp-today-item__chip--assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.yp-today-item__chip--est {
+  color: var(--yp-text-muted);
+}
+
+.yp-today-item__chip--from {
+  font-size: 10px;
+  color: var(--accent, var(--yp-indigo-500));
+  font-weight: var(--yp-fw-medium);
+}
+
+/* Detail link button */
+.yp-today-item__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--yp-radius-sm);
+  background: transparent;
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-muted);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 150ms var(--yp-ease-m3-standard);
+  margin-top: 2px;
+}
+
+.yp-today-item__link:hover {
+  background: var(--accent, var(--yp-indigo-500));
+  color: white;
+  border-color: var(--accent, var(--yp-indigo-500));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 26: EventCard — Date Badge + Subtask Preview
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Date Badge (วันนี้ / พรุ่งนี้ / เลยกำหนด) */
+.yp-event-card__date-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  padding: 2px 8px;
+  border-radius: var(--yp-radius-pill);
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.yp-event-card__date-badge--today {
+  background: color-mix(in srgb, var(--yp-success-500, #10B981) 14%, transparent);
+  color: var(--yp-success-500, #10B981);
+  border: 1px solid color-mix(in srgb, var(--yp-success-500, #10B981) 20%, transparent);
+}
+
+.yp-event-card__date-badge--tomorrow {
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 14%, transparent);
+  color: var(--yp-indigo-500, #6366F1);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500, #6366F1) 20%, transparent);
+}
+
+.yp-event-card__date-badge--overdue {
+  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 14%, transparent);
+  color: var(--yp-danger-500, #F43F5E);
+  border: 1px solid color-mix(in srgb, var(--yp-danger-500, #F43F5E) 20%, transparent);
+}
+
+/* Subtask Preview (2-3 items + "+X more") */
+.yp-event-card__subtasks {
+  margin-top: var(--yp-space-2);
+  padding: var(--yp-space-2) var(--yp-space-3);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-page));
+  border-radius: var(--yp-radius-sm);
+  border: 1px solid var(--yp-border-subtle);
+}
+
+.yp-event-card__subtask {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  padding: 4px 0;
+  font-size: var(--yp-text-xs);
+}
+
+.yp-event-card__subtask-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.yp-event-card__subtask-dot--todo {
+  background: var(--yp-warning-500, #F59E0B);
+  opacity: 0.5;
+}
+
+.yp-event-card__subtask-dot--ongoing {
+  background: var(--yp-indigo-500, #6366F1);
+}
+
+.yp-event-card__subtask-dot--done {
+  background: var(--yp-success-500, #10B981);
+}
+
+.yp-event-card__subtask-title {
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-body);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-event-card__subtask-time {
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-500));
+  min-width: 42px;
+  text-align: center;
+}
+
+.yp-event-card__subtask-priority {
+  font-size: 9px;
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-danger-500, #F43F5E);
+  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 10%, transparent);
+  padding: 1px 4px;
+  border-radius: var(--yp-radius-sm);
+}
+
+.yp-event-card__subtask-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0 0;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-500));
+  border-top: 1px solid var(--yp-border-subtle);
+  margin-top: 4px;
+}
+
+.yp-event-card__subtask-more svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* ═══════════════════════════════════════════════════════════════

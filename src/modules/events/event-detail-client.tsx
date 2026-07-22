@@ -99,7 +99,10 @@ const PRIORITY_META: Record<
   high: { label: 'เร่งด่วน', desc: 'ต้องทำก่อนอื่น', dotClass: 'is-high' },
 };
 
-// ★ v3.8.0: Predefined "เวลาโดยประมาณ" options — เปลี่ยนจาก text input
+// ★ v3.10.0 รอบที่ 26: เปลี่ยนชื่อ field จาก "เวลาโดยประมาณ" → "ระยะเวลาที่คาดการณ์"
+//   เพราะคำว่า "เวลาโดยประมาณ" ไม่ชัดเจน — ดูเหมือนเวลาเริ่ม แต่จริงๆ คือระยะเวลาทำงาน
+//   "ระยะเวลาที่คาดการณ์" ตรงกับแพลตฟอร์มใหญ่ (เช่น Asana, Jira) และสื่อความหมายชัดเจนกว่า
+// ★ v3.8.0: Predefined options — เปลี่ยนจาก text input
 //   เป็น select เพื่อกัน user พิมพ์ค่าที่ไม่มาตรฐาน
 //   value = ค่าที่เก็บใน DB, label = ค่าที่แสดง
 //   '' = ไม่ระบุ (ส่ง empty string ไป DB)
@@ -1715,7 +1718,7 @@ function AddTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="task-est">
-            เวลาโดยประมาณ{' '}
+            ระยะเวลาที่คาดการณ์{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -1736,7 +1739,7 @@ function AddTaskSheet({
             ))}
           </select>
           <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการย่อยเพื่อประเมินเวลารวม
+            ระยะเวลาที่คาดว่าจะใช้ทำรายการย่อยนี้ — จะแสดงเป็นข้อมูลเพิ่มเติมในรายการย่อย
           </div>
         </div>
       </div>
@@ -2014,7 +2017,7 @@ function EditTaskSheet({
         </div>
         <div className="field">
           <label className="field__label" htmlFor="ed-task-est">
-            เวลาโดยประมาณ{' '}
+            ระยะเวลาที่คาดการณ์{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -2044,7 +2047,7 @@ function EditTaskSheet({
             ) : null}
           </select>
           <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการย่อยเพื่อประเมินเวลารวม
+            ระยะเวลาที่คาดว่าจะใช้ทำรายการย่อยนี้ — จะแสดงเป็นข้อมูลเพิ่มเติมในรายการย่อย
           </div>
         </div>
       </div>
