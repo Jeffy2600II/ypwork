@@ -1,14 +1,23 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0-r23
+// YP WORK · App Shell — v3.10.0-r24
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 23: ฟื้นคุณภาพแถบนำทาง + แก้เนื้อหาถูกบัง
+// ★ v3.10.0 รอบที่ 24: ปรับปรุง desktop left-rail + cross-device padding
+//   - รอบ 23 แก้แค่มือถือ → รอบ 24 เพิ่ม desktop (≥900px)
+//   - Desktop left-rail: flex column + center ให้ .bottom-nav__item
+//     (เดิมใช้ค่า default ที่ไม่ stack icon+label ในแนวตั้ง)
+//   - Active state: gradient indigo→violet left border + pill icon bg
+//   - Responsive: icon/label/border ใหญ่ขึ้นที่ 1280px และ 1536px
+//   - Cross-device padding: มือถือใช้ --yp-page-bottom-pad,
+//     desktop ใช้ --yp-space-8 (เพราะไม่มี bottom-nav)
+//   - แก้ใน globals.css เท่านั้น
+//
+// ★ v3.10.0 รอบที่ 23: ฟื้นคุณภาพแถบนำทาง + แก้เนื้อหาถูกบัง (มือถือ)
 //   - รอบ 22 ลดขนาดข้อความ/icon มากเกินไป (10.5px / 48×30) ทำให้คุณภาพ
 //     สู้เวอร์ชันเก่า (เช่น r10) ไม่ได้ → ฟื้นค่า r10 (11.5px / 56×42)
 //   - เพิ่ม padding-bottom ให้ .yp-page / .yp-profile-page ใช้
 //     --yp-page-bottom-pad แทนค่าคงที่ ป้องกันเนื้อหาถูกบัง
-//   - แก้ใน globals.css เท่านั้น
 //
 // ★ v3.10.0 รอบที่ 22: ปรับขนาดข้อความใน bottom-nav (มือถือ) ให้เล็กลง
 //   และจัดกึ่งกลาง (แต่เล็กเกินไป → แก้ใน r23)
