@@ -2,6 +2,23 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* ★ v3.10.0 รอบที่ 25: ต้องประกาศค่าเริ่มต้นนี้ "ที่นี่" (บนสุดของไฟล์)
+   ไม่ใช่ในบล็อก :root หลักที่อยู่ท้ายไฟล์ (~line 8500) — เหตุผล:
+   ก่อนหน้านี้มี `--yp-left-rail-width: 0px;` ซ้ำอยู่ใน :root หลักที่ท้าย
+   ไฟล์ ซึ่งมาหลัง @media(min-width:900px) ทุกตัวที่ตั้งค่า 96/108/120px
+   ไว้สำหรับ desktop — เพราะ custom property ใช้ cascade order ปกติ
+   (ไม่สนตำแหน่ง media query) ตัวที่ "อยู่ท้ายไฟล์สุด" เลยชนะเสมอ ทำให้
+   ค่าที่ desktop ได้จริงคือ 0px ตลอด ผลคือ .app-main ไม่เว้น padding-left
+   ให้ left-rail เลย แต่ .bottom-nav (rail) ยังคงกว้าง 96-120px และวางทับ
+   เนื้อหาอยู่ดี (นี่คือสาเหตุที่ผู้ใช้เห็นแถบนำทางด้านซ้ายทับเนื้อหา)
+   การแก้: ย้ายค่า default (0px, สำหรับมือถือที่ไม่มี rail) มาไว้บนสุดของ
+   ไฟล์แทน — ให้ @media(min-width:900px) ที่มาทีหลังใน source order ชนะ
+   ค่านี้ได้ตามปกติ (ดูจุดที่ลบ default ซ้ำออกจาก :root ท้ายไฟล์ด้วย) */
+:root {
+  --yp-left-rail-width: 0px;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · Global CSS v3.10.0-r24 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
@@ -494,6 +511,18 @@
   padding-bottom: var(--yp-space-6);
 }
 
+/* ★ v3.10.0 รอบที่ 25: เว้นพื้นที่ให้ left-rail เฉพาะหน้าที่ "มีแถบนำทาง
+   จริง ๆ" เท่านั้น — หน้าที่ showBottomNav={false} (เช่นหน้า detail/create)
+   จะไม่มี .bottom-nav แสดงผล (มีแค่ class .is-hidden) จึงไม่ควรเสียพื้นที่
+   ซ้าย 96-120px ไปเปล่า ๆ —ตั้งค่าที่ .app-shell (parent) แทนที่จะตั้งซ้ำ
+   ที่ .app-main กับ .top-bar แยกกัน เพราะ custom property จะสืบทอด
+   (inherit) ลงไปให้ทั้งสองตัวพร้อมกันจากจุดเดียว */
+@media (min-width: 900px) {
+  .app-shell:has(> .bottom-nav.is-hidden) {
+    --yp-left-rail-width: 0px;
+  }
+}
+
 .top-bar__left {
   display: flex;
   align-items: center;
@@ -609,31 +638,27 @@
   }
 
   /* ★ v3.9.7: Top-bar ต้องเริ่มหลัง left-rail ด้วย — ก่อนหน้านี้ left:0 ทำให้
-     left-rail ทับส่วนซ้ายของ top-bar (back button / title) */
-  .top-bar {
-    left: var(--yp-left-rail-width);
-  }
+     left-rail ทับส่วนซ้ายของ top-bar (back button / title)
+     ★ v3.10.0 รอบที่ 25: ค่านี้ถูกย้ายไปตั้งท้ายไฟล์แทน (~line 8290) เพราะ
+     .top-bar base rule (มือถือ, left:0) อยู่ท้ายไฟล์กว่าตรงนี้และชนะทับอยู่
+     — ดู comment เต็มตรงนั้น */
 
+  /* ★ v3.10.0 รอบที่ 25: บั๊กสำคัญที่พบระหว่างแก้ไข — .bottom-nav (base
+     rule มือถือ ที่ line ~7681) เป็น unconditional rule ที่อยู่ "ท้ายไฟล์"
+     กว่าบล็อกนี้ ทำให้ property ที่ซ้ำกัน (inset, justify-content,
+     align-items, padding, border-radius, border, background, box-shadow)
+     ชนะทับค่าที่ตั้งไว้ที่นี่เสมอบน desktop — นี่คือสาเหตุจริงที่ปุ่มใน
+     left-rail เคยดู "เรียงเต็มทั่วทั้งแถบ" (justify-content: space-evenly
+     จากมือถือหลุดมาใช้แทน flex-start) และแถบมีมุมโค้งมนผิดที่ (border-radius
+     จากมือถือ) — ย้าย property เหล่านั้นไปตั้งที่บล็อก desktop ตัวท้ายสุด
+     ของไฟล์แทน (หลัง base rule แน่นอน) เหลือไว้ตรงนี้แค่ property ที่ไม่ชน
+     กับ base (width/height/flex-direction/gap) */
   .bottom-nav {
-    inset: 0 auto 0 0;
     width: 96px;
     height: 100vh;
     height: 100dvh;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: calc(var(--yp-safe-top) + var(--yp-space-4)) var(--yp-space-2) var(--yp-space-4);
-    border-radius: 0 var(--yp-radius-lg) var(--yp-radius-lg) 0;
-    border-top: 0;
-    border-bottom: 0;
-    border-left: 0;
-    border-right: 1px solid var(--yp-border-subtle);
-    box-shadow:
-      2px 0 16px rgba(30, 27, 70, 0.06),
-      0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-    background: rgba(245, 244, 251, 0.88);
-    backdrop-filter: saturate(180%) blur(10px);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    gap: 4px;
   }
 
   .bottom-nav__item {
@@ -5893,6 +5918,9 @@ img,
   }
 }
 
+/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) ทั้งหมดออกตามคำขอ —
+   เปลี่ยนเป็นพื้นหลังทึบแสงปกติ (solid) แทน — ให้ contrast กับเนื้อหา
+   ที่เลื่อนผ่านชัดเจนกว่าเดิม ไม่ต้องพึ่ง GPU compositing ของ blur เลย */
 .top-bar {
   position: fixed;
   top: 0;
@@ -5900,9 +5928,7 @@ img,
   right: 0;
   height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
   padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
-  background: rgba(245, 244, 251, 0.88);
-  backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  background: #FFFFFF;
   box-shadow: 0 1px 0 var(--yp-border-subtle);
   z-index: var(--yp-z-sticky);
   display: flex;
@@ -7490,14 +7516,13 @@ textarea {
 
 /* ── Reduced motion: disable character pulse + caret breathe ── */
 
-/* ── v3.9.2 TOP BAR — demo 8.2 backdrop-filter ── */
-/* ★ v3.10.0 รอบที่ 19: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
-   (line ~777) มีค่า demo 8.2 อยู่แล้ว: backdrop-filter: saturate(180%) blur(10px)
-   พร้อม background rgba(245,244,251,0.88) — ไม่ต้อง override ทับซ้อน
-   จุดที่แก้รอบ 14-17 คือ override เหล่านั้นเองที่ทำให้ blur ทำงานผิด */
+/* ── v3.9.2 TOP BAR ── */
+/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) ทั้งหมด — ใช้พื้นหลัง
+   ทึบแสงปกติแทน ตอนเลื่อนหน้าจอลง ใช้สีขาวล้วน + เงาเข้มขึ้นเล็กน้อย
+   เพื่อบอกความต่างจากสถานะปกติ (แทนที่จะพึ่งความทึบที่เพิ่มขึ้นแบบเดิม) */
 .top-bar.is-scrolled {
-  background: rgba(245, 244, 251, 0.94);
-  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.08);
+  background: #FFFFFF;
+  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.10), 0 4px 12px -6px rgba(30, 27, 70, 0.10);
 }
 
 /* ── v3.9.2 FAB — Material 3 state layer + เอกลักษณ์ความโค้งมนเดิม ── */
@@ -7644,6 +7669,9 @@ body.yp-sheet-open .fab {
   animation: none !important;
 }
 
+/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) — ใช้พื้นหลังทึบแสงปกติ
+   สีขาวล้วนแทน rgba โปร่งแสง + เงานุ่มขึ้นเล็กน้อยให้ยังดูลอยเหนือเนื้อหา
+   ทั้งที่ทึบแสงแล้ว (ไม่ต้องพึ่งการมองทะลุเพื่อบอกว่าเป็น floating bar) */
 .bottom-nav {
   position: fixed;
   inset: auto var(--yp-space-3) calc(var(--yp-safe-bottom) + var(--yp-space-3)) var(--yp-space-3);
@@ -7653,12 +7681,10 @@ body.yp-sheet-open .fab {
   justify-content: space-evenly;
   align-items: center;
   padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
-  box-shadow: 0 -2px 16px rgba(30, 27, 70, 0.08);
+  background: #FFFFFF;
+  box-shadow: 0 -2px 20px rgba(30, 27, 70, 0.10), 0 0 0 1px rgba(30, 27, 70, 0.04);
   border-radius: var(--yp-radius-lg);
-  border: 1px solid rgba(30, 27, 70, 0.04);
+  border: none;
   transition:
     transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
     opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -8253,15 +8279,34 @@ body.yp-sheet-open .bottom-nav {
     height: 26px;
   }
 
-  /* Bottom-nav (left-rail) — demo 8.2 blur sync */
-  /* ★ v3.10.0 รอบที่ 19: sync ค่าให้ตรงกับ demo 8.2 — backdrop-filter
-     saturate(180%) blur(10px) + background rgba(245,244,251,0.88) */
+  /* ★ v3.10.0 รอบที่ 25: .top-bar (base rule ที่ line ~5925) ก็มีบั๊ก
+     เดียวกัน — ตั้ง left:0 แบบ unconditional และอยู่ท้ายไฟล์กว่าบล็อก
+     @media(900px) แรกที่ตั้ง left:var(--yp-left-rail-width) ทำให้ top-bar
+     หลุดไปชิดซ้ายสุด (ทับ left-rail) บน desktop ด้วยเช่นกัน — ย้ายมาตั้งที่
+     นี่แทน (หลัง base rule แน่นอน) */
+  .top-bar {
+    left: var(--yp-left-rail-width);
+  }
+
+  /* Bottom-nav (left-rail) — ★ ตำแหน่งนี้คือจุดที่ต้องแก้จริงสำหรับ
+     property ที่ชนกับ .bottom-nav (base rule มือถือ) — ดู comment เต็ม
+     ที่บล็อก @media(min-width:900px) แรกของไฟล์ (บรรทัด ~656) */
+  /* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) — ใช้พื้นหลังทึบแสงสี
+     ขาวล้วน + ขอบเหลี่ยมชิดขอบจอ (ไม่มีมุมโค้ง) แบบ sidebar ทั่วไป, ตรึงชิด
+     ซ้ายเต็มความสูงจอ (inset:0 auto 0 0 — ก่อนหน้านี้หลุดไปใช้ค่าของมือถือ
+     ทำให้แถบลอยเยื้องมาจากขอบ 12px), จัดปุ่มแบบ "ต่อกันลงมาธรรมดา" จากด้านบน
+     (justify-content: flex-start — ก่อนหน้านี้หลุดไปใช้ space-evenly ของ
+     มือถือ ทำให้ปุ่มถูกดันให้กระจายเต็มความสูงของแถบ) */
   .bottom-nav {
-    background: rgba(245, 244, 251, 0.88);
-    backdrop-filter: saturate(180%) blur(10px);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
-    /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (48px = --yp-radius-lg) */
-    border-radius: var(--yp-radius-lg) var(--yp-radius-sm) var(--yp-radius-sm) var(--yp-radius-lg);
+    inset: 0 auto 0 0;
+    justify-content: flex-start;
+    align-items: center;
+    padding: calc(var(--yp-safe-top) + var(--yp-space-5)) var(--yp-space-2) var(--yp-space-4);
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid var(--yp-border-subtle);
+    background: #FFFFFF;
+    box-shadow: 1px 0 0 rgba(30, 27, 70, 0.03);
   }
 
   /* Active indicator — pill on left side (Material 3 Navigation Rail) */
@@ -8457,12 +8502,9 @@ body.yp-sheet-open .bottom-nav {
   --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
   --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
-  /* ★ v3.10.0 รอบที่ 16: grain/noise texture สำหรับผิวกระจกฝ้า (frosted glass)
-     ใช้ทับบน backdrop-filter blur ของ .top-bar / .bottom-nav — เป็นลาย
-     ที่มองเห็นได้เสมอไม่ว่าเนื้อหาข้างหลังจะเป็นสีพื้นเรียบหรือมีลวดลาย
-     (เทคนิคเดียวกับ material ของ iOS/visionOS จริง ๆ — SVG feTurbulence
-     ทำ noise แล้ว desaturate ด้วย feColorMatrix ให้เป็นเกรนขาวดำล้วน) */
-  --yp-glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* ★ v3.10.0 รอบที่ 25: ลบ --yp-glass-grain ออก — เคยใช้ทำลาย noise texture
+     สำหรับผิวกระจกฝ้า (frosted glass) ของ .top-bar / .bottom-nav เท่านั้น
+     ตอนนี้เปลี่ยนไปใช้พื้นหลังทึบแสงแล้ว ไม่มีจุดไหนอ้างอิงตัวแปรนี้อีก */
   /* ── TRANSITIONS ── */
   --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
   --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
@@ -8488,8 +8530,11 @@ body.yp-sheet-open .bottom-nav {
   --yp-fab-size:       56px;
   /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
      ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
-     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail */
-  --yp-left-rail-width: 0px;
+     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail
+     ★ v3.10.0 รอบที่ 25: ย้าย default (0px) ไปไว้บนสุดของไฟล์แทน — ค่าที่
+     ตั้งไว้ตรงนี้ (ท้ายไฟล์) ชนะค่า @media(min-width:900px) ทุกตัวเสมอ
+     เพราะมาทีหลังใน source order ทำให้ desktop ได้ 0px ตลอด (บั๊กที่ทำให้
+     left-rail ทับเนื้อหา) — ดู comment เต็มที่บนสุดของไฟล์ */
   --yp-bottom-nav-margin: var(--yp-space-3);
   --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
   --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));

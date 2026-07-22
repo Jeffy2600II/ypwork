@@ -1,8 +1,36 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0-r24
+// YP WORK · App Shell — v3.10.0-r25
 // ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 25: แก้ left-rail ทับเนื้อหา + ลบเบลอ + จัดปุ่มใหม่
+//   (แก้ทั้งหมดใน globals.css — ไฟล์นี้ไม่มีการเปลี่ยนแปลง)
+//
+//   บั๊กที่ 1 — left-rail ทับเนื้อหา (สาเหตุจริง):
+//   มี `:root { --yp-left-rail-width: 0px; }` ซ้ำอยู่ท้ายไฟล์ ซึ่งมาหลัง
+//   @media(min-width:900px) ทุกตัวที่ตั้งค่า 96/108/120px ไว้ — เพราะ
+//   custom property cascade ใช้ source order ปกติ (ไม่สนตำแหน่ง media
+//   query) ตัวที่อยู่ท้ายไฟล์สุดเลยชนะเสมอ ทำให้ desktop ได้ 0px ตลอด
+//   .app-main เลยไม่เว้น padding-left แต่ .bottom-nav (rail) ยังกว้าง
+//   96-120px เหมือนเดิม → ทับเนื้อหา
+//   แก้: ย้าย default (0px) ไปไว้บนสุดของไฟล์แทน ให้ @media ที่มาทีหลัง
+//   ใน source order ชนะค่านี้ได้ตามปกติ + เพิ่ม
+//   `.app-shell:has(> .bottom-nav.is-hidden) { --yp-left-rail-width: 0px }`
+//   ให้เว้นพื้นที่เฉพาะหน้าที่มี rail แสดงผลจริงเท่านั้น (ตามที่ขอ)
+//
+//   บั๊กที่ 2 — ปุ่มใน left-rail ดู "เรียงเต็มทั่วทั้งแถบ":
+//   .bottom-nav (base rule มือถือ สำหรับแถบลอยด้านล่าง) เป็น unconditional
+//   rule ที่อยู่ท้ายไฟล์กว่าบล็อก desktop rail — ทำให้ justify-content:
+//   space-evenly, inset, padding, border-radius, background ของมือถือ
+//   หลุดมาชนะทับค่า desktop (flex-start, inset:0, ขอบเหลี่ยม ฯลฯ) เสมอ
+//   แก้: ย้าย property ที่ชนกันไปตั้งในบล็อก desktop ตัวท้ายสุดของไฟล์
+//   แทน (รับประกันว่ามาหลัง base rule แน่นอน) — ตอนนี้ปุ่มเรียงต่อกันจาก
+//   ด้านบนแบบปกติ มีช่องว่างด้านล่างตามธรรมชาติ ไม่ยืดเต็มความสูง
+//
+//   ลบ backdrop-filter (เบลอ) ทั้งหมดของ .top-bar และ .bottom-nav (ทั้ง
+//   แถบบนมือถือ + rail บน desktop) → พื้นหลังทึบแสงสีขาวล้วนแทน พร้อมลบ
+//   ตัวแปร --yp-glass-grain ที่ไม่ได้ใช้แล้ว (เคยใช้กับเอฟเฟกต์เบลอเท่านั้น)
+//
 // ★ v3.10.0 รอบที่ 24: ปรับปรุง desktop left-rail + cross-device padding
 //   - รอบ 23 แก้แค่มือถือ → รอบ 24 เพิ่ม desktop (≥900px)
 //   - Desktop left-rail: flex column + center ให้ .bottom-nav__item
