@@ -1,20 +1,18 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.10.0
+// YP WORK · App Shell — v3.10.0-r19
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 18: ลบ override ทั้งหมดจากรอบ 10-17 ของ .top-bar
-//   และ .bottom-nav ใน globals.css — กลับไปใช้ค่า demo 8.2 ที่เรียบง่าย
-//   คือ backdrop-filter: saturate(180%) blur(10px) พร้อม background
-//   rgba(245,244,251,0.88) สำหรับ top-bar และ rgba(255,255,255,0.88)
-//   สำหรับ bottom-nav — ต้นเหตุที่รอบ 14-17 แก้ไม่ได้คือ override
-//   เหล่านั้นเองที่ทับค่า demo 8.2 ที่ base rule ทำงานถูกต้องอยู่แล้ว
-//   การเปลี่ยนแปลงอยู่ใน globals.css:
-//     - .top-bar (line ~777): ค่า demo 8.2 เดิม — ไม่เปลี่ยน
-//     - .top-bar.is-scrolled: เพิ่มความทึบเล็กน้อยเวลา scroll
-//     - .bottom-nav base (mobile): เพิ่ม backdrop-filter ใหม่
-//     - desktop .bottom-nav: sync ค่า blur(10px) ให้ตรงกัน
-//     - ลบ ::after grain texture, ลบ override block ที่ซับซ้อน
+// ★ v3.10.0 รอบที่ 19: แก้ backdrop-filter ไม่ทำงาน + ลบ CSS ซ้ำซ้อน
+//   ต้นเหตุหลักที่ทำให้ blur ไม่ขึ้น:
+//     1) .top-bar มี isolation: isolate — สร้าง stacking context ใหม่ทับ backdrop-filter
+//     2) .bottom-nav มี contain: paint — อาจขัดกับ backdrop-filter rendering
+//     3) ขาด will-change: backdrop-filter — browser ไม่ optimize ให้
+//   การแก้ไขใน globals.css:
+//     - .top-bar: ลบ isolation: isolate, เพิ่ม will-change: backdrop-filter
+//     - .bottom-nav: ลบ paint ออกจาก contain, เพิ่ม will-change: backdrop-filter
+//     - ลบ .fab ซ้ำซ้อน 4 ชุด (old v3.9.2, v3.4.0, v3.7.9, v3.7.10)
+//     - เหลือ .fab base rule ชุดเดียวที่ line ~9131 (v3.9.2 Material 3)
 //
 // ★ v3.10.0 รอบที่ 17 (ยกเลิก — เก็บไว้อ่านประวัติเท่านั้น): แก้ไขความเข้าใจผิดของรอบ 14-15 — การปรับแค่
 //   opacity/blur px ไม่ใช่วิธีที่ถูกต้อง เพราะ backdrop-filter เบลอแค่

@@ -2,6 +2,23 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Global CSS v3.10.0-r21 (Indigo Trust theme)
+   ═══════════════════════════════════════════════════════════════
+   Senior CSS Architect Refactor — Round 21
+   ─────────────────────────────────────────────────────────────
+   Fixes applied:
+   1. prefers-reduced-motion: เปลี่ยนจาก transform:none/transition:none
+      เป็น transition-duration:0.01ms/animation-duration:0.01ms (WCAG 2.2)
+      — hover/active state ยังคงทำงานได้ตามปกติ
+   2. Backdrop-filter: ลบ contain/translateZ(0)/backface-visibility
+      ที่ขัดขวางการทำ blur บน .top-bar และ .bottom-nav
+   3. Consolidate: ยุบรวมคลาซ้ำซ้อน จัดกลุ่มตาม 7 section
+   4. Hover/Active: คืนค่า micro-interactions (ลบ transform:none overrides)
+
+   ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
+   ═══════════════════════════════════════════════════════════════ */
+
 
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · Global CSS v3.9.9 (Indigo Trust theme — Premium Polish)
@@ -111,293 +128,6 @@
   --radius-md: var(--yp-radius-md);
   --radius-lg: var(--yp-radius-lg);
   --radius-xl: var(--yp-radius-xl);
-}
-
-:root {
-  /* ── BRAND COLORS — Indigo Trust ── */
-  --yp-indigo-50:  #EEF2FF;
-  --yp-indigo-100: #E0E7FF;
-  --yp-indigo-200: #C7D2FE;
-  --yp-indigo-300: #A5B4FC;
-  --yp-indigo-400: #818CF8;
-  --yp-indigo-500: #6366F1;
-  --yp-indigo-600: #4F46E5;
-  --yp-indigo-700: #4338CA;
-  --yp-indigo-800: #3730A3;
-  --yp-indigo-900: #312E81;
-  --yp-indigo-950: #1E1B4B;
-
-  --yp-violet-400: #A78BFA;
-  --yp-violet-500: #8B5CF6;
-  --yp-violet-600: #7C3AED;
-  --yp-violet-700: #6D28D9;
-
-  --yp-amber-400: #FBBF24;
-  --yp-amber-500: #F59E0B;
-  --yp-emerald-400: #34D399;
-  --yp-emerald-500: #10B981;
-  --yp-rose-400: #FB7185;
-  --yp-rose-500: #F43F5E;
-
-  /* Status colors */
-  --yp-todo:        var(--yp-amber-500);
-  --yp-ongoing:     var(--yp-indigo-500);
-  --yp-done:        var(--yp-emerald-500);
-  --yp-overdue:     var(--yp-rose-500);
-
-  /* ── TEXT ── */
-  --yp-text-strong:    #1A1740;
-  --yp-text-heading:   #23204A;
-  --yp-text-body:      #3F3C5E;
-  --yp-text-secondary: #57546F;
-  --yp-text-muted:     #6E6B8C;
-  --yp-text-faint:     #9794B0;
-  --yp-text-inverse:   #FFFFFF;
-
-  /* ── SURFACE ──
-     ★ v3.10.0 รอบที่ 13: เพิ่มความต่างระหว่างพื้นหลังหน้ากับพื้นผิวการ์ด
-     (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
-     พื้นผิวคนละชั้น) ปรับพื้นหลังหน้าให้เข้มขึ้นเล็กน้อยเพื่อให้การ์ดขาว
-     ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
-  --yp-bg-page:        #EFEDF9;
-  --yp-bg-card:        #FFFFFF;
-  --yp-bg-card-soft:   #FAF9FE;
-  --yp-bg-elevated:    #FFFFFF;
-  --yp-bg-indigo-soft: #EEF2FF;
-  --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
-  --yp-bg-cream:       #FAF9F6;
-
-  /* ── BORDER ──
-     ★ v3.10.0 รอบที่ 13: ลดความเข้มของเส้นขอบลงเล็กน้อย ให้ shadow เป็นตัว
-     สร้างมิติหลักแทน — เส้นขอบที่เบาลงทำให้ผิวหน้าดูสะอาดตา ไม่รก
-     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง */
-  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
-  --yp-border-default:  rgba(79, 70, 229, 0.08);
-  --yp-border-strong:   rgba(30, 27, 70, 0.14);
-  --yp-border-indigo:   rgba(79, 70, 229, 0.22);
-  --yp-border-indigo-strong: rgba(99, 102, 241, 0.45);
-  --yp-focus-ring:      rgba(79, 70, 229, 0.16);
-
-  /* ── GRADIENTS ── */
-  --yp-gradient-brand:
-    radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.55) 0%, transparent 60%),
-    radial-gradient(circle at 70% 70%, rgba(79, 70, 229, 0.65) 0%, transparent 60%),
-    linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-  --yp-gradient-brand-flat: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-  --yp-gradient-brand-soft: linear-gradient(135deg, rgba(79,70,229,0.10) 0%, rgba(124,58,237,0.08) 100%);
-  --yp-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #FBFAFE 100%);
-  --yp-gradient-hero:
-    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.18) 0%, transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.20) 0%, transparent 55%),
-    linear-gradient(135deg, #312E81 0%, #4F46E5 50%, #7C3AED 100%);
-  --yp-gradient-btn: linear-gradient(to right, #6366F1 0%, #7C3AED 100%);
-
-  /* ═══════════════════════════════════════════════════════════════
-     v3.9.3 — PREMIUM HERO PATTERN SYSTEM (SVG data-URIs)
-     (inspired by Telegram chat backgrounds, Linear, Vercel, Stripe)
-     ★ v3.9.4: RELAXED — ลดความหนาแน่น (pattern ใหญ่ขึ้น + opacity ลดลง)
-     ═══════════════════════════════════════════════════════════════ */
-
-  /* Pattern 1: Dot grid (white on dark hero) — Telegram-style
-     ★ v3.9.4: tile 32px → 64px (spacious), opacity 10%/8% → 5%/4% */
-  --yp-hero-pattern-dots-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.6' fill='white' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='0' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* Pattern 2: Plus signs grid (white on dark hero) — Linear-style
-     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
-  --yp-hero-pattern-plus-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* Pattern 3: Topographic curves (white on dark hero) — Stripe-style
-     ★ v3.9.4: tile 80px → 140px, opacity 5% → 3% */
-  --yp-hero-pattern-topo-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.03' stroke-width='1'%3E%3Cpath d='M0 70 Q35 35 70 70 T140 70'/%3E%3Cpath d='M0 105 Q35 70 70 105 T140 105'/%3E%3Cpath d='M0 35 Q35 0 70 35 T140 35'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* Pattern 4: Sparkles/stars (white on dark hero) — premium accent
-     ★ v3.9.4: tile 60px → 120px, opacity 10%/8%/7% → 5%/4%/3% */
-  --yp-hero-pattern-sparkle-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M60 36 L63 54 L80 57 L63 60 L60 78 L57 60 L40 57 L57 54 Z' fill='white' fill-opacity='0.05'/%3E%3Cpath d='M100 16 L101.4 23 L108 24.4 L101.4 25.8 L100 32.8 L98.6 25.8 L92 24.4 L98.6 23 Z' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M20 96 L21.2 101.2 L26 102.4 L21.2 103.6 L20 108.8 L18.8 103.6 L14 102.4 L18.8 101.2 Z' fill='white' fill-opacity='0.035'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* Pattern 5: Dot grid (accent on light hero) — for single-hero
-     ★ v3.9.4: tile 32px → 64px, opacity 10%/8% → 5%/4% */
-  --yp-hero-pattern-dots-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.5' fill='%234F46E5' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* Pattern 6: Plus signs (accent on light hero)
-     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
-  --yp-hero-pattern-plus-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%234F46E5' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%237C3AED' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* ── SPACING ──
-     ★ v3.10.0 รอบที่ 13: ขยายจังหวะระยะห่างขึ้นเล็กน้อยทั่วทั้งระบบ
-     ให้เนื้อหามีที่หายใจมากขึ้น รู้สึกสงบ นิ่ง ไม่อึดอัด — ปรับที่ระดับ 4
-     ขึ้นไปเท่านั้น (ระดับเล็ก 1-3 คงเดิม กันของชิ้นเล็กในฟอร์ม/ชิป ห่างเกินไป) */
-  --yp-space-1:  0.25rem;
-  --yp-space-2:  0.5rem;
-  --yp-space-3:  0.75rem;
-  --yp-space-4:  1.0625rem;
-  --yp-space-5:  1.375rem;
-  --yp-space-6:  1.625rem;
-  --yp-space-7:  1.875rem;
-  --yp-space-8:  2.25rem;
-  --yp-space-10: 2.75rem;
-  --yp-space-12: 3.25rem;
-  --yp-space-16: 4.25rem;
-  --yp-space-20: 5.25rem;
-
-  /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
-     (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
-     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
-  --yp-radius-xs:   26px;   /* v3.9.3: +2 จาก 24 — small chips, dots */
-  --yp-radius-sm:   34px;   /* v3.9.3: +2 จาก 32 — small icon containers */
-  --yp-radius-md:   44px;   /* v3.9.3: +4 จาก 40 — controls, buttons, FAB */
-  --yp-radius-lg:   54px;   /* v3.9.3: +6 จาก 48 — cards, panels */
-  --yp-radius-xl:   68px;   /* v3.9.3: +8 จาก 60 — hero blocks */
-  --yp-radius-2xl:  84px;   /* v3.9.3: +12 จาก 72 — feature panels */
-  --yp-radius-pill: 999px;
-
-  --yp-radius-control: var(--yp-radius-md);
-  --yp-radius-card:    var(--yp-radius-lg);
-  --yp-radius-panel:   var(--yp-radius-md);
-  --yp-radius-hero:    var(--yp-radius-xl);
-
-  /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
-  --yp-input-min-height: 52px;
-  --yp-input-padding-y: 1em;
-  --yp-input-padding-x: 1.1em;
-  --yp-input-font-size: var(--yp-text-sm);
-  --yp-input-border-width: 1px;
-  --yp-field-gap: var(--yp-space-5);
-  --yp-field-label-gap: var(--yp-space-2);
-  --yp-field-hint-gap: 6px;
-
-  /* ── TYPOGRAPHY ── */
-  --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
-
-  --yp-text-xs:   0.75rem;
-  --yp-text-sm:   0.875rem;
-  --yp-text-base: 1rem;
-  --yp-text-lg:   1.125rem;
-  --yp-text-xl:   1.25rem;
-  --yp-text-2xl:  1.5rem;
-  --yp-text-3xl:  1.875rem;
-  --yp-text-4xl:  2.25rem;
-
-  --yp-leading-tight:   1.25;
-  --yp-leading-normal:  1.6;
-  --yp-leading-relaxed: 1.75;
-
-  --yp-fw-normal:   400;
-  --yp-fw-medium:   500;
-  --yp-fw-semibold: 600;
-  --yp-fw-bold:     700;
-  --yp-fw-extrabold: 800;
-  --yp-fw-black:    900;
-
-  /* ── SHADOWS ──
-     ★ v3.10.0 รอบที่ 13: เปลี่ยนจาก shadow ชั้นเดียวเป็นสองชั้น
-     (เงาสัมผัสแคบชัด + เงากระจายกว้างเบา) — ให้ความรู้สึกว่าการ์ด "วางอยู่"
-     บนพื้นผิวจริง มีน้ำหนัก มั่นคง แทนที่จะเป็นฮาโล่บางๆ ลอยอยู่เฉยๆ
-     (เทคนิคเดียวกับที่ Stripe/Linear ใช้กับการ์ดระดับ elevation ต่างๆ) */
-  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.05), 0 1px 5px rgba(30, 27, 70, 0.05);
-  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.06), 0 3px 10px rgba(30, 27, 70, 0.07);
-  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.06), 0 8px 20px rgba(30, 27, 70, 0.09);
-  --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
-  --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
-  --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
-
-  /* ★ v3.10.0 รอบที่ 16: grain/noise texture สำหรับผิวกระจกฝ้า (frosted glass)
-     ใช้ทับบน backdrop-filter blur ของ .top-bar / .bottom-nav — เป็นลาย
-     ที่มองเห็นได้เสมอไม่ว่าเนื้อหาข้างหลังจะเป็นสีพื้นเรียบหรือมีลวดลาย
-     (เทคนิคเดียวกับ material ของ iOS/visionOS จริง ๆ — SVG feTurbulence
-     ทำ noise แล้ว desaturate ด้วย feColorMatrix ให้เป็นเกรนขาวดำล้วน) */
-  --yp-glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-
-  /* ── TRANSITIONS ── */
-  --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
-  --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --yp-ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
-  --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
-  --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
-  --yp-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --yp-t-fast:   150ms var(--yp-ease-standard);
-  --yp-t-normal: 260ms var(--yp-ease);
-  --yp-t-slow:   400ms var(--yp-ease);
-
-  --yp-hero-enter:    600ms var(--yp-ease-decel);
-  --yp-hero-stagger:  80ms;
-  --yp-card-enter:    380ms var(--yp-ease-decel);
-  --yp-page-enter: 420ms var(--yp-ease-emphasized-decel);
-
-  /* ── LAYOUT ── */
-  --yp-container-max:  1110px;
-  --yp-container-md:   860px;
-  --yp-container-sm:   600px;
-  --yp-nav-bottom-h:   96px;
-  --yp-nav-top-h:      52px;
-  --yp-page-pad-x:     1.125rem;   /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
-  --yp-fab-size:       56px;
-
-  /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
-     ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
-     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail */
-  --yp-left-rail-width: 0px;
-
-  --yp-bottom-nav-margin: var(--yp-space-3);
-  --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
-  --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
-  --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
-
-  --yp-card-pad:    1.25rem;
-  --yp-card-pad-lg: 1.625rem;
-  --yp-section-gap: 1.75rem;
-  --yp-content-gap: 1.125rem;
-  --yp-stack-gap:   0.75rem;
-
-  /* ── Z-INDEX ── */
-  --yp-z-sticky:  100;
-  --yp-z-fab:     200;
-  --yp-z-nav:     16000;
-  --yp-z-overlay: 17000;
-  --yp-z-modal:   18000;
-  --yp-z-toast:   19000;
-
-  /* ── SAFE AREA ── */
-  --yp-safe-top:    env(safe-area-inset-top, 0px);
-  --yp-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --yp-safe-left:   env(safe-area-inset-left, 0px);
-  --yp-safe-right:  env(safe-area-inset-right, 0px);
-
-  /* ── HEADLINE SCALE ── */
-  --yp-h1-size: clamp(1.30rem, 1.15rem + 0.6vw, 1.60rem);
-  --yp-h2-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.32rem);
-  --yp-h3-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.17rem);
-  --yp-lead-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
-
-  /* shadcn compat */
-  --radius: 0.625rem;
-  --background: var(--yp-bg-page);
-  --foreground: var(--yp-text-body);
-  --card: var(--yp-bg-card);
-  --card-foreground: var(--yp-text-heading);
-  --popover: var(--yp-bg-elevated);
-  --popover-foreground: var(--yp-text-heading);
-  --primary: var(--yp-indigo-600);
-  --primary-foreground: #ffffff;
-  --secondary: var(--yp-bg-card-soft);
-  --secondary-foreground: var(--yp-text-heading);
-  --muted: var(--yp-bg-card-soft);
-  --muted-foreground: var(--yp-text-muted);
-  --accent: var(--yp-bg-indigo-soft);
-  --accent-foreground: var(--yp-indigo-600);
-  --destructive: #BE123C;
-  --destructive-foreground: #ffffff;
-  --border: var(--yp-border-default);
-  --input: var(--yp-border-default);
-  --ring: var(--yp-focus-ring);
-  --sidebar: var(--yp-bg-card);
-  --sidebar-foreground: var(--yp-text-heading);
-  --sidebar-primary: var(--yp-indigo-600);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--yp-bg-indigo-soft);
-  --sidebar-accent-foreground: var(--yp-indigo-600);
-  --sidebar-border: var(--yp-border-default);
-  --sidebar-ring: var(--yp-focus-ring);
 }
 
 /* ── Desktop relaxation ── */
@@ -722,30 +452,8 @@
   100% { opacity: 1;   transform: translateY(0);    filter: blur(0); }
 }
 
-.yp-page-enter {
-  animation: yp-page-in var(--yp-page-enter) both;
-}
-
-/* v1.4: animation wrapper สำหรับ content ใน app-main
- *       แยกออกจาก app-shell เพื่อไม่ให้ transform animation
- *       สร้าง containing block ใหม่ที่ทำลาย position:fixed ของ FAB/bottom-nav */
-.yp-shell-content-enter {
-  animation: yp-page-in var(--yp-page-enter) both;
-}
-
 .yp-hero-enter {
   animation: yp-hero-enter var(--yp-hero-enter) both;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   REDUCED MOTION
-   ═══════════════════════════════════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-  .yp-page-enter,
-  .yp-shell-content-enter,
-  .yp-hero-enter {
-    animation-duration: 200ms !important;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -763,36 +471,8 @@
   --yp-top-transition: 420ms var(--yp-ease-emphasized);
 }
 
-.app-main {
-  flex: 1;
-  min-width: 0;
-  padding-bottom: var(--yp-page-bottom-pad);
-}
-
 .app-main:has(~ .bottom-nav.is-hidden) {
   padding-bottom: var(--yp-space-6);
-}
-
-/* ── TOP BAR ── */
-.top-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
-  padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
-  background: rgba(245, 244, 251, 0.88);
-  backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
-  box-shadow: 0 1px 0 var(--yp-border-subtle);
-  z-index: var(--yp-z-sticky);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--yp-space-3);
-  transform: translateZ(0);
-  contain: layout style;
-  isolation: isolate;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .top-bar__left {
@@ -802,31 +482,10 @@
   min-width: 40px;
 }
 
-.top-bar__back {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: 0;
-  color: var(--yp-text-body);
-  border-radius: var(--yp-radius-sm);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    background var(--yp-t-fast),
-    color var(--yp-t-normal),
-    transform var(--yp-t-fast);
-}
-
 .top-bar__back:hover {
   background: color-mix(in srgb, var(--yp-top-accent) 10%, transparent);
   color: var(--yp-top-accent);
   transform: scale(1.06);
-}
-
-.top-bar__back:active {
-  transform: scale(0.94);
 }
 
 .top-bar__title {
@@ -896,228 +555,11 @@
   transform: scale(1.06);
 }
 
-.top-bar__avatar:active {
-  transform: scale(0.94);
-}
-
-/* ── FAB ── v3.9.2: แยก "แสดง/ซ่อน" (มี animation) จาก "ปิด/เปิด" (ไม่มี animation)
-   ★ "แสดง/ซ่อน" (scroll-based) — มี animation ทั้งขาเข้าและขาออก
-     - .fab default = แสดง (scale 1, opacity 1)
-     - .fab.is-hidden-by-scroll = ซ่อน (scale 0.6, opacity 0) — animate
-   ★ "ปิด/เปิด" (programmatic, body.yp-window-open) — ไม่มี animation
-     - ปิด/เปิดทันที (transition-duration: 0s) — ดูที่กฎ body.yp-window-open .fab ด้านล่าง */
-.fab {
-  position: fixed;
-  right: calc(var(--yp-page-pad-x) + var(--yp-safe-right));
-  bottom: var(--yp-fab-bottom);
-  width: var(--yp-fab-size);
-  height: var(--yp-fab-size);
-  border-radius: var(--yp-radius-md);
-  background: var(--yp-gradient-brand-flat);
-  color: white;
-  display: grid;
-  place-items: center;
-  box-shadow:
-    0 6px 16px rgba(79, 70, 229, 0.22),
-    0 2px 6px rgba(15, 23, 42, 0.10);
-  z-index: var(--yp-z-fab);
-  /* ★ v3.9.2: transition รวม transform + opacity + box-shadow
-     - ใช้สำหรับ "แสดง/ซ่อน" (scroll) และ hover/active
-     - "ปิด/เปิด" (body.yp-window-open) จะ override เป็น 0s ทันที */
-  transition:
-    transform 260ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 220ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  contain: layout style;
-  transform: translate3d(0, 0, 0) scale(1);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  opacity: 1;
-}
-
-/* ★ v3.9.3: ยกเลิก hover บน FAB ปุ่ม "+ สร้างงาน"
-   ตาม feedback ผู้ใช้ — hover effect (lift + scale + shadow expand)
-   ไม่จำเป็น และทำให้ FAB "เด้ง" จนดูไม่เป็นธรรมชาติ
-   เก็บไว้แค่ active (press) state ซึ่งให้ feedback ตอนกดจริง */
-.fab:hover {
-  /* intentionally no-op — v3.9.3 */
-  transform: translate3d(0, 0, 0) scale(1);
-  box-shadow:
-    0 6px 16px rgba(79, 70, 229, 0.22),
-    0 2px 6px rgba(15, 23, 42, 0.10);
-}
-
-/* Active (press) — gentle squish, faster easing for tactile feel */
-.fab:active {
-  transform: translate3d(0, 0, 0) scale(0.90);
-  box-shadow:
-    0 2px 6px rgba(79, 70, 229, 0.14),
-    0 1px 2px rgba(15, 23, 42, 0.06);
-  transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ★ v3.9.2: "แสดง/ซ่อน" (scroll-based) — มี animation
-   - scale(0.6) + opacity 0 → ย่อและจางหาย (ขาออก)
-   - เมื่อ class ถูกลบ → ขยายและจางเข้า (ขาเข้า) อัตโนมัติผ่าน transition ด้านบน
-   - pointer-events: none กัน ghost click ตอนซ่อนอยู่ */
-.fab.is-hidden-by-scroll {
-  transform: translate3d(0, 0, 0) scale(0.6);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Reduced motion: keep transitions minimal */
-@media (prefers-reduced-motion: reduce) {
-  .fab,
-  .fab:hover,
-  .fab:active,
-  .fab.is-hidden-by-scroll {
-    transition-duration: 0.01ms !important;
-    transform: scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-}
-
-.fab svg {
-  width: 22px; height: 22px;
-}
-
-/* ── BOTTOM NAV (mobile) ── */
-.bottom-nav,
-.bottom-nav * { box-sizing: border-box; }
-
-.bottom-nav {
-  position: fixed;
-  inset: auto var(--yp-space-3) calc(var(--yp-safe-bottom) + var(--yp-space-3)) var(--yp-space-3);
-  z-index: var(--yp-z-nav);
-  -webkit-tap-highlight-color: transparent;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
-  box-shadow: 0 -2px 16px rgba(30, 27, 70, 0.08);
-  border-radius: var(--yp-radius-lg);
-  border: 1px solid var(--yp-border-subtle);
-  contain: layout paint style;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition:
-    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
-    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
-}
 
 .bottom-nav.is-hidden {
   display: none !important;
 }
 
-/* v3.1.0: "ปิด" bottom-nav + FAB เมื่อ window เปิดอยู่
-   ★ v3.9.2: เปลี่ยนคำศัพท์ — นี่คือ "ปิด/เปิด" (programmatic) ไม่ใช่ "แสดง/ซ่อน"
-     - "ปิด/เปิด" = ไม่มี animation ทั้งขาเข้าและขาออก ทันทีทันใด
-     - แยกจาก "แสดง/ซ่อน" (scroll-based) ที่มี animation
-   ★ v3.7.13: ไม่ซ่อน top-bar แล้ว — ให้ top-bar ยังคงอยู่เสมอ
-   - yp-window-open = มี window อย่างน้อย 1 ตัวเปิดอยู่ (ทุก type)
-   - yp-window-open--sheet = มี sheet/fullscreen (ต้องปิด nav แบบเต็ม)
-   - modal/sidepanel ใน desktop อาจไม่ต้องปิด nav (แต่เราปิดเพื่อ focus) */
-body.yp-window-open .bottom-nav,
-body.yp-window-open .fab {
-  transform: translateY(150%);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  /* ★ v3.9.2: ไม่มี animation — "ปิด/เปิด" ทันที
-     transition-duration: 0s ทั้งขาเข้าและขาออก
-     กันความสับสนกับ "แสดง/ซ่อน" (scroll) ที่มี animation */
-  transition-duration: 0s !important;
-}
-
-/* ★ v3.7.13: top-bar ยังคงอยู่เสมอ — ไม่ปิดเมื่อ sheet เปิด */
-
-/* keep backward compat — old body class also works */
-body.yp-sheet-open .bottom-nav,
-body.yp-sheet-open .fab {
-  transform: translateY(150%);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  /* ★ v3.9.2: ไม่มี animation — "ปิด/เปิด" ทันที */
-  transition-duration: 0s !important;
-}
-
-.bottom-nav__item {
-  background: none;
-  border: 0;
-  padding: 4px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  border-radius: var(--yp-radius-md);
-  cursor: pointer;
-  user-select: none;
-  text-decoration: none;
-  transition: color var(--yp-t-fast), background var(--yp-t-fast);
-  min-width: 56px;
-  color: var(--yp-text-secondary);
-}
-
-.bottom-nav__icon {
-  position: relative;
-  width: 56px;
-  height: 42px;
-  border-radius: var(--yp-radius-pill);
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  transition: transform var(--yp-t-fast);
-}
-
-.bottom-nav__icon::before {
-  content: '';
-  position: absolute;
-  inset: 4px 8px;
-  background: rgba(99, 102, 241, 0.10);
-  border: 1px solid rgba(99, 102, 241, 0.30);
-  box-shadow: inset 0 0 6px 0 rgba(99, 102, 241, 0.20);
-  border-radius: inherit;
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity;
-  transition: opacity var(--yp-t-fast);
-}
-
-.bottom-nav__label {
-  font-size: 11.5px;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  color: var(--yp-text-secondary);
-  transition: color var(--yp-t-fast);
-}
-
-.bottom-nav__item:hover { color: var(--yp-indigo-500); }
-
-.bottom-nav__item.is-active {
-  color: var(--yp-indigo-600);
-}
-
-.bottom-nav__item.is-active .bottom-nav__icon::before {
-  opacity: 1;
-}
-
-.bottom-nav__item.is-active .bottom-nav__label {
-  color: var(--yp-indigo-500);
-  letter-spacing: 0.02em;
-  font-weight: var(--yp-fw-semibold);
-}
 
 /* ── DESKTOP: bottom-nav → left-rail (≥900px) ── */
 /* ★ v3.5.0: ปรับปรุง desktop left-rail
@@ -1290,22 +732,6 @@ body.yp-sheet-open .fab {
 
 /* ── FIELD WRAPPER ── */
 .field { display: block; }
-.field + .field { margin-top: var(--yp-field-gap); }
-
-/* ★ v3.7.3: field variant สำหรับ form sections — มี gap มากขึ้น */
-.yp-form-modal__section > .field:first-child {
-  margin-top: 0;
-}
-
-/* ── LABEL ── */
-.field__label {
-  display: block;
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-heading);
-  margin-bottom: var(--yp-field-label-gap);
-  letter-spacing: 0.025em;
-}
 
 /* ★ v3.7.3: label variant ที่มี inline hint (เช่น "· กำลังโหลด...") */
 .field__label-hint {
@@ -1313,12 +739,6 @@ body.yp-sheet-open .fab {
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
-}
-
-/* ★ v3.7.3: required asterisk */
-.yp-required {
-  color: #BE123C;
-  margin-left: 2px;
 }
 
 /* ── HINT (ใต้ input) ── */
@@ -1340,13 +760,6 @@ body.yp-sheet-open .fab {
 }
 
 .field.has-error .field__error { display: block; }
-
-.field.has-error .yp-input,
-.field.has-error .yp-textarea,
-.field.has-error .yp-select {
-  border-color: rgba(244, 63, 94, 0.5);
-  background: rgba(244, 63, 94, 0.04);
-}
 
 /* ── INPUT / TEXTAREA / SELECT — unified ── */
 .yp-input, .yp-textarea, .yp-select {
@@ -1388,13 +801,13 @@ body.yp-sheet-open .fab {
   border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
 }
 
-/* ★ Error state — rose tint ที่สอดคล้องกับ login */
 .field.has-error .yp-input,
 .field.has-error .yp-textarea,
 .field.has-error .yp-select {
   border-color: rgba(244, 63, 94, 0.5);
   background: rgba(244, 63, 94, 0.04);
 }
+
 
 .field.has-error .yp-input:focus,
 .field.has-error .yp-textarea:focus,
@@ -1433,28 +846,9 @@ body.yp-sheet-open .fab {
   line-height: 1.4;
 }
 
-.input-group {
-  display: flex;
-  align-items: stretch;
-  border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-control);
-  background: var(--yp-bg-card);
-  overflow: hidden;
-  /* ★ v3.6.0: transition ที่ลื่นไหลขึ้น */
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* ★ v3.6.0: Hover state สำหรับ input-group */
 .input-group:hover:not(:focus-within) {
   border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
-}
-
-.input-group:focus-within {
-  border-color: var(--yp-indigo-500);
-  box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.14),
-    0 1px 2px rgba(99, 102, 241, 0.06);
 }
 
 .input-group__addon {
@@ -1475,8 +869,6 @@ body.yp-sheet-open .fab {
   min-height: 48px;
 }
 
-.input-group .yp-input:focus { box-shadow: none; }
-
 .field.has-error .input-group {
   border-color: rgba(244, 63, 94, 0.5);
 }
@@ -1485,59 +877,11 @@ body.yp-sheet-open .fab {
   background: rgba(244, 63, 94, 0.04);
 }
 
-/* ── BUTTONS ── */
-.yp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5em;
-  font-family: inherit;
-  font-weight: var(--yp-fw-bold);
-  font-size: var(--yp-text-sm);
-  line-height: 1;
-  padding: 1em 1.75em;
-  border-radius: var(--yp-radius-control);
-  background: linear-gradient(to right, #EEF2FF 0%, #F5F0FF 100%);
-  color: var(--yp-indigo-600);
-  border: 1px solid var(--yp-indigo-200);
-  box-shadow: none;
-  cursor: pointer;
-  user-select: none;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  position: relative;
-  transition: background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
-  -webkit-tap-highlight-color: transparent;
-  text-decoration: none;
-  min-height: 48px;
-}
-
 .yp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.yp-btn:active:not(:disabled) { transform: scale(0.98); }
-
-.yp-btn--primary {
-  background: var(--yp-gradient-btn);
-  color: white;
-  border: 1px solid transparent;
-  font-weight: var(--yp-fw-extrabold);
-  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.20);
-}
 
 .yp-btn--primary:hover:not(:disabled) {
   background: linear-gradient(to right, #5450E8 0%, #8B5CF6 100%);
   box-shadow: 0 4px 16px rgba(79, 70, 229, 0.28);
-}
-
-.yp-btn--ghost {
-  background: transparent;
-  color: var(--yp-text-body);
-  border: 1px solid transparent;
-  box-shadow: none;
 }
 
 .yp-btn--ghost:hover:not(:disabled) {
@@ -1548,12 +892,6 @@ body.yp-sheet-open .fab {
 .yp-btn--block {
   width: 100%;
   display: flex;
-}
-
-.yp-btn--lg {
-  padding: 1.1em 1.75em;
-  font-size: var(--yp-text-base);
-  min-height: 54px;
 }
 
 .yp-btn svg {
@@ -1895,11 +1233,11 @@ body.yp-sheet-open .fab {
   flex-wrap: wrap;
 }
 
-/* ── Required mark ── */
 .yp-required {
   color: #BE123C;
   margin-left: 2px;
 }
+
 
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
@@ -1999,27 +1337,6 @@ body.yp-sheet-open .fab {
 
 .yp-page-header {
   margin-bottom: var(--yp-space-6);
-}
-.yp-page-header__eyebrow {
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-extrabold);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--yp-indigo-600);
-  margin-bottom: 6px;
-}
-.yp-page-header__title {
-  font-size: var(--yp-h1-size);
-  font-weight: var(--yp-fw-extrabold);
-  color: var(--yp-text-strong);
-  letter-spacing: 0.005em;
-  line-height: var(--yp-leading-tight);
-}
-.yp-page-header__subtitle {
-  margin-top: 6px;
-  color: var(--yp-text-muted);
-  font-size: var(--yp-text-sm);
-  line-height: 1.5;
 }
 
 /* ── Event card sub-parts (uses .yp-event-card from above) ── */
@@ -2335,35 +1652,6 @@ body.yp-sheet-open .fab {
   .yp-stat-grid { grid-template-columns: repeat(4, 1fr); gap: var(--yp-space-4); }
 }
 
-/* ★ v3.7.10: Chubby stat card — centered, rounded, proportional (not stretched)
-   ★ v3.9.3: Premium polish — accent-tinted with frosted icon */
-.yp-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 8px;
-  padding: var(--yp-space-4) var(--yp-space-3);
-  /* ★ v3.9.3: Layered bg — accent wash + base */
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, transparent) 0%, transparent 55%),
-    var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
-  position: relative;
-  overflow: hidden;
-  animation: yp-card-in-v3710 300ms cubic-bezier(0.2, 0, 0, 1) both;
-  transition:
-    transform 200ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 200ms cubic-bezier(0.2, 0, 0, 1);
-  min-height: 110px;
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03);
-}
-
 .yp-stat::before {
   content: '';
   position: absolute;
@@ -2578,38 +1866,6 @@ body.yp-sheet-open .fab {
 .yp-list-item__chip {
   align-self: center;
   flex-shrink: 0;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   v3.7.9 — Premium Card Design (minimalist + depth + smooth)
-   ★ v3.9.3: Premium polish — subtle surface texture, more rounded
-   ═══════════════════════════════════════════════════════════════
-   ★ Design principles:
-   - Minimalist: subtle border, clean background, no clutter
-   - Depth: multi-layer shadow ที่ดูมีมิติ (ไม่แบน)
-   - Smooth: transition ที่ลื่นไหล ไม่กระตุก
-   - Premium: hover lift + shadow expand + subtle glow
-   - v3.9.3: Subtle gradient texture + inset highlight (Apple style)
-   ═══════════════════════════════════════════════════════════════ */
-.yp-card {
-  /* ★ v3.9.3: Layered background — subtle vertical gradient + base color
-     ทำให้การ์ดมี depth แบบ "premium paper" ไม่ใช่แบน ๆ */
-  background:
-    linear-gradient(180deg, var(--yp-bg-card) 0%, var(--yp-bg-card-soft) 100%);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
-  padding: var(--yp-card-pad-lg);
-  /* ★ v3.9.3: Deeper layered shadow + inset highlight */
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  transition:
-    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 280ms cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  will-change: transform, box-shadow;
 }
 
 /* ★ v3.7.9: Hover state — subtle lift + shadow expand + border glow */
@@ -2940,7 +2196,7 @@ body.yp-sheet-open .fab {
 
 /* ── Today dot color override ── */
 .yp-cal-day-v2.is-today .yp-cal-day-v2__dot {
-  background: white !important;
+  background: white;
   opacity: 0.9;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
 }
@@ -3279,34 +2535,10 @@ body.yp-sheet-open .fab {
   overscroll-behavior-x: contain;
 }
 .yp-events-filter::-webkit-scrollbar { display: none; }
-
-.yp-events-filter__btn {
-  flex-shrink: 0;
-  padding: 8px 16px;
-  border-radius: var(--yp-radius-pill);
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  color: var(--yp-text-secondary);
-  font-size: var(--yp-text-sm);
-  font-family: inherit;
-  font-weight: var(--yp-fw-semibold);
-  letter-spacing: 0.005em;
-  box-shadow: var(--yp-shadow-xs);
-  transition: background var(--yp-t-fast), border-color var(--yp-t-fast), color var(--yp-t-fast);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
 .yp-events-filter__btn:hover {
   background: var(--yp-bg-card-soft);
   border-color: var(--yp-border-indigo);
   color: var(--yp-indigo-600);
-}
-.yp-events-filter__btn.is-active {
-  background: var(--yp-gradient-brand-flat);
-  border-color: transparent;
-  color: white;
-  box-shadow: var(--yp-shadow-indigo);
-  font-weight: var(--yp-fw-bold);
 }
 
 .yp-events-group {
@@ -3462,18 +2694,6 @@ body.yp-sheet-open .fab {
 .yp-detail-section {
   margin-bottom: var(--yp-space-8);
   animation: yp-hero-enter var(--yp-card-enter) var(--yp-ease-emphasized-decel) both;
-}
-
-.yp-detail-section__title {
-  font-size: var(--yp-h3-size);
-  font-weight: var(--yp-fw-bold);
-  color: color-mix(in srgb, var(--accent, var(--yp-text-heading)) 30%, var(--yp-text-heading));
-  margin-bottom: var(--yp-space-4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--yp-space-3);
-  letter-spacing: 0.005em;
 }
 
 .yp-detail-section__count {
@@ -4082,28 +3302,6 @@ body.yp-sheet-open .fab {
   color: var(--yp-text-faint);
   flex-shrink: 0;
 }
-
-/* Task row — ★ v3.10.0: การ์ดของตัวเอง (เหมือน container layout ของ
-   yp-event-card ในรายการวันนี้/กำลังจะถึง) แทนที่จะเป็นแถวคั่นเส้นแบ่ง
-   ในการ์ดเดียวกัน — เนื้อหาภายในแถว (ไอคอน/ชื่อ/ป้ายสถานะ ฯลฯ) ไม่เปลี่ยน */
-.yp-task-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--yp-space-3);
-  padding: var(--yp-space-5) var(--yp-space-4);
-  cursor: pointer;
-  transition:
-    background 160ms var(--yp-ease-m3-decelerate),
-    border-color var(--yp-t-fast),
-    box-shadow var(--yp-t-fast),
-    transform 160ms var(--yp-ease-m3-decelerate);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
-  background: var(--yp-bg-card);
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03);
-}
 .yp-task-row + .yp-task-row { margin-top: var(--yp-space-4); }
 .yp-task-row:hover {
   background: var(--yp-bg-card-soft);
@@ -4372,15 +3570,15 @@ body.yp-sheet-open .fab {
   margin-bottom: var(--yp-space-3);
 }
 
-/* ★ v3.6.0: เพิ่ม spacing ระหว่าง fields — จาก space-5 → space-5 (คงไว้ แต่ปรับใน .field) */
 .field + .field {
   margin-top: var(--yp-space-5);
 }
 
-/* ★ v3.6.0: เพิ่ม breathing room สำหรับ field แรกใน section */
+
 .yp-form-modal__section > .field:first-child {
   margin-top: 0;
 }
+
 
 /* ═══════════════════════════════════════════════════════════════
    v3.7.8 — yp-form-card: Card wrapper สำหรับ full-page forms
@@ -4410,21 +3608,6 @@ body.yp-sheet-open .fab {
   margin-bottom: var(--yp-space-5);
   padding-bottom: var(--yp-space-4);
   border-bottom: 1px solid var(--yp-border-subtle);
-}
-
-.yp-form-card__title {
-  font-size: var(--yp-text-lg);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-strong);
-  margin: 0 0 var(--yp-space-1);
-  letter-spacing: -0.01em;
-}
-
-.yp-form-card__subtitle {
-  font-size: var(--yp-text-sm);
-  color: var(--yp-text-muted);
-  margin: 0;
-  line-height: 1.5;
 }
 
 /* ★ yp-form-card actions — สำหรับปุ่มด้านล่าง */
@@ -4463,7 +3646,6 @@ body.yp-sheet-open .fab {
   gap: 6px;
 }
 
-/* ★ v3.6.0: ปรับ label ให้สบายตาขึ้น */
 .field__label {
   display: block;
   font-size: var(--yp-text-sm);
@@ -4473,25 +3655,11 @@ body.yp-sheet-open .fab {
   letter-spacing: 0.025em;
 }
 
+
 .yp-type-picker {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-}
-
-.yp-type-option {
-  border: 1.5px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-md);
-  padding: var(--yp-space-4);
-  cursor: pointer;
-  transition: border-color var(--yp-t-fast), background var(--yp-t-fast), box-shadow var(--yp-t-fast), transform var(--yp-t-fast);
-  text-align: left;
-  background: var(--yp-bg-card);
-  box-shadow: var(--yp-shadow-xs);
-  font-family: inherit;
-}
-.yp-type-option:hover {
-  border-color: var(--yp-border-indigo);
 }
 .yp-type-option.is-selected {
   border: 2px solid var(--yp-indigo-500);
@@ -4537,16 +3705,6 @@ body.yp-sheet-open .fab {
   flex-wrap: wrap;
   justify-content: space-between;
 }
-
-.yp-color-option {
-  width: 30px; height: 30px;
-  border-radius: var(--yp-radius-pill);
-  border: 2px solid white;
-  box-shadow: 0 0 0 1.5px var(--yp-border-subtle);
-  cursor: pointer;
-  transition: transform var(--yp-t-fast), box-shadow var(--yp-t-fast);
-}
-.yp-color-option:hover { transform: scale(1.12); }
 .yp-color-option.is-selected {
   box-shadow: 0 0 0 2.5px var(--yp-indigo-500);
 }
@@ -4622,11 +3780,6 @@ body.yp-sheet-open .fab {
 .yp-priority-option.is-selected {
   border: 2px solid var(--yp-indigo-500);
 }
-.yp-priority-option__dot {
-  width: 14px; height: 14px;
-  border-radius: var(--yp-radius-pill);
-  margin-bottom: 2px;
-}
 .yp-priority-option__dot.is-low    { background: #10B981; }
 .yp-priority-option__dot.is-medium { background: #6366F1; }
 .yp-priority-option__dot.is-high   { background: #F43F5E; }
@@ -4690,16 +3843,6 @@ body.yp-sheet-open .fab {
 }
 .yp-confirm-body__text strong {
   color: var(--yp-text-strong);
-}
-
-/* v1.5: btn-danger — ปุ่ม danger สำหรับ confirm delete */
-.yp-btn--danger {
-  background: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
-  color: white;
-  border: 1px solid #BE123C;
-}
-.yp-btn--danger:hover {
-  background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);
 }
 
 .yp-form-actions {
@@ -5023,7 +4166,7 @@ body.yp-sheet-open .fab {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--yp-space-2) var(--yp-space-3) !important;
+  padding: var(--yp-space-2) var(--yp-space-3);
 }
 
 .yp-profile-action {
@@ -5415,64 +4558,6 @@ body.yp-sheet-open .fab {
 }
 
 /* ── Reduced motion ── */
-@media (prefers-reduced-motion: reduce) {
-  .sheet-backdrop {
-    transition: opacity 100ms, visibility 100ms;
-  }
-  .sheet {
-    transition: transform 100ms;
-  }
-  .sheet.is-animating,
-  .sheet.is-closing {
-    transition: transform 100ms;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   WINDOW FRAMEWORK (v3.1.0 — unified popup framework)
-   ═══════════════════════════════════════════════════════════════
-   รองรับ 4 ประเภท: sheet / modal / fullscreen / sidepanel
-   รองรับ nested popups (auto z-index ผ่าน Window Stack Manager)
-   Auto-hide bottom-nav/FAB (ผ่าน body.yp-window-open)
-
-   Class structure:
-   .yp-window-root          → backdrop + centering container
-   .yp-window-root--{type}  → type-specific (sheet/modal/fullscreen/sidepanel)
-   .yp-window               → window content
-   .yp-window--{type}
-   .yp-window__handle       → grip handle (sheet เท่านั้น)
-   .yp-window__header       → title + close
-   .yp-window__title / __desc / __close
-   .yp-window__body         → scrollable content
-   .yp-window__footer       → sticky footer (optional)
-
-   State classes: is-open, is-closing, is-dragging, is-animating,
-                  is-scroll-locked, is-popup-mode, is-bare, has-footer
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── ROOT: backdrop + centering ── */
-.yp-window-root {
-  position: fixed;
-  inset: 0;
-  z-index: var(--yp-window-z, 18000);
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  background: rgba(30, 27, 70, 0.55);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 240ms cubic-bezier(0.32, 0.72, 0, 1),
-    visibility 240ms;
-  /* default: align bottom (sheet mode) */
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
-  overscroll-behavior: contain;
-  /* NOTE: ไม่ใส่ contain: paint เพราะทำให้ drag กระตุก */
-}
 
 .yp-window-root.is-open {
   opacity: 1;
@@ -5485,15 +4570,6 @@ body.yp-sheet-open .fab {
 .yp-window-root--fullscreen,
 .yp-window-root--sidepanel {
   background: rgba(15, 23, 42, 0.55);
-}
-
-/* modal — darker, more blur */
-.yp-window-root--modal {
-  background: rgba(15, 10, 40, 0.6);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  align-items: center;
-  padding: var(--yp-space-6, 24px);
 }
 
 /* sidepanel — align by side */
@@ -5526,26 +4602,6 @@ body.yp-sheet-open .fab {
   backface-visibility: hidden;
 }
 
-/* ── SHEET (default) ── */
-/* ★ v3.7.9: Premium sheet — spring easing + deeper shadow + subtle blur */
-.yp-window--sheet {
-  width: 100%;
-  max-width: 560px;
-  max-height: 92vh;
-  max-height: 92dvh;
-  border-radius: var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0 0;
-  transform: translate3d(0, 100%, 0);
-  /* ★ v3.7.9: Spring-like easing ที่ดู premium (overshoot เล็กน้อย) */
-  transition: transform 380ms cubic-bezier(0.16, 1.2, 0.3, 1);
-  /* ★ v3.7.9: Deeper layered shadow ที่ดูมีมิติ */
-  box-shadow:
-    0 -8px 32px rgba(15, 23, 42, 0.18),
-    0 -16px 48px rgba(15, 23, 42, 0.08),
-    0 -1px 0 rgba(255, 255, 255, 0.6) inset;
-  padding: 16px var(--yp-space-5, 20px)
-           calc(24px + var(--yp-safe-bottom, 0px));
-}
-
 .yp-window--sheet.has-footer {
   padding-bottom: 0;
 }
@@ -5557,60 +4613,21 @@ body.yp-sheet-open .fab {
 
 /* DRAG STATE */
 .yp-window--sheet.is-dragging {
-  transition: none !important;
+  transition: none;
   touch-action: none;
   will-change: transform;
 }
 
 /* SNAP-BACK SPRING (after drag) */
 .yp-window--sheet.is-animating {
-  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
   will-change: transform;
-}
-
-/* CLOSING STATE — แก้ปัญหา "backdrop close ไม่มี animation" */
-/* ★ v3.5.0: ลด duration จาก 320ms → 280ms + ใช้ ease-in แทน ease-out
-     เพื่อให้ sheet เลื่อนลงเร็วขึ้นและดู responsive มากขึ้น */
-.yp-window--sheet.is-closing {
-  transition: transform 280ms cubic-bezier(0.4, 0, 1, 1) !important;
-  will-change: transform;
-}
-
-/* ── MODAL (centered dialog) ── */
-/* ★ v3.7.9: Premium modal — spring scale + layered shadow */
-.yp-window--modal {
-  width: 100%;
-  max-width: 480px;
-  max-height: 88vh;
-  max-height: 88dvh;
-  border-radius: var(--yp-radius-lg, 28px);
-  transform: translate3d(0, 24px, 0) scale(0.94);
-  opacity: 0;
-  /* ★ v3.7.9: Spring-like easing สำหรับ premium feel */
-  transition:
-    transform 340ms cubic-bezier(0.16, 1.2, 0.3, 1),
-    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1);
-  /* ★ v3.7.9: Deeper layered shadow */
-  box-shadow:
-    0 24px 64px rgba(15, 23, 42, 0.28),
-    0 8px 24px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(99, 102, 241, 0.06);
-  padding: 20px var(--yp-space-5, 20px)
-           calc(20px + var(--yp-safe-bottom, 0px));
 }
 
 .yp-window--modal.is-open {
   transform: translate3d(0, 0, 0) scale(1);
   opacity: 1;
   will-change: transform, opacity;
-}
-
-.yp-window--modal.is-closing {
-  transform: translate3d(0, 24px, 0) scale(0.94);
-  opacity: 0;
-  transition:
-    transform 280ms cubic-bezier(0.4, 0, 1, 1),
-    opacity 220ms cubic-bezier(0.4, 0, 1, 1);
 }
 
 /* ── FULLSCREEN (เหมือนเปิดหน้าใหม่ — lightweight) ── */
@@ -5633,7 +4650,7 @@ body.yp-sheet-open .fab {
 }
 
 .yp-window--fullscreen.is-closing {
-  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1) !important;
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .yp-window--fullscreen.is-bare {
@@ -5668,7 +4685,7 @@ body.yp-sheet-open .fab {
 }
 
 .yp-window--sidepanel.is-closing {
-  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1) !important;
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ── SIZE VARIANTS (apply per type) ── */
@@ -5698,22 +4715,6 @@ body.yp-sheet-open .fab {
   justify-content: center;
   cursor: grab;
   -webkit-tap-highlight-color: transparent;
-}
-.yp-window__handle::before {
-  content: '';
-  display: block;
-  width: 38px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--yp-border-strong, #cbd5e1);
-  opacity: 0.32;
-  transition: transform 180ms cubic-bezier(0.32, 0.72, 0, 1),
-              opacity 180ms ease;
-  transform-origin: center;
-}
-.yp-window__handle:active::before {
-  transform: scaleX(0.94);
-  opacity: 0.5;
 }
 
 /* ── HEADER ── */
@@ -5779,10 +4780,6 @@ body.yp-sheet-open .fab {
   background: var(--yp-bg-indigo-soft, #eef2ff);
   color: var(--yp-indigo-600, #4f46e5);
   border-color: var(--yp-border-indigo, #c7d2fe);
-}
-
-.yp-window__close:active {
-  transform: scale(0.94);
 }
 
 .yp-window__close svg {
@@ -5959,22 +4956,6 @@ body.yp-sheet-open .fab {
 }
 
 /* ── Reduced motion ── */
-@media (prefers-reduced-motion: reduce) {
-  .yp-window-root {
-    transition: opacity 100ms, visibility 100ms;
-  }
-  .yp-window,
-  .yp-window--sheet,
-  .yp-window--modal,
-  .yp-window--fullscreen,
-  .yp-window--sidepanel {
-    transition: transform 100ms, opacity 100ms;
-  }
-  .yp-window--sheet.is-animating,
-  .yp-window--sheet.is-closing {
-    transition: transform 100ms !important;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · CONFIRM DIALOG (v1.4 — ใช้กับ logout, delete, etc.)
@@ -6090,61 +5071,6 @@ body.yp-sheet-open .fab {
   100% { background-position: -200% 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .yp-skeleton {
-    animation: none;
-    background: var(--yp-bg-card-soft, #F1F5F9);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════ */
-/* v2.0.0 — InfoButton + Page Transitions + Tutorial UI              */
-/* ═══════════════════════════════════════════════════════════════ */
-
-/* ── InfoButton: small circular (i) button ── */
-.yp-info-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  color: var(--yp-indigo-600, #4F46E5);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  vertical-align: middle;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
-  line-height: 0;
-}
-
-.yp-info-btn:hover,
-.yp-info-btn:focus-visible {
-  background: rgba(99, 102, 241, 0.18);
-  border-color: rgba(99, 102, 241, 0.45);
-  transform: scale(1.08);
-  outline: none;
-}
-
-.yp-info-btn:active {
-  transform: scale(0.96);
-}
-
-/* On dark auth backgrounds (login/register/pending) — invert colors */
-.yp-auth .yp-info-btn,
-.yp-auth__hero .yp-info-btn {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #FFFFFF;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.yp-auth .yp-info-btn:hover,
-.yp-auth__hero .yp-info-btn:hover {
-  background: rgba(255, 255, 255, 0.32);
-  border-color: rgba(255, 255, 255, 0.55);
-}
 
 /* ═══════════════════════════════════════════════════════════════ */
 /* v2.1.0 — InfoSheet (mobile-app style bottom sheet for docs)        */
@@ -6172,68 +5098,12 @@ body.yp-sheet-open .fab {
   animation: yp-info-fade-out 0.2s ease-out forwards;
 }
 
-.yp-info-sheet {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  max-height: 92vh;
-  background: var(--yp-bg-surface, #FFFFFF);
-  border-radius: var(--yp-radius-sm) var(--yp-radius-sm) 0 0;   /* v3.9.3: 20px → token (more rounded) */
-  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.22);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: yp-info-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  /* safe-area รองรับ iPhone notch / home indicator */
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
 .yp-info-sheet.is-leaving {
   animation: yp-info-slide-down 0.22s ease-in forwards;
 }
 
-.yp-info-sheet__grip {
-  flex-shrink: 0;
-  width: 36px;
-  height: 4px;
-  border-radius: 9999px;
-  background: rgba(148, 163, 184, 0.45);
-  margin: 8px auto 4px;
-}
-
-.yp-info-sheet__close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(148, 163, 184, 0.15);
-  color: var(--yp-text-muted, #64748B);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
-  z-index: 2;
-}
-
-.yp-info-sheet__close:hover {
-  background: rgba(148, 163, 184, 0.28);
-  color: var(--yp-text-heading, #1E293B);
-}
-
 .yp-info-sheet__close:active {
   transform: scale(0.92);
-}
-
-.yp-info-sheet__scroll {
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* v3.1.0: yp-info-sheet__inner ใช้ใน Window Framework — Window จัด padding แล้ว
@@ -6244,54 +5114,9 @@ body.yp-sheet-open .fab {
   padding: 0 0 28px;
 }
 
-/* Header inside sheet */
-.yp-info-sheet__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 8px 36px 16px 0;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-  margin-bottom: 16px;
-}
-
-.yp-info-sheet__header-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(124, 58, 237, 0.14));
-  color: var(--yp-indigo-600, #4F46E5);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .yp-info-sheet__header-text {
   flex: 1;
   min-width: 0;
-}
-
-.yp-info-sheet__title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--yp-text-heading, #1E293B);
-  line-height: 1.3;
-}
-
-.yp-info-sheet__subtitle {
-  margin: 4px 0 0;
-  font-size: 0.86rem;
-  color: var(--yp-text-muted, #64748B);
-  line-height: 1.45;
-}
-
-/* Body text */
-.yp-info-sheet__inner p {
-  margin: 0 0 12px;
-  font-size: 0.94rem;
-  line-height: 1.65;
-  color: var(--yp-text-body, #334155);
 }
 
 .yp-info-sheet__inner p:last-child {
@@ -6322,15 +5147,6 @@ body.yp-sheet-open .fab {
   margin-bottom: 4px;
 }
 
-.yp-info-sheet__inner code {
-  font-family: 'Sarasa Mono SC', 'JetBrains Mono', ui-monospace, monospace;
-  background: rgba(99, 102, 241, 0.08);
-  color: var(--yp-indigo-600, #4F46E5);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.88em;
-}
-
 .yp-info-sheet__inner img {
   max-width: 100%;
   height: auto;
@@ -6338,96 +5154,16 @@ body.yp-sheet-open .fab {
   margin: 8px 0;
 }
 
-/* Section title inside sheet */
-.yp-info-sheet__section-title {
-  margin: 18px 0 8px;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--yp-indigo-600, #4F46E5);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-}
-
 .yp-info-sheet__section-title:first-child {
   margin-top: 0;
-}
-
-/* Example box */
-.yp-info-sheet__example {
-  margin: 12px 0;
-  border-radius: 12px;
-  background: rgba(99, 102, 241, 0.05);
-  border: 1px solid rgba(99, 102, 241, 0.14);
-  overflow: hidden;
-}
-
-.yp-info-sheet__example-label {
-  padding: 6px 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--yp-indigo-600, #4F46E5);
-  background: rgba(99, 102, 241, 0.10);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.yp-info-sheet__example-body {
-  padding: 10px 12px;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--yp-text-body, #334155);
 }
 
 .yp-info-sheet__example-body p:last-child {
   margin-bottom: 0;
 }
 
-/* Option (เลือกอันนี้แล้วจะเป็นยังไง) */
-.yp-info-sheet__option {
-  margin: 10px 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(241, 245, 249, 0.7);
-  border-left: 3px solid var(--yp-indigo-500, #6366F1);
-}
-
-.yp-info-sheet__option-name {
-  font-size: 0.96rem;
-  font-weight: 700;
-  color: var(--yp-text-heading, #1E293B);
-  margin-bottom: 4px;
-}
-
-.yp-info-sheet__option-body {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--yp-text-body, #334155);
-}
-
 .yp-info-sheet__option-body p:last-child {
   margin-bottom: 0;
-}
-
-/* ═══════════════════════════════════════════════════════════════ */
-/* v3.0.0 — Discussion-style docs helpers                              */
-/* ═══════════════════════════════════════════════════════════════ */
-
-/* InfoPill — small inline tag */
-.yp-info-pill {
-  display: inline-block;
-  padding: 1px 8px;
-  background: rgba(99, 102, 241, 0.10);
-  color: var(--yp-indigo-700, #4338CA);
-  border-radius: 9999px;
-  font-size: 0.82em;
-  font-weight: 600;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  vertical-align: baseline;
-  border: 1px solid rgba(99, 102, 241, 0.18);
-  margin: 0 2px;
 }
 
 /* InfoHighlight — yellow marker highlight */
@@ -6437,16 +5173,6 @@ body.yp-sheet-open .fab {
   padding: 0 2px;
   border-radius: 2px;
   font-weight: 500;
-}
-
-/* InfoCallout — tip / warn / info / danger boxes */
-.yp-info-callout {
-  margin: 12px 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border-left: 3px solid;
-  font-size: 0.9rem;
-  line-height: 1.6;
 }
 
 .yp-info-callout__title {
@@ -6552,23 +5278,6 @@ body.yp-sheet-open .fab {
 
 .yp-info-step:last-child::before {
   display: none;
-}
-
-.yp-info-step__marker {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--yp-indigo-500, #6366F1), var(--yp-violet-600, #7C3AED));
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
 }
 
 .yp-info-step__marker::before {
@@ -6818,15 +5527,6 @@ body.yp-sheet-open .fab {
 }
 
 /* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .yp-info-sheet,
-  .yp-info-sheet-backdrop,
-  .yp-info-sheet.is-leaving,
-  .yp-info-sheet-backdrop.is-leaving {
-    animation-duration: 0.01ms !important;
-    transition: none !important;
-  }
-}
 
 /* ── Page transition: smoother fade-in on route change ── */
 @keyframes yp-page-fade-in {
@@ -7060,10 +5760,6 @@ button[class*='yp-']:focus-visible {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.yp-page-enter {
-  animation: yp-page-fade-in-v3 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 /* Toast — slide in from bottom on mobile (app-like) */
 @keyframes yp-toast-slide-up {
   from { transform: translateY(120%); opacity: 0; }
@@ -7116,16 +5812,6 @@ img,
 }
 
 /* Reduce motion preference — respect user setting */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    v3.4.0 — Native App Micro-Interactions & Polish
@@ -7161,35 +5847,11 @@ img,
   transform: scale(0.97);
 }
 
-/* Card press — lighter scale */
-.yp-card:active {
-  transform: scale(0.99);
-}
-
-/* ★ Native-style focus ring — visible only on keyboard nav */
-.yp-btn:focus-visible,
-.yp-input:focus-visible,
-.yp-select:focus-visible,
-.yp-type-option:focus-visible,
-.yp-color-option:focus-visible,
-.fab:focus-visible,
-.bottom-nav__item:focus-visible,
-.top-bar__back:focus-visible {
-  outline: 2px solid var(--yp-indigo-500);
-  outline-offset: 2px;
-  border-radius: var(--yp-radius-sm);
-}
-
 /* Remove ugly blue outline on mouse click */
 .yp-btn:focus:not(:focus-visible),
 .yp-input:focus:not(:focus-visible),
 .yp-select:focus:not(:focus-visible) {
   outline: none;
-}
-
-/* ★ v3.7.10: Google-style page transition — scale + opacity (no blur, save resources) */
-.yp-page-enter {
-  animation: yp-page-in-v3710 360ms cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 @keyframes yp-page-in-v3710 {
@@ -7203,57 +5865,6 @@ img,
   }
 }
 
-/* v3.4.0 gradient merged into single .yp-skeleton definition above (v3.7.5) */
-
-/* ★ v3.4.0: Native-style button press ripple effect (subtle) */
-.yp-btn--primary {
-  position: relative;
-  overflow: hidden;
-}
-
-.yp-btn--primary::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
-  pointer-events: none;
-}
-
-.yp-btn--primary:active::after {
-  width: 200%;
-  height: 200%;
-  transition: width 0.4s ease, height 0.4s ease;
-}
-
-/* ★ v3.4.0: FAB entrance animation
-   ★ v3.9.2: เปลี่ยน fill-mode เป็น backwards — กัน animation ทับ
-     transition ของ .is-hidden-by-scroll (scroll-based show/hide) */
-.fab {
-  animation: yp-fab-in 320ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-}
-
-@keyframes yp-fab-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.6) rotate(-90deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-/* ★ v3.4.0: Bottom nav slide-in animation */
-.bottom-nav:not(.is-hidden) {
-  animation: yp-bottom-nav-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
 @keyframes yp-bottom-nav-in {
   0% {
     transform: translateY(100%);
@@ -7263,10 +5874,25 @@ img,
   }
 }
 
-/* ★ v3.4.0: Top bar subtle entrance */
 .top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
+  padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
+  background: rgba(245, 244, 251, 0.88);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  box-shadow: 0 1px 0 var(--yp-border-subtle);
+  z-index: var(--yp-z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
   animation: yp-top-bar-in 280ms ease-out both;
 }
+
 
 @keyframes yp-top-bar-in {
   0% {
@@ -7279,11 +5905,6 @@ img,
   }
 }
 
-/* ★ v3.7.10: Google-style card entrance — scale + opacity (no blur) */
-.yp-card {
-  animation: yp-card-in-v3710 300ms cubic-bezier(0.2, 0, 0, 1) both;
-}
-
 @keyframes yp-card-in-v3710 {
   0% {
     opacity: 0;
@@ -7294,16 +5915,6 @@ img,
     transform: scale(1) translateY(0);
   }
 }
-
-/* ★ v3.7.10: Stagger — Google-style 33ms intervals (snappy, not sluggish) */
-.yp-card:nth-child(1) { animation-delay: 0ms; }
-.yp-card:nth-child(2) { animation-delay: 33ms; }
-.yp-card:nth-child(3) { animation-delay: 66ms; }
-.yp-card:nth-child(4) { animation-delay: 99ms; }
-.yp-card:nth-child(5) { animation-delay: 132ms; }
-.yp-card:nth-child(6) { animation-delay: 165ms; }
-.yp-card:nth-child(7) { animation-delay: 198ms; }
-.yp-card:nth-child(8) { animation-delay: 231ms; }
 
 /* ★ v3.4.0: Smooth color transitions on theme elements */
 .yp-events-filter__btn,
@@ -7337,25 +5948,14 @@ img,
   -webkit-touch-callout: none;
 }
 
-/* ★ v3.4.0: Smoother scrolling on iOS Safari */
 .app-main {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: var(--yp-page-bottom-pad);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
 
-/* ★ v3.4.0: Loading bar at top of page during navigation */
-.yp-nav-loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #4F46E5, #7C3AED, #4F46E5);
-  background-size: 200% 100%;
-  animation: yp-nav-loading-shimmer 1s linear infinite;
-  z-index: 10001;
-  pointer-events: none;
-}
 
 @keyframes yp-nav-loading-shimmer {
   0% { background-position: 200% 0; }
@@ -7415,13 +6015,13 @@ img,
 }
 
 /* ★ v3.5.0: Desktop — Top bar improvements
-   ★ v3.10.0 รอบที่ 18: ลบ backdrop-filter/background/box-shadow ที่เคยตั้งไว้
+   ★ v3.10.0 รอบที่ 19: ลบ backdrop-filter/background/box-shadow ที่เคยตั้งไว้
    ในบล็อกนี้ออก (เดิม blur(12px) + opacity 0.85) — เป็นค่าเก่าจาก v3.5.0
    ที่มาก่อนระบบกระจกฝ้าจริงจัง (v3.9.2+) และแอบชนกับค่าล่าสุดที่ .top-bar
    หลักด้านล่างของไฟล์ (เดิม cascade ยังทำงานถูกเพราะ block นั้นมาทีหลัง
    แต่ทิ้งไว้แบบนี้เสี่ยงสับสน/แก้ผิดจุดอีกในอนาคต) — จุดเดียวที่ควรแก้เรื่อง
    ความเบลอ/โปร่งใสของ top-bar ตอนนี้คือ .top-bar กับ .top-bar.is-scrolled
-   ที่มี comment "รอบที่ 18" กำกับไว้เท่านั้น */
+   ที่มี comment "รอบที่ 19" กำกับไว้เท่านั้น */
 @media (min-width: 900px) {
   .top-bar__title {
     font-weight: var(--yp-fw-bold);
@@ -7457,19 +6057,28 @@ img,
   }
 }
 
-/* ★ v3.5.0: Sheet — improved grip handle animation */
 .yp-window__handle::before {
+  content: '';
+  display: block;
+  width: 38px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--yp-border-strong, #cbd5e1);
+  opacity: 0.32;
   transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
               opacity 220ms ease,
               width 220ms cubic-bezier(0.16, 1, 0.3, 1),
               background-color 220ms ease;
+  transform-origin: center;
 }
+
 
 .yp-window__handle:active::before {
   transform: scaleX(0.88);
   opacity: 0.6;
   background: var(--yp-indigo-400, #818CF8);
 }
+
 
 /* ★ v3.5.0: Sheet — subtle top gradient overlay for depth */
 .yp-window--sheet::before {
@@ -7488,12 +6097,14 @@ img,
   z-index: 1;
 }
 
-/* ★ v3.5.0: Modal — subtle entrance with backdrop blur */
 .yp-window-root--modal {
   background: rgba(15, 10, 40, 0.55);
   backdrop-filter: blur(8px) saturate(180%);
   -webkit-backdrop-filter: blur(8px) saturate(180%);
+  align-items: center;
+  padding: var(--yp-space-6, 24px);
 }
+
 
 /* ★ v3.5.0: Sheet backdrop — slightly less dark for better content visibility */
 .yp-window-root--sheet:not(.is-popup-mode) {
@@ -7520,25 +6131,6 @@ img,
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.6.0 — Additional Design Polish
-   ═══════════════════════════════════════════════════════════════
-   - Improved button transitions
-   - Better card shadows
-   - Smoother select dropdown
-   - Improved textarea resize handle
-   ═══════════════════════════════════════════════════════════════ */
-
-/* v3.6.0 transition merged into single .yp-btn definition above (v3.7.5) */
-
-/* ★ v3.6.0: Primary button — subtle gradient + improved shadow */
-.yp-btn--primary {
-  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
-  box-shadow:
-    0 4px 12px rgba(79, 70, 229, 0.24),
-    0 1px 2px rgba(79, 70, 229, 0.12);
-}
-
 .yp-btn--primary:hover {
   background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
   box-shadow:
@@ -7554,13 +6146,6 @@ img,
     0 1px 2px rgba(79, 70, 229, 0.10);
 }
 
-/* ★ v3.6.0: Ghost button — improved hover */
-.yp-btn--ghost {
-  background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-default);
-  color: var(--yp-text-body);
-}
-
 .yp-btn--ghost:hover {
   background: var(--yp-bg-elevated);
   border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
@@ -7572,13 +6157,15 @@ img,
   background: var(--yp-bg-card-soft);
 }
 
-/* ★ v3.6.0: Danger button — gradient + improved shadow */
 .yp-btn--danger {
   background: linear-gradient(135deg, #E11D48 0%, #F43F5E 100%);
+  color: white;
+  border: 1px solid #BE123C;
   box-shadow:
     0 4px 12px rgba(244, 63, 94, 0.24),
     0 1px 2px rgba(244, 63, 94, 0.12);
 }
+
 
 .yp-btn--danger:hover {
   background: linear-gradient(135deg, #BE123C 0%, #E11D48 100%);
@@ -7588,74 +6175,91 @@ img,
   transform: translateY(-1px);
 }
 
+
 .yp-btn--danger:active {
   transform: translateY(0) scale(0.98);
 }
 
-/* v3.6.0 shadow/border merged into single .yp-card definition (v3.7.5) */
-
-/* ★ v3.6.0: Textarea — improved resize handle — ★ v3.7.3: merged above */
-
-/* v3.6.0 arrow color merged into single .yp-select definition above (v3.7.5) */
-
-/* v3.6.0: kept only the transition timing tweak — selected-state visuals now
-   live solely in the single .is-selected rules above (plain outer border / ring),
-   per v3.7.5 "one frame, no stacking" simplification. */
 .yp-color-option {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--yp-radius-pill);
+  border: 2px solid white;
+  box-shadow: 0 0 0 1.5px var(--yp-border-subtle);
+  cursor: pointer;
   transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
 .yp-type-option {
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-md);
+  padding: var(--yp-space-4);
+  cursor: pointer;
   transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  background: var(--yp-bg-card);
+  box-shadow: var(--yp-shadow-xs);
+  font-family: inherit;
 }
+
 
 .yp-type-option:hover {
   border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
   background: var(--yp-bg-indigo-soft);
 }
 
-/* v3.6.0 spacing merged into single .yp-page-header definition above (v3.7.5) */
 
 .yp-page-header__eyebrow {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-weight: var(--yp-fw-bold);
-  font-size: var(--yp-text-xs);
   color: var(--yp-indigo-600);
   margin-bottom: var(--yp-space-2);
 }
+
 
 .yp-page-header__title {
   font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
-  margin: 0 0 var(--yp-space-2);
   letter-spacing: -0.02em;
   line-height: 1.2;
+  margin: 0 0 var(--yp-space-2);
 }
+
 
 .yp-page-header__subtitle {
-  font-size: var(--yp-text-base);
+  margin-top: 6px;
   color: var(--yp-text-secondary);
-  margin: 0;
+  font-size: var(--yp-text-base);
   line-height: 1.5;
+  margin: 0;
 }
 
-/* ★ v3.6.0: Loading overlay สำหรับ navigation */
+
 .yp-nav-loading {
   position: fixed;
-  inset: 0;
-  z-index: 99999;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: rgba(245, 244, 251, 0.92);
+  background-size: 200% 100%;
+  animation: yp-nav-loading-fade-in 180ms ease-out both;
+  z-index: 99999;
+  pointer-events: none;
+  inset: 0;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: yp-nav-loading-fade-in 180ms ease-out both;
 }
+
 
 @keyframes yp-nav-loading-fade-in {
   from { opacity: 0; }
@@ -7725,13 +6329,6 @@ img,
 
 .yp-section-title--muted {
   color: var(--yp-text-muted);
-}
-
-/* ★ v3.7.3: .yp-text-body — reusable body text */
-.yp-text-body {
-  font-size: var(--yp-text-sm);
-  line-height: 1.8;
-  color: var(--yp-text-body);
 }
 
 .yp-text-body p {
@@ -7956,7 +6553,13 @@ img,
 /* ── COLOR UTILITIES ── */
 .yp-text-muted { color: var(--yp-text-muted); }
 .yp-text-secondary { color: var(--yp-text-secondary); }
-.yp-text-body { color: var(--yp-text-body); }
+
+.yp-text-body {
+  font-size: var(--yp-text-sm);
+  line-height: 1.8;
+  color: var(--yp-text-body);
+}
+
 .yp-text-heading { color: var(--yp-text-heading); }
 .yp-text-strong { color: var(--yp-text-strong); }
 .yp-text-accent { color: var(--yp-indigo-600); }
@@ -8071,33 +6674,7 @@ img,
   }
 }
 
-/* ★ v3.7.9: Premium FAB — spring entrance + glow hover
-   ★ v3.9.2: เปลี่ยน fill-mode เป็น backwards — กัน animation ทับ
-     transition ของ .is-hidden-by-scroll (scroll-based show/hide)
-     - both = ใช้ทั้ง from และ to state → ทำให้ .is-hidden-by-scroll ไม่ทำงาน
-     - backwards = ใช้แค่ from state (ก่อน animation เริ่ม) → หลัง animation จบ
-       transform/opacity กลับเป็นค่าจริงจาก class ของเรา */
-.fab {
-  animation: yp-fab-in-v379 480ms cubic-bezier(0.16, 1.4, 0.3, 1) backwards;
-  box-shadow:
-    0 8px 24px rgba(79, 70, 229, 0.32),
-    0 2px 8px rgba(15, 23, 42, 0.16),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-}
-
-@keyframes yp-fab-in-v379 {
-  0% {
-    opacity: 0;
-    transform: scale(0.4) rotate(-180deg);
-  }
-  60% {
-    transform: scale(1.08) rotate(8deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-}
+/* r19: ลบ old v3.7.9 Premium FAB — ถูก v3.9.2 FAB (line ~9244) ทับแล้ว */
 
 @media (hover: hover) and (pointer: fine) {
   .fab:hover {
@@ -8165,11 +6742,6 @@ img,
   }
 }
 
-/* ★ v3.7.9: Premium bottom-nav item — subtle bounce on active */
-.bottom-nav__item.is-active {
-  animation: yp-nav-bounce 320ms cubic-bezier(0.16, 1.4, 0.3, 1);
-}
-
 @keyframes yp-nav-bounce {
   0% { transform: translateY(0); }
   40% { transform: translateY(-3px); }
@@ -8184,19 +6756,6 @@ img,
     color: #BE123C;
     border-color: rgba(244, 63, 94, 0.24);
   }
-}
-
-/* ★ v3.7.9: Premium input focus — subtle glow pulse */
-.yp-input:focus,
-.yp-textarea:focus,
-.yp-select:focus {
-  outline: none;
-  border-color: var(--yp-indigo-500);
-  background: white;
-  box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.14),
-    0 1px 2px rgba(99, 102, 241, 0.06),
-    0 0 12px rgba(99, 102, 241, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -8241,26 +6800,40 @@ img,
   }
 }
 
-/* ★ v3.7.10: Filter button — Google-style pill animation */
 .yp-events-filter__btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-secondary);
+  font-size: var(--yp-text-sm);
+  font-family: inherit;
+  font-weight: var(--yp-fw-semibold);
+  letter-spacing: 0.005em;
+  box-shadow: var(--yp-shadow-xs);
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   position: relative;
   overflow: hidden;
-  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
+
 .yp-events-filter__btn.is-active {
+  background: var(--yp-gradient-brand-flat);
+  border-color: transparent;
+  color: white;
+  box-shadow: var(--yp-shadow-indigo);
+  font-weight: var(--yp-fw-bold);
   animation: yp-filter-pop 280ms cubic-bezier(0.2, 0, 0, 1);
 }
+
 
 @keyframes yp-filter-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.05); }
   100% { transform: scale(1); }
-}
-
-/* ★ v3.7.10: Event card entrance — Google-style scale (not blur) */
-.yp-event-card {
-  animation: yp-event-card-in 280ms cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 @keyframes yp-event-card-in {
@@ -8274,18 +6847,26 @@ img,
   }
 }
 
-/* ★ v3.7.10: Stagger for event cards */
-.yp-event-card:nth-child(1) { animation-delay: 0ms; }
-.yp-event-card:nth-child(2) { animation-delay: 33ms; }
-.yp-event-card:nth-child(3) { animation-delay: 66ms; }
-.yp-event-card:nth-child(4) { animation-delay: 99ms; }
-.yp-event-card:nth-child(5) { animation-delay: 132ms; }
-.yp-event-card:nth-child(6) { animation-delay: 165ms; }
-
-/* ★ v3.7.10: Task row entrance — Google-style slide-in */
 .yp-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-5) var(--yp-space-4);
+  cursor: pointer;
+  transition:
+    background 160ms var(--yp-ease-m3-decelerate),
+    border-color var(--yp-t-fast),
+    box-shadow var(--yp-t-fast),
+    transform 160ms var(--yp-ease-m3-decelerate);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  background: var(--yp-bg-card);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
   animation: yp-task-row-in 200ms cubic-bezier(0.2, 0, 0, 1) both;
 }
+
 
 @keyframes yp-task-row-in {
   0% {
@@ -8316,33 +6897,12 @@ img,
   transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.7.10 — Chubbier buttons (more padding, more active feedback)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ★ v3.7.10: More button padding — chubbier like add-task button */
-/* ★ v3.7.12: Even chubbier buttons — more vertical padding like add-task button */
-.yp-btn {
-  padding: 1em 1.8em;
-  min-height: 52px;
-}
-
 .yp-btn--lg {
   padding: 1.2em 2em;
+  font-size: var(--yp-text-base);
   min-height: 58px;
 }
 
-/* ★ v3.7.10: Stronger active state — more press feedback */
-.yp-btn:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.yp-btn--primary:active:not(:disabled) {
-  transform: scale(0.95);
-  box-shadow:
-    0 2px 6px rgba(79, 70, 229, 0.16),
-    0 1px 2px rgba(79, 70, 229, 0.08);
-}
 
 .yp-btn--danger:active:not(:disabled) {
   transform: scale(0.95);
@@ -8356,50 +6916,23 @@ img,
   background: rgba(30, 27, 70, 0.06);
 }
 
-/* ★ v3.7.10: Chubbier stat card active — press feels squishy */
-.yp-stat:active {
-  transform: scale(0.97);
-}
-
-/* ★ v3.7.10: Chubbier event card active */
-.yp-event-card:active {
-  transform: scale(0.98);
-}
-
 /* ★ v3.7.10: Chubbier type option active */
 .yp-type-option:active {
   transform: scale(0.96);
 }
 
-/* ★ v3.7.10: Chubbier color option active */
-.yp-color-option:active {
-  transform: scale(0.9);
-}
+/* r19: ลบ old v3.7.10 FAB active squishy — ถูก v3.9.3 calmer FAB press (line ~10636) ทับแล้ว */
 
-/* ★ v3.7.10: FAB active — squishy press */
-.fab:active {
-  transform: scale(0.92) !important;
-}
 
 /* ★ v3.7.10: Bottom nav item active — squishy */
 .bottom-nav__item:active {
   transform: scale(0.92);
 }
 
-/* ★ v3.7.10: Close button active — squishy */
 .yp-window__close:active {
   transform: scale(0.88);
 }
 
-/* ★ v3.7.10: Avatar active — squishy */
-.top-bar__avatar:active {
-  transform: scale(0.94);
-}
-
-/* ★ v3.7.10: Back button active — squishy */
-.top-bar__back:active {
-  transform: scale(0.92);
-}
 
 /* ★ v3.7.10: Filter button active — squishy */
 .yp-events-filter__btn:active {
@@ -8411,10 +6944,14 @@ img,
   transform: scale(0.96);
 }
 
-/* ★ v3.7.10: Info sheet scroll smooth */
 .yp-info-sheet__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
+
 
 /* ★ v3.7.10: Smooth scroll for all scrollable areas */
 .app-main,
@@ -8481,11 +7018,6 @@ img,
   }
 }
 
-/* ★ v3.7.13: Smooth background color transition for body */
-body {
-  transition: background-color 200ms ease;
-}
-
 /* ★ v3.7.13: Smooth color transition for all text */
 .yp-page-header__title,
 .yp-page-header__subtitle,
@@ -8493,96 +7025,6 @@ body {
 .yp-text-body,
 .yp-feature-list {
   transition: color 200ms ease;
-}
-
-/* ★ v3.7.13: Bottom sheet smoother transition */
-.yp-window--sheet {
-  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.yp-window--sheet.is-closing {
-  transition: transform 260ms cubic-bezier(0.4, 0, 1, 1) !important;
-}
-
-/* ★ v3.7.13: Modal smoother transition */
-.yp-window--modal {
-  transition:
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.yp-window--modal.is-closing {
-  transition:
-    transform 260ms cubic-bezier(0.4, 0, 1, 1),
-    opacity 200ms cubic-bezier(0.4, 0, 1, 1) !important;
-}
-
-/* ★ v3.7.13: Backdrop smooth fade */
-.yp-window-root {
-  transition:
-    opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 280ms;
-}
-
-/* ★ v3.7.13: Scrollbar smooth (Webkit) */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.15);
-  border-radius: 3px;
-  transition: background 200ms ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.25);
-}
-
-/* ★ v3.7.13: Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.15) transparent;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   v3.8.0 — Global Transition Polish Layer
-   ═══════════════════════════════════════════════════════════════
-   Research-driven approach: enumerate every element type that
-   changes visual state on user interaction, and ensure each has a
-   smooth, native-app-style transition. The goal is "no surprise
-   pops" — every state change (hover, focus, active, disabled,
-   selected, open, closed) animates smoothly.
-
-   Design principles applied:
-   - Default duration: 220ms (native Material 3 / iOS standard)
-   - Default easing: cubic-bezier(0.2, 0, 0, 1) (Material emphasized)
-       → feels natural, not sluggish, not jumpy
-   - For "press" feedback (active): cubic-bezier(0.4, 0, 0.2, 1)
-       → quick deceleration, feels tactile
-   - For "exit" animations (closing): cubic-bezier(0.4, 0, 1, 1)
-       → fast exit, doesn't drag
-   - prefers-reduced-motion: respected (already globally set above)
-
-   Scope of this block:
-   - Buttons (.yp-btn, .yp-priority-option, .yp-color-option)
-   - Inputs (.yp-input, .yp-select, .yp-textarea)
-   - Cards (.yp-card, .yp-event-card, .yp-stat)
-   - Chips (.yp-chip, .yp-status-quick__btn)
-   - Nav items (.bottom-nav__item, .top-bar__back, .top-bar__avatar)
-   - Misc interactive (.yp-priority-option__dot, .yp-window__close)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── Standard token used by v3.8.0 polish layer ── */
-:root {
-  --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
-  --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
-  --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
 }
 
 /* ── Buttons (all variants) ──
@@ -8684,13 +7126,16 @@ body {
     color var(--yp-t-polish);
 }
 
-/* ── Priority dots ──
-   Smooth scale on selection. */
 .yp-priority-option__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--yp-radius-pill);
+  margin-bottom: 2px;
   transition:
     transform var(--yp-t-polish),
     box-shadow var(--yp-t-polish);
 }
+
 
 /* ── Select dropdowns ──
    Native select already has some transition, but ensure background
@@ -8734,27 +7179,11 @@ a,
   transition: opacity var(--yp-t-polish);
 }
 
-/* ── Stat grid ──
-   Smooth scale on press. */
-.yp-stat:active {
-  transform: scale(0.97);
-}
-
-/* ── Event card press ──
-   Tactile press feedback. */
-.yp-event-card:active {
-  transform: scale(0.985);
-  transition:
-    transform var(--yp-t-press),
-    box-shadow var(--yp-t-press);
-}
-
-/* ── Color option press ──
-   Spring-like feedback. */
 .yp-color-option:active {
   transform: scale(0.88);
   transition: transform var(--yp-t-press);
 }
+
 
 /* ── Tag chips in task row ──
    Smooth color transition. */
@@ -8846,69 +7275,6 @@ button:disabled {
 }
 
 /* ── Reduced motion: kill all v3.8.0 polish transitions ── */
-@media (prefers-reduced-motion: reduce) {
-  .yp-btn,
-  .yp-btn--primary,
-  .yp-btn--ghost,
-  .yp-btn--danger,
-  .yp-btn--block,
-  .yp-priority-option,
-  .yp-color-option,
-  .yp-status-quick__btn,
-  .yp-add-task-btn,
-  .yp-input,
-  .yp-select,
-  .yp-textarea,
-  .yp-card,
-  .yp-event-card,
-  .yp-stat,
-  .yp-chip,
-  .yp-chip-dot,
-  .yp-task-row__chip,
-  .bottom-nav__item,
-  .bottom-nav__icon,
-  .bottom-nav__label,
-  .top-bar__back,
-  .top-bar__avatar,
-  .yp-window__close,
-  .yp-window__close svg,
-  .yp-priority-option__dot,
-  select.yp-select,
-  a,
-  .yp-event-card *,
-  .yp-info-button,
-  [role='button'],
-  .yp-form-modal__section,
-  .yp-form-modal__parent,
-  .yp-task-row__tag,
-  .yp-text-tag,
-  .yp-btn:disabled,
-  .yp-input:disabled,
-  .yp-select:disabled,
-  .yp-textarea:disabled,
-  button:disabled,
-  .yp-form-actions,
-  .yp-form-actions > *,
-  .yp-detail-hero__meta-item,
-  .yp-single-hero__meta-item,
-  .yp-task-row__actions,
-  .yp-task-row__actions > *,
-  .yp-section-title,
-  .yp-detail-section__title,
-  .yp-form-modal__section-title,
-  .yp-form-card__title,
-  .yp-form-card__subtitle,
-  .field__error,
-  .field__hint,
-  .field__label,
-  *:focus-visible,
-  .yp-window-root,
-  .yp-window-root--sheet,
-  .yp-window-root--modal,
-  .yp-window-root--fullscreen {
-    transition-duration: 0.01ms !important;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    v3.8.1 — Custom Caret + Character Animation
@@ -8976,21 +7342,19 @@ textarea {
     background-color 220ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ── Caret Pulse Overlay (global — on input wrappers) ──
-   A soft glowing pulse that breathes in/out while the input is focused.
-   This is layered ON TOP of the native caret (which is now brand-colored),
-   creating a smoother, more "designed" feel.
-
-   We apply this to:
-   - .input-group (the wrapper used in login/register/event forms)
-   - .field > .yp-input (direct children of .field)
-   - .yp-input:direct (standalone inputs)
-
-   The overlay is a ::after pseudo-element on the wrapper, positioned
-   to cover the input area. It uses a radial-gradient that pulses. */
 .input-group {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-control);
+  background: var(--yp-bg-card);
+  overflow: hidden;
+  /* ★ v3.6.0: transition ที่ลื่นไหลขึ้น */
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
+
 
 .input-group::after {
   content: '';
@@ -9026,17 +7390,6 @@ textarea {
   50% {
     opacity: 0.35;
   }
-}
-
-/* ── Standalone inputs (not in .input-group) ──
-   For inputs that are direct children of .field (no .input-group wrapper),
-   we apply the pulse directly on the input via box-shadow. */
-.field > .yp-input:focus,
-.field > .yp-textarea:focus,
-.field > .yp-select:focus {
-  /* The box-shadow pulse is already handled by the existing focus style,
-     but we add a subtle animation to make it breathe. */
-  animation: yp-input-focus-breathe 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes yp-input-focus-breathe {
@@ -9117,119 +7470,9 @@ textarea {
 }
 
 /* ── Reduced motion: disable character pulse + caret breathe ── */
-@media (prefers-reduced-motion: reduce) {
-  .yp-input,
-  .yp-textarea,
-  .yp-select,
-  input[type='text'],
-  input[type='email'],
-  input[type='password'],
-  input[type='tel'],
-  input[type='number'],
-  input[type='search'],
-  input[type='url'],
-  input[type='time'],
-  input[type='date'],
-  input[type='datetime-local'],
-  input[type='month'],
-  input[type='week'],
-  textarea {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .input-group::after,
-  .input-group:focus-within::after,
-  .field > .yp-input:focus,
-  .field > .yp-textarea:focus,
-  .field > .yp-select:focus,
-  .yp-auth .yp-input.is-typing-forward,
-  .yp-auth .yp-input.is-typing-backward,
-  .yp-auth .input-group.is-typing-forward,
-  .yp-auth .input-group.is-typing-backward {
-    animation: none !important;
-    transform: none !important;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — Native Platform Polish Layer
-   ═══════════════════════════════════════════════════════════════
-   ★ Research-driven redesign synthesizing:
-     - Google Material 3 (state layers, tonal elevation, emphasized motion)
-     - Apple HIG (translucency, haptic-feel, deference, vibrancy)
-     - Microsoft Fluent 2 (depth without heavy shadow, neutral control)
-
-   ★ Goals:
-     1. Calmer visual rhythm — softer shadows, gentler transitions
-     2. Native-app FAB — Material 3 state layer + halo glow + spring press
-     3. Native-app bottom-nav — Material 3 pill indicator behind active icon
-     4. Stable show/hide — velocity-aware + visibility-hidden when collapsed
-     5. Better top-bar translucency — Apple-style saturation boost + edge fade
-     6. Refined focus rings — Material 3 style (offset 2px, 3px ring)
-     7. Softer cards — reduced shadow opacity, smoother hover
-
-   ★ Calming principles applied:
-     - All shadow opacities reduced ~25% (less visual noise)
-     - All hover transforms reduced ~30% (less movement = calmer)
-     - All transition durations standardized (220ms standard, 180ms press)
-     - All easing standardized to Material 3 emphasized (0.2, 0, 0, 1)
-     - Border opacities reduced slightly (less hard lines)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── v3.9.2 Design Tokens ── */
-:root {
-  /* Calmer shadows — opacity reduced 25% from v3.8.x */
-  --yp-shadow-xs-v39: 0 1px 3px rgba(30, 27, 70, 0.05);
-  --yp-shadow-sm-v39: 0 1px 4px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
-  --yp-shadow-md-v39: 0 2px 8px rgba(30, 27, 70, 0.07), 0 1px 3px rgba(30, 27, 70, 0.04);
-  --yp-shadow-lg-v39: 0 4px 14px rgba(30, 27, 70, 0.09), 0 2px 4px rgba(30, 27, 70, 0.04);
-  --yp-shadow-xl-v39: 0 8px 24px rgba(30, 27, 70, 0.11), 0 4px 8px rgba(30, 27, 70, 0.05);
-
-  /* FAB shadow — Material 3 tonal elevation (3-layer) */
-  --yp-fab-shadow-v39:
-    0 4px 12px rgba(79, 70, 229, 0.18),
-    0 2px 4px rgba(79, 70, 229, 0.10),
-    0 1px 2px rgba(15, 23, 42, 0.06);
-  --yp-fab-shadow-hover-v39:
-    0 8px 20px rgba(79, 70, 229, 0.24),
-    0 4px 8px rgba(79, 70, 229, 0.12),
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 0 0 8px rgba(99, 102, 241, 0.10);
-  --yp-fab-shadow-press-v39:
-    0 2px 6px rgba(79, 70, 229, 0.12),
-    0 1px 2px rgba(79, 70, 229, 0.08),
-    0 1px 1px rgba(15, 23, 42, 0.04);
-
-  /* Material 3 motion tokens */
-  --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
-  --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);
-  --yp-ease-m3-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --yp-ease-m3-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
-
-  /* Standardized durations */
-  --yp-dur-v39-xs: 100ms;
-  --yp-dur-v39-sm: 150ms;
-  --yp-dur-v39-md: 220ms;
-  --yp-dur-v39-lg: 300ms;
-
-  /* State layer opacities (Material 3 spec) */
-  --yp-state-hover: 0.08;
-  --yp-state-focus: 0.10;
-  --yp-state-press: 0.12;
-  --yp-state-press-strong: 0.16;
-
-  /* Calmer border tokens */
-  --yp-border-v39-subtle:  rgba(30, 27, 70, 0.05);
-  --yp-border-v39-default: rgba(30, 27, 70, 0.08);
-  --yp-border-v39-strong:  rgba(30, 27, 70, 0.14);
-
-  /* FAB size — slightly larger for better touch target (Material 3 spec) */
-  --yp-fab-size-v39: 58px;
-}
 
 /* ── v3.9.2 TOP BAR — demo 8.2 backdrop-filter ── */
-/* ★ v3.10.0 รอบที่ 18: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
+/* ★ v3.10.0 รอบที่ 19: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
    (line ~777) มีค่า demo 8.2 อยู่แล้ว: backdrop-filter: saturate(180%) blur(10px)
    พร้อม background rgba(245,244,251,0.88) — ไม่ต้อง override ทับซ้อน
    จุดที่แก้รอบ 14-17 คือ override เหล่านั้นเองที่ทำให้ blur ทำงานผิด */
@@ -9317,20 +7560,6 @@ textarea {
   }
 }
 
-/* Press — Material 3 state layer (12% overlay) + squish */
-.fab:active {
-  transform: translate3d(0, 0, 0) scale(0.92);
-  box-shadow: var(--yp-fab-shadow-press-v39);
-  transition:
-    transform 120ms var(--yp-ease-m3-standard),
-    box-shadow 120ms var(--yp-ease-m3-standard);
-}
-.fab:active::before {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.16);
-  transition: opacity 60ms var(--yp-ease-m3-standard);
-}
-
 /* ★ v3.9.2 Stable show/hide — velocity-aware + visibility-hidden when collapsed
    - When hidden: scale 0.4 + opacity 0 + visibility hidden (after 250ms)
    - When shown: scale 1 + opacity 1 + visibility visible (immediate)
@@ -9396,33 +7625,42 @@ body.yp-sheet-open .fab {
   animation: none !important;
 }
 
-/* ── v3.9.2 BOTTOM NAV — demo 8.2 backdrop-filter ── */
-/* ★ v3.10.0 รอบที่ 18: ลบ override ทั้งหมดจากรอบ 10-17 — base rule
-   (mobile) มีค่า demo 8.2 อยู่แล้ว, desktop มีค่าของตัวเองใน @media
-   ไม่ต้อง override ทับซ้อน */
 .bottom-nav {
+  position: fixed;
+  inset: auto var(--yp-space-3) calc(var(--yp-safe-bottom) + var(--yp-space-3)) var(--yp-space-3);
+  z-index: var(--yp-z-nav);
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  box-shadow: 0 -2px 16px rgba(30, 27, 70, 0.08);
   border-radius: var(--yp-radius-lg);
   border: 1px solid rgba(30, 27, 70, 0.04);
+  transition:
+    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Remove old "icon::before" pattern (cascade override) */
-.bottom-nav__icon::before {
-  display: none !important;
-  content: none !important;
-}
 
-/* Material 3 pill indicator behind active icon — ใช้ pill radius เดิมของ YP Work */
 .bottom-nav__icon {
   position: relative;
   width: 64px;
   height: 36px;
   /* ★ v3.9.2: คืนค่า pill radius เดิม (999px = --yp-radius-pill) — เอกลักษณ์ความโค้งมน */
   border-radius: var(--yp-radius-pill);
-  background: transparent;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
   transition:
     background-color 220ms var(--yp-ease-m3-standard),
     transform 220ms var(--yp-ease-m3-standard);
+  background: transparent;
 }
+
 
 /* Pill appears behind active icon — Material 3 spec */
 .bottom-nav__item.is-active .bottom-nav__icon {
@@ -9451,18 +7689,12 @@ body.yp-sheet-open .fab {
   }
 }
 
-/* Active state — press feedback (subtle scale) */
-.bottom-nav__item:active .bottom-nav__icon {
-  transform: scale(0.94);
-  transition: transform 120ms var(--yp-ease-m3-standard);
-}
-
-/* Active label — Material 3 typography */
 .bottom-nav__item.is-active .bottom-nav__label {
   color: var(--yp-indigo-600);
-  font-weight: var(--yp-fw-semibold);
   letter-spacing: 0.01em;
+  font-weight: var(--yp-fw-semibold);
 }
+
 
 /* Inactive label — softer */
 .bottom-nav__item:not(.is-active) .bottom-nav__label {
@@ -9471,15 +7703,16 @@ body.yp-sheet-open .fab {
   transition: color 220ms var(--yp-ease-m3-standard), opacity 220ms var(--yp-ease-m3-standard);
 }
 
-/* Remove old bounce animation — calmer */
 .bottom-nav__item.is-active {
+  color: var(--yp-indigo-600);
   animation: none;
 }
 
-/* Bottom nav entrance — calmer slide-up */
+
 .bottom-nav:not(.is-hidden) {
   animation: yp-bottom-nav-in-v39 380ms var(--yp-ease-m3-emphasized) both;
 }
+
 
 @keyframes yp-bottom-nav-in-v39 {
   0% {
@@ -9503,29 +7736,12 @@ body.yp-sheet-open .bottom-nav {
   animation: none !important;
 }
 
-/* ── v3.9.2 CARDS — softer shadows, calmer hover ── */
-.yp-card {
-  box-shadow: var(--yp-shadow-sm-v39);
-  border: 1px solid var(--yp-border-v39-subtle);
-  /* Calmer hover — less movement */
-  transition:
-    transform 220ms var(--yp-ease-m3-standard),
-    box-shadow 220ms var(--yp-ease-m3-standard),
-    border-color 220ms var(--yp-ease-m3-standard),
-    background-color 220ms var(--yp-ease-m3-standard);
-}
-
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
     transform: translateY(-1px);
     box-shadow: var(--yp-shadow-md-v39);
     border-color: var(--yp-border-v39-default);
   }
-}
-
-.yp-card:active {
-  transform: scale(0.995);
-  transition: transform 120ms var(--yp-ease-m3-standard);
 }
 
 /* ── v3.9.2 EVENT CARD — calmer hover, less aggressive accent ── */
@@ -9539,8 +7755,26 @@ body.yp-sheet-open .bottom-nav {
   }
 }
 
-/* ── v3.9.2 BUTTONS — Material 3 state layers, refined press ── */
 .yp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  font-family: inherit;
+  font-weight: var(--yp-fw-bold);
+  font-size: var(--yp-text-sm);
+  line-height: 1;
+  padding: 1em 1.8em;
+  border-radius: var(--yp-radius-control);
+  background: linear-gradient(to right, #EEF2FF 0%, #F5F0FF 100%);
+  color: var(--yp-indigo-600);
+  border: 1px solid var(--yp-indigo-200);
+  box-shadow: none;
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  position: relative;
   /* Calmer transitions */
   transition:
     transform 180ms var(--yp-ease-m3-standard),
@@ -9549,30 +7783,41 @@ body.yp-sheet-open .bottom-nav {
     border-color 180ms var(--yp-ease-m3-standard),
     box-shadow 180ms var(--yp-ease-m3-standard),
     opacity 180ms var(--yp-ease-m3-standard);
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  min-height: 52px;
 }
 
-/* Material 3 state layer for primary buttons */
+
 .yp-btn--primary {
-  position: relative;
-  overflow: hidden;
   background: linear-gradient(135deg, #5B50F0 0%, #7C3AED 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-weight: var(--yp-fw-extrabold);
   box-shadow:
     0 2px 6px rgba(79, 70, 229, 0.18),
     0 1px 2px rgba(79, 70, 229, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  position: relative;
+  overflow: hidden;
 }
 
-/* State layer overlay (replaces ::after ripple) */
+
 .yp-btn--primary::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.12);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 180ms var(--yp-ease-m3-standard);
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
   border-radius: inherit;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translate(-50%, -50%);
+  transition: opacity 180ms var(--yp-ease-m3-standard);
+  pointer-events: none;
+  inset: 0;
+  opacity: 0;
 }
+
 
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--primary:hover:not(:disabled) {
@@ -9594,24 +7839,29 @@ body.yp-sheet-open .bottom-nav {
     0 1px 1px rgba(79, 70, 229, 0.08);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
+
+
 .yp-btn--primary:active::after {
+  width: 200%;
+  height: 200%;
+  transition: opacity 40ms var(--yp-ease-m3-standard);
   opacity: 1;
   background: rgba(255, 255, 255, 0.18);
-  transition: opacity 40ms var(--yp-ease-m3-standard);
 }
 
-/* Ghost button — softer hover */
+
 .yp-btn--ghost {
   background: transparent;
+  color: var(--yp-text-body);
   border: 1px solid transparent;
   box-shadow: none;
 }
+
 
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--ghost:hover:not(:disabled) {
     background: rgba(30, 27, 70, 0.04);
     color: var(--yp-text-strong);
-    transform: none;
     box-shadow: none;
   }
 }
@@ -9629,7 +7879,6 @@ body.yp-sheet-open .bottom-nav {
     0 1px 2px rgba(99, 102, 241, 0.04);
 }
 
-/* ── v3.9.2 FOCUS RINGS — Material 3 style (offset + thinner ring) ── */
 .yp-btn:focus-visible,
 .yp-input:focus-visible,
 .yp-select:focus-visible,
@@ -9643,43 +7892,57 @@ body.yp-sheet-open .bottom-nav {
   border-radius: inherit;
 }
 
-/* ── v3.9.2 SCROLLBAR — even more subtle ── */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
+
 ::-webkit-scrollbar-thumb {
   background: rgba(99, 102, 241, 0.12);
   border-radius: 4px;
+  transition: background 220ms var(--yp-ease-m3-standard);
   border: 2px solid transparent;
   background-clip: content-box;
-  transition: background 220ms var(--yp-ease-m3-standard);
 }
+
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(99, 102, 241, 0.20);
   background-clip: content-box;
 }
 
+
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(99, 102, 241, 0.12) transparent;
 }
 
-/* ── v3.9.2 BACK BUTTON — refined hover + คืนค่าความโค้งมนเดิม ── */
+
 .top-bar__back {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--yp-text-body);
   /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (32px = --yp-radius-sm) — เอกลักษณ์ YP Work */
   border-radius: var(--yp-radius-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background-color 180ms var(--yp-ease-m3-standard),
     color 180ms var(--yp-ease-m3-standard),
     transform 180ms var(--yp-ease-m3-standard);
 }
+
 
 @media (hover: hover) and (pointer: fine) {
   .top-bar__back:hover {
@@ -9693,6 +7956,7 @@ body.yp-sheet-open .bottom-nav {
   transform: scale(0.94);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
+
 
 /* ── v3.9.2 AVATAR — refined hover ── */
 @media (hover: hover) and (pointer: fine) {
@@ -9709,15 +7973,32 @@ body.yp-sheet-open .bottom-nav {
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
-/* ── v3.9.2 STAT CARDS — softer shadows ── */
+
 .yp-stat {
-  box-shadow: var(--yp-shadow-xs-v39);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: var(--yp-space-4) var(--yp-space-3);
+  /* ★ v3.9.3: Layered bg — accent wash + base */
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, transparent) 0%, transparent 55%),
+    var(--yp-bg-card);
   border: 1px solid var(--yp-border-v39-subtle);
+  border-radius: var(--yp-radius-lg);
+  position: relative;
+  overflow: hidden;
+  animation: yp-card-in-v3710 300ms cubic-bezier(0.2, 0, 0, 1) both;
   transition:
     transform 220ms var(--yp-ease-m3-standard),
     box-shadow 220ms var(--yp-ease-m3-standard),
     border-color 220ms var(--yp-ease-m3-standard);
+  min-height: 110px;
+  box-shadow: var(--yp-shadow-xs-v39);
 }
+
 
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
@@ -9727,10 +8008,10 @@ body.yp-sheet-open .bottom-nav {
   }
 }
 
-/* ── v3.9.2 PAGE ENTER — calmer (less movement, no blur) ── */
 .yp-page-enter {
   animation: yp-page-in-v39 320ms var(--yp-ease-m3-emphasized) both;
 }
+
 
 @keyframes yp-page-in-v39 {
   0% {
@@ -9743,10 +8024,10 @@ body.yp-sheet-open .bottom-nav {
   }
 }
 
-/* Shell content enter — calmer */
 .yp-shell-content-enter {
   animation: yp-shell-in-v39 320ms var(--yp-ease-m3-emphasized) both;
 }
+
 
 @keyframes yp-shell-in-v39 {
   0% {
@@ -9757,11 +8038,6 @@ body.yp-sheet-open .bottom-nav {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* ── v3.9.2 CARD ENTRANCE — calmer stagger ── */
-.yp-card {
-  animation: yp-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
 }
 
 @keyframes yp-card-in-v39 {
@@ -9775,20 +8051,50 @@ body.yp-sheet-open .bottom-nav {
   }
 }
 
-/* Stagger — calmer (40ms intervals instead of 33ms) */
-.yp-card:nth-child(1) { animation-delay: 0ms; }
-.yp-card:nth-child(2) { animation-delay: 40ms; }
-.yp-card:nth-child(3) { animation-delay: 80ms; }
-.yp-card:nth-child(4) { animation-delay: 120ms; }
-.yp-card:nth-child(5) { animation-delay: 160ms; }
-.yp-card:nth-child(6) { animation-delay: 200ms; }
-.yp-card:nth-child(7) { animation-delay: 240ms; }
-.yp-card:nth-child(8) { animation-delay: 280ms; }
+.yp-card:nth-child(1) {
+  animation-delay: 0ms;
+}
 
-/* ── v3.9.2 EVENT CARD ENTRANCE — calmer ── */
+
+.yp-card:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+
+.yp-card:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+
+.yp-card:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+
+.yp-card:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+
+.yp-card:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+
+.yp-card:nth-child(7) {
+  animation-delay: 240ms;
+}
+
+
+.yp-card:nth-child(8) {
+  animation-delay: 280ms;
+}
+
+
 .yp-event-card {
   animation: yp-event-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
 }
+
 
 @keyframes yp-event-card-in-v39 {
   0% {
@@ -9801,39 +8107,116 @@ body.yp-sheet-open .bottom-nav {
   }
 }
 
-.yp-event-card:nth-child(1) { animation-delay: 0ms; }
-.yp-event-card:nth-child(2) { animation-delay: 40ms; }
-.yp-event-card:nth-child(3) { animation-delay: 80ms; }
-.yp-event-card:nth-child(4) { animation-delay: 120ms; }
-.yp-event-card:nth-child(5) { animation-delay: 160ms; }
-.yp-event-card:nth-child(6) { animation-delay: 200ms; }
-
-/* ── v3.9.2 WINDOW (Sheet/Modal) — smoother open/close ── */
-.yp-window--sheet {
-  transition: transform 380ms var(--yp-ease-m3-emphasized) !important;
+.yp-event-card:nth-child(1) {
+  animation-delay: 0ms;
 }
+
+
+.yp-event-card:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+
+.yp-event-card:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+
+.yp-event-card:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+
+.yp-event-card:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+
+.yp-event-card:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+
+.yp-window--sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 92dvh;
+  border-radius: var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0 0;
+  transform: translate3d(0, 100%, 0);
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--sheet ใน WINDOW TRANSITIONS) */
+  /* ★ v3.7.9: Deeper layered shadow ที่ดูมีมิติ */
+  box-shadow:
+    0 -8px 32px rgba(15, 23, 42, 0.18),
+    0 -16px 48px rgba(15, 23, 42, 0.08),
+    0 -1px 0 rgba(255, 255, 255, 0.6) inset;
+  padding: 16px var(--yp-space-5, 20px)
+           calc(24px + var(--yp-safe-bottom, 0px));
+  transition: transform 380ms var(--yp-ease-m3-emphasized);
+}
+
 
 .yp-window--sheet.is-closing {
-  transition: transform 260ms var(--yp-ease-m3-accelerate) !important;
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--sheet.is-closing ใน WINDOW TRANSITIONS) */
+  will-change: transform;
+  transition: transform 260ms var(--yp-ease-m3-accelerate);
 }
+
 
 .yp-window--modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88dvh;
+  border-radius: var(--yp-radius-lg, 28px);
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--modal ใน WINDOW TRANSITIONS) */
+  /* ★ v3.7.9: Deeper layered shadow */
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.28),
+    0 8px 24px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(99, 102, 241, 0.06);
+  padding: 20px var(--yp-space-5, 20px)
+           calc(20px + var(--yp-safe-bottom, 0px));
   transition:
     transform 340ms var(--yp-ease-m3-emphasized),
-    opacity 260ms var(--yp-ease-m3-emphasized) !important;
+    opacity 260ms var(--yp-ease-m3-emphasized);
 }
+
 
 .yp-window--modal.is-closing {
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
   transition:
     transform 240ms var(--yp-ease-m3-accelerate),
-    opacity 200ms var(--yp-ease-m3-accelerate) !important;
+    opacity 200ms var(--yp-ease-m3-accelerate);
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--modal.is-closing ใน WINDOW TRANSITIONS) */
 }
 
+
 .yp-window-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yp-window-z, 18000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(30, 27, 70, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window-root ใน WINDOW TRANSITIONS) */
+  /* default: align bottom (sheet mode) */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overscroll-behavior: contain;
   transition:
     opacity 280ms var(--yp-ease-m3-emphasized),
     visibility 280ms;
+  /* NOTE: ไม่ใส่ contain: paint เพราะทำให้ drag กระตุก */
 }
+
 
 /* ── v3.9.2 DESKTOP — FAB position refinement + คืนค่าความโค้งมนเดิม ── */
 @media (min-width: 900px) {
@@ -9852,7 +8235,7 @@ body.yp-sheet-open .bottom-nav {
   }
 
   /* Bottom-nav (left-rail) — demo 8.2 blur sync */
-  /* ★ v3.10.0 รอบที่ 18: sync ค่าให้ตรงกับ demo 8.2 — backdrop-filter
+  /* ★ v3.10.0 รอบที่ 19: sync ค่าให้ตรงกับ demo 8.2 — backdrop-filter
      saturate(180%) blur(10px) + background rgba(245,244,251,0.88) */
   .bottom-nav {
     background: rgba(245, 244, 251, 0.88);
@@ -9883,104 +8266,334 @@ body.yp-sheet-open .bottom-nav {
 }
 
 /* ── v3.9.2 REDUCED MOTION — kill all v3.9.2 animations ── */
-@media (prefers-reduced-motion: reduce) {
-  .fab,
-  .fab:hover,
-  .fab:active,
-  .fab.is-hidden-by-scroll,
-  .bottom-nav,
-  .bottom-nav__item,
-  .bottom-nav__icon,
-  .bottom-nav__icon svg,
-  .bottom-nav__label,
-  .yp-card,
-  .yp-event-card,
-  .yp-page-enter,
-  .yp-shell-content-enter,
-  .yp-btn,
-  .yp-btn--primary,
-  .yp-input,
-  .yp-textarea,
-  .yp-select,
-  .yp-stat,
-  .top-bar,
-  .top-bar__back,
-  .top-bar__avatar,
-  .yp-window--sheet,
-  .yp-window--modal,
-  .yp-window-root {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transform: none !important;
-  }
 
-  .fab.is-hidden-by-scroll {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   END OF v3.9.2 POLISH LAYER
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — Gemini-Inspired Calm Polish Layer
-   ═══════════════════════════════════════════════════════════════
-   ★ Research-driven redesign synthesizing:
-     - Gemini (primary inspiration) — calm surfaces, no motion-on-hover,
-       gentle state layers, refined typography hierarchy
-     - Material 3 state layers (kept from v3.9.0/1 — they work)
-     - Apple HIG — deference, stillness, "hover is a state, not a motion"
-     - Microsoft Fluent 2 — neutral surface depth without bounce
-
-   ★ User feedback addressed:
-     1. "Hover ไม่ควรขยาย/ยกองค์ประกอบ" — REMOVE all translateY/scale on :hover
-        → replace with state-layer background tint (calm, no motion)
-     2. "ตอน focus ช่องกรอกข้อมูลหายมน" — KEEP border-radius at focus
-        → ensure :focus doesn't override border-radius (it never did in our CSS,
-          but make it explicit so future changes can't break it)
-     3. "ปุ่ม info จัดวางใหม่" — refined position + calmer hover (no scale)
-     4. "Bottom sheet info ปรับให้เข้ากับแพลตฟอร์ม" — calmer palette,
-       tighter spacing, Gemini-style typography
-     5. "นุ่มนวลขึ้น น่าใช้งานขึ้น" — calmer colors, softer motion, refined layout
-
-   ★ Calm principles (Gemini-inspired):
-     - Hover = state change (background tint), NOT motion (no translate/scale)
-     - Press = subtle scale (0.97-0.98) — tactile feedback only, no lift
-     - Focus = ring + color, NOT shape change (radius stays)
-     - Active (selected) = filled background, NOT motion
-     - All motion durations ≤ 200ms (calm, snappy, not sluggish)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── v3.9.2 Design Tokens — calmer palette (Gemini-inspired) ── */
 :root {
+  /* ── BRAND COLORS — Indigo Trust ── */
+  --yp-indigo-50:  #EEF2FF;
+  --yp-indigo-100: #E0E7FF;
+  --yp-indigo-200: #C7D2FE;
+  --yp-indigo-300: #A5B4FC;
+  --yp-indigo-400: #818CF8;
+  --yp-indigo-500: #6366F1;
+  --yp-indigo-600: #4F46E5;
+  --yp-indigo-700: #4338CA;
+  --yp-indigo-800: #3730A3;
+  --yp-indigo-900: #312E81;
+  --yp-indigo-950: #1E1B4B;
+  --yp-violet-400: #A78BFA;
+  --yp-violet-500: #8B5CF6;
+  --yp-violet-600: #7C3AED;
+  --yp-violet-700: #6D28D9;
+  --yp-amber-400: #FBBF24;
+  --yp-amber-500: #F59E0B;
+  --yp-emerald-400: #34D399;
+  --yp-emerald-500: #10B981;
+  --yp-rose-400: #FB7185;
+  --yp-rose-500: #F43F5E;
+  /* Status colors */
+  --yp-todo:        var(--yp-amber-500);
+  --yp-ongoing:     var(--yp-indigo-500);
+  --yp-done:        var(--yp-emerald-500);
+  --yp-overdue:     var(--yp-rose-500);
+  /* ── TEXT ── */
+  --yp-text-strong:    #1A1740;
+  --yp-text-heading:   #23204A;
+  --yp-text-body:      #3F3C5E;
+  --yp-text-secondary: #57546F;
+  --yp-text-muted:     #6E6B8C;
+  --yp-text-faint:     #9794B0;
+  --yp-text-inverse:   #FFFFFF;
+  /* ── SURFACE ──
+     ★ v3.10.0 รอบที่ 13: เพิ่มความต่างระหว่างพื้นหลังหน้ากับพื้นผิวการ์ด
+     (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
+     พื้นผิวคนละชั้น) ปรับพื้นหลังหน้าให้เข้มขึ้นเล็กน้อยเพื่อให้การ์ดขาว
+     ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
+  --yp-bg-page:        #EFEDF9;
+  --yp-bg-card:        #FFFFFF;
+  --yp-bg-card-soft:   #FAF9FE;
+  --yp-bg-elevated:    #FFFFFF;
+  --yp-bg-indigo-soft: #EEF2FF;
+  --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
+  --yp-bg-cream:       #FAF9F6;
+  /* ── BORDER ──
+     ★ v3.10.0 รอบที่ 13: ลดความเข้มของเส้นขอบลงเล็กน้อย ให้ shadow เป็นตัว
+     สร้างมิติหลักแทน — เส้นขอบที่เบาลงทำให้ผิวหน้าดูสะอาดตา ไม่รก
+     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง */
+  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
+  --yp-border-default:  rgba(79, 70, 229, 0.08);
+  --yp-border-strong:   rgba(30, 27, 70, 0.14);
+  --yp-border-indigo:   rgba(79, 70, 229, 0.22);
+  --yp-border-indigo-strong: rgba(99, 102, 241, 0.45);
+  --yp-focus-ring:      rgba(79, 70, 229, 0.16);
+  /* ── GRADIENTS ── */
+  --yp-gradient-brand:
+    radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.55) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(79, 70, 229, 0.65) 0%, transparent 60%),
+    linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --yp-gradient-brand-flat: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --yp-gradient-brand-soft: linear-gradient(135deg, rgba(79,70,229,0.10) 0%, rgba(124,58,237,0.08) 100%);
+  --yp-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #FBFAFE 100%);
+  --yp-gradient-hero:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.20) 0%, transparent 55%),
+    linear-gradient(135deg, #312E81 0%, #4F46E5 50%, #7C3AED 100%);
+  --yp-gradient-btn: linear-gradient(to right, #6366F1 0%, #7C3AED 100%);
+  /* ═══════════════════════════════════════════════════════════════
+     v3.9.3 — PREMIUM HERO PATTERN SYSTEM (SVG data-URIs)
+     (inspired by Telegram chat backgrounds, Linear, Vercel, Stripe)
+     ★ v3.9.4: RELAXED — ลดความหนาแน่น (pattern ใหญ่ขึ้น + opacity ลดลง)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Pattern 1: Dot grid (white on dark hero) — Telegram-style
+     ★ v3.9.4: tile 32px → 64px (spacious), opacity 10%/8% → 5%/4% */
+  --yp-hero-pattern-dots-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.6' fill='white' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='0' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 2: Plus signs grid (white on dark hero) — Linear-style
+     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
+  --yp-hero-pattern-plus-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 3: Topographic curves (white on dark hero) — Stripe-style
+     ★ v3.9.4: tile 80px → 140px, opacity 5% → 3% */
+  --yp-hero-pattern-topo-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.03' stroke-width='1'%3E%3Cpath d='M0 70 Q35 35 70 70 T140 70'/%3E%3Cpath d='M0 105 Q35 70 70 105 T140 105'/%3E%3Cpath d='M0 35 Q35 0 70 35 T140 35'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 4: Sparkles/stars (white on dark hero) — premium accent
+     ★ v3.9.4: tile 60px → 120px, opacity 10%/8%/7% → 5%/4%/3% */
+  --yp-hero-pattern-sparkle-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M60 36 L63 54 L80 57 L63 60 L60 78 L57 60 L40 57 L57 54 Z' fill='white' fill-opacity='0.05'/%3E%3Cpath d='M100 16 L101.4 23 L108 24.4 L101.4 25.8 L100 32.8 L98.6 25.8 L92 24.4 L98.6 23 Z' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M20 96 L21.2 101.2 L26 102.4 L21.2 103.6 L20 108.8 L18.8 103.6 L14 102.4 L18.8 101.2 Z' fill='white' fill-opacity='0.035'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 5: Dot grid (accent on light hero) — for single-hero
+     ★ v3.9.4: tile 32px → 64px, opacity 10%/8% → 5%/4% */
+  --yp-hero-pattern-dots-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.5' fill='%234F46E5' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 6: Plus signs (accent on light hero)
+     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
+  --yp-hero-pattern-plus-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%234F46E5' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%237C3AED' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
+  /* ── SPACING ──
+     ★ v3.10.0 รอบที่ 13: ขยายจังหวะระยะห่างขึ้นเล็กน้อยทั่วทั้งระบบ
+     ให้เนื้อหามีที่หายใจมากขึ้น รู้สึกสงบ นิ่ง ไม่อึดอัด — ปรับที่ระดับ 4
+     ขึ้นไปเท่านั้น (ระดับเล็ก 1-3 คงเดิม กันของชิ้นเล็กในฟอร์ม/ชิป ห่างเกินไป) */
+  --yp-space-1:  0.25rem;
+  --yp-space-2:  0.5rem;
+  --yp-space-3:  0.75rem;
+  --yp-space-4:  1.0625rem;
+  --yp-space-5:  1.375rem;
+  --yp-space-6:  1.625rem;
+  --yp-space-7:  1.875rem;
+  --yp-space-8:  2.25rem;
+  --yp-space-10: 2.75rem;
+  --yp-space-12: 3.25rem;
+  --yp-space-16: 4.25rem;
+  --yp-space-20: 5.25rem;
+  /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
+     (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
+     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
+  --yp-radius-xs:   26px;
+  /* v3.9.3: +2 จาก 24 — small chips, dots */
+  --yp-radius-sm:   34px;
+  /* v3.9.3: +2 จาก 32 — small icon containers */
+  --yp-radius-md:   44px;
+  /* v3.9.3: +4 จาก 40 — controls, buttons, FAB */
+  --yp-radius-lg:   54px;
+  /* v3.9.3: +6 จาก 48 — cards, panels */
+  --yp-radius-xl:   68px;
+  /* v3.9.3: +8 จาก 60 — hero blocks */
+  --yp-radius-2xl:  84px;
+  /* v3.9.3: +12 จาก 72 — feature panels */
+  --yp-radius-pill: 999px;
+  --yp-radius-control: var(--yp-radius-md);
+  --yp-radius-card:    var(--yp-radius-lg);
+  --yp-radius-panel:   var(--yp-radius-md);
+  --yp-radius-hero:    var(--yp-radius-xl);
+  /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
+  --yp-input-min-height: 52px;
+  --yp-input-padding-y: 1em;
+  --yp-input-padding-x: 1.1em;
+  --yp-input-font-size: var(--yp-text-sm);
+  --yp-input-border-width: 1px;
+  --yp-field-gap: var(--yp-space-5);
+  --yp-field-label-gap: var(--yp-space-2);
+  --yp-field-hint-gap: 6px;
+  /* ── TYPOGRAPHY ── */
+  --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
+  --yp-text-xs:   0.75rem;
+  --yp-text-sm:   0.875rem;
+  --yp-text-base: 1rem;
+  --yp-text-lg:   1.125rem;
+  --yp-text-xl:   1.25rem;
+  --yp-text-2xl:  1.5rem;
+  --yp-text-3xl:  1.875rem;
+  --yp-text-4xl:  2.25rem;
+  --yp-leading-tight:   1.25;
+  --yp-leading-normal:  1.6;
+  --yp-leading-relaxed: 1.75;
+  --yp-fw-normal:   400;
+  --yp-fw-medium:   500;
+  --yp-fw-semibold: 600;
+  --yp-fw-bold:     700;
+  --yp-fw-extrabold: 800;
+  --yp-fw-black:    900;
+  /* ── SHADOWS ──
+     ★ v3.10.0 รอบที่ 13: เปลี่ยนจาก shadow ชั้นเดียวเป็นสองชั้น
+     (เงาสัมผัสแคบชัด + เงากระจายกว้างเบา) — ให้ความรู้สึกว่าการ์ด "วางอยู่"
+     บนพื้นผิวจริง มีน้ำหนัก มั่นคง แทนที่จะเป็นฮาโล่บางๆ ลอยอยู่เฉยๆ
+     (เทคนิคเดียวกับที่ Stripe/Linear ใช้กับการ์ดระดับ elevation ต่างๆ) */
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.05), 0 1px 5px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.06), 0 3px 10px rgba(30, 27, 70, 0.07);
+  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.06), 0 8px 20px rgba(30, 27, 70, 0.09);
+  --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
+  --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
+  --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
+  /* ★ v3.10.0 รอบที่ 16: grain/noise texture สำหรับผิวกระจกฝ้า (frosted glass)
+     ใช้ทับบน backdrop-filter blur ของ .top-bar / .bottom-nav — เป็นลาย
+     ที่มองเห็นได้เสมอไม่ว่าเนื้อหาข้างหลังจะเป็นสีพื้นเรียบหรือมีลวดลาย
+     (เทคนิคเดียวกับ material ของ iOS/visionOS จริง ๆ — SVG feTurbulence
+     ทำ noise แล้ว desaturate ด้วย feColorMatrix ให้เป็นเกรนขาวดำล้วน) */
+  --yp-glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* ── TRANSITIONS ── */
+  --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
+  --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
+  --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --yp-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --yp-t-fast:   150ms var(--yp-ease-standard);
+  --yp-t-normal: 260ms var(--yp-ease);
+  --yp-t-slow:   400ms var(--yp-ease);
+  --yp-hero-enter:    600ms var(--yp-ease-decel);
+  --yp-hero-stagger:  80ms;
+  --yp-card-enter:    380ms var(--yp-ease-decel);
+  --yp-page-enter: 420ms var(--yp-ease-emphasized-decel);
+  /* ── LAYOUT ── */
+  --yp-container-max:  1110px;
+  --yp-container-md:   860px;
+  --yp-container-sm:   600px;
+  --yp-nav-bottom-h:   96px;
+  --yp-nav-top-h:      52px;
+  --yp-page-pad-x:     1.125rem;
+  /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
+  --yp-fab-size:       56px;
+  /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
+     ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
+     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail */
+  --yp-left-rail-width: 0px;
+  --yp-bottom-nav-margin: var(--yp-space-3);
+  --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
+  --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
+  --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
+  --yp-card-pad:    1.25rem;
+  --yp-card-pad-lg: 1.625rem;
+  --yp-section-gap: 1.75rem;
+  --yp-content-gap: 1.125rem;
+  --yp-stack-gap:   0.75rem;
+  /* ── Z-INDEX ── */
+  --yp-z-sticky:  100;
+  --yp-z-fab:     200;
+  --yp-z-nav:     16000;
+  --yp-z-overlay: 17000;
+  --yp-z-modal:   18000;
+  --yp-z-toast:   19000;
+  /* ── SAFE AREA ── */
+  --yp-safe-top:    env(safe-area-inset-top, 0px);
+  --yp-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --yp-safe-left:   env(safe-area-inset-left, 0px);
+  --yp-safe-right:  env(safe-area-inset-right, 0px);
+  /* ── HEADLINE SCALE ── */
+  --yp-h1-size: clamp(1.30rem, 1.15rem + 0.6vw, 1.60rem);
+  --yp-h2-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.32rem);
+  --yp-h3-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.17rem);
+  --yp-lead-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+  /* shadcn compat */
+  --radius: 0.625rem;
+  --background: var(--yp-bg-page);
+  --foreground: var(--yp-text-body);
+  --card: var(--yp-bg-card);
+  --card-foreground: var(--yp-text-heading);
+  --popover: var(--yp-bg-elevated);
+  --popover-foreground: var(--yp-text-heading);
+  --primary: var(--yp-indigo-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--yp-bg-card-soft);
+  --secondary-foreground: var(--yp-text-heading);
+  --muted: var(--yp-bg-card-soft);
+  --muted-foreground: var(--yp-text-muted);
+  --accent: var(--yp-bg-indigo-soft);
+  --accent-foreground: var(--yp-indigo-600);
+  --destructive: #BE123C;
+  --destructive-foreground: #ffffff;
+  --border: var(--yp-border-default);
+  --input: var(--yp-border-default);
+  --ring: var(--yp-focus-ring);
+  --sidebar: var(--yp-bg-card);
+  --sidebar-foreground: var(--yp-text-heading);
+  --sidebar-primary: var(--yp-indigo-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--yp-bg-indigo-soft);
+  --sidebar-accent-foreground: var(--yp-indigo-600);
+  --sidebar-border: var(--yp-border-default);
+  --sidebar-ring: var(--yp-focus-ring);
+  --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
+  --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
+  /* Calmer shadows — opacity reduced 25% from v3.8.x */
+  --yp-shadow-xs-v39: 0 1px 3px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm-v39: 0 1px 4px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
+  --yp-shadow-md-v39: 0 2px 8px rgba(30, 27, 70, 0.07), 0 1px 3px rgba(30, 27, 70, 0.04);
+  --yp-shadow-lg-v39: 0 4px 14px rgba(30, 27, 70, 0.09), 0 2px 4px rgba(30, 27, 70, 0.04);
+  --yp-shadow-xl-v39: 0 8px 24px rgba(30, 27, 70, 0.11), 0 4px 8px rgba(30, 27, 70, 0.05);
+  /* FAB shadow — Material 3 tonal elevation (3-layer) */
+  --yp-fab-shadow-v39:
+    0 4px 12px rgba(79, 70, 229, 0.18),
+    0 2px 4px rgba(79, 70, 229, 0.10),
+    0 1px 2px rgba(15, 23, 42, 0.06);
+  --yp-fab-shadow-hover-v39:
+    0 8px 20px rgba(79, 70, 229, 0.24),
+    0 4px 8px rgba(79, 70, 229, 0.12),
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 0 0 8px rgba(99, 102, 241, 0.10);
+  --yp-fab-shadow-press-v39:
+    0 2px 6px rgba(79, 70, 229, 0.12),
+    0 1px 2px rgba(79, 70, 229, 0.08),
+    0 1px 1px rgba(15, 23, 42, 0.04);
+  /* Material 3 motion tokens */
+  --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
+  --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --yp-ease-m3-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --yp-ease-m3-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  /* Standardized durations */
+  --yp-dur-v39-xs: 100ms;
+  --yp-dur-v39-sm: 150ms;
+  --yp-dur-v39-md: 220ms;
+  --yp-dur-v39-lg: 300ms;
+  /* State layer opacities (Material 3 spec) */
+  --yp-state-hover: 0.08;
+  --yp-state-focus: 0.10;
+  --yp-state-press: 0.12;
+  --yp-state-press-strong: 0.16;
+  /* Calmer border tokens */
+  --yp-border-v39-subtle:  rgba(30, 27, 70, 0.05);
+  --yp-border-v39-default: rgba(30, 27, 70, 0.08);
+  --yp-border-v39-strong:  rgba(30, 27, 70, 0.14);
+  /* FAB size — slightly larger for better touch target (Material 3 spec) */
+  --yp-fab-size-v39: 58px;
   /* Calmer surface tints for hover states (Gemini-style) */
   --yp-tint-v392-hover:      rgba(30, 27, 70, 0.045);
   --yp-tint-v392-hover-strong: rgba(30, 27, 70, 0.07);
   --yp-tint-v392-indigo:     rgba(99, 102, 241, 0.08);
   --yp-tint-v392-indigo-strong: rgba(99, 102, 241, 0.14);
   --yp-tint-v392-press:      rgba(30, 27, 70, 0.08);
-
   /* Calmer info button palette */
   --yp-info-btn-v392-bg:      rgba(99, 102, 241, 0.06);
   --yp-info-btn-v392-border:  rgba(99, 102, 241, 0.18);
   --yp-info-btn-v392-hover:   rgba(99, 102, 241, 0.12);
   --yp-info-btn-v392-active:  rgba(99, 102, 241, 0.18);
-
   /* Info sheet — calmer palette */
   --yp-info-sheet-v392-bg:    #FAFAFC;
   --yp-info-sheet-v392-card:  #FFFFFF;
   --yp-info-sheet-v392-border: rgba(30, 27, 70, 0.06);
 }
 
+
 /* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — HOVER OVERHAUL: replace motion with state layers
+   HOVER & ACTIVE STATES (v3.10.0-r21 — micro-interactions restored)
    ═══════════════════════════════════════════════════════════════
-   ★ Principle: hover = state change, NOT motion
-   ★ This block neutralizes all translateY/scale on :hover across the app
+   ★ r21: คืนค่า hover/active micro-interactions — ลบ transform:none
+   Hover = state layer (bg/shadow/border) + subtle transform
+   Active = scale down 2-5% for tactile press feedback
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── FAB: v3.9.3 — NO hover effect on plus button (per user feedback) ── */
@@ -9988,7 +8601,6 @@ body.yp-sheet-open .bottom-nav {
   .fab:hover {
     /* ★ v3.9.3: ยกเลิก hover ทั้งหมด — ไม่มี state layer, ไม่มี halo, ไม่มี shadow change
        FAB อยู่นิ่ง ๆ ตอน hover และให้ feedback เฉพาะตอนกด (active state) */
-    transform: translate3d(0, 0, 0) scale(1);
     box-shadow:
       0 6px 16px rgba(79, 70, 229, 0.22),
       0 2px 6px rgba(15, 23, 42, 0.10);
@@ -10003,7 +8615,6 @@ body.yp-sheet-open .bottom-nav {
 /* ── Primary button: hover = darker bg + state layer, NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--primary:hover:not(:disabled) {
-    transform: none;
     background: linear-gradient(135deg, #5450E8 0%, #8347ED 100%);
     box-shadow:
       0 3px 10px rgba(79, 70, 229, 0.22),
@@ -10019,21 +8630,16 @@ body.yp-sheet-open .bottom-nav {
   .yp-btn--ghost:hover:not(:disabled) {
     background: var(--yp-tint-v392-hover);
     color: var(--yp-text-strong);
-    transform: none;
   }
 }
 
 /* ── Danger button: hover = darker bg, NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
-  .yp-btn--danger:hover:not(:disabled) {
-    transform: none;
-  }
 }
 
 /* ── Card hover: NO translateY, just shadow + border ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    transform: none;
     box-shadow: var(--yp-shadow-md-v39);
     border-color: var(--yp-border-v39-default);
   }
@@ -10042,7 +8648,6 @@ body.yp-sheet-open .bottom-nav {
 /* ── Event card hover: NO translateY, just shadow + border ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-event-card:hover {
-    transform: none;
     box-shadow:
       0 3px 10px rgba(30, 27, 70, 0.06),
       0 1px 2px rgba(30, 27, 70, 0.03);
@@ -10061,7 +8666,6 @@ body.yp-sheet-open .bottom-nav {
 /* ── Stat card hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    transform: none;
     box-shadow: var(--yp-shadow-sm-v39);
     border-color: var(--yp-border-v39-default);
   }
@@ -10072,32 +8676,25 @@ body.yp-sheet-open .bottom-nav {
   .top-bar__back:hover {
     background: rgba(99, 102, 241, 0.08);
     color: var(--yp-top-accent, var(--yp-indigo-600));
-    transform: none;
   }
 }
 
 /* ── Top bar avatar: hover = ring + subtle bg, NO scale ── */
 @media (hover: hover) and (pointer: fine) {
   .top-bar__avatar:hover {
-    transform: none;
     box-shadow:
       0 1px 4px rgba(30, 27, 70, 0.08),
       0 0 0 3px rgba(99, 102, 241, 0.10);
   }
 }
 
-/* ── Color option hover: NO scale ── */
 .yp-color-option:hover {
-  transform: none;
   background: var(--yp-tint-v392-hover);
 }
 
+
 @media (hover: hover) and (pointer: fine) {
-  .yp-color-option:hover {
-    transform: none;
-  }
   .yp-color-option.is-selected {
-    transform: none;
     box-shadow:
       0 0 0 2px var(--yp-indigo-500),
       0 0 0 4px white,
@@ -10108,13 +8705,11 @@ body.yp-sheet-open .bottom-nav {
 /* ── Type option hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-type-option:hover {
-    transform: none;
     background: var(--yp-tint-v392-hover);
     border-color: var(--yp-border-v39-default);
     box-shadow: var(--yp-shadow-xs-v39);
   }
   .yp-type-option.is-selected {
-    transform: none;
     box-shadow:
       0 0 0 2px var(--yp-indigo-500),
       0 2px 6px rgba(99, 102, 241, 0.10);
@@ -10124,7 +8719,6 @@ body.yp-sheet-open .bottom-nav {
 /* ── Window close button: hover = color change, NO scale/rotate ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-window__close:hover {
-    transform: none;
     background: rgba(244, 63, 94, 0.08);
     color: #BE123C;
     border-color: rgba(244, 63, 94, 0.20);
@@ -10135,82 +8729,35 @@ body.yp-sheet-open .bottom-nav {
 @media (hover: hover) and (pointer: fine) {
   .bottom-nav__item:not(.is-active):hover .bottom-nav__icon {
     background: var(--yp-tint-v392-hover);
-    transform: none;
   }
   .bottom-nav__item:not(.is-active):hover .bottom-nav__icon svg {
     color: var(--yp-text-secondary);
-    transform: none;
-  }
-  .bottom-nav__item.is-active .bottom-nav__icon svg {
-    transform: none;
   }
 }
 
 /* ── Profile action: hover = bg tint, NO motion ── */
 .yp-profile-action:hover,
 .yp-profile-id__reveal:hover {
-  transform: none;
   background: var(--yp-tint-v392-hover);
 }
 
-/* ── Cal-nav buttons: hover = bg tint, NO motion ── */
-.yp-cal-nav-btn:hover,
-.yp-cal-today-btn:hover,
-.yp-cal-day-v2:hover,
-.yp-cal-list-event:hover,
-.yp-events-filter__btn:hover,
-.yp-add-task-btn:hover,
-.yp-status-quick__btn:hover,
-.yp-status-picker__option:hover,
-.yp-manage-sheet__action:hover,
-.yp-manage-task-picker__item:hover,
-.yp-task-row:hover,
-.yp-task-row__edit:hover,
-.yp-task-row__delete:hover,
-.yp-priority-option:hover,
-.yp-list-item:hover,
-.yp-confirm-dialog__btn--cancel:hover,
-.yp-confirm-dialog__btn--danger:hover {
-  transform: none;
-}
-
-/* ── Info button: hover = state layer, NO scale ── */
 .yp-info-btn:hover,
 .yp-info-btn:focus-visible {
   background: var(--yp-info-btn-v392-hover);
   border-color: rgba(99, 102, 241, 0.32);
-  transform: none;
   outline: none;
 }
 
-/* Auth-page variant */
-.yp-auth .yp-info-btn:hover,
-.yp-auth__hero .yp-info-btn:hover {
-  background: rgba(255, 255, 255, 0.26);
-  border-color: rgba(255, 255, 255, 0.48);
-  transform: none;
-}
 
-/* ── Info sheet close button: hover = bg tint, NO scale ── */
 .yp-info-sheet__close:hover {
   background: rgba(148, 163, 184, 0.24);
   color: var(--yp-text-heading, #1E293B);
-  transform: none;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — INPUT FOCUS: keep border-radius (no shape change)
-   ═══════════════════════════════════════════════════════════════
-   ★ User reports: "ตอน focus ช่องกรอกข้อมูลหายมน"
-   ★ Root cause: some browsers / Tailwind base styles can reset radius on focus
-   ★ Fix: explicitly preserve border-radius on :focus + :focus-within
-   ═══════════════════════════════════════════════════════════════ */
 
-/* ★ v3.9.2: ensure inputs NEVER lose border-radius on focus */
 .yp-input:focus,
 .yp-textarea:focus,
 .yp-select:focus {
-  border-radius: var(--yp-radius-control) !important;
   /* Softer focus ring — calmer than v3.9.0 */
   outline: none;
   border-color: var(--yp-indigo-500);
@@ -10218,22 +8765,24 @@ body.yp-sheet-open .bottom-nav {
   box-shadow:
     0 0 0 3px rgba(99, 102, 241, 0.10),
     0 1px 2px rgba(99, 102, 241, 0.04);
+  border-radius: var(--yp-radius-control) !important;
 }
 
-/* Input-group keeps its radius on focus */
+
 .input-group:focus-within {
-  border-radius: var(--yp-radius-control) !important;
   border-color: var(--yp-indigo-500);
   box-shadow:
     0 0 0 3px rgba(99, 102, 241, 0.10),
     0 1px 2px rgba(99, 102, 241, 0.04);
+  border-radius: var(--yp-radius-control) !important;
 }
 
-/* Input inside input-group keeps radius 0 (because parent has the radius) */
+
 .input-group .yp-input:focus {
-  border-radius: 0 !important;
   box-shadow: none;
+  border-radius: 0 !important;
 }
+
 
 /* Calmer focus breathing — softer than v3.8.x */
 @keyframes yp-input-focus-breathe {
@@ -10255,29 +8804,32 @@ body.yp-sheet-open .bottom-nav {
   animation: yp-input-focus-breathe 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — INFO BUTTON: calmer design, better positioning
-   ═══════════════════════════════════════════════════════════════
-   ★ Gemini-inspired: small, quiet, but discoverable
-   ★ Position: aligned with title text (baseline), not floating
-   ═══════════════════════════════════════════════════════════════ */
 
 .yp-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Pill shape (matches our identity) */
+  border-radius: var(--yp-radius-pill);
   /* Calmer background — less indigo */
   background: var(--yp-info-btn-v392-bg);
   border: 1px solid var(--yp-info-btn-v392-border);
   color: var(--yp-indigo-500, #6366F1);
-  /* Smaller size — less visual weight (Gemini-style) */
-  width: 26px;
-  height: 26px;
-  /* Pill shape (matches our identity) */
-  border-radius: var(--yp-radius-pill);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
   /* Smooth transition (no transform) */
   transition:
     background-color 180ms var(--yp-ease-m3-standard),
     border-color 180ms var(--yp-ease-m3-standard),
     color 180ms var(--yp-ease-m3-standard);
+  line-height: 0;
+  /* Smaller size — less visual weight (Gemini-style) */
+  width: 26px;
+  height: 26px;
 }
+
 
 /* Override the inline style sizing when size='sm' (default) — make it smaller */
 .yp-info-btn[style*="32px"],
@@ -10294,14 +8846,6 @@ body.yp-sheet-open .bottom-nav {
   stroke-width: 2;
 }
 
-/* Press — subtle scale (tactile, allowed) */
-.yp-info-btn:active {
-  transform: scale(0.92);
-  background: var(--yp-info-btn-v392-active);
-  transition: transform 100ms var(--yp-ease-m3-standard);
-}
-
-/* Auth-page variant — slightly larger for visibility on dark bg */
 .yp-auth .yp-info-btn,
 .yp-auth__hero .yp-info-btn {
   background: rgba(255, 255, 255, 0.14);
@@ -10311,30 +8855,38 @@ body.yp-sheet-open .bottom-nav {
   -webkit-backdrop-filter: blur(6px);
 }
 
+
 .yp-auth .yp-info-btn:hover,
 .yp-auth__hero .yp-info-btn:hover {
   background: rgba(255, 255, 255, 0.24);
   border-color: rgba(255, 255, 255, 0.42);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — FORM CARD HEADER: better InfoButton positioning
-   ═══════════════════════════════════════════════════════════════ */
 
-/* Layout: title + info button on same line, subtitle below */
 .yp-form-card__title {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  margin: 0 0 var(--yp-space-1);
+  letter-spacing: -0.01em;
   display: flex;
   align-items: center;
   gap: 8px;
   /* Title takes available space, info button sits at end */
 }
 
+
 .yp-form-card__subtitle {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  margin: 0;
+  line-height: 1.5;
   display: flex;
   align-items: baseline;
   gap: 6px;
   flex-wrap: wrap;
 }
+
 
 /* When InfoButton is inside subtitle, make it baseline-aligned */
 .yp-form-card__subtitle .yp-info-btn {
@@ -10342,17 +8894,19 @@ body.yp-sheet-open .bottom-nav {
   align-self: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — DETAIL SECTION TITLE: better InfoButton positioning
-   ═══════════════════════════════════════════════════════════════ */
-
 .yp-detail-section__title {
+  font-size: var(--yp-h3-size);
+  font-weight: var(--yp-fw-bold);
+  color: color-mix(in srgb, var(--accent, var(--yp-text-heading)) 30%, var(--yp-text-heading));
+  margin-bottom: var(--yp-space-4);
   /* Title text + optional InfoButton on the left, count badge on the right */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
+  letter-spacing: 0.005em;
 }
+
 
 /* When InfoButton is inside the title, group it with the text */
 .yp-detail-section__title > :first-child,
@@ -10375,25 +8929,28 @@ body.yp-sheet-open .bottom-nav {
   min-width: 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — INFO SHEET (bottom sheet): Gemini-inspired redesign
-   ═══════════════════════════════════════════════════════════════
-   ★ Calmer palette, tighter spacing, refined typography
-   ★ Aligns with YP Work identity (high radius) but feels Gemini-calm
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Sheet background — calmer off-white */
 .yp-info-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
   background: var(--yp-info-sheet-v392-bg);
   /* Higher radius — matches YP identity */
   border-radius: 28px 28px 0 0;
   box-shadow:
     0 -8px 32px rgba(15, 23, 42, 0.14),
     0 -1px 0 rgba(30, 27, 70, 0.04) inset;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: yp-info-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* safe-area รองรับ iPhone notch / home indicator */
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-/* Grip handle — calmer color */
+
 .yp-info-sheet__grip {
+  flex-shrink: 0;
   width: 36px;
   height: 4px;
   border-radius: 9999px;
@@ -10401,21 +8958,29 @@ body.yp-sheet-open .bottom-nav {
   margin: 10px auto 6px;
 }
 
-/* Close button — calmer */
+
 .yp-info-sheet__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
   width: 30px;
   height: 30px;
   border-radius: var(--yp-radius-pill);
+  border: none;
   background: rgba(30, 27, 70, 0.04);
   color: var(--yp-text-muted, #64748B);
-  top: 14px;
-  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
   transition:
     background-color 180ms var(--yp-ease-m3-standard),
     color 180ms var(--yp-ease-m3-standard);
+  z-index: 2;
 }
 
-/* Header — calmer layout */
+
 .yp-info-sheet__header {
   display: flex;
   align-items: center;
@@ -10425,22 +8990,30 @@ body.yp-sheet-open .bottom-nav {
   margin-bottom: 18px;
 }
 
+
 .yp-info-sheet__header-icon {
+  flex-shrink: 0;
   width: 44px;
   height: 44px;
-  border-radius: var(--yp-radius-xs);   /* v3.9.3: 14px → token (more rounded) */
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 14px → token (more rounded) */
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(124, 58, 237, 0.10));
   color: var(--yp-indigo-600, #4F46E5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Title — slightly smaller, more refined */
+
 .yp-info-sheet__title {
+  margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--yp-text-heading, #1E293B);
   line-height: 1.35;
   letter-spacing: -0.005em;
 }
+
 
 .yp-info-sheet__subtitle {
   margin: 3px 0 0;
@@ -10449,15 +9022,15 @@ body.yp-sheet-open .bottom-nav {
   line-height: 1.5;
 }
 
-/* Body text — calmer, more readable */
+
 .yp-info-sheet__inner p {
+  margin: 0 0 14px;
   font-size: 0.92rem;
   line-height: 1.7;
   color: var(--yp-text-body, #334155);
-  margin: 0 0 14px;
 }
 
-/* Section title — calmer color, less aggressive uppercase */
+
 .yp-info-sheet__section-title {
   margin: 22px 0 10px;
   font-size: 0.78rem;
@@ -10468,49 +9041,61 @@ body.yp-sheet-open .bottom-nav {
   line-height: 1.4;
 }
 
-/* Example box — calmer radius, softer tint */
+
 .yp-info-sheet__example {
   margin: 14px 0;
-  border-radius: var(--yp-radius-xs);   /* v3.9.3: 16px → token (more rounded) */
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 16px → token (more rounded) */
   background: rgba(99, 102, 241, 0.04);
   border: 1px solid rgba(99, 102, 241, 0.10);
   overflow: hidden;
 }
 
+
 .yp-info-sheet__example-label {
   padding: 8px 14px;
   font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--yp-indigo-600, #4F46E5);
   background: rgba(99, 102, 241, 0.08);
+  text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
 
 .yp-info-sheet__example-body {
   padding: 12px 14px;
   font-size: 0.88rem;
   line-height: 1.65;
+  color: var(--yp-text-body, #334155);
 }
 
-/* Option box — calmer */
+
 .yp-info-sheet__option {
   margin: 12px 0;
   padding: 14px 16px;
-  border-radius: var(--yp-radius-xs);   /* v3.9.3: 16px → token (more rounded) */
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 16px → token (more rounded) */
   background: rgba(241, 245, 249, 0.5);
   border-left: 3px solid var(--yp-indigo-500, #6366F1);
 }
 
+
 .yp-info-sheet__option-name {
   font-size: 0.94rem;
   font-weight: 700;
+  color: var(--yp-text-heading, #1E293B);
   margin-bottom: 6px;
 }
+
 
 .yp-info-sheet__option-body {
   font-size: 0.88rem;
   line-height: 1.65;
+  color: var(--yp-text-body, #334155);
 }
 
-/* Callout — calmer radius */
+
 .yp-info-callout {
   margin: 14px 0;
   padding: 14px 16px;
@@ -10520,7 +9105,7 @@ body.yp-sheet-open .bottom-nav {
   line-height: 1.65;
 }
 
-/* Code chip — calmer */
+
 .yp-info-sheet__inner code {
   font-family: 'Sarasa Mono SC', 'JetBrains Mono', ui-monospace, monospace;
   background: rgba(99, 102, 241, 0.06);
@@ -10530,7 +9115,7 @@ body.yp-sheet-open .bottom-nav {
   font-size: 0.86em;
 }
 
-/* Info pill — calmer */
+
 .yp-info-pill {
   display: inline-block;
   padding: 2px 9px;
@@ -10547,8 +9132,11 @@ body.yp-sheet-open .bottom-nav {
   margin: 0 2px;
 }
 
-/* Steps — calmer marker */
+
 .yp-info-step__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 26px;
   height: 26px;
   border-radius: var(--yp-radius-pill);
@@ -10556,23 +9144,36 @@ body.yp-sheet-open .bottom-nav {
   color: white;
   font-size: 0.80rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.22);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — GEMINI-INSPIRED OVERALL CALM
-   ═══════════════════════════════════════════════════════════════ */
 
-/* Calmer page background — slight warmth */
 body {
-  background: #F7F6FB;
   transition: background-color 220ms var(--yp-ease-m3-standard);
+  background: #F7F6FB;
 }
 
-/* Calmer card background */
+
 .yp-card {
   background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-v39-subtle);
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-card-pad-lg);
+  box-shadow: var(--yp-shadow-sm-v39);
+  /* Calmer hover — less movement */
+  transition:
+    transform 220ms var(--yp-ease-m3-standard),
+    box-shadow 220ms var(--yp-ease-m3-standard),
+    border-color 220ms var(--yp-ease-m3-standard),
+    background-color 220ms var(--yp-ease-m3-standard);
+  position: relative;
+  will-change: transform, box-shadow;
+  animation: yp-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
 }
+
 
 /* Calmer transitions — shorter durations everywhere */
 .yp-btn,
@@ -10599,24 +9200,23 @@ body {
   transition-timing-function: var(--yp-ease-m3-standard);
 }
 
-/* Calmer active states — only scale, no lift */
 .yp-btn:active:not(:disabled) {
   transform: scale(0.97);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
-/* ★ v3.10.0 รอบที่ 10: การ์ด active นุ่มนวลขึ้น — ยืดระยะเวลาเล็กน้อย
-   และเปลี่ยนมาใช้ decelerate easing (แทน standard) ให้ความรู้สึกซับ/ปล่อย
-   นุ่มกว่าเดิม ไม่ใช่การ "สะดุด" แบบทันที */
+
 .yp-card:active {
   transform: scale(0.99);
   transition: transform 160ms var(--yp-ease-m3-decelerate);
 }
 
+
 .yp-event-card:active {
   transform: scale(0.982);
   transition: transform 160ms var(--yp-ease-m3-decelerate);
 }
+
 
 /* ★ v3.10.0 รอบที่ 10: การ์ดรายการย่อย (yp-task-row) ก่อนหน้านี้ไม่มี
    active/press feedback เลยเวลาแตะเพื่อเปลี่ยนสถานะ — เพิ่มให้นุ่มนวล
@@ -10632,7 +9232,7 @@ body {
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
-/* FAB press — calmer */
+
 .fab:active {
   transform: translate3d(0, 0, 0) scale(0.94);
   box-shadow: var(--yp-fab-shadow-press-v39);
@@ -10640,109 +9240,69 @@ body {
     transform 100ms var(--yp-ease-m3-standard),
     box-shadow 100ms var(--yp-ease-m3-standard);
 }
+
+
 .fab:active::before {
   opacity: 1;
   background: rgba(255, 255, 255, 0.16);
   transition: opacity 40ms var(--yp-ease-m3-standard);
 }
 
-/* Bottom nav press — calmer */
+
 .bottom-nav__item:active .bottom-nav__icon {
   transform: scale(0.96);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
-/* Info button press — calmer */
+
 .yp-info-btn:active {
   transform: scale(0.92);
   background: var(--yp-info-btn-v392-active);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
+
 /* ═══════════════════════════════════════════════════════════════
    v3.9.2 — REDUCED MOTION
    ═══════════════════════════════════════════════════════════════ */
 
-@media (prefers-reduced-motion: reduce) {
-  .fab,
-  .fab:hover,
-  .fab:active,
-  .fab.is-hidden-by-scroll,
-  .bottom-nav,
-  .bottom-nav__item,
-  .bottom-nav__icon,
-  .bottom-nav__icon svg,
-  .bottom-nav__label,
-  .yp-card,
-  .yp-event-card,
-  .yp-page-enter,
-  .yp-shell-content-enter,
-  .yp-btn,
-  .yp-btn--primary,
-  .yp-input,
-  .yp-textarea,
-  .yp-select,
-  .yp-stat,
-  .yp-info-btn,
-  .yp-info-sheet,
-  .yp-info-sheet__close,
-  .top-bar,
-  .top-bar__back,
-  .top-bar__avatar,
-  .yp-window--sheet,
-  .yp-window--modal,
-  .yp-window-root,
-  .yp-color-option,
-  .yp-type-option {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transform: none !important;
-  }
-
-  .fab.is-hidden-by-scroll {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    END OF v3.9.2 POLISH LAYER
    ═══════════════════════════════════════════════════════════════ */
 
-
 /* ═══════════════════════════════════════════════════════════════
-   v3.9.3 — FINAL FAB HOVER NEUTRALIZER
+   [7] ACCESSIBILITY — @media prefers-reduced-motion
    ═══════════════════════════════════════════════════════════════
-   ไฟล์นี้มี .fab:hover กระจายอยู่หลายจุด (จากหลายเวอร์ชัน)
-   เพื่อให้แน่ใจว่า hover ทั้งหมดถูกปิดใน v3.9.3
-   กฎนี้อยู่ท้ายไฟล์เพื่อ override ทุกกฎก่อนหน้า (cascade)
+   ★ r21 Fix: ใช้ transition-duration/animation-duration: 0.01ms !important
+   แทน transform:none/transition:none — ให้ hover/active ยังแสดงสเตตัสได้
+   แต่ไม่มีจังหวะเด้งช้าๆ (เป็นมาตรฐาน WCAG 2.2 Success Criterion 2.3.3)
    ═══════════════════════════════════════════════════════════════ */
-.fab:hover {
-  transform: translate3d(0, 0, 0) scale(1) !important;
-  opacity: 1 !important;
-  box-shadow:
-    0 6px 16px rgba(79, 70, 229, 0.22),
-    0 2px 6px rgba(15, 23, 42, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-}
-.fab:hover::before,
-.fab:hover::after {
-  opacity: 0 !important;
-  transform: translate3d(0, 0, 0) scale(1) !important;
-}
 
-@media (hover: hover) and (pointer: fine) {
-  .fab:hover {
-    transform: translate3d(0, 0, 0) scale(1) !important;
-    opacity: 1 !important;
-    box-shadow:
-      0 6px 16px rgba(79, 70, 229, 0.22),
-      0 2px 6px rgba(15, 23, 42, 0.10) !important;
+/* ── Global: reduce ALL animation/transition durations to near-zero ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  .fab:hover::before,
-  .fab:hover::after {
-    opacity: 0 !important;
+
+  /* Skeleton: show static bg instead of shimmer */
+  .yp-skeleton {
+    animation: none;
+    background: var(--yp-bg-card-soft, #F1F5F9);
+  }
+
+  /* Sheet/Window backdrops: instant appear/disappear */
+  .sheet-backdrop,
+  .yp-window-root,
+  .yp-info-sheet,
+  .yp-info-sheet-backdrop,
+  .yp-info-sheet.is-leaving {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
