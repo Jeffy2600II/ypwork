@@ -1,30 +1,42 @@
+// Path:    src/modules/events/event-card.tsx
+// Purpose: การ์ดสรุปรายการ 1 ชิ้น ใช้แสดงในหน้ารายการ (EventsListView) และหน้าอื่น
+//          ที่ต้องแสดงรายการ/กลุ่มรายการแบบย่อ
+// Used by: EventsListView (src/modules/events/events-list-view.tsx)
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · EventCard (shared component — ใช้ใน list, day)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 26: เพิ่มรายการย่อย preview ในการ์ดกลุ่มรายการ
-//   - แสดง 2-3 รายการย่อยแรกในการ์ด
-//   - ถ้ามีเพิ่มเติม → "+X รายการ" badge
-//   - เพิ่ม Badge วันนี้/พรุ่งนี้/เลยกำหนด เป็นกิมมิคเล็กๆ
 // ★ v3.10.0 รอบที่ 29: อ้างอิงจาก "วันที่เริ่ม" แทน "วันกำหนดส่ง" เพื่อให้ผู้ใช้
 //   เห็นว่า "จะเริ่มทำตอนไหน" ก่อน แล้วค่อยเห็น "กำหนดส่งเมื่อไหร่" — ลดความ
 //   กดดันจากการเห็นแค่ deadline แต่ไม่เห็นจุดเริ่มต้น ถ้ามี start_date จะแสดง
 //   เป็น meta หลัก และแสดง deadline เป็น meta รอง (ถ้าต่างจาก start_date)
+//
+// ★ v3.10.0 รอบที่ 32: เอา "รายการย่อย preview" (รอบที่ 26) ออก
+//   ปัญหาที่ผู้ใช้แจ้ง: การแสดงรายการย่อยเป็นแถวๆ ข้างในการ์ด ทำให้ดูเหมือน
+//   "การ์ดซ้อนการ์ด" สับสนว่าทำไมถึงมีอะไรโผล่มาตรงนี้ ทั้งที่กดอะไรตรงนั้น
+//   ไม่ได้เลย (ทั้งการ์ดเป็น Link เดียวไปหน้ารายละเอียด) — ผู้ใช้เสนอว่าไม่ต้อง
+//   แสดงรายการย่อยก็ได้ ให้กดเข้าไปดูข้างในแทน
+//   → แทนที่ด้วย "สรุปสถานะ" บรรทัดเดียว (breakdown chips) เช่น
+//     "รอเริ่ม 2 · กำลังทำ 1 · เสร็จ 3" ซึ่งเป็นข้อความสรุป ไม่ใช่รายการที่
+//     ดูเหมือนกดได้ทีละอัน ลด "รายการย่อยลอยเป็นการ์ดในการ์ด" ทั้งหมด
+//   → เพิ่มลูกศร (chevron) มุมขวาบนให้เห็นชัดว่าทั้งการ์ดกดเข้าไปดูรายละเอียดได้
 // ═══════════════════════════════════════════════════════════════
 
+import * as React from 'react';
 import Link from 'next/link';
-import { Layers, Flag, Check, Clock, ChevronRight, Calendar as CalIcon } from 'lucide-react';
-import type { YPEvent, Task } from '@/lib/types';
+import { Layers, Flag, ChevronRight } from 'lucide-react';
+import type { YPEvent, TaskStatus } from '@/lib/types';
 import {
   relativeDay,
-  formatDate,
-  isToday,
-  isPast,
   eventProgress,
   resolveEventStatus,
   statusLabel,
   statusChipClass,
+  getLocalTodayStr,
 } from '@/lib/utils/date';
-import { getLocalTodayStr } from '@/lib/utils/date';
+
+// ★ v3.10.0 รอบที่ 32: ลำดับแสดงผล breakdown — รอเริ่ม → กำลังทำ → เสร็จ
+//   (ลำดับตามขั้นตอนงานจริง ให้อ่านแล้วเข้าใจ flow ง่ายกว่าเรียงตามตัวอักษร)
+const STATUS_BREAKDOWN_ORDER: TaskStatus[] = ['todo', 'ongoing', 'done'];
 
 export interface EventCardProps {
   event: YPEvent;
@@ -81,27 +93,19 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   if (event.location) metaParts.push(event.location);
   for (const m of extraMeta) metaParts.push(m);
 
-  // ★ v3.10.0 รอบที่ 26: เลือก 2-3 รายการย่อยแรกสำหรับแสดง preview
-  //   เรียงตาม start_time แล้วตาม priority
-  const previewTasks = React.useMemo(() => {
+  // ★ v3.10.0 รอบที่ 32: สรุปจำนวนรายการย่อยตามสถานะ (breakdown) แทนการ preview
+  //   ทีละรายการ (รอบที่ 26 เดิม) — เหตุผล: ผู้ใช้แจ้งว่าการโชว์รายการย่อย
+  //   เป็นแถวๆ ในการ์ดทำให้ดูเหมือนกดได้ทั้งที่ไม่ได้ (ทั้งการ์ดเป็น Link เดียว)
+  //   → นับจำนวนต่อสถานะแค่บรรทัดเดียว ให้ "เห็นภาพรวม" โดยไม่ต้องมีรายการย่อย
+  //   ลอยเป็นก้อนๆ ให้สับสน ลำดับ: รอเริ่ม → กำลังทำ → เสร็จ (ตามลำดับงาน)
+  const statusBreakdown = React.useMemo(() => {
     if (!isGroup || totalTasks === 0) return [];
-    const tasks = [...(event.tasks || [])];
-    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
-    tasks.sort((a, b) => {
-      const sa = a.start_time || '';
-      const sb = b.start_time || '';
-      if (sa && sb && sa !== sb) return sa.localeCompare(sb);
-      if (sa && !sb) return -1;
-      if (!sa && sb) return 1;
-      const pa = PRIORITY_ORDER[a.priority] ?? 3;
-      const pb = PRIORITY_ORDER[b.priority] ?? 3;
-      if (pa !== pb) return pa - pb;
-      return a.title.localeCompare(b.title, 'th');
-    });
-    return tasks.slice(0, 3);
+    const counts: Record<TaskStatus, number> = { todo: 0, ongoing: 0, done: 0 };
+    for (const t of event.tasks || []) counts[t.status] += 1;
+    return STATUS_BREAKDOWN_ORDER
+      .map((status) => ({ status, count: counts[status] }))
+      .filter((entry) => entry.count > 0);
   }, [event.tasks, isGroup, totalTasks]);
-
-  const remainingCount = totalTasks > 3 ? totalTasks - 3 : 0;
 
   return (
     <Link
@@ -140,29 +144,31 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
           <span className="yp-chip-dot" aria-hidden="true" />
           {statusLabel(displayStatus)}
         </span>
+
+        {/* ★ v3.10.0 รอบที่ 32: ลูกศรบอกว่า "ทั้งการ์ดกดเข้าไปดูรายละเอียดได้"
+            เพิ่มเข้ามาเพราะก่อนหน้านี้ไม่มีสัญลักษณ์บอกเลยว่าการ์ดกดได้ */}
+        <ChevronRight
+          className="yp-event-card__chevron"
+          width={16}
+          height={16}
+          aria-hidden="true"
+        />
       </div>
 
-      {/* ★ v3.10.0 รอบที่ 26: แสดง preview รายการย่อย */}
-      {isGroup && previewTasks.length > 0 ? (
-        <div className="yp-event-card__subtasks">
-          {previewTasks.map((t) => (
-            <div key={t.id} className="yp-event-card__subtask">
-              <span className={`yp-event-card__subtask-dot yp-event-card__subtask-dot--${t.status}`} />
-              <span className="yp-event-card__subtask-title">{t.title}</span>
-              {t.start_time ? (
-                <span className="yp-event-card__subtask-time">{t.start_time}</span>
-              ) : null}
-              {t.priority === 'high' ? (
-                <span className="yp-event-card__subtask-priority">เร่ง</span>
-              ) : null}
-            </div>
-          ))}
-          {remainingCount > 0 ? (
-            <div className="yp-event-card__subtask-more">
-              +{remainingCount} รายการ
-              <ChevronRight width={12} height={12} />
-            </div>
-          ) : null}
+      {/* ★ v3.10.0 รอบที่ 32: สรุปสถานะรายการย่อยบรรทัดเดียว (breakdown)
+          แทนที่การ preview รายการย่อยทีละอัน (รอบที่ 26 เดิม) — เป็นข้อความสรุป
+          ล้วนๆ ไม่ใช่รายการที่ดูเหมือนกดได้ทีละแถว จึงไม่สับสนว่ากดตรงไหนได้ */}
+      {isGroup && statusBreakdown.length > 0 ? (
+        <div className="yp-event-card__breakdown">
+          <span className="yp-event-card__breakdown-label">รายการย่อย {totalTasks} รายการ</span>
+          <span className="yp-event-card__breakdown-chips">
+            {statusBreakdown.map(({ status, count }) => (
+              <span key={status} className={`yp-chip yp-chip--sm ${statusChipClass(status)}`}>
+                <span className="yp-chip-dot" aria-hidden="true" />
+                {statusLabel(status)} {count}
+              </span>
+            ))}
+          </span>
         </div>
       ) : null}
 
@@ -189,5 +195,3 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
     </Link>
   );
 }
-
-import * as React from 'react';

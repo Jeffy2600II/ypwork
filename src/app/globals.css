@@ -1956,6 +1956,23 @@
   transition: width 320ms var(--yp-ease-m3-emphasized);
 }
 
+/* ★ v3.10.0 รอบที่ 32: คำแนะนำสั้นๆ ว่ากดตรงไหนทำอะไร — ใส่ครั้งเดียวต่อกลุ่ม
+   ตัวเล็ก สีจาง ไม่แย่งความสนใจจากรายการจริง แต่ช่วยตัดความสับสนตั้งแต่แรกเห็น */
+.yp-today-group__hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px var(--yp-space-4) 0;
+  font-size: 10.5px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+.yp-today-group__hint svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
 /* ★ v3.10.0 รอบที่ 30: cards container — เปลี่ยนจาก gap + padding
    เป็น list ที่ใช้ divider บางๆ คั่นระหว่างรายการ
    ลด visual noise ทำให้ list ดูสะอาดตามากขึ้น */
@@ -1997,17 +2014,20 @@
 
 /* ── Status dot (เหมือน yp-task-status-dot) ── */
 .yp-today-item-card__dot {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 2px;
   border: 2px solid;
   position: relative;
   cursor: pointer;
   background: transparent;
   padding: 0;
-  transition: transform 150ms var(--yp-ease-m3-standard);
+  /* ★ v3.10.0 รอบที่ 32: ring แบบ static (ไม่ต้อง hover) — บนมือถือไม่มี hover
+     เอฟเฟกต์ hover เดิมเลยไม่มีใครเห็นเลย ต้องมีสัญญาณ "กดได้" ที่เห็นตลอดเวลา */
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.10);
+  transition: transform 150ms var(--yp-ease-m3-standard), box-shadow var(--yp-t-fast);
 }
 
 .yp-today-item-card:hover .yp-today-item-card__dot {
@@ -2259,8 +2279,8 @@
 
 /* ── Status dot (compact, 12px — เล็กกว่า full card เพื่อให้ title เด่น) ── */
 .yp-today-item-compact__dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
   border: 2px solid;
@@ -2268,7 +2288,10 @@
   cursor: pointer;
   background: transparent;
   padding: 0;
-  transition: transform 150ms var(--yp-ease-m3-standard);
+  /* ★ v3.10.0 รอบที่ 32: ring แบบ static เหมือนกับ .yp-today-item-card__dot
+     ด้านบน — ให้ดูเป็น "ปุ่ม" ที่กดได้ชัดเจน แม้บนหน้าจอสัมผัสที่ไม่มี hover */
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.10);
+  transition: transform 150ms var(--yp-ease-m3-standard), box-shadow var(--yp-t-fast);
 }
 
 .yp-today-item-compact:hover .yp-today-item-compact__dot {
@@ -2459,94 +2482,57 @@
   border: 1px solid color-mix(in srgb, var(--yp-danger-500, #F43F5E) 20%, transparent);
 }
 
-/* Subtask Preview (2-3 items + "+X more")
-   ★ v3.10.0 รอบที่ 30: ปรับปรุงให้สะอาดตามากขึ้น — ใช้ list-style แทน card-style
-   เพิ่ม divider บางๆ ระหว่างรายการ ลด background tint ให้ดูอ่อนนุ่ม */
-.yp-event-card__subtasks {
-  margin-top: var(--yp-space-3);
-  padding: var(--yp-space-2) var(--yp-space-3);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-page));
-  border-radius: var(--yp-radius-sm);
-  border: 1px solid var(--yp-border-subtle);
-}
-
-.yp-event-card__subtask {
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 32: Status Breakdown (แทน Subtask Preview เดิม)
+   ═══════════════════════════════════════════════════════════════
+   ทำไมเปลี่ยน: การ preview รายการย่อยทีละแถว (รอบที่ 26-30) มีปัญหาว่า
+   ผู้ใช้ (โดยเฉพาะคนที่ไม่คุ้นระบบ) มองว่าเป็น "การ์ดในการ์ด" แล้วสับสน
+   ว่ากดตรงไหนได้ ทั้งที่ทั้งใบเป็น Link เดียวไปหน้ารายละเอียด
+   → เปลี่ยนเป็นสรุปบรรทัดเดียว (ไม่มี border/background เป็นกล่องย่อยอีก)
+   เพื่อให้ "อ่านสรุปได้" โดยไม่ทำให้ดูเหมือนกดได้ทีละแถว */
+.yp-event-card__breakdown {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--yp-space-2);
-  padding: 5px 0;
+  margin-top: var(--yp-space-3);
+  padding-left: 58px; /* ★ เยื้องตามแนวเดียวกับ progress bar ด้านล่าง */
+}
+
+.yp-event-card__breakdown-label {
   font-size: var(--yp-text-xs);
-  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
-}
-
-/* ★ last subtask ไม่มี divider */
-.yp-event-card__subtask:last-child {
-  border-bottom: none;
-}
-
-.yp-event-card__subtask-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
   flex-shrink: 0;
 }
 
-.yp-event-card__subtask-dot--todo {
-  background: var(--yp-warning-500, #F59E0B);
-  opacity: 0.5;
-}
-
-.yp-event-card__subtask-dot--ongoing {
-  background: var(--yp-indigo-500, #6366F1);
-}
-
-.yp-event-card__subtask-dot--done {
-  background: var(--yp-success-500, #10B981);
-}
-
-.yp-event-card__subtask-title {
-  font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-body);
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.yp-event-card__subtask-time {
-  font-weight: var(--yp-fw-bold);
-  color: var(--accent, var(--yp-indigo-500));
-  min-width: 42px;
-  text-align: center;
-  font-size: 11px;
-}
-
-.yp-event-card__subtask-priority {
-  font-size: 9px;
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-danger-500, #F43F5E);
-  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 10%, transparent);
-  padding: 1px 4px;
-  border-radius: var(--yp-radius-sm);
-}
-
-.yp-event-card__subtask-more {
+.yp-event-card__breakdown-chips {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 4px 0 0;
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-bold);
-  color: var(--accent, var(--yp-indigo-500));
-  border-top: 1px solid var(--yp-border-subtle);
-  margin-top: 4px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.yp-event-card__subtask-more svg {
-  width: 12px;
-  height: 12px;
+/* ★ chip ขนาดเล็ก — ใช้ต่อยอดจาก .yp-chip เดิม (สีต่อสถานะใช้ของเดิมทั้งหมด
+   ไม่สร้างสีซ้ำ เพื่อให้ทุกหน้าที่มี status chip ใช้โทนสีเดียวกันเป๊ะๆ) */
+.yp-chip--sm {
+  padding: 2px 8px;
+  font-size: 10px;
+  gap: 4px;
+}
+
+/* ★ v3.10.0 รอบที่ 32: ลูกศรบอกว่าการ์ดกดเข้าไปดูรายละเอียดได้ */
+.yp-event-card__chevron {
+  flex-shrink: 0;
+  color: var(--yp-text-faint);
+  opacity: 0.6;
+  transition: opacity var(--yp-t-fast), transform var(--yp-t-fast);
+}
+
+.yp-event-card:hover .yp-event-card__chevron {
+  opacity: 1;
+  transform: translateX(2px);
+  color: var(--accent, var(--yp-indigo-500));
 }
 
 /* ═══════════════════════════════════════════════════════════════

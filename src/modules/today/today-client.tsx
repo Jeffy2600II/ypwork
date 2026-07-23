@@ -279,6 +279,48 @@ function buildSmartGroups(items: TimelineItem[]): SmartGroup[] {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 32: UpcomingDateCluster — จัดกลุ่ม "กำลังจะถึง" ตามวันที่
+//   ปัญหาเดิม: รายการกำลังจะถึงทั้งหมดถูกโยนมาเป็น list เดียวยาวๆ ไม่บอกว่า
+//   อันไหนจะมาวันไหน (ต่างจาก "วันนี้" ที่แยกช่วงเช้า/บ่ายให้ชัดเจน)
+//   → จัดกลุ่มตามวันที่ (เรียงจากใกล้ไปไกลอยู่แล้วจาก sort ก่อนหน้า)
+//   แล้วแสดงเป็นแถบคั่นแบบเดียวกับช่วงเช้า/บ่าย พร้อมบอกว่า "อีกกี่วัน"
+// ═══════════════════════════════════════════════════════════════
+interface UpcomingDateCluster {
+  dateKey: string;
+  groups: SmartGroup[];
+  itemCount: number;
+}
+
+function buildUpcomingDateClusters(groups: SmartGroup[]): UpcomingDateCluster[] {
+  const clusters: UpcomingDateCluster[] = [];
+  for (const group of groups) {
+    const firstItem = group.items[0];
+    // ★ ลำดับความสำคัญของวันที่อ้างอิง: start_date ของ task > วันที่ event > due date
+    //   (ให้สอดคล้องกับ key ที่ใช้ sort ตอนสร้าง upcomingTimelineItems ด้านบน)
+    const dateKey = firstItem.task?.start_date || group.parentEvent?.date || firstItem.dueDate || '';
+    const lastCluster = clusters[clusters.length - 1];
+    if (lastCluster && lastCluster.dateKey === dateKey) {
+      lastCluster.groups.push(group);
+      lastCluster.itemCount += group.items.length;
+    } else {
+      clusters.push({ dateKey, groups: [group], itemCount: group.items.length });
+    }
+  }
+  return clusters;
+}
+
+/** ★ v3.10.0 รอบที่ 32: แคปชั่นวันที่เต็ม สำหรับแถบคั่นของ "กำลังจะถึง" */
+function formatUpcomingDateCaption(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const weekday = THAI_DAYS[d.getDay()];
+  const day = d.getDate();
+  const month = THAI_MONTHS[d.getMonth()];
+  const yearBE = d.getFullYear() + 543;
+  return `วัน${weekday}ที่ ${day} ${month} ${yearBE}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // Helper: จัดกลุ่ม timeline items ตามช่วงเวลา
 // ═══════════════════════════════════════════════════════════════
 function buildTimeGroups(items: TimelineItem[]) {
@@ -584,6 +626,12 @@ export function TodayClient({
     [upcomingTimelineItems]
   );
 
+  // ★ v3.10.0 รอบที่ 32: จัดกลุ่ม "กำลังจะถึง" ตามวันที่ เพื่อแสดงแถบคั่นวันที่
+  const upcomingDateClusters = React.useMemo(
+    () => buildUpcomingDateClusters(upcomingSmartGroups),
+    [upcomingSmartGroups]
+  );
+
   const todayTotalCount = todayTimelineItems.length;
   const overdueCount = overdueTimelineItems.length;
   // ★ v3.10.0 รอบที่ 31: upcomingCount นับจาก timeline items แทน events
@@ -783,16 +831,36 @@ export function TodayClient({
             <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
-          <div className="yp-today-card-list">
-            {upcomingSmartGroups.map((group) => (
-              <SmartGroupCard
-                key={group.groupId}
-                group={group}
-                onOpenStatusPicker={handleOpenStatusPicker}
-                todayStr={todayStr}
-              />
-            ))}
-          </div>
+          /* ★ v3.10.0 รอบที่ 32: แสดงแถบคั่นแยกตามวันที่ (เหมือนช่วงเช้า/บ่าย)
+             แทนการโยนรายการทั้งหมดเป็น list เดียว — ให้เห็นชัดว่าอะไรมาวันไหน */
+          upcomingDateClusters.map((cluster) => (
+            <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
+              <div className="yp-today-time-section__head">
+                <span className="yp-today-time-section__icon" aria-hidden="true">
+                  <CalIcon width={16} height={16} strokeWidth={2} />
+                </span>
+                <div className="yp-today-time-section__text">
+                  <div className="yp-today-time-section__label">
+                    {cluster.dateKey ? relativeDay(cluster.dateKey) : 'ไม่ระบุวันที่'}
+                  </div>
+                  <div className="yp-today-time-section__caption">
+                    {cluster.dateKey ? formatUpcomingDateCaption(cluster.dateKey) : 'ยังไม่ได้กำหนดวันที่'}
+                  </div>
+                </div>
+                <span className="yp-today-time-section__count">{cluster.itemCount}</span>
+              </div>
+              <div className="yp-today-card-list">
+                {cluster.groups.map((group) => (
+                  <SmartGroupCard
+                    key={group.groupId}
+                    group={group}
+                    onOpenStatusPicker={handleOpenStatusPicker}
+                    todayStr={todayStr}
+                  />
+                ))}
+              </div>
+            </div>
+          ))
         )}
       </section>
 
@@ -1019,6 +1087,14 @@ function SmartGroupCard({
           </div>
         </div>
       ) : null}
+
+      {/* ★ v3.10.0 รอบที่ 32: คำแนะนำสั้นๆ บอกว่ากดตรงไหนทำอะไร
+          ผู้ใช้แจ้งว่าเพื่อนที่ไม่คุ้นระบบ ไม่รู้ว่ากดตรงไหนเปลี่ยนสถานะได้
+          โดยเฉพาะรายการที่อยู่ในกลุ่ม — ใส่บรรทัดนี้ครั้งเดียวต่อกลุ่ม ไม่ใส่
+          ซ้ำทุกแถวรายการย่อย เพื่อไม่ให้รก */}
+      <div className="yp-today-group__hint">
+        แตะรายการเพื่อเปลี่ยนสถานะ · แตะลูกศร <ArrowUpRight width={10} height={10} /> เพื่อดูรายละเอียด
+      </div>
 
       {/* ── Items: compact list (★ v3.10.0 รอบที่ 30: ใช้ compact variant) ── */}
       <div className="yp-today-group__cards">
