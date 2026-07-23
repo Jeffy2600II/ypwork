@@ -1,27 +1,26 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r28 — redesign cards)
+// YP WORK · Today Dashboard (v3.10.0-r33 — การ์ดเดี่ยวทั้งหมด)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 28: ปรับปรุงการออกแบบการ์ดให้กว้างสมดุลมั่นคง
-//   ศึกษาจาก TaskRow ในหน้ากลุ่มรายการ (event-detail-client.tsx)
-//   และแพลตฟอร์มขนาดใหญ่ (Google Calendar, Todoist, Things)
+// ★ v3.10.0 รอบที่ 33: ปรับปรุงครั้งใหญ่
 //
-//   ปัญหารอบที่ 27:
-//   1. การ์ดสูงเกิน/กว้างไม่พอ → aspect ratio ไม่สมดุล
-//   2. รายการย่อยแสดงเป็น flat row → ไม่มี visual weight
-//   3. Smart grouping ยุบรวมข้ามวันที่ → ไม่ชัดเจน
-//   4. คุณภาพการออกแบบไม่สู้หน้าอื่นได้
+//   ปัญหารอบที่ 32:
+//   1. รายการย่อยในกลุ่มแสดงเป็น list แบบธรรมดา (compact)
+//      → ไม่สวยเท่าการ์ดในหน้ารายละเอียดกลุ่มรายการ
+//   2. มีกรอบใหญ่ (yp-today-group) ครอบกลุ่มรายการ → รก ซ้ำซ้อน
+//   3. รายการย่อยที่คนละวันเริ่ม แต่อยู่กลุ่มเดียวกัน → ถูกรวม
+//      อยู่วันที่เดียวกันในส่วน "กำลังจะถึง"
+//   4. ไม่ชัดเจนพอว่าอันไหนคือรายการย่อย vs รายการธรรมดา
 //
-//   สิ่งที่เปลี่ยนรอบที่ 28:
-//   - ทุกรายการเป็นการ์ดเต็มรูปแบบ (เหมือน TaskRow) — มี border,
-//     shadow, pill chips, 2-line layout (title + meta)
-//   - Smart Grouping: แยกตามวันที่อย่างชัดเจน
-//     วันนี้ยุบรวมกันได้ (ถ้าเวลาใกล้ + กลุ่มเดียวกัน + ไม่มีตัวแทรก)
-//     แต่ข้ามวันที่ (เลยกำหนด vs วันนี้ vs กำลังจะถึง) แยกเด็ดขาด
-//   - Group header เป็น slim accent banner
-//   - รายการย่อยในกลุ่มเป็น mini-card แต่ละอัน (ไม่ใช่ flat row)
-//   - pill chips เหมือน TaskRow: status, time, priority, assignee, est
+//   สิ่งที่เปลี่ยนรอบที่ 33:
+//   - ลบ SmartGroupCard / yp-today-group ทิ้งทั้งหมด
+//   - ทุกรายการเป็นการ์ดเดี่ยว (เหมือน TaskRow ในหน้ารายละเอียด)
+//     มี border, shadow, pill chips, 2-line layout
+//   - รายการย่อยมีตัวบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
+//   - แยกตาม start_date อย่างเคร่งครัด — งานที่คนละวันเริ่ม
+//     ต้องอยู่คนละวัน/คนละ section อย่างเด็ดขาด
+//   - คลิกชื่อกลุ่มรายการ → ไปหน้ารายละเอียดงาน
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -65,7 +64,7 @@ export interface TodayClientProps {
   deptStats: { total: number; done: number; ongoing: number; overdue: number };
 }
 
-// ★ v3.10.0 รอบที่ 27-28: STATUS_META — เหมือน event-detail-client.tsx เป๊ะๆ
+// ★ v3.10.0: STATUS_META — เหมือน event-detail-client.tsx
 const STATUS_META: Record<
   TaskStatus | EventStatus,
   { color: string; label: string; desc: string }
@@ -101,15 +100,17 @@ interface TimelineItem {
   dueDate: string | null;
   location: string | null;
   eventTime: string | null;
-  /** ★ v3.10.0 รอบที่ 28: date context — วันที่ที่รายการนี้อยู่ */
+  /** วันที่ที่รายการนี้อยู่ (สำหรับจัดกลุ่มแสดงผล) */
   dateContext: string;
+  /** ★ v3.10.0 รอบที่ 33: วันที่เริ่มจริงของรายการ (สำหรับแยกกลุ่มตามวันที่) */
+  itemDate: string;
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Helper: สร้าง TimelineItems จาก events ของวันใดวันหนึ่ง
-// ★ v3.10.0 รอบที่ 31: เพิ่มการกรอง subtask ตาม start_date
-//   ถ้า subtask มี start_date > dateStr → ไม่รวมใน section นี้
-//   (จะไปอยู่ใน upcoming แทน แม้ว่า parent event จะอยู่ในวันนี้ก็ตาม)
+// ★ v3.10.0 รอบที่ 33: itemDate ใช้ start_date เป็นหลัก
+//   สำหรับ subtask → itemDate = task.start_date || ev.date
+//   สำหรับ event → itemDate = ev.start_date || ev.date
 // ═══════════════════════════════════════════════════════════════
 function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: string): TimelineItem[] {
   const items: TimelineItem[] = [];
@@ -136,13 +137,12 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
           location: ev.location || null,
           eventTime: ev.time || null,
           dateContext,
+          itemDate: ev.start_date || ev.date,
         });
       } else {
         for (const t of tasks) {
           if (dateContext === 'overdue' && t.status === 'done') continue;
-          // ★ v3.10.0 รอบที่ 31: ถ้า subtask เริ่มในอนาคต (start_date > dateStr)
-          //   → ไม่รวมใน section นี้ จะไปอยู่ใน upcoming แทน
-          //   ยกเว้นถ้า dateContext เป็น 'upcoming' ก็รวมได้
+          // ★ รอบที่ 33: ใช้ start_date เป็นหลักในการกำหนด itemDate
           if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
           items.push({
             id: `task-${t.id}`,
@@ -161,6 +161,7 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
             location: ev.location || null,
             eventTime: ev.time || null,
             dateContext,
+            itemDate: t.start_date || ev.start_date || ev.date,
           });
         }
       }
@@ -182,6 +183,7 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
         location: ev.location || null,
         eventTime: ev.time || null,
         dateContext,
+        itemDate: ev.start_date || ev.date,
       });
     }
   }
@@ -192,7 +194,6 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
     for (const t of ev.tasks || []) {
       if (t.due_date === dateStr) {
         if (dateContext === 'overdue' && t.status === 'done') continue;
-        // ★ v3.10.0 รอบที่ 31: ถ้า subtask เริ่มในอนาคต → ไม่รวมใน section นี้
         if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
         items.push({
           id: `task-${t.id}`,
@@ -211,12 +212,13 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
           location: ev.location || null,
           eventTime: ev.time || null,
           dateContext,
+          itemDate: t.start_date || ev.start_date || ev.date,
         });
       }
     }
   }
 
-  // เรียงตามเวลา → priority → title
+  // เรียงตาม priority → time → title
   const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
   items.sort((a, b) => {
     const pa = PRIORITY_ORDER[a.priority] ?? 3;
@@ -234,83 +236,34 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 28: Smart Group — แยกตาม dateContext อย่างชัดเจน
-//   ถ้าคนละวันที่ → แยก group เด็ดขาด ไม่ยุบรวม
-//   ยุบรวมเฉพาะ: วันเดียวกัน + กลุ่มเดียวกัน + ไม่มีตัวแทรก
+// ★ v3.10.0 รอบที่ 33: DateCluster — จัดกลุ่ม items ตาม itemDate
+//   ใช้แทน SmartGroup + UpcomingDateCluster เดิม
+//   แยกตาม itemDate (start_date เป็นหลัก) อย่างเคร่งครัด
+//   งานที่คนละวันเริ่ม จะอยู่คนละ cluster อย่างเด็ดขาด
 // ═══════════════════════════════════════════════════════════════
-interface SmartGroup {
-  groupId: string;
-  items: TimelineItem[];
-  accent: string;
-  parentTitle: string | null;
-  parentEvent: YPEvent | null;
-  isSingle: boolean;
-  dateContext: string;
-}
-
-function buildSmartGroups(items: TimelineItem[]): SmartGroup[] {
-  const result: SmartGroup[] = [];
-  let currentGroup: SmartGroup | null = null;
-
-  for (const item of items) {
-    const groupKey = item.parentEvent?.id || (item.event?.id ? `single-${item.event.id}` : `single-${item.id}`);
-    // ★ v3.10.0 รอบที่ 28: ต้องเป็น dateContext เดียวกัน + groupKey เดียวกัน + อยู่ติดกัน
-    const shouldMerge = currentGroup
-      && currentGroup.groupId === groupKey
-      && currentGroup.dateContext === item.dateContext;
-
-    if (shouldMerge && currentGroup) {
-      currentGroup.items.push(item);
-    } else {
-      if (currentGroup) result.push(currentGroup);
-      currentGroup = {
-        groupId: groupKey,
-        items: [item],
-        accent: item.accent,
-        parentTitle: item.parentEvent?.title || null,
-        parentEvent: item.parentEvent || null,
-        isSingle: !item.parentEvent && !!item.event,
-        dateContext: item.dateContext,
-      };
-    }
-  }
-  if (currentGroup) result.push(currentGroup);
-  return result;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 32: UpcomingDateCluster — จัดกลุ่ม "กำลังจะถึง" ตามวันที่
-//   ปัญหาเดิม: รายการกำลังจะถึงทั้งหมดถูกโยนมาเป็น list เดียวยาวๆ ไม่บอกว่า
-//   อันไหนจะมาวันไหน (ต่างจาก "วันนี้" ที่แยกช่วงเช้า/บ่ายให้ชัดเจน)
-//   → จัดกลุ่มตามวันที่ (เรียงจากใกล้ไปไกลอยู่แล้วจาก sort ก่อนหน้า)
-//   แล้วแสดงเป็นแถบคั่นแบบเดียวกับช่วงเช้า/บ่าย พร้อมบอกว่า "อีกกี่วัน"
-// ═══════════════════════════════════════════════════════════════
-interface UpcomingDateCluster {
+interface DateCluster {
   dateKey: string;
-  groups: SmartGroup[];
+  items: TimelineItem[];
   itemCount: number;
 }
 
-function buildUpcomingDateClusters(groups: SmartGroup[]): UpcomingDateCluster[] {
-  const clusters: UpcomingDateCluster[] = [];
-  for (const group of groups) {
-    const firstItem = group.items[0];
-    // ★ ลำดับความสำคัญของวันที่อ้างอิง: start_date ของ task > วันที่ event > due date
-    //   (ให้สอดคล้องกับ key ที่ใช้ sort ตอนสร้าง upcomingTimelineItems ด้านบน)
-    const dateKey = firstItem.task?.start_date || group.parentEvent?.date || firstItem.dueDate || '';
+function buildDateClusters(items: TimelineItem[]): DateCluster[] {
+  const clusters: DateCluster[] = [];
+  for (const item of items) {
+    const dateKey = item.itemDate;
     const lastCluster = clusters[clusters.length - 1];
     if (lastCluster && lastCluster.dateKey === dateKey) {
-      lastCluster.groups.push(group);
-      lastCluster.itemCount += group.items.length;
+      lastCluster.items.push(item);
+      lastCluster.itemCount++;
     } else {
-      clusters.push({ dateKey, groups: [group], itemCount: group.items.length });
+      clusters.push({ dateKey, items: [item], itemCount: 1 });
     }
   }
   return clusters;
 }
 
-/** ★ v3.10.0 รอบที่ 32: แคปชั่นวันที่เต็ม สำหรับแถบคั่นของ "กำลังจะถึง" */
-function formatUpcomingDateCaption(dateStr: string): string {
+/** แคปชั่นวันที่เต็ม สำหรับแถบคั่น */
+function formatFullDateCaption(dateStr: string): string {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
   const weekday = THAI_DAYS[d.getDay()];
@@ -369,18 +322,18 @@ export function TodayClient({
   const todayStr = getLocalTodayStr();
 
   // ═══════════════════════════════════════════════════════════════
-  // ★ v3.10.0 รอบที่ 28: สร้าง timeline items แยกตาม dateContext
+  // ★ v3.10.0 รอบที่ 33: สร้าง timeline items แยกตาม dateContext
   //   วันนี้, เลยกำหนด, กำลังจะถึง — แยกอย่างชัดเจน
+  //   ใช้ itemDate (start_date เป็นหลัก) ในการจัดกลุ่มตามวันที่
   // ═══════════════════════════════════════════════════════════════
   const overdueEvents = events.filter(
     (e) => e.date < todayStr && resolveEventStatus(e) !== 'done'
   );
 
-  // ★ สร้าง overdue items — แยกตามวันที่ของ event แต่ละวัน
+  // ★ สร้าง overdue items
   const overdueTimelineItems = React.useMemo(() => {
     const items: TimelineItem[] = [];
     for (const ev of overdueEvents) {
-      // แต่ละ overdue event → สร้าง items ด้วย dateContext = 'overdue'
       if (ev.type === 'group') {
         const tasks = ev.tasks || [];
         if (tasks.length === 0) {
@@ -401,6 +354,7 @@ export function TodayClient({
             location: ev.location || null,
             eventTime: ev.time || null,
             dateContext: 'overdue',
+            itemDate: ev.start_date || ev.date,
           });
         } else {
           for (const t of tasks) {
@@ -422,6 +376,7 @@ export function TodayClient({
               location: ev.location || null,
               eventTime: ev.time || null,
               dateContext: 'overdue',
+              itemDate: t.start_date || ev.start_date || ev.date,
             });
           }
         }
@@ -443,15 +398,16 @@ export function TodayClient({
           location: ev.location || null,
           eventTime: ev.time || null,
           dateContext: 'overdue',
+          itemDate: ev.start_date || ev.date,
         });
       }
     }
 
-    // เรียง: เก่าสุดก่อน (date) → time → priority
     const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
     items.sort((a, b) => {
-      const da = a.parentEvent?.date || a.dueDate || '';
-      const db = b.parentEvent?.date || b.dueDate || '';
+      // ★ รอบที่ 33: เรียงตาม itemDate (วันที่เริ่ม) ก่อน
+      const da = a.itemDate;
+      const db = b.itemDate;
       if (da && db && da !== db) return da.localeCompare(db);
       const pa = PRIORITY_ORDER[a.priority] ?? 3;
       const pb = PRIORITY_ORDER[b.priority] ?? 3;
@@ -471,17 +427,14 @@ export function TodayClient({
     [events, todayStr]
   );
 
-  // ★ v3.10.0 รอบที่ 31: upcoming รวม events ที่ deadline ในอนาคต
-  //   PLUS subtasks ที่ start_date ในอนาคต (แม้ parent event จะอยู่วันนี้หรือเลยกำหนด)
-  //   ปรับจากเดิมที่ slice(0, 4) → ใช้ทั้งหมด เพราะต้องรวม future-start subtasks ด้วย
   const upcomingEvents = events.filter((e) => e.date > todayStr);
 
-  // ★ สร้าง upcoming items แยก dateContext = 'upcoming'
+  // ★ สร้าง upcoming items — ใช้ itemDate = start_date เป็นหลัก
   const upcomingTimelineItems = React.useMemo(() => {
     const items: TimelineItem[] = [];
     const seenTaskIds = new Set<string>();
 
-    // 1. Events ที่ deadline ในอนาคต (เหมือนเดิม)
+    // 1. Events ที่ deadline ในอนาคต
     for (const ev of upcomingEvents) {
       if (ev.type === 'group') {
         const tasks = ev.tasks || [];
@@ -503,9 +456,9 @@ export function TodayClient({
             location: ev.location || null,
             eventTime: ev.time || null,
             dateContext: 'upcoming',
+            itemDate: ev.start_date || ev.date,
           });
         } else {
-          // ★ upcoming: แสดงเฉพาะรายการย่อยที่ยังไม่เสร็จ (เพื่อความสะดวก)
           for (const t of tasks) {
             if (t.status === 'done') continue;
             seenTaskIds.add(t.id);
@@ -526,6 +479,8 @@ export function TodayClient({
               location: ev.location || null,
               eventTime: ev.time || null,
               dateContext: 'upcoming',
+              // ★ รอบที่ 33: itemDate ใช้ start_date เป็นหลักเสมอ
+              itemDate: t.start_date || ev.start_date || ev.date,
             });
           }
         }
@@ -547,20 +502,18 @@ export function TodayClient({
           location: ev.location || null,
           eventTime: ev.time || null,
           dateContext: 'upcoming',
+          itemDate: ev.start_date || ev.date,
         });
       }
     }
 
-    // ★ v3.10.0 รอบที่ 31: 2. Subtasks ที่ start_date ในอนาคต จาก events ทั้งหมด
-    //   แม้ parent event จะอยู่วันนี้หรือเลยกำหนด แต่ถ้า subtask เริ่มในอนาคต
-    //   → ไปอยู่ใน upcoming (ไม่รวมซ้ำกับที่เพิ่ง add ไปแล้ว)
+    // ★ รอบที่ 33: 2. Subtasks ที่ start_date ในอนาคต จาก events ทั้งหมด
     for (const ev of events) {
-      if (ev.date > todayStr) continue; // ← ข้าม events ที่ deadline ในอนาคต (จัดไปแล้ว)
+      if (ev.date > todayStr) continue;
       const tasks = ev.tasks || [];
       for (const t of tasks) {
         if (t.status === 'done') continue;
-        if (seenTaskIds.has(t.id)) continue; // ← ข้ามถ้าเพิ่ง add ไปแล้ว
-        // ★ เฉพาะ subtask ที่ start_date > today และยังไม่เสร็จ
+        if (seenTaskIds.has(t.id)) continue;
         if (t.start_date && t.start_date > todayStr) {
           seenTaskIds.add(t.id);
           items.push({
@@ -580,17 +533,18 @@ export function TodayClient({
             location: ev.location || null,
             eventTime: ev.time || null,
             dateContext: 'upcoming',
+            // ★ รอบที่ 33: itemDate = start_date ของ task (สำคัญ!)
+            itemDate: t.start_date || ev.start_date || ev.date,
           });
         }
       }
     }
 
-    // เรียง: start_date → time → priority → title
+    // ★ รอบที่ 33: เรียงตาม itemDate → priority → time → title
     const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
     items.sort((a, b) => {
-      // ★ upcoming: เรียงตาม start_date ของ task หรือ date ของ event
-      const da = a.task?.start_date || a.parentEvent?.date || a.dueDate || '';
-      const db = b.task?.start_date || b.parentEvent?.date || b.dueDate || '';
+      const da = a.itemDate;
+      const db = b.itemDate;
       if (da && db && da !== db) return da.localeCompare(db);
       const pa = PRIORITY_ORDER[a.priority] ?? 3;
       const pb = PRIORITY_ORDER[b.priority] ?? 3;
@@ -611,31 +565,20 @@ export function TodayClient({
     [todayTimelineItems]
   );
 
-  const smartGroupedItems = React.useMemo(
-    () => buildSmartGroups([...timeGroups.morning, ...timeGroups.afternoon, ...timeGroups.unscheduled]),
-    [timeGroups]
-  );
-
-  const overdueSmartGroups = React.useMemo(
-    () => buildSmartGroups(overdueTimelineItems),
+  // ★ v3.10.0 รอบที่ 33: ใช้ buildDateClusters แทน buildSmartGroups
+  //   แยกตาม itemDate อย่างเคร่งครัด
+  const overdueDateClusters = React.useMemo(
+    () => buildDateClusters(overdueTimelineItems),
     [overdueTimelineItems]
   );
 
-  const upcomingSmartGroups = React.useMemo(
-    () => buildSmartGroups(upcomingTimelineItems),
-    [upcomingTimelineItems]
-  );
-
-  // ★ v3.10.0 รอบที่ 32: จัดกลุ่ม "กำลังจะถึง" ตามวันที่ เพื่อแสดงแถบคั่นวันที่
   const upcomingDateClusters = React.useMemo(
-    () => buildUpcomingDateClusters(upcomingSmartGroups),
-    [upcomingSmartGroups]
+    () => buildDateClusters(upcomingTimelineItems),
+    [upcomingTimelineItems]
   );
 
   const todayTotalCount = todayTimelineItems.length;
   const overdueCount = overdueTimelineItems.length;
-  // ★ v3.10.0 รอบที่ 31: upcomingCount นับจาก timeline items แทน events
-  //   เพราะตอนนี้ upcoming รวม future-start subtasks ด้วย ไม่ใช่แค่ events
   const upcomingCount = upcomingTimelineItems.length;
 
   const deptStats = React.useMemo(() => {
@@ -650,7 +593,7 @@ export function TodayClient({
   }, [events, dept, todayStr, initialDeptStats]);
 
   // ═══════════════════════════════════════════════════════════════
-  // STATUS PICKER — เหมือนหน้ากลุ่มรายการเป๊ะๆ
+  // STATUS PICKER
   // ═══════════════════════════════════════════════════════════════
   const [statusPickerOpen, setStatusPickerOpen] = React.useState(false);
   const [activeItem, setActiveItem] = React.useState<TimelineItem | null>(null);
@@ -674,7 +617,6 @@ export function TodayClient({
     const isTask = !!item.task;
     const isEvent = !!item.event;
 
-    // ★ Optimistic update
     if (isTask && item.task) patchTask(item.task.id, { status: newStatus as TaskStatus });
     else if (isEvent && item.event) patchEvent(item.event.id, { status: newStatus as EventStatus });
 
@@ -710,6 +652,57 @@ export function TodayClient({
   // ═══════════════════════════════════════════════════════════════
   // RENDER
   // ═══════════════════════════════════════════════════════════════
+
+  // ★ รอบที่ 33: render การ์ดแต่ละใบพร้อม section hint
+  const renderCardList = (items: TimelineItem[], showHint = false) => (
+    <div className="yp-today-card-list">
+      {items.map((item) => (
+        <TodayItemCard
+          key={item.id}
+          item={item}
+          onOpenStatusPicker={handleOpenStatusPicker}
+          todayStr={todayStr}
+        />
+      ))}
+      {showHint ? (
+        <div className="yp-today-card-list__hint">
+          แตะรายการเพื่อเปลี่ยนสถานะ
+        </div>
+      ) : null}
+    </div>
+  );
+
+  // ★ รอบที่ 33: render date cluster (สำหรับ overdue และ upcoming)
+  //   แยกตาม itemDate อย่างชัดเจน แต่ละวันมีแถบคั่นของตัวเอง
+  const renderDateClusterSection = (
+    clusters: DateCluster[],
+    icon: React.ReactNode,
+    getLabel: (dateKey: string) => string,
+    isOverdue = false
+  ) => (
+    <>
+      {clusters.map((cluster) => (
+        <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
+          <div className="yp-today-time-section__head">
+            <span className="yp-today-time-section__icon" aria-hidden="true">
+              {icon}
+            </span>
+            <div className="yp-today-time-section__text">
+              <div className="yp-today-time-section__label">
+                {cluster.dateKey ? getLabel(cluster.dateKey) : 'ไม่ระบุวันที่'}
+              </div>
+              <div className="yp-today-time-section__caption">
+                {cluster.dateKey ? formatFullDateCaption(cluster.dateKey) : 'ยังไม่ได้กำหนดวันที่'}
+              </div>
+            </div>
+            <span className="yp-today-time-section__count">{cluster.itemCount}</span>
+          </div>
+          {renderCardList(cluster.items, true)}
+        </div>
+      ))}
+    </>
+  );
+
   const renderOverdueSection = () => {
     if (overdueCount === 0) return null;
     return (
@@ -720,16 +713,12 @@ export function TodayClient({
           </h2>
           <span className="yp-today-section__count yp-today-section__count--overdue">{overdueCount} รายการ</span>
         </div>
-        <div className="yp-today-card-list">
-          {overdueSmartGroups.map((group) => (
-            <SmartGroupCard
-              key={group.groupId}
-              group={group}
-              onOpenStatusPicker={handleOpenStatusPicker}
-              todayStr={todayStr}
-            />
-          ))}
-        </div>
+        {/* ★ รอบที่ 33: แยกตามวันที่ด้วย date cluster */}
+        {overdueDateClusters.length <= 1 ? (
+          renderCardList(overdueTimelineItems, true)
+        ) : (
+          renderDateClusterSection(overdueDateClusters, <AlertTriangle width={16} height={16} strokeWidth={2} />, (dk) => relativeDay(dk), true)
+        )}
       </section>
     );
   };
@@ -742,9 +731,6 @@ export function TodayClient({
     sectionKey: string
   ) => {
     if (items.length === 0) return null;
-    const sectionGroups = smartGroupedItems.filter((g) =>
-      g.items.some((i) => items.some((si) => si.id === i.id))
-    );
     return (
       <div className="yp-today-time-section">
         <div className="yp-today-time-section__head">
@@ -755,16 +741,7 @@ export function TodayClient({
           </div>
           <span className="yp-today-time-section__count">{items.length}</span>
         </div>
-        <div className="yp-today-card-list">
-          {sectionGroups.map((group) => (
-            <SmartGroupCard
-              key={group.groupId + '-' + sectionKey}
-              group={group}
-              onOpenStatusPicker={handleOpenStatusPicker}
-              todayStr={todayStr}
-            />
-          ))}
-        </div>
+        {renderCardList(items)}
       </div>
     );
   };
@@ -831,36 +808,14 @@ export function TodayClient({
             <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
-          /* ★ v3.10.0 รอบที่ 32: แสดงแถบคั่นแยกตามวันที่ (เหมือนช่วงเช้า/บ่าย)
-             แทนการโยนรายการทั้งหมดเป็น list เดียว — ให้เห็นชัดว่าอะไรมาวันไหน */
-          upcomingDateClusters.map((cluster) => (
-            <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
-              <div className="yp-today-time-section__head">
-                <span className="yp-today-time-section__icon" aria-hidden="true">
-                  <CalIcon width={16} height={16} strokeWidth={2} />
-                </span>
-                <div className="yp-today-time-section__text">
-                  <div className="yp-today-time-section__label">
-                    {cluster.dateKey ? relativeDay(cluster.dateKey) : 'ไม่ระบุวันที่'}
-                  </div>
-                  <div className="yp-today-time-section__caption">
-                    {cluster.dateKey ? formatUpcomingDateCaption(cluster.dateKey) : 'ยังไม่ได้กำหนดวันที่'}
-                  </div>
-                </div>
-                <span className="yp-today-time-section__count">{cluster.itemCount}</span>
-              </div>
-              <div className="yp-today-card-list">
-                {cluster.groups.map((group) => (
-                  <SmartGroupCard
-                    key={group.groupId}
-                    group={group}
-                    onOpenStatusPicker={handleOpenStatusPicker}
-                    todayStr={todayStr}
-                  />
-                ))}
-              </div>
-            </div>
-          ))
+          /* ★ v3.10.0 รอบที่ 33: แยกตาม itemDate (start_date) อย่างเคร่งครัด
+             รายการย่อยที่คนละวันเริ่ม จะอยู่คนละแถบคั่นวันที่อย่างเด็ดขาด */
+          renderDateClusterSection(
+            upcomingDateClusters,
+            <CalIcon width={16} height={16} strokeWidth={2} />,
+            (dk) => relativeDay(dk),
+            false
+          )
         )}
       </section>
 
@@ -955,193 +910,25 @@ export function TodayClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 30: SmartGroupCard — ออกแบบใหม่ทั้งหมดตามหลักการ
-//   ออกแบบระดับมืออาชีพ (Apple HIG + Material 3 + Linear + Things 3)
+// ★ v3.10.0 รอบที่ 33: TodayItemCard — การ์ดเดี่ยวสำหรับทุกรายการ
 //
-//   หลักการที่ใช้:
-//   1. มั่นคง — โครงสร้างชัดเจน: header (banner) + body (list)
-//      มี background ใน body ทำให้รายการย่อยไม่ "ลอย"
-//   2. สวยงาม น่าใช้ — ใช้ accent tint อ่อนๆ แทนสีเข้ม
-//      progress bar แบบ thin, modern แสดงความคืบหน้าของกลุ่ม
-//   3. สะอาดตา — ใช้ whitespace + alignment แทนเส้นขอบหนา
-//      ลด chip ที่ไม่จำเป็น เก็บไว้แค่สารสำคัญ
-//   4. สมดุล — มุมโค้งด้านบนกว้าง ด้านล่างแคบลง เพื่อให้กลมกลืน
-//      กับการ์ดย่อยด้านในที่มีมุมโค้งเล็กกว่า
-//
-//   โครงสร้างใหม่:
-//   ┌─────────────────────────────────────┐ ← top: lg radius
-//   │ ▒  วันแม่แห่งชาติ   ⏰ 08:00  →  │    banner (accent tint)
-//   │    โรงเรียน · 5/8 เสร็จ  ▰▰▰▰▱▱▱▱ │    progress (NEW)
-//   ├─────────────────────────────────────┤
-//   │ ┌─────────────────────────────────┐ │ ← inner cards: sm radius
-//   │ │ ● ซื้อของ         ✓ เสร็จ       │ │    compact list style
-//   │ ├─────────────────────────────────┤ │
-//   │ │ ● ตกแต่งบูธ      ⏳ กำลังทำ    │ │
-//   │ └─────────────────────────────────┘ │
-//   └─────────────────────────────────────┘ ← bottom: sm radius
-// ═══════════════════════════════════════════════════════════════
-function SmartGroupCard({
-  group,
-  onOpenStatusPicker,
-  todayStr,
-}: {
-  group: SmartGroup;
-  onOpenStatusPicker: (item: TimelineItem) => void;
-  todayStr: string;
-}) {
-  const { items, accent, parentTitle, parentEvent, isSingle } = group;
-  const firstItem = items[0];
-  const isOverdue = firstItem.dateContext === 'overdue';
-  const isUpcoming = firstItem.dateContext === 'upcoming';
-
-  // ★ ถ้าเป็นรายการเดี่ยว (1 item, no parent group)
-  if (isSingle && items.length === 1) {
-    return (
-      <TodayItemCard
-        item={firstItem}
-        onOpenStatusPicker={onOpenStatusPicker}
-        todayStr={todayStr}
-      />
-    );
-  }
-
-  // ★ v3.10.0 รอบที่ 30: คำนวณความคืบหน้าของกลุ่มจาก parentEvent.tasks
-  //   ถ้า parentEvent มี tasks → ใช้ progress จริง
-  //   ถ้าไม่มี → คำนวณจาก items ในกลุ่มแทน (fallback)
-  const totalGroupTasks = parentEvent?.tasks?.length || items.length;
-  const doneGroupTasks = parentEvent?.tasks
-    ? parentEvent.tasks.filter((t) => t.status === 'done').length
-    : items.filter((i) => i.status === 'done').length;
-  const progressPct = totalGroupTasks > 0
-    ? Math.round((doneGroupTasks / totalGroupTasks) * 100)
-    : 0;
-
-  const detailHref = parentEvent ? `/events/${parentEvent.id}` : '#';
-  const groupDate = parentEvent?.date || firstItem.dueDate || '';
-
-  return (
-    <div className="yp-today-group" style={{ ['--accent' as string]: accent }}>
-      {/* ── Group banner (header) ── */}
-      <div className="yp-today-group__banner">
-        <span className="yp-today-group__icon" aria-hidden="true">
-          <Layers width={14} height={14} strokeWidth={2} />
-        </span>
-        <div className="yp-today-group__banner-text">
-          <span className="yp-today-group__banner-title">{parentTitle || firstItem.title}</span>
-          {firstItem.startTime ? (
-            <span className="yp-today-group__banner-chip">
-              <Clock width={11} height={11} />
-              {firstItem.startTime}
-            </span>
-          ) : null}
-          {firstItem.location ? (
-            <span className="yp-today-group__banner-chip yp-today-group__banner-chip--muted">
-              {firstItem.location}
-            </span>
-          ) : null}
-          {/* ★ date badge for overdue/upcoming */}
-          {isOverdue && groupDate ? (
-            <span className="yp-today-group__banner-date yp-today-group__banner-date--overdue">
-              <AlertTriangle width={11} height={11} />
-              {relativeDay(groupDate)}
-            </span>
-          ) : null}
-          {isUpcoming && groupDate && groupDate !== todayStr ? (
-            <span className="yp-today-group__banner-date yp-today-group__banner-date--upcoming">
-              <CalIcon width={11} height={11} />
-              {relativeDay(groupDate)}
-            </span>
-          ) : null}
-        </div>
-        <Link
-          href={detailHref}
-          className="yp-today-group__detail-btn"
-          aria-label={`ดูรายละเอียดกลุ่มรายการ: ${parentTitle}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ArrowUpRight width={14} height={14} />
-        </Link>
-      </div>
-
-      {/* ── Group progress bar (NEW — v3.10.0 รอบที่ 30) ── */}
-      {/* ★ แสดงเฉพาะเมื่อมี tasks มากกว่า 1 รายการ
-          ใช้ progress จาก parentEvent ทั้งหมด ไม่ใช่แค่ items ในกลุ่มนี้
-          เพราะอยากให้เห็นภาพรวมของกลุ่มรายการนั้นๆ ไม่ใช่แค่ส่วนที่แสดง */}
-      {totalGroupTasks > 0 ? (
-        <div className="yp-today-group__progress">
-          <span className="yp-today-group__progress-text">
-            {doneGroupTasks}/{totalGroupTasks} เสร็จ
-          </span>
-          <div
-            className="yp-today-group__progress-bar"
-            role="progressbar"
-            aria-valuenow={progressPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`ความคืบหน้า ${progressPct}%`}
-          >
-            <div
-              className="yp-today-group__progress-fill"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {/* ★ v3.10.0 รอบที่ 32: คำแนะนำสั้นๆ บอกว่ากดตรงไหนทำอะไร
-          ผู้ใช้แจ้งว่าเพื่อนที่ไม่คุ้นระบบ ไม่รู้ว่ากดตรงไหนเปลี่ยนสถานะได้
-          โดยเฉพาะรายการที่อยู่ในกลุ่ม — ใส่บรรทัดนี้ครั้งเดียวต่อกลุ่ม ไม่ใส่
-          ซ้ำทุกแถวรายการย่อย เพื่อไม่ให้รก */}
-      <div className="yp-today-group__hint">
-        แตะรายการเพื่อเปลี่ยนสถานะ · แตะลูกศร <ArrowUpRight width={10} height={10} /> เพื่อดูรายละเอียด
-      </div>
-
-      {/* ── Items: compact list (★ v3.10.0 รอบที่ 30: ใช้ compact variant) ── */}
-      <div className="yp-today-group__cards">
-        {items.map((item) => (
-          <TodayItemCard
-            key={item.id}
-            item={item}
-            onOpenStatusPicker={onOpenStatusPicker}
-            todayStr={todayStr}
-            isInGroup={true}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 30: TodayItemCard — ออกแบบใหม่ 2 โหมด:
-//
-//   1. Standalone (ไม่ใช่ในกลุ่ม): การ์ดเต็มรูปแบบ เหมือนเดิม
-//      - มี border + shadow + lg radius
-//      - 2-line layout: title + meta chips
-//      - ใช้ใน: รายการเดี่ยวใน today, overdue, upcoming
-//
-//   2. In-group (อยู่ในกลุ่มรายการ): compact list item แบบใหม่
-//      - ไม่มี shadow ใช้แค่ border บางๆ ด้านล่างคั่นระหว่างรายการ
-//      - 1-line layout: status dot + title + status chip + chevron
-//      - ขนาดกระทัดรัด มองง่าย ดูง่าย แต่มีพื้นที่พอสมควร
-//      - ใช้ใน: รายการย่อยในกลุ่มรายการบน today page
-//
-//   หลักการออกแบบ (จาก Linear + Things 3 + Apple Reminders):
-//   - ใน list ใช้ divider lines แทนการ์ดแยก → ลด visual noise
-//   - status dot ขนาดเล็ก (12px) ไม่เด่นเกิน title
-//   - status chip แค่ colored dot + label ไม่มี icon ซ้ำ
-//   - chevron บอกว่าคลิกได้ ไม่ใช่แค่ข้อความธรรมดา
+//   การออกแบบ:
+//   - เหมือน TaskRow ในหน้ารายละเอียดกลุ่มรายการ (border, shadow,
+//     pill chips, 2-line layout)
+//   - รายการย่อย: มีแถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
+//     (Link ไปหน้ารายละเอียดกลุ่มรายการ)
+//   - รายการธรรมดา: ไม่มีแถบรายการย่อย
+//   - แตะที่การ์ด → เปลี่ยนสถานะ
+//   - กดลูกศร → ไปหน้ารายละเอียด
 // ═══════════════════════════════════════════════════════════════
 function TodayItemCard({
   item,
   onOpenStatusPicker,
   todayStr,
-  isInGroup = false,
 }: {
   item: TimelineItem;
   onOpenStatusPicker: (item: TimelineItem) => void;
   todayStr: string;
-  isInGroup?: boolean;
 }) {
   const accent = item.accent;
   const detailHref = item.event ? `/events/${item.event.id}` : (item.parentEvent ? `/events/${item.parentEvent.id}` : '#');
@@ -1149,88 +936,18 @@ function TodayItemCard({
   const isUpcoming = item.dateContext === 'upcoming';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
+  // ★ รอบที่ 33: ระบุว่าเป็นรายการย่อยหรือไม่
+  const isSubItem = !!item.parentEvent && !!item.task;
 
-  // ★ v3.10.0 รอบที่ 30: ถ้าอยู่ในกลุ่ม → ใช้ compact list item layout
-  //   กระทัดรัดกว่า, มองง่าย, ดูง่าย แต่ยังมีพื้นที่พอสมควร
-  if (isInGroup) {
-    return (
-      <div
-        className={`yp-today-item-compact${item.status === 'done' ? ' is-done' : ''}`}
-        style={{ ['--accent' as string]: accent }}
-        role="button"
-        tabIndex={0}
-        onClick={() => onOpenStatusPicker(item)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
-        aria-label={`${item.title} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
-      >
-        {/* ── Status dot (compact, smaller) ── */}
-        <button
-          type="button"
-          className={`yp-today-item-compact__dot yp-today-item-compact__dot--${item.status}`}
-          aria-label={`เลือกสถานะ — ${statusLabel(item.status)}`}
-          onClick={(e) => { e.stopPropagation(); onOpenStatusPicker(item); }}
-          style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
-        />
-
-        {/* ── Title (single line, truncated) ── */}
-        <div className="yp-today-item-compact__title">{item.title}</div>
-
-        {/* ── Meta (compact: just essential info) ── */}
-        <div className="yp-today-item-compact__meta">
-          {/* Status label (compact, no icon) */}
-          <span className={`yp-today-item-compact__status yp-today-item-compact__status--${item.status}`}>
-            {statusLabel(item.status)}
-          </span>
-
-          {/* Time (if any) */}
-          {item.startTime ? (
-            <span className="yp-today-item-compact__time">
-              <Clock width={10} height={10} />
-              {item.startTime}
-            </span>
-          ) : null}
-
-          {/* Priority (only high shows) */}
-          {priority === 'high' ? (
-            <span className="yp-today-item-compact__priority">เร่ง</span>
-          ) : null}
-
-          {/* Date for overdue/upcoming */}
-          {isOverdue && item.dueDate && item.dueDate !== todayStr ? (
-            <span className="yp-today-item-compact__date yp-today-item-compact__date--overdue">
-              {relativeDay(item.dueDate)}
-            </span>
-          ) : null}
-          {isUpcoming && item.dueDate && item.dueDate !== todayStr ? (
-            <span className="yp-today-item-compact__date">
-              {relativeDay(item.dueDate)}
-            </span>
-          ) : null}
-        </div>
-
-        {/* ── Detail link (chevron) ── */}
-        <Link
-          href={detailHref}
-          className="yp-today-item-compact__link"
-          aria-label={`ดูรายละเอียด: ${item.title}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ChevronRight width={14} height={14} />
-        </Link>
-      </div>
-    );
-  }
-
-  // ★ Standalone (ไม่อยู่ในกลุ่ม) — full card layout เหมือนเดิม
   return (
     <div
-      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}`}
+      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}`}
       style={{ ['--accent' as string]: accent }}
       role="button"
       tabIndex={0}
       onClick={() => onOpenStatusPicker(item)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
-      aria-label={`${item.title} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
+      aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
     >
       {/* ── Status dot ── */}
       <button
@@ -1241,8 +958,27 @@ function TodayItemCard({
         style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
       />
 
-      {/* ── Body (2-line: title + chips) ── */}
+      {/* ── Body (title + chips) ── */}
       <div className="yp-today-item-card__body">
+        {/* ★ รอบที่ 33: แถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้ */}
+        {isSubItem && item.parentEvent ? (
+          <div className="yp-today-item-card__subtag">
+            <span className="yp-today-item-card__subtag-badge">
+              <Layers width={11} height={11} />
+              รายการย่อย
+            </span>
+            <Link
+              href={`/events/${item.parentEvent.id}`}
+              className="yp-today-item-card__subtag-group"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`ดูกลุ่มรายการ: ${item.parentEvent.title}`}
+            >
+              จากกลุ่ม: {item.parentEvent.title}
+              <ArrowUpRight width={10} height={10} className="yp-today-item-card__subtag-arrow" />
+            </Link>
+          </div>
+        ) : null}
+
         <div className="yp-today-item-card__title">{item.title}</div>
         <div className="yp-today-item-card__meta">
           {/* Status chip */}
@@ -1289,26 +1025,28 @@ function TodayItemCard({
             <span className="yp-today-item-card__chip">{item.location}</span>
           ) : null}
 
-          {/* ★ Date chip for overdue */}
-          {isOverdue && item.dueDate && item.dueDate !== todayStr ? (
+          {/* ★ รอบที่ 33: Date chip for overdue — ใช้ itemDate (start_date) */}
+          {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due is-overdue">
               <AlertTriangle width={11} height={11} />
               <span className="yp-today-item-card__chip-label">กำหนด</span>
-              {relativeDay(item.dueDate)}
+              {relativeDay(item.itemDate)}
             </span>
           ) : null}
 
-          {/* ★ Date chip for upcoming */}
-          {isUpcoming && item.dueDate && item.dueDate !== todayStr ? (
+          {/* ★ รอบที่ 33: Date chip for upcoming — ใช้ itemDate */}
+          {isUpcoming && item.itemDate && item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due">
               <CalIcon width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">กำหนด</span>
-              {relativeDay(item.dueDate)}
+              <span className="yp-today-item-card__chip-label">เริ่ม</span>
+              {relativeDay(item.itemDate)}
             </span>
           ) : null}
 
-          {/* ★ From parent chip */}
-          {item.parentEvent && item.parentEvent.date !== todayStr && !isOverdue && !isUpcoming ? (
+          {/* ★ รอบที่ 33: ถ้าเป็น standalone task ที่มาจาก event อื่น
+              (ไม่ใช่ sub-item แต่เป็น standalone task ที่ due_date ตรง)
+              แสดง "จาก:" chip */}
+          {!isSubItem && item.parentEvent && item.parentEvent.date !== todayStr && !isOverdue && !isUpcoming ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--from">
               ↪ จาก: {item.parentEvent.title}
             </span>
