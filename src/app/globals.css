@@ -1674,22 +1674,9 @@
 /* Today sections */
 .yp-today-section + .yp-today-section { margin-top: var(--yp-space-6); }
 
-/* ★ v3.10.0 รอบที่ 35: พื้นหลังเรียบสีขาวสำหรับ 3 section หลัก
-   (เลยกำหนด / วันนี้ / กำลังจะถึง) — เต็มขอบจอ ไม่เว้นด้านข้าง
-   มุมโค้งเล็กน้อยเท่านั้น ไม่ใช้ radius สูงแบบการ์ดอื่น ๆ */
-.yp-today-section--panel {
-  background: #FFFFFF;
-  border-radius: 14px;
-  margin-left: calc(-1 * var(--yp-page-pad-x));
-  margin-right: calc(-1 * var(--yp-page-pad-x));
-  padding-left: var(--yp-page-pad-x);
-  padding-right: var(--yp-page-pad-x);
-  padding-top: var(--yp-space-5);
-  padding-bottom: var(--yp-space-5);
-}
-
-/* ★ v3.10.0 รอบที่ 35: เว้นระยะห่างระหว่าง 3 section นี้เพิ่มขึ้น
-   ให้เห็นชัดว่าเป็นคนละ section (มากกว่าค่า margin ปกติด้านบน) */
+/* ★ v3.10.0 รอบที่ 36: ย้อนกลับพื้นหลัง/มุมโค้ง/เต็มขอบจอของรอบที่ 35
+   ทั้งหมด กลับไปเหมือนรอบที่ 33 — คงไว้แค่ระยะห่างระหว่าง 3 section
+   (เลยกำหนด/วันนี้/กำลังจะถึง) ที่เพิ่มขึ้น */
 .yp-today-section--panel + .yp-today-section--panel {
   margin-top: var(--yp-space-8);
 }
