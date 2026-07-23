@@ -130,6 +130,13 @@ export async function POST(request: NextRequest) {
   const color = typeof body.color === 'string' && VALID_COLORS.test(body.color) ? body.color : '#4F46E5';
   const department_id = typeof body.department_id === 'string' && body.department_id ? body.department_id : null;
 
+  // ★ v3.10.0 รอบที่ 29: start_date (YYYY-MM-DD, ไม่บังคับ)
+  //   ถ้าส่งมาและผ่าน regex → เก็บ, ถ้าส่งว่างหรือไม่ส่ง → null
+  let start_date: string | null = null;
+  if (typeof body.start_date === 'string' && DATE_RE.test(body.start_date)) {
+    start_date = body.start_date;
+  }
+
   // ── Generate ID ฝั่ง server (security: ป้องกัน user กำหนด ID เอง) ──
   const id = createId('ev');
 
@@ -139,6 +146,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       title: body.title.trim(),
       date: body.date,
+      start_date,   // ★ v3.10.0 รอบที่ 29
       time,
       location,
       description,

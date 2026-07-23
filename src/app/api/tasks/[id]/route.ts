@@ -80,6 +80,17 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     update.due_date = body.due_date || null;
   }
 
+  // ★ v3.10.0 รอบที่ 29: start_date (YYYY-MM-DD, ไม่บังคับ) — วันที่เริ่มลงมือทำ
+  if (body.start_date !== undefined) {
+    if (body.start_date !== null && (typeof body.start_date !== 'string' || !DATE_RE.test(body.start_date))) {
+      return NextResponse.json(
+        { success: false, error: 'วันที่เริ่มไม่ถูกต้อง' },
+        { status: 400 }
+      );
+    }
+    update.start_date = body.start_date || null;
+  }
+
   // ★ v3.10.0 รอบที่ 9: start_time (HH:MM) — ไม่บังคับ
   if (body.start_time !== undefined) {
     if (body.start_time !== null && (typeof body.start_time !== 'string' || !TIME_RE.test(body.start_time))) {

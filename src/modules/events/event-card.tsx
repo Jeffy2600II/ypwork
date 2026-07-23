@@ -5,13 +5,18 @@
 //   - แสดง 2-3 รายการย่อยแรกในการ์ด
 //   - ถ้ามีเพิ่มเติม → "+X รายการ" badge
 //   - เพิ่ม Badge วันนี้/พรุ่งนี้/เลยกำหนด เป็นกิมมิคเล็กๆ
+// ★ v3.10.0 รอบที่ 29: อ้างอิงจาก "วันที่เริ่ม" แทน "วันกำหนดส่ง" เพื่อให้ผู้ใช้
+//   เห็นว่า "จะเริ่มทำตอนไหน" ก่อน แล้วค่อยเห็น "กำหนดส่งเมื่อไหร่" — ลดความ
+//   กดดันจากการเห็นแค่ deadline แต่ไม่เห็นจุดเริ่มต้น ถ้ามี start_date จะแสดง
+//   เป็น meta หลัก และแสดง deadline เป็น meta รอง (ถ้าต่างจาก start_date)
 // ═══════════════════════════════════════════════════════════════
 
 import Link from 'next/link';
-import { Layers, Flag, Check, Clock, ChevronRight } from 'lucide-react';
+import { Layers, Flag, Check, Clock, ChevronRight, Calendar as CalIcon } from 'lucide-react';
 import type { YPEvent, Task } from '@/lib/types';
 import {
   relativeDay,
+  formatDate,
   isToday,
   isPast,
   eventProgress,
@@ -28,6 +33,8 @@ export interface EventCardProps {
 }
 
 // ★ v3.10.0 รอบที่ 26: Badge สำหรับแสดงวันนี้/พรุ่งนี้/เลยกำหนด
+//   ★ v3.10.0 รอบที่ 29: ถ้ามี start_date → badge อ้างอิงจาก start_date
+//     แทน deadline (date) เพื่อสื่อ "จะเริ่มตอนไหน" ไม่ใช่ "เลยกำหนดส่ง"
 function DateBadge({ date }: { date: string }) {
   const todayStr = getLocalTodayStr();
   const diffDays = Math.round(
@@ -54,8 +61,23 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   const progress = eventProgress(event.tasks || []);
   const displayStatus = resolveEventStatus(event);
 
-  const metaParts: string[] = [relativeDay(event.date)];
-  if (event.time) metaParts.push(event.time);
+  // ★ v3.10.0 รอบที่ 29: อ้างอิงจาก start_date แทน deadline
+  //   ถ้ามี start_date → ใช้เป็น meta หลัก (แสดง "จะเริ่มตอนไหน")
+  //   แล้วค่อยแสดง deadline เป็น meta รอง ถ้าต่างจาก start_date
+  //   ถ้าไม่มี start_date → ใช้ deadline (date) แบบเดิม (backward compatible)
+  const hasStartDate = !!event.start_date;
+  const referenceDateForBadge = hasStartDate ? event.start_date! : event.date;
+
+  // ★ v3.10.0 รอบที่ 29: meta หลัก — "เริ่ม" หรือ "กำหนดส่ง" ตามที่มี
+  const metaParts: string[] = [];
+  if (hasStartDate) {
+    metaParts.push(`เริ่ม ${relativeDay(event.start_date!)}`);
+    if (event.time) metaParts.push(event.time);
+  } else {
+    // fallback: ไม่มี start_date → แสดง deadline แบบเดิม
+    metaParts.push(relativeDay(event.date));
+    if (event.time) metaParts.push(event.time);
+  }
   if (event.location) metaParts.push(event.location);
   for (const m of extraMeta) metaParts.push(m);
 
@@ -99,10 +121,19 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
         <div className="yp-event-card__main">
           <div className="yp-event-card__title">
             {event.title}
-            {/* ★ v3.10.0 รอบที่ 26: Date Badge */}
-            <DateBadge date={event.date} />
+            {/* ★ v3.10.0 รอบที่ 26: Date Badge
+                ★ v3.10.0 รอบที่ 29: ถ้ามี start_date → badge อ้างอิงจาก start_date */}
+            <DateBadge date={referenceDateForBadge} />
           </div>
           <div className="yp-event-card__meta">{metaParts.join(' · ')}</div>
+          {/* ★ v3.10.0 รอบที่ 29: ถ้ามี start_date และต่างจาก deadline
+              → แสดงบรรทัด meta รอง "กำหนดส่ง ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุด
+              ถ้า start_date เท่ากับ deadline → ไม่ต้องแสดงซ้ำ */}
+          {hasStartDate && event.start_date !== event.date ? (
+            <div className="yp-event-card__meta yp-event-card__meta--secondary">
+              กำหนดส่ง {relativeDay(event.date)}
+            </div>
+          ) : null}
         </div>
 
         <span className={`yp-chip ${statusChipClass(displayStatus)}`}>

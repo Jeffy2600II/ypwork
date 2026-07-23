@@ -38,6 +38,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
     type: 'group' | 'task';
     title: string;
     date: string;
+    start_date: string | null;   // ★ v3.10.0 รอบที่ 29
     time: string;
     location: string;
     description: string;
@@ -49,7 +50,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
     const { data: evRaw } = await supabase
       .from('ypwork_events')
       .select(
-        'id, type, title, date, time, location, description, department_id, color'
+        'id, type, title, date, start_date, time, location, description, department_id, color'
       )
       .eq('id', editId)
       .limit(1)
@@ -61,6 +62,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
         type: evRaw.type as 'group' | 'task',
         title: evRaw.title,
         date: evRaw.date,
+        start_date: evRaw.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
         time: evRaw.time || '',
         location: evRaw.location || '',
         description: evRaw.description || '',

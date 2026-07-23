@@ -36,6 +36,7 @@ export interface CreateEventFormProps {
     type: EventType;
     title: string;
     date: string;
+    start_date: string | null;   // ★ v3.10.0 รอบที่ 29
     time: string;
     location: string;
     description: string;
@@ -66,6 +67,13 @@ export function CreateEventForm({
 
   const [type, setType] = React.useState<EventType>(editEvent?.type || 'group');
   const [title, setTitle] = React.useState(editEvent?.title || '');
+  // ★ v3.10.0 รอบที่ 29: start_date — วันที่เริ่มลงมือทำ (ไม่บังคับ)
+  //   ถ้าโหมดแก้ไขและมี start_date → ใช้ค่าเดิม
+  //   ถ้าโหมดสร้างใหม่ → เริ่มว่าง (ผู้ใช้กรอกเอง หรือจะปล่อยว่างก็ได้)
+  const [startDate, setStartDate] = React.useState<string>(editEvent?.start_date || '');
+  // ★ v3.10.0 รอบที่ 29: เปลี่ยน label ของ `date` จาก "วันที่" → "กำหนดส่ง"
+  //   เพื่อสื่อความหมายชัดเจนว่านี่คือ deadline ไม่ใช่วันเริ่มต้น
+  //   ค่า default สำหรับโหมดสร้างใหม่ = วันนี้ (เหมือนเดิม)
   const [date, setDate] = React.useState(
     // ★ v3.9.4: ใช้ getLocalTodayStr() แทน new Date().toISOString().slice(0, 10)
     //   เพราะ toISOString() แปลงเป็น UTC ก่อน slice — ถ้า user อยู่ timezone อื่น
@@ -128,7 +136,7 @@ export function CreateEventForm({
       return;
     }
     if (!date) {
-      setError('กรุณาเลือกวันที่');
+      setError('กรุณาเลือกวันกำหนดส่ง');
       return;
     }
 
@@ -145,6 +153,7 @@ export function CreateEventForm({
             type,
             title: title.trim(),
             date,
+            start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
             time: time || '',
             location: location.trim(),
             description: description.trim(),
@@ -165,6 +174,7 @@ export function CreateEventForm({
             type,
             title: title.trim(),
             date,
+            start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
             time: time || '',
             location: location.trim(),
             description: description.trim(),
@@ -334,6 +344,16 @@ export function CreateEventForm({
             <p className="yp-form-card__subtitle">กรอกข้อมูลให้ครบถ้วนเพื่อให้ทีมเข้าใจรายการได้ชัดเจน</p>
           </div>
         <div className="yp-form-modal__section">
+          {/* ★ v3.10.0 รอบที่ 29: เรียงลำดับฟอร์มใหม่ — กรอกข้อมูลที่จำเป็นไปเรื่อยๆ
+              ไม่ใช่กรอกลัดไปลัดมา ตามหลักการ "จากส่วนที่ต้องรู้ก่อน → ส่วนที่ตามมา"
+              1. ชื่อรายการ (required, ตัวตนของงาน)
+              2. รายละเอียด (เลื่อนขึ้นมาใกล้ชื่อ — เพื่อนต้องรู้บริบทก่อน)
+              3. วันที่เริ่ม (จะเริ่มลงมือทำเมื่อไหร่)
+              4. เวลาเริ่ม (เวลาที่เริ่มในวันนั้น)
+              5. กำหนดส่ง (deadline — ส่งภายในเมื่อไหร่)
+              6. สถานที่
+              7. ฝ่ายที่รับผิดชอบ
+              8. สีประจำรายการ */}
           <div className="field">
             <label className="field__label" htmlFor="ev-title">
               ชื่อรายการ <span className="yp-required">*</span>
@@ -350,24 +370,51 @@ export function CreateEventForm({
             />
           </div>
 
+          {/* ★ v3.10.0 รอบที่ 29: รายละเอียดย้ายขึ้นมาใกล้ชื่อ — เพราะเพื่อนต้องเข้าใจ
+              บริบทของงานก่อนที่จะรู้วันเวลา การเลื่อนขึ้นมาช่วยให้กรอกได้เป็นลำดับ
+              ตามธรรมชาติของการวางแผน: "อะไร → ทำไม → เมื่อไหร่ → ที่ไหน → ใคร" */}
           <div className="field">
-            <label className="field__label" htmlFor="ev-date">
-              วันที่ <span className="yp-required">*</span>
+            <label className="field__label" htmlFor="ev-desc">
+              รายละเอียด{' '}
+              <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
             </label>
-            <input
-              id="ev-date"
-              type="date"
-              className="yp-input"
-              required
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+            <textarea
+              id="ev-desc"
+              className="yp-textarea"
+              placeholder="อธิบายวัตถุประสงค์หรือสิ่งที่ต้องทำ"
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               disabled={submitting}
             />
           </div>
 
+          {/* ★ v3.10.0 รอบที่ 29: วันที่เริ่ม — วันที่จะลงมือทำ (ไม่บังคับ)
+              ผู้ใช้สามารถระบุวันเริ่มต่างจากวันกำหนดส่งได้ เพื่อให้ระบบอ้างอิง
+              จากจุดเริ่มต้นแทนที่จะอ้างแค่จุดสิ้นสุด ทำให้เห็นภาพรวมของงาน
+              "จะเริ่มตอนไหน → ส่งเมื่อไหร่" แทนที่จะเห็นแค่ "ส่งเมื่อไหร่" */}
+          <div className="field">
+            <label className="field__label" htmlFor="ev-start-date">
+              วันที่เริ่ม{' '}
+              <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
+            </label>
+            <input
+              id="ev-start-date"
+              type="date"
+              className="yp-input"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              disabled={submitting}
+            />
+            <div className="field__hint">
+              วันที่จะลงมือทำงานนี้ — ถ้าไม่ระบุ ระบบจะถือว่าเริ่มในวันกำหนดส่ง
+            </div>
+          </div>
+
           <div className="field">
             <label className="field__label" htmlFor="ev-time">
-              เริ่ม ณ เวลา (ไม่บังคับ)
+              เวลาเริ่ม{' '}
+              <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
             </label>
             <input
               id="ev-time"
@@ -380,9 +427,31 @@ export function CreateEventForm({
             />
           </div>
 
+          {/* ★ v3.10.0 รอบที่ 29: เปลี่ยน label จาก "วันที่" → "กำหนดส่ง"
+              ตามคำขอของผู้ใช้ที่ต้องการให้สื่อความหมายชัดเจนว่านี่คือ deadline
+              (แต่ไม่เปลี่ยนชื่อ field ใน DB ยังเก็บที่ column `date` เหมือนเดิม) */}
+          <div className="field">
+            <label className="field__label" htmlFor="ev-date">
+              กำหนดส่ง <span className="yp-required">*</span>
+            </label>
+            <input
+              id="ev-date"
+              type="date"
+              className="yp-input"
+              required
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={submitting}
+            />
+            <div className="field__hint">
+              วันสุดท้ายที่ต้องส่งมอบงานนี้
+            </div>
+          </div>
+
           <div className="field">
             <label className="field__label" htmlFor="ev-location">
-              สถานที่ (ไม่บังคับ)
+              สถานที่{' '}
+              <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
             </label>
             <input
               id="ev-location"
@@ -391,21 +460,6 @@ export function CreateEventForm({
               placeholder="เช่น หอประชุมโรงเรียน"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              disabled={submitting}
-            />
-          </div>
-
-          <div className="field">
-            <label className="field__label" htmlFor="ev-desc">
-              รายละเอียด (ไม่บังคับ)
-            </label>
-            <textarea
-              id="ev-desc"
-              className="yp-textarea"
-              placeholder="อธิบายวัตถุประสงค์หรือสิ่งที่ต้องทำ"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
               disabled={submitting}
             />
           </div>

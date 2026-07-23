@@ -484,20 +484,36 @@ export function EventDetailClient({
           </div>
           <h1 className="yp-detail-hero__title">{event.title}</h1>
           <div className="yp-detail-hero__meta">
-            <span className="yp-detail-hero__meta-item">
-              <CalIcon /> {formatDate(event.date, { long: true })}
-            </span>
-            {/* ★ v3.8.0: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint)
+            {/* ★ v3.10.0 รอบที่ 29: แสดง "วันที่เริ่ม" เป็น meta หลัก ถ้ามี
+                และแสดง "กำหนดส่ง" เป็น meta รอง เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุด
+                ระบบอ้างอิงจาก start_date + start_time ก่อน แล้วค่อยอ้างจาก deadline */}
+            {event.start_date ? (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--accent">
+                <CalIcon /> เริ่ม {formatDate(event.start_date, { long: true })}
+              </span>
+            ) : null}
+            {/* ★ v3.10.0 รอบที่ 29: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint)
                 แทนที่จะไม่แสดงอะไรเลย — user จะได้รู้ว่า field นี้มี แค่ยังไม่ได้ตั้ง */}
             {event.time ? (
               <span className="yp-detail-hero__meta-item">
-                <Clock /> ณ เวลา {event.time}
+                <Clock /> เวลาเริ่ม {event.time}
               </span>
             ) : (
               <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
-                <Clock /> ยังไม่ได้เลือกเวลา
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
               </span>
             )}
+            {/* ★ v3.10.0 รอบที่ 29: แสดง "กำหนดส่ง" เป็น meta รอง — ถ้าต่างจาก start_date
+                หรือถ้าไม่มี start_date เลย → ใช้ date เป็น meta หลักแทน (backward compatible) */}
+            {event.start_date && event.start_date !== event.date ? (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
+                <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+              </span>
+            ) : !event.start_date ? (
+              <span className="yp-detail-hero__meta-item">
+                <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+              </span>
+            ) : null}
             {event.location ? (
               <span className="yp-detail-hero__meta-item">
                 <MapPin /> {event.location}
@@ -515,19 +531,30 @@ export function EventDetailClient({
           </div>
           <h1 className="yp-single-hero__title">{event.title}</h1>
           <div className="yp-single-hero__meta">
-            <span className="yp-single-hero__meta-item">
-              <CalIcon /> {formatDate(event.date, { long: true })}
-            </span>
-            {/* ★ v3.8.0: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint) */}
+            {/* ★ v3.10.0 รอบที่ 29: เหมือน group hero — แสดง start_date + time + deadline */}
+            {event.start_date ? (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--accent">
+                <CalIcon /> เริ่ม {formatDate(event.start_date, { long: true })}
+              </span>
+            ) : null}
             {event.time ? (
               <span className="yp-single-hero__meta-item">
-                <Clock /> ณ เวลา {event.time}
+                <Clock /> เวลาเริ่ม {event.time}
               </span>
             ) : (
               <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
-                <Clock /> ยังไม่ได้เลือกเวลา
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
               </span>
             )}
+            {event.start_date && event.start_date !== event.date ? (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
+                <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+              </span>
+            ) : !event.start_date ? (
+              <span className="yp-single-hero__meta-item">
+                <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+              </span>
+            ) : null}
             {event.location ? (
               <span className="yp-single-hero__meta-item">
                 <MapPin /> {event.location}
@@ -894,6 +921,7 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
                 start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
@@ -945,6 +973,7 @@ export function EventDetailClient({
                     title: payload.title,
                     priority: payload.priority,
                     due_date: payload.dueDate || null,
+                    start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
                     start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                     estimated_time: payload.estimatedTime,
                     notes: payload.notes,
@@ -968,6 +997,7 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
                 start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
@@ -1007,6 +1037,7 @@ export function EventDetailClient({
               body: JSON.stringify({
                 title: patch.title,
                 date: patch.date,
+                start_date: patch.start_date,   // ★ v3.10.0 รอบที่ 29
                 time: patch.time,
                 location: patch.location,
                 description: patch.description,
@@ -1021,6 +1052,7 @@ export function EventDetailClient({
             patchEvent({
               title: patch.title,
               date: patch.date,
+              start_date: patch.start_date,   // ★ v3.10.0 รอบที่ 29
               time: patch.time,
               location: patch.location,
               description: patch.description,
@@ -1341,6 +1373,9 @@ function TaskTimeGroup({
 
 // ═══════════════════════════════════════════════════════════════
 // TaskRow — render row ของรายการย่อยในกลุ่มรายการ (เหมือน demo task-row.js)
+//   ★ v3.10.0 รอบที่ 29: เพิ่ม chip "เริ่ม ..." สำหรับแสดง start_date
+//     ถ้า start_date มีและต่างจาก due_date → แสดง chip "เริ่ม ..." ก่อน chip "กำหนด ..."
+//     ถ้า start_date เท่ากับ due_date หรือไม่มี → ไม่ต้องแสดงซ้ำ แสดงแค่ "กำหนด ..." ตามเดิม
 // ═══════════════════════════════════════════════════════════════
 function TaskRow({
   task,
@@ -1360,6 +1395,12 @@ function TaskRow({
   const priorityLbl =
     priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
   const tags = Array.isArray(task.tags) ? task.tags : [];
+
+  // ★ v3.10.0 รอบที่ 29: คำนวณ chip "เริ่ม ..." ถ้า start_date มีและต่างจาก due_date
+  //   ถ้า start_date เท่ากับ due_date → แสดงแค่ chip เดียว เพื่อกันซ้ำซ้อน
+  //   ถ้า start_date มี แต่ due_date ไม่มี → แสดง chip "เริ่ม ..." แทน "กำหนด ..."
+  const startLabel = task.start_date ? relativeDay(task.start_date) : '';
+  const showStartChip = !!startLabel && startLabel !== dueLabel;
 
   return (
     <div
@@ -1431,8 +1472,17 @@ function TaskRow({
           {task.start_time ? (
             <span className="yp-task-row__chip yp-task-row__chip--due">
               <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">เริ่ม ณ เวลา</span>
+              <span className="yp-task-row__chip-label">เวลาเริ่ม</span>
               {task.start_time}
+            </span>
+          ) : null}
+
+          {/* ★ v3.10.0 รอบที่ 29: chip "เริ่ม ..." — ถ้า start_date มีและต่างจาก due_date */}
+          {showStartChip ? (
+            <span className="yp-task-row__chip yp-task-row__chip--start">
+              <CalIcon width={11} height={11} />
+              <span className="yp-task-row__chip-label">เริ่ม</span>
+              {startLabel}
             </span>
           ) : null}
 
@@ -1441,7 +1491,7 @@ function TaskRow({
               className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
             >
               {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
-              <span className="yp-task-row__chip-label">กำหนด</span>
+              <span className="yp-task-row__chip-label">กำหนดส่ง</span>
               {dueLabel}
             </span>
           ) : null}
@@ -1500,6 +1550,10 @@ interface TaskPayload {
   dueDate: string | null;
   /** ★ v3.10.0 รอบที่ 9: เวลาเริ่มทำ (HH:MM) — ไม่บังคับ */
   startTime: string | null;
+  /** ★ v3.10.0 รอบที่ 29: วันที่เริ่มลงมือทำ (YYYY-MM-DD) — ไม่บังคับ
+   *    แยกจาก dueDate ชัดเจน — startDate คือ "เริ่มเมื่อไหร่"
+   *    dueDate คือ "ส่งเมื่อไหร่" */
+  startDate: string | null;
   estimatedTime: string;
   tags: string[];
   notes: string;
@@ -1523,9 +1577,13 @@ function AddTaskSheet({
   const [title, setTitle] = React.useState('');
   const [priority, setPriority] = React.useState<TaskPriority>('medium');
   const [assigneeId, setAssigneeId] = React.useState<string>('');
-  const [dueDate, setDueDate] = React.useState<string>(event.date || '');
+  // ★ v3.10.0 รอบที่ 29: เรียงลำดับ field ใหม่ — start_date ก่อน due_date
+  //   เพราะ "จะเริ่มเมื่อไหร่" เป็นข้อมูลที่ต้องรู้ก่อน "ส่งเมื่อไหร่"
+  //   ผู้ใช้กรอกได้เป็นลำดับธรรมชาติของการวางแผน
+  const [startDate, setStartDate] = React.useState<string>('');
   const [startTime, setStartTime] = React.useState<string>('');
   const [estimatedTime, setEstimatedTime] = React.useState('');
+  const [dueDate, setDueDate] = React.useState<string>(event.date || '');
   const [tagsStr, setTagsStr] = React.useState('');
   const [notes, setNotes] = React.useState('');
   const [err, setErr] = React.useState<string | null>(null);
@@ -1547,9 +1605,10 @@ function AddTaskSheet({
       title: title.trim(),
       priority,
       assigneeId: assigneeId || null,
-      dueDate: dueDate || null,
+      startDate: startDate || null,   // ★ v3.10.0 รอบที่ 29
       startTime: startTime || null,
       estimatedTime: estimatedTime.trim(),
+      dueDate: dueDate || null,
       tags,
       notes: notes.trim(),
     });
@@ -1615,6 +1674,17 @@ function AddTaskSheet({
         </div>
       ) : null}
 
+      {/* ★ v3.10.0 รอบที่ 29: เรียงลำดับฟอร์มใหม่ —
+          1. ชื่อ task (required)
+          2. รายละเอียด (notes — ย้ายขึ้นมาใกล้ชื่อ เพื่อนต้องเข้าใจบริบทก่อน)
+          3. วันที่เริ่ม (จะเริ่มเมื่อไหร่)
+          4. เวลาเริ่ม (เวลาที่เริ่มในวันนั้น)
+          5. ระยะเวลาที่คาดการณ์ (ใช้เวลาเท่าไหร่)
+          6. กำหนดส่ง (deadline — ส่งภายในเมื่อไหร่)
+          7. ความเร่งด่วน
+          8. ผู้รับผิดชอบ
+          9. หมวด/ป้าย */}
+
       {/* Title */}
       <div className="yp-form-modal__section">
         <div className="yp-form-modal__section-title">ชื่อ task</div>
@@ -1632,6 +1702,123 @@ function AddTaskSheet({
           />
           <div className="field__hint">
             อธิบายสิ่งที่ต้องทำให้ชัดเจน — จะได้ติดตามง่าย
+          </div>
+        </div>
+      </div>
+
+      {/* ★ v3.10.0 รอบที่ 29: รายละเอียด (notes) ย้ายขึ้นมาใกล้ชื่อ */}
+      <div className="yp-form-modal__section">
+        <div className="yp-form-modal__section-title">
+          รายละเอียด{' '}
+          <span className="yp-text-faint-normal">
+            (ไม่บังคับ)
+          </span>
+        </div>
+        <div className="field">
+          <textarea
+            id="task-notes"
+            className="yp-textarea"
+            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={submitting}
+            rows={4}
+          />
+        </div>
+      </div>
+
+      {/* ★ v3.10.0 รอบที่ 29: กำหนดการ — เริ่ม → เวลาเริ่ม → ระยะเวลา → กำหนดส่ง */}
+      <div className="yp-form-modal__section">
+        <div className="yp-form-modal__section-title">กำหนดการ</div>
+
+        {/* วันที่เริ่ม — วันที่จะลงมือทำ (ไม่บังคับ) */}
+        <div className="field">
+          <label className="field__label" htmlFor="task-start-date">
+            วันที่เริ่ม{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ)
+            </span>
+          </label>
+          <input
+            id="task-start-date"
+            type="date"
+            className="yp-input"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            วันที่จะลงมือทำรายการย่อยนี้ — ถ้าไม่ระบุ ระบบจะใช้วันกำหนดส่งเป็นจุดอ้างอิง
+          </div>
+        </div>
+
+        {/* เวลาเริ่ม — เวลาที่เริ่มในวันนั้น */}
+        <div className="field">
+          <label className="field__label" htmlFor="task-start">
+            เวลาเริ่ม{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ)
+            </span>
+          </label>
+          <input
+            id="task-start"
+            type="time"
+            className="yp-input"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            ระบุเวลาที่ควรเริ่มลงมือทำรายการย่อยนี้
+          </div>
+        </div>
+
+        {/* ระยะเวลาที่คาดการณ์ */}
+        <div className="field">
+          <label className="field__label" htmlFor="task-est">
+            ระยะเวลาที่คาดการณ์{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ)
+            </span>
+          </label>
+          {/* ★ v3.8.0: เปลี่ยนจาก text input → select picker
+              กัน user พิมพ์ค่าที่ไม่มาตรฐาน เช่น "20 นาทีๆ" หรือ "2 ชม 30 นา" */}
+          <select
+            id="task-est"
+            className="yp-select"
+            value={estimatedTime}
+            onChange={(e) => setEstimatedTime(e.target.value)}
+            disabled={submitting}
+          >
+            {ESTIMATED_TIME_OPTIONS.map((opt) => (
+              <option key={opt.value || 'none'} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <div className="field__hint">
+            ระยะเวลาที่คาดว่าจะใช้ทำรายการย่อยนี้ — จะแสดงเป็นข้อมูลเพิ่มเติมในรายการย่อย
+          </div>
+        </div>
+
+        {/* กำหนดส่ง — deadline (ส่งภายในเมื่อไหร่) */}
+        <div className="field">
+          <label className="field__label" htmlFor="task-due">
+            กำหนดส่ง{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ)
+            </span>
+          </label>
+          <input
+            id="task-due"
+            type="date"
+            className="yp-input"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            วันสุดท้ายที่ต้องส่งมอบรายการย่อยนี้
           </div>
         </div>
       </div>
@@ -1658,13 +1845,15 @@ function AddTaskSheet({
         </div>
       </div>
 
-      {/* Assignee + schedule */}
+      {/* Assignee */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
+        <div className="yp-form-modal__section-title">
+          ผู้รับผิดชอบ{' '}
+          <span className="yp-text-faint-normal">
+            (ไม่บังคับ)
+          </span>
+        </div>
         <div className="field">
-          <label className="field__label" htmlFor="task-assignee">
-            ผู้รับผิดชอบ
-          </label>
           <select
             id="task-assignee"
             className="yp-select"
@@ -1680,67 +1869,6 @@ function AddTaskSheet({
               </option>
             ))}
           </select>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-due">
-            กำหนดส่ง{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          <input
-            id="task-due"
-            type="date"
-            className="yp-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            disabled={submitting}
-          />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-start">
-            เริ่ม ณ เวลา{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          <input
-            id="task-start"
-            type="time"
-            className="yp-input"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            disabled={submitting}
-          />
-          <div className="field__hint">
-            ระบุเวลาที่ควรเริ่มลงมือทำรายการย่อยนี้
-          </div>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-est">
-            ระยะเวลาที่คาดการณ์{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          {/* ★ v3.8.0: เปลี่ยนจาก text input → select picker
-              กัน user พิมพ์ค่าที่ไม่มาตรฐาน เช่น "20 นาทีๆ" หรือ "2 ชม 30 นา" */}
-          <select
-            id="task-est"
-            className="yp-select"
-            value={estimatedTime}
-            onChange={(e) => setEstimatedTime(e.target.value)}
-            disabled={submitting}
-          >
-            {ESTIMATED_TIME_OPTIONS.map((opt) => (
-              <option key={opt.value || 'none'} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <div className="field__hint">
-            ระยะเวลาที่คาดว่าจะใช้ทำรายการย่อยนี้ — จะแสดงเป็นข้อมูลเพิ่มเติมในรายการย่อย
-          </div>
         </div>
       </div>
 
@@ -1768,27 +1896,6 @@ function AddTaskSheet({
             <span className="yp-text-tag">#ด้านสถานที่</span>{' '}
             เพื่อกรองและจัดกลุ่มรายการย่อย
           </div>
-        </div>
-      </div>
-
-      {/* ★ v3.8.0: เปลี่ยน "หมายเหตุ" → "รายละเอียด" + placeholder ที่เป็นจริง */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          รายละเอียด{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <textarea
-            id="task-notes"
-            className="yp-textarea"
-            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            disabled={submitting}
-            rows={4}
-          />
         </div>
       </div>
     </BottomSheet>
@@ -1820,9 +1927,11 @@ function EditTaskSheet({
   const [assigneeId, setAssigneeId] = React.useState<string>(
     task.assignees && task.assignees.length > 0 ? task.assignees[0].auth_uid : ''
   );
-  const [dueDate, setDueDate] = React.useState<string>(task.due_date || '');
+  // ★ v3.10.0 รอบที่ 29: เพิ่ม start_date + เรียงลำดับ field ใหม่ (เหมือน AddTaskSheet)
+  const [startDate, setStartDate] = React.useState<string>(task.start_date || '');
   const [startTime, setStartTime] = React.useState<string>(task.start_time || '');
   const [estimatedTime, setEstimatedTime] = React.useState(task.estimated_time || '');
+  const [dueDate, setDueDate] = React.useState<string>(task.due_date || '');
   const [tagsStr, setTagsStr] = React.useState(
     Array.isArray(task.tags) ? task.tags.join(', ') : ''
   );
@@ -1846,9 +1955,10 @@ function EditTaskSheet({
       title: title.trim(),
       priority,
       assigneeId: assigneeId || null,
-      dueDate: dueDate || null,
+      startDate: startDate || null,   // ★ v3.10.0 รอบที่ 29
       startTime: startTime || null,
       estimatedTime: estimatedTime.trim(),
+      dueDate: dueDate || null,
       tags,
       notes: notes.trim(),
     });
@@ -1914,6 +2024,10 @@ function EditTaskSheet({
         </div>
       ) : null}
 
+      {/* ★ v3.10.0 รอบที่ 29: เรียงลำดับฟอร์มใหม่ (เหมือน AddTaskSheet) —
+          ชื่อ → รายละเอียด → วันเริ่ม → เวลาเริ่ม → ระยะเวลา → กำหนดส่ง →
+          ความเร่งด่วน → ผู้รับผิดชอบ → หมวด/ป้าย */}
+
       {/* Title */}
       <div className="yp-form-modal__section">
         <div className="yp-form-modal__section-title">ชื่อ task</div>
@@ -1935,70 +2049,56 @@ function EditTaskSheet({
         </div>
       </div>
 
-      {/* Priority */}
+      {/* ★ v3.10.0 รอบที่ 29: รายละเอียด (notes) ย้ายขึ้นมาใกล้ชื่อ */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">ความเร่งด่วน</div>
-        <div className="yp-priority-picker">
-          {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => {
-            const meta = PRIORITY_META[p];
-            return (
-              <button
-                key={p}
-                type="button"
-                className={`yp-priority-option${priority === p ? ' is-selected' : ''}`}
-                onClick={() => setPriority(p)}
-              >
-                <div className={`yp-priority-option__dot ${meta.dotClass}`} />
-                <div className="yp-priority-option__title">{meta.label}</div>
-                <div className="yp-priority-option__desc">{meta.desc}</div>
-              </button>
-            );
-          })}
+        <div className="yp-form-modal__section-title">
+          รายละเอียด{' '}
+          <span className="yp-text-faint-normal">
+            (ไม่บังคับ)
+          </span>
+        </div>
+        <div className="field">
+          <textarea
+            id="ed-task-notes"
+            className="yp-textarea"
+            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            disabled={submitting}
+            rows={4}
+          />
         </div>
       </div>
 
-      {/* Assignee + schedule */}
+      {/* ★ v3.10.0 รอบที่ 29: กำหนดการ — เริ่ม → เวลาเริ่ม → ระยะเวลา → กำหนดส่ง */}
       <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
+        <div className="yp-form-modal__section-title">กำหนดการ</div>
+
+        {/* วันที่เริ่ม — วันที่จะลงมือทำ (ไม่บังคับ) */}
         <div className="field">
-          <label className="field__label" htmlFor="ed-task-assignee">
-            ผู้รับผิดชอบ
-          </label>
-          <select
-            id="ed-task-assignee"
-            className="yp-select"
-            value={assigneeId}
-            onChange={(e) => setAssigneeId(e.target.value)}
-            disabled={submitting}
-          >
-            <option value="">— ยังไม่ระบุ —</option>
-            {users.map((u) => (
-              <option key={u.auth_uid} value={u.auth_uid}>
-                {u.full_name}
-                {u.role ? ` · ${u.role}` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="ed-task-due">
-            กำหนดส่ง{' '}
+          <label className="field__label" htmlFor="ed-task-start-date">
+            วันที่เริ่ม{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
           </label>
           <input
-            id="ed-task-due"
+            id="ed-task-start-date"
             type="date"
             className="yp-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
             disabled={submitting}
           />
+          <div className="field__hint">
+            วันที่จะลงมือทำรายการย่อยนี้ — ถ้าไม่ระบุ ระบบจะใช้วันกำหนดส่งเป็นจุดอ้างอิง
+          </div>
         </div>
+
+        {/* เวลาเริ่ม */}
         <div className="field">
           <label className="field__label" htmlFor="ed-task-start">
-            เริ่ม ณ เวลา{' '}
+            เวลาเริ่ม{' '}
             <span className="yp-text-faint-medium">
               (ไม่บังคับ)
             </span>
@@ -2015,6 +2115,8 @@ function EditTaskSheet({
             ระบุเวลาที่ควรเริ่มลงมือทำรายการย่อยนี้
           </div>
         </div>
+
+        {/* ระยะเวลาที่คาดการณ์ */}
         <div className="field">
           <label className="field__label" htmlFor="ed-task-est">
             ระยะเวลาที่คาดการณ์{' '}
@@ -2050,6 +2152,76 @@ function EditTaskSheet({
             ระยะเวลาที่คาดว่าจะใช้ทำรายการย่อยนี้ — จะแสดงเป็นข้อมูลเพิ่มเติมในรายการย่อย
           </div>
         </div>
+
+        {/* กำหนดส่ง — deadline */}
+        <div className="field">
+          <label className="field__label" htmlFor="ed-task-due">
+            กำหนดส่ง{' '}
+            <span className="yp-text-faint-medium">
+              (ไม่บังคับ)
+            </span>
+          </label>
+          <input
+            id="ed-task-due"
+            type="date"
+            className="yp-input"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            วันสุดท้ายที่ต้องส่งมอบรายการย่อยนี้
+          </div>
+        </div>
+      </div>
+
+      {/* Priority */}
+      <div className="yp-form-modal__section">
+        <div className="yp-form-modal__section-title">ความเร่งด่วน</div>
+        <div className="yp-priority-picker">
+          {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => {
+            const meta = PRIORITY_META[p];
+            return (
+              <button
+                key={p}
+                type="button"
+                className={`yp-priority-option${priority === p ? ' is-selected' : ''}`}
+                onClick={() => setPriority(p)}
+              >
+                <div className={`yp-priority-option__dot ${meta.dotClass}`} />
+                <div className="yp-priority-option__title">{meta.label}</div>
+                <div className="yp-priority-option__desc">{meta.desc}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Assignee */}
+      <div className="yp-form-modal__section">
+        <div className="yp-form-modal__section-title">
+          ผู้รับผิดชอบ{' '}
+          <span className="yp-text-faint-normal">
+            (ไม่บังคับ)
+          </span>
+        </div>
+        <div className="field">
+          <select
+            id="ed-task-assignee"
+            className="yp-select"
+            value={assigneeId}
+            onChange={(e) => setAssigneeId(e.target.value)}
+            disabled={submitting}
+          >
+            <option value="">— ยังไม่ระบุ —</option>
+            {users.map((u) => (
+              <option key={u.auth_uid} value={u.auth_uid}>
+                {u.full_name}
+                {u.role ? ` · ${u.role}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Tags */}
@@ -2078,27 +2250,6 @@ function EditTaskSheet({
           </div>
         </div>
       </div>
-
-      {/* ★ v3.8.0: เปลี่ยน "หมายเหตุ" → "รายละเอียด" + placeholder ที่เป็นจริง */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          รายละเอียด{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <textarea
-            id="ed-task-notes"
-            className="yp-textarea"
-            placeholder="อธิบายขอบเขตของรายการย่อยนี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            disabled={submitting}
-            rows={4}
-          />
-        </div>
-      </div>
     </BottomSheet>
   );
 }
@@ -2109,6 +2260,7 @@ function EditTaskSheet({
 interface EventPatch {
   title: string;
   date: string;
+  start_date: string | null;   // ★ v3.10.0 รอบที่ 29
   time: string;
   location: string;
   description: string;
@@ -2132,6 +2284,8 @@ function EditEventSheet({
   submitting: boolean;
 }) {
   const [title, setTitle] = React.useState(event.title);
+  // ★ v3.10.0 รอบที่ 29: เพิ่ม start_date — วันที่เริ่มลงมือทำ (ไม่บังคับ)
+  const [startDate, setStartDate] = React.useState<string>(event.start_date || '');
   const [date, setDate] = React.useState(event.date);
   const [time, setTime] = React.useState(event.time || '');
   const [location, setLocation] = React.useState(event.location || '');
@@ -2148,6 +2302,7 @@ function EditEventSheet({
     onSubmit({
       title: title.trim() || event.title,
       date: date || event.date,
+      start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
       time,
       location: location.trim(),
       description: description.trim(),
@@ -2182,6 +2337,10 @@ function EditEventSheet({
         </div>
       }
     >
+      {/* ★ v3.10.0 รอบที่ 29: เรียงลำดับฟอร์มใหม่ — ให้กรอกได้เป็นลำดับตามธรรมชาติ
+          ของการวางแผน: ชื่อ → รายละเอียด → วันเริ่ม → เวลาเริ่ม → กำหนดส่ง →
+          สถานที่ → ฝ่าย → สี
+          (เหมือน CreateEventForm เพื่อความสม่ำเสมอ) */}
       <div className="field">
         <label className="field__label" htmlFor="ed-title">ชื่อรายการ</label>
         <input
@@ -2194,20 +2353,48 @@ function EditEventSheet({
           disabled={submitting}
         />
       </div>
+
+      {/* ★ v3.10.0 รอบที่ 29: รายละเอียดย้ายขึ้นมาใกล้ชื่อ */}
       <div className="field">
-        <label className="field__label" htmlFor="ed-date">วันที่</label>
-        <input
-          id="ed-date"
-          type="date"
-          className="yp-input"
-          required
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+        <label className="field__label" htmlFor="ed-desc">
+          รายละเอียด{' '}
+          <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
+        </label>
+        <textarea
+          id="ed-desc"
+          className="yp-textarea"
+          placeholder="อธิบายวัตถุประสงค์หรือสิ่งที่ต้องทำ"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           disabled={submitting}
+          rows={4}
         />
       </div>
+
+      {/* ★ v3.10.0 รอบที่ 29: วันที่เริ่ม — วันที่จะลงมือทำ (ไม่บังคับ) */}
       <div className="field">
-        <label className="field__label" htmlFor="ed-time">เริ่ม ณ เวลา</label>
+        <label className="field__label" htmlFor="ed-start-date">
+          วันที่เริ่ม{' '}
+          <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
+        </label>
+        <input
+          id="ed-start-date"
+          type="date"
+          className="yp-input"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          disabled={submitting}
+        />
+        <div className="field__hint">
+          วันที่จะลงมือทำงานนี้ — ถ้าไม่ระบุ ระบบจะถือว่าเริ่มในวันกำหนดส่ง
+        </div>
+      </div>
+
+      <div className="field">
+        <label className="field__label" htmlFor="ed-time">
+          เวลาเริ่ม{' '}
+          <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
+        </label>
         <input
           id="ed-time"
           type="time"
@@ -2217,8 +2404,31 @@ function EditEventSheet({
           disabled={submitting}
         />
       </div>
+
+      {/* ★ v3.10.0 รอบที่ 29: เปลี่ยน label จาก "วันที่" → "กำหนดส่ง" */}
       <div className="field">
-        <label className="field__label" htmlFor="ed-location">สถานที่</label>
+        <label className="field__label" htmlFor="ed-date">
+          กำหนดส่ง <span className="yp-required">*</span>
+        </label>
+        <input
+          id="ed-date"
+          type="date"
+          className="yp-input"
+          required
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          disabled={submitting}
+        />
+        <div className="field__hint">
+          วันสุดท้ายที่ต้องส่งมอบงานนี้
+        </div>
+      </div>
+
+      <div className="field">
+        <label className="field__label" htmlFor="ed-location">
+          สถานที่{' '}
+          <span className="yp-text-faint-normal">(ไม่บังคับ)</span>
+        </label>
         <input
           id="ed-location"
           type="text"
@@ -2226,17 +2436,6 @@ function EditEventSheet({
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           disabled={submitting}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-desc">รายละเอียด</label>
-        <textarea
-          id="ed-desc"
-          className="yp-textarea"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={submitting}
-          rows={4}
         />
       </div>
       <div className="field">

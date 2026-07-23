@@ -57,7 +57,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
-  const { title, priority, due_date, start_time, estimated_time, notes, tags, assignee_id } = body || {};
+  const { title, priority, due_date, start_date, start_time, estimated_time, notes, tags, assignee_id } = body || {};
 
   if (!title || typeof title !== 'string' || !title.trim()) {
     return NextResponse.json(
@@ -77,6 +77,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   if (due_date !== undefined && due_date !== null && (typeof due_date !== 'string' || !DATE_RE.test(due_date))) {
     return NextResponse.json(
       { success: false, error: 'วันที่กำหนดส่งไม่ถูกต้อง' },
+      { status: 400 }
+    );
+  }
+
+  // ★ v3.10.0 รอบที่ 29: start_date (YYYY-MM-DD, ไม่บังคับ) — วันที่เริ่มลงมือทำ
+  if (start_date !== undefined && start_date !== null && (typeof start_date !== 'string' || !DATE_RE.test(start_date))) {
+    return NextResponse.json(
+      { success: false, error: 'วันที่เริ่มไม่ถูกต้อง' },
       { status: 400 }
     );
   }
@@ -119,13 +127,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
         status: 'todo',
         priority: finalPriority,
         due_date: due_date || null,
+        start_date: start_date || null,   // ★ v3.10.0 รอบที่ 29
         start_time: start_time || null,   // ★ v3.10.0 รอบที่ 9
         estimated_time: estimated_time || '',
         notes: notes || '',
         tags: Array.isArray(tags) ? tags : [],
         sort_order: count || 0,
       })
-      .select('id, event_id, title, due_date, start_time, status, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
+      .select('id, event_id, title, due_date, start_date, start_time, status, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
       .limit(1)
       .maybeSingle();
 

@@ -27,6 +27,7 @@ export default async function CalendarPage() {
       type,
       title,
       date,
+      start_date,
       end_date,
       time,
       location,
@@ -49,6 +50,7 @@ export default async function CalendarPage() {
     type: e.type,
     title: e.title,
     date: e.date,
+    start_date: e.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',

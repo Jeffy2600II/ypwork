@@ -982,7 +982,7 @@ function TodayItemCard({
           {item.startTime ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--time">
               <Clock width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">เริ่ม ณ เวลา</span>
+              <span className="yp-today-item-card__chip-label">เวลาเริ่ม</span>
               {item.startTime}
             </span>
           ) : null}

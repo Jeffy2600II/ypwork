@@ -43,6 +43,7 @@ export default async function DayViewPage({ params }: PageProps) {
       type,
       title,
       date,
+      start_date,
       end_date,
       time,
       location,
@@ -57,7 +58,7 @@ export default async function DayViewPage({ params }: PageProps) {
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (
-        id, event_id, title, due_date, start_time, status, priority,
+        id, event_id, title, due_date, start_date, start_time, status, priority,
         estimated_time, notes, tags, sort_order, created_at, updated_at
       )
     `
@@ -70,6 +71,7 @@ export default async function DayViewPage({ params }: PageProps) {
     type: e.type,
     title: e.title,
     date: e.date,
+    start_date: e.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',

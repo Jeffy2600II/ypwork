@@ -104,6 +104,7 @@ function normalizeEvent(e: RawEvent): YPEvent {
     type: e.type,
     title: e.title,
     date: e.date,
+    start_date: e.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',
@@ -130,6 +131,7 @@ function normalizeTask(t: RawTask): Task {
     title: t.title,
     due_date: t.due_date ?? null,
     start_time: t.start_time ?? null,   // ★ v3.10.0 รอบที่ 9
+    start_date: t.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
     status: t.status,
     priority: t.priority,
     estimated_time: t.estimated_time ?? '',
@@ -146,11 +148,11 @@ function normalizeTask(t: RawTask): Task {
 // Fetch helpers — used by hooks to (re)load data
 // ═══════════════════════════════════════════════════════════════
 const EVENT_FIELDS = `
-  id, type, title, date, end_date, time, location, description,
+  id, type, title, date, start_date, end_date, time, location, description,
   department_id, status, color, created_by, created_at, updated_at,
   department:departments ( id, name, color, icon, description ),
   tasks:ypwork_tasks (
-    id, event_id, title, due_date, start_time, status, priority,
+    id, event_id, title, due_date, start_date, start_time, status, priority,
     estimated_time, notes, tags, sort_order, created_at, updated_at
   )
 `;
