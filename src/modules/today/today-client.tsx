@@ -1,7 +1,13 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r34 — elevated section panels)
+// YP WORK · Today Dashboard (v3.10.0-r35 — การ์ดเดี่ยวทั้งหมด)
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 35: เพิ่มพื้นหลังเรียบให้ 3 section หลัก
+//   (เลยกำหนด / วันนี้ / กำลังจะถึง) ผ่าน class "yp-today-section--panel"
+//   - พื้นหลังสีขาว มุมโค้งเล็กน้อย เต็มขอบจอ (ไม่เว้นด้านข้าง)
+//   - เว้นระยะห่างระหว่าง 3 section นี้เพิ่มขึ้น ให้ดูแยกจากกันชัดเจน
+//   - section "ภาพรวมแผนก" (ถ้ามี) ไม่ได้รับผลกระทบ ยังคงเดิม
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 33: ปรับปรุงครั้งใหญ่
 //
@@ -706,7 +712,7 @@ export function TodayClient({
   const renderOverdueSection = () => {
     if (overdueCount === 0) return null;
     return (
-      <section className="yp-today-section is-overdue">
+      <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title yp-today-section__title--overdue">
             รายการที่เลยกำหนด
@@ -775,7 +781,7 @@ export function TodayClient({
       {renderOverdueSection()}
 
       {/* ── TODAY ── */}
-      <section className="yp-today-section">
+      <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">รายการวันนี้</h2>
           <span className="yp-today-section__count">{todayTotalCount} รายการ</span>
@@ -796,7 +802,7 @@ export function TodayClient({
       </section>
 
       {/* ── UPCOMING ── */}
-      <section className="yp-today-section">
+      <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">กำลังจะถึง</h2>
           <span className="yp-today-section__count">{upcomingCount} รายการ</span>

@@ -1671,40 +1671,27 @@
   line-height: 1.3;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 34: Elevated Section Panels
-   ═══════════════════════════════════════════════════════════════
-   งานวิจัย: Material 3 Surface Hierarchy, Apple Reminders,
-   Linear, Notion, Things 3, Microsoft To Do
+/* Today sections */
+.yp-today-section + .yp-today-section { margin-top: var(--yp-space-6); }
 
-   หลักการ:
-   - แต่ละ section เป็น “white panel” ยกน้ำหนัก (elevated surface)
-   - Visual hierarchy: page (lavender) → section (white) → card (bordered)
-   - ทุก section ใช้พื้นหลังสีขาวบริสุทธิ์ → เห็นชัดว่าพื้นที่นี้
-     ของ section ไหน ไม่แปลกแยก ไม่คลุมเครือ
-   - Overdue section: มี red accent border ซ้ายเพื่อสื่อความเร่งด่วน
-   ═══════════════════════════════════════════════════════════════ */
-
-.yp-today-section {
+/* ★ v3.10.0 รอบที่ 35: พื้นหลังเรียบสีขาวสำหรับ 3 section หลัก
+   (เลยกำหนด / วันนี้ / กำลังจะถึง) — เต็มขอบจอ ไม่เว้นด้านข้าง
+   มุมโค้งเล็กน้อยเท่านั้น ไม่ใช้ radius สูงแบบการ์ดอื่น ๆ */
+.yp-today-section--panel {
   background: #FFFFFF;
-  border-radius: var(--yp-radius-xl, 16px);
-  padding: var(--yp-space-5) var(--yp-space-5) var(--yp-space-6);
-  box-shadow:
-    0 1px 3px rgba(30, 27, 70, 0.04),
-    0 4px 16px rgba(30, 27, 70, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  /* ★ r34: ใช้ transition เพื่อ smooth entering */
-  transition: box-shadow 200ms ease;
+  border-radius: 14px;
+  margin-left: calc(-1 * var(--yp-page-pad-x));
+  margin-right: calc(-1 * var(--yp-page-pad-x));
+  padding-left: var(--yp-page-pad-x);
+  padding-right: var(--yp-page-pad-x);
+  padding-top: var(--yp-space-5);
+  padding-bottom: var(--yp-space-5);
 }
 
-/* ★ r34: Overdue section — red accent left border สื่อความเร่งด่วน */
-.yp-today-section.is-overdue {
-  border-left: 3px solid var(--yp-danger-500, #F43F5E);
-  padding-left: calc(var(--yp-space-5) - 1px);
-}
-
-.yp-today-section + .yp-today-section {
-  margin-top: var(--yp-space-4);
+/* ★ v3.10.0 รอบที่ 35: เว้นระยะห่างระหว่าง 3 section นี้เพิ่มขึ้น
+   ให้เห็นชัดว่าเป็นคนละ section (มากกว่าค่า margin ปกติด้านบน) */
+.yp-today-section--panel + .yp-today-section--panel {
+  margin-top: var(--yp-space-8);
 }
 
 .yp-today-section__head {
@@ -1712,10 +1699,6 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  margin-bottom: var(--yp-space-4);
-  /* ★ r34: section title อยู่ใน panel แล้ว — ลดขนาดเล็กน้อยให้สมดุล */
-  padding-bottom: var(--yp-space-3);
-  border-bottom: 1px solid var(--yp-border-subtle);
   margin-bottom: var(--yp-space-4);
 }
 
@@ -1731,9 +1714,8 @@
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-bold);
-  /* ★ r34: ใช้ soft bg แทน white (เพราะ section เป็น white แล้ว) */
-  background: var(--yp-bg-card-soft);
-  padding: 4px 12px;
+  background: var(--yp-bg-card);
+  padding: 5px 14px;
   border-radius: var(--yp-radius-pill);
   border: 1px solid var(--yp-border-subtle);
   letter-spacing: 0.02em;
@@ -1746,8 +1728,8 @@
 
 .yp-today-section__count--overdue {
   color: #BE123C;
-  background: rgba(244, 63, 94, 0.10);
-  border-color: rgba(244, 63, 94, 0.20);
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.15);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1761,10 +1743,7 @@
 
 /* ── Time Section ── */
 .yp-today-time-section {
-  margin-bottom: var(--yp-space-4);
-}
-.yp-today-time-section:last-child {
-  margin-bottom: 0;
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-time-section__head {
@@ -1773,8 +1752,7 @@
   gap: var(--yp-space-3);
   margin-bottom: var(--yp-space-3);
   padding-bottom: var(--yp-space-2);
-  /* ★ r34: ใช้ border อ่อนกว่า เพราะอยู่ใน white panel แล้ว */
-  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
+  border-bottom: 1px solid var(--yp-border-subtle);
 }
 
 .yp-today-time-section__icon {
@@ -1784,8 +1762,7 @@
   width: 28px;
   height: 28px;
   border-radius: var(--yp-radius-sm);
-  /* ★ r34: ใช้ soft bg แทน white (เพราะ section เป็น white แล้ว) */
-  background: var(--yp-bg-card-soft);
+  background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   color: var(--yp-indigo-500);
   font-size: var(--yp-text-xs);
@@ -1814,8 +1791,7 @@
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-bold);
-  /* ★ r34: soft bg แทน white */
-  background: var(--yp-bg-card-soft);
+  background: var(--yp-bg-card);
   padding: 4px 10px;
   border-radius: var(--yp-radius-pill);
   border: 1px solid var(--yp-border-subtle);
@@ -1832,20 +1808,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--yp-space-3);
-  /* ★ r34: ลด noise ภายใน white panel — cards อยู่ใน container แล้ว */
-}
-
-/* ★ r34: Card ภายใน white section panel — ใช้ soft bg
-   เพื่อสร้าง visual hierarchy: section (white) > card (soft) > content
-   inspired by Material 3 “filled” variant + Apple Reminders list rows */
-.yp-today-section .yp-today-item-card {
-  background: var(--yp-bg-card-soft);
-  border-color: color-mix(in srgb, var(--yp-border-subtle) 50%, transparent);
-}
-
-.yp-today-section .yp-today-item-card:hover {
-  background: #FFFFFF;
-  border-color: var(--yp-border-indigo);
 }
 
 /* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
@@ -2780,7 +2742,7 @@
   padding: var(--yp-space-12) var(--yp-space-6);
   color: var(--yp-text-muted);
   background: var(--yp-bg-card-soft);
-  border: 1px dashed var(--yp-border-subtle);
+  border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   max-width: 480px;
   margin-inline: auto;
