@@ -1472,22 +1472,27 @@
   margin-top: var(--yp-space-3);
   padding-left: 58px;
 }
+/* ★ v3.10.0 รอบที่ 30: progress bar — ใช้ accent tint แทน indigo flat
+   ทำให้ bar กลมกลืนกับ accent ของงาน ไม่ใช่สีเดียวกันทุกการ์ด */
 .yp-event-card__progress-bar {
   flex: 1;
-  height: 6px;
-  background: rgba(99, 102, 241, 0.10);
+  height: 5px;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, var(--yp-bg-card-soft));
   border-radius: var(--yp-radius-pill);
   overflow: hidden;
 }
 .yp-event-card__progress-fill {
   height: 100%;
-  background: var(--yp-gradient-brand-flat);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 80%, transparent),
+    var(--accent, var(--yp-indigo-500))
+  );
   border-radius: var(--yp-radius-pill);
   transition: width var(--yp-t-slow);
 }
 .yp-event-card__progress-text {
   font-weight: var(--yp-fw-bold);
-  color: var(--yp-indigo-600);
+  color: var(--accent, var(--yp-indigo-600));
   font-size: var(--yp-text-xs);
   flex-shrink: 0;
   letter-spacing: 0.01em;
@@ -1784,16 +1789,28 @@
 /* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
 .yp-today-group {
   margin-bottom: 0;
+  /* ★ v3.10.0 รอบที่ 30: container รวมเป็น single unit — ใช้ border เดียวครอบทั้ง
+     banner + cards + progress ทำให้ group ดูเป็น "ก้อน" เดียวกัน มั่นคง
+     ไม่ใช่หลายการ์ดแยกกันลอยอยู่ */
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
 }
 
+/* ★ v3.10.0 รอบที่ 30: banner — top corners full radius (lg)
+   bottom corners 0 (ต่อเนื่องกับ progress / cards)
+   ใช้ accent tint อ่อนๆ แทนสีเข้ม */
 .yp-today-group__banner {
   display: flex;
   align-items: center;
   gap: var(--yp-space-2);
-  padding: var(--yp-space-2) var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card));
-  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 15%, var(--yp-border-subtle));
-  border-radius: var(--yp-radius-lg) var(--yp-radius-lg) 0 0;
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, var(--yp-bg-card));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-border-subtle));
   margin-bottom: 0;
 }
 
@@ -1801,8 +1818,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--yp-radius-sm);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
   color: var(--accent, var(--yp-indigo-500));
@@ -1835,6 +1852,13 @@
   padding: 2px 8px;
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
   border-radius: var(--yp-radius-pill);
+}
+
+/* ★ v3.10.0 รอบที่ 30: muted chip — สำหรับ location ที่เป็นข้อมูลเสริม
+   ดูจางกว่า chip accent เพื่อไม่ให้แย่งความสนใจจาก title */
+.yp-today-group__banner-chip--muted {
+  color: var(--yp-text-muted);
+  background: var(--yp-bg-card-soft);
 }
 
 .yp-today-group__banner-chip svg {
@@ -1891,11 +1915,50 @@
   border-color: var(--accent, var(--yp-indigo-500));
 }
 
+/* ★ v3.10.0 รอบที่ 30: Progress section — thin modern progress bar
+   แสดง "X/Y เสร็จ" + bar แบบ thin (4px) modern style
+   อยู่ระหว่าง banner และ cards ทำให้เห็นภาพรวมของกลุ่ม */
+.yp-today-group__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-2) var(--yp-space-4);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 2%, var(--yp-bg-card));
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+.yp-today-group__progress-text {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.yp-today-group__progress-bar {
+  flex: 1;
+  height: 4px;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card-soft));
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+  min-width: 60px;
+}
+.yp-today-group__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 80%, transparent),
+    var(--accent, var(--yp-indigo-500))
+  );
+  border-radius: var(--yp-radius-pill);
+  transition: width 320ms var(--yp-ease-m3-emphasized);
+}
+
+/* ★ v3.10.0 รอบที่ 30: cards container — เปลี่ยนจาก gap + padding
+   เป็น list ที่ใช้ divider บางๆ คั่นระหว่างรายการ
+   ลด visual noise ทำให้ list ดูสะอาดตามากขึ้น */
 .yp-today-group__cards {
   display: flex;
   flex-direction: column;
-  gap: var(--yp-space-2);
-  padding: var(--yp-space-3);
+  padding: var(--yp-space-2) 0;
 }
 
 /* ── Today Item Card (รายการเดี่ยว + รายการย่อยในกลุ่ม) ── */
@@ -2151,6 +2214,214 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 30: Today Item Compact — list item สำหรับรายการย่อย
+   ที่อยู่ในกลุ่มรายการบน Today page
+
+   หลักการออกแบบ:
+   - ใช้ divider บางๆ คั่นระหว่างรายการ แทนการ์ดแยก → ลด visual noise
+   - 1-line layout กระทัดรัด: status dot | title | meta | chevron
+   - มีพื้นที่พอสมควร (padding 12px) ไม่แคบเกินไป
+   - hover state ใช้ background tint ไม่ใช่ border
+   - มุมไม่โค้ง เพราะอยู่ใน list ไม่ใช่การ์ดแยก
+   ═══════════════════════════════════════════════════════════════ */
+.yp-today-item-compact {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--yp-border-subtle);
+  cursor: pointer;
+  transition:
+    background 140ms var(--yp-ease-m3-decelerate),
+    opacity var(--yp-t-fast);
+  /* ★ no border-radius — เป็น list item ไม่ใช่การ์ด */
+  text-decoration: none;
+}
+
+/* ★ last item ไม่มี divider (เพราะมี border ของ group ครอบอยู่แล้ว) */
+.yp-today-item-compact:last-child {
+  border-bottom: none;
+}
+
+.yp-today-item-compact:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
+}
+
+.yp-today-item-compact.is-done {
+  opacity: 0.5;
+}
+
+/* ── Status dot (compact, 12px — เล็กกว่า full card เพื่อให้ title เด่น) ── */
+.yp-today-item-compact__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--yp-radius-pill);
+  flex-shrink: 0;
+  border: 2px solid;
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  transition: transform 150ms var(--yp-ease-m3-standard);
+}
+
+.yp-today-item-compact:hover .yp-today-item-compact__dot {
+  transform: scale(1.15);
+}
+
+.yp-today-item-compact__dot--todo {
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.yp-today-item-compact__dot--ongoing {
+  border-color: #6366F1;
+  background: rgba(99, 102, 241, 0.20);
+}
+
+.yp-today-item-compact__dot--ongoing::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--yp-radius-pill);
+  background: #6366F1;
+}
+
+.yp-today-item-compact__dot--done {
+  border-color: #10B981;
+  background: #10B981;
+}
+
+.yp-today-item-compact__dot--done::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  width: 3px;
+  height: 6px;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(45deg);
+}
+
+/* ── Title (single line, truncated) ── */
+.yp-today-item-compact__title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-body);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+.yp-today-item-compact.is-done .yp-today-item-compact__title {
+  text-decoration: line-through;
+  color: var(--yp-text-faint);
+}
+
+/* ── Meta (compact inline) ── */
+.yp-today-item-compact__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.yp-today-item-compact__status {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  padding: 1px 8px;
+  border-radius: var(--yp-radius-pill);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.yp-today-item-compact__status--todo {
+  color: #B45309;
+  background: rgba(245, 158, 11, 0.10);
+}
+
+.yp-today-item-compact__status--ongoing {
+  color: var(--yp-indigo-600);
+  background: rgba(99, 102, 241, 0.10);
+}
+
+.yp-today-item-compact__status--done {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.10);
+}
+
+.yp-today-item-compact__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  white-space: nowrap;
+}
+
+.yp-today-item-compact__time svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.7;
+}
+
+.yp-today-item-compact__priority {
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.10);
+  padding: 1px 6px;
+  border-radius: var(--yp-radius-pill);
+  letter-spacing: 0.02em;
+}
+
+.yp-today-item-compact__date {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  white-space: nowrap;
+}
+
+.yp-today-item-compact__date--overdue {
+  color: #BE123C;
+  font-weight: var(--yp-fw-bold);
+}
+
+/* ── Detail link (chevron — เล็กกว่า full card) ── */
+.yp-today-item-compact__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--yp-radius-sm);
+  background: transparent;
+  color: var(--yp-text-faint);
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 150ms var(--yp-ease-m3-standard);
+}
+
+.yp-today-item-compact__link:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
+  color: var(--accent, var(--yp-indigo-500));
+}
+
+.yp-today-item-compact__link svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    ★ v3.10.0 รอบที่ 26: EventCard — Date Badge + Subtask Preview
    ═══════════════════════════════════════════════════════════════ */
 
@@ -2184,11 +2455,13 @@
   border: 1px solid color-mix(in srgb, var(--yp-danger-500, #F43F5E) 20%, transparent);
 }
 
-/* Subtask Preview (2-3 items + "+X more") */
+/* Subtask Preview (2-3 items + "+X more")
+   ★ v3.10.0 รอบที่ 30: ปรับปรุงให้สะอาดตามากขึ้น — ใช้ list-style แทน card-style
+   เพิ่ม divider บางๆ ระหว่างรายการ ลด background tint ให้ดูอ่อนนุ่ม */
 .yp-event-card__subtasks {
-  margin-top: var(--yp-space-2);
+  margin-top: var(--yp-space-3);
   padding: var(--yp-space-2) var(--yp-space-3);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-page));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-page));
   border-radius: var(--yp-radius-sm);
   border: 1px solid var(--yp-border-subtle);
 }
@@ -2197,13 +2470,19 @@
   display: flex;
   align-items: center;
   gap: var(--yp-space-2);
-  padding: 4px 0;
+  padding: 5px 0;
   font-size: var(--yp-text-xs);
+  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
+}
+
+/* ★ last subtask ไม่มี divider */
+.yp-event-card__subtask:last-child {
+  border-bottom: none;
 }
 
 .yp-event-card__subtask-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -2236,6 +2515,7 @@
   color: var(--accent, var(--yp-indigo-500));
   min-width: 42px;
   text-align: center;
+  font-size: 11px;
 }
 
 .yp-event-card__subtask-priority {
@@ -3648,30 +3928,9 @@
   padding: 1px 9px;
   border-radius: var(--yp-radius-pill);
 }
-
-/* ★ v3.10.0 รอบที่ 29: ปรับปรุงการออกแบบการ์ดกลุ่มรายการย่อย
-   ก่อนหน้านี้ __head มี icon chip + label ที่ดูเหมือนหัวการ์ด แต่ __body
-   ไม่มีพื้นหลังเลย ทำให้รายการย่อยดูเหมือน "ลอย" อยู่โดยไม่มี container ครอบ
-   → เพิ่ม background + border + padding + border-radius ให้ __body เพื่อให้
-   รายการย่อยอยู่ใน "พื้นที่แสดงผล" ที่ชัดเจน ดูเป็น card ที่สมบูรณ์แบบ
-   (head + body อยู่ใน card เดียวกันโดยใช้ border ของ __body ต่อจาก __head) */
 .yp-task-time-group__body {
   display: flex;
   flex-direction: column;
-  gap: var(--yp-space-3);
-  padding: var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 2%, var(--yp-bg-card));
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-md);
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.03),
-    0 1px 4px rgba(30, 27, 70, 0.02);
-}
-
-/* ★ v3.10.0 รอบที่ 29: เมื่อ __body มี padding แล้ว ไม่ต้องใช้ margin ระหว่าง
-   task rows อีก (gap ใน flex จัดการให้แล้ว) — override rule เดิม */
-.yp-task-time-group__body .yp-task-row + .yp-task-row {
-  margin-top: 0;
 }
 
 /* Muted variant — "ไม่ระบุเวลา" กลุ่ม ดูเบากว่ากลุ่มที่มีเวลาจริง */
@@ -3681,14 +3940,6 @@
 }
 .yp-task-time-group.is-muted .yp-task-time-group__label {
   color: var(--yp-text-muted);
-}
-/* ★ v3.10.0 รอบที่ 29: muted body ใช้สีจางกว่า เพราะเป็นกลุ่ม "ไม่ระบุเวลา"
-   ไม่ต้องเด่นเท่ากลุ่มที่มีเวลาจริง */
-.yp-task-time-group.is-muted .yp-task-time-group__body {
-  background: var(--yp-bg-card-soft);
-  border-color: var(--yp-border-subtle);
-  border-style: dashed;
-  box-shadow: none;
 }
 
 .yp-task-empty {

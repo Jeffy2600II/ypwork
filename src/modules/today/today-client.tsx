@@ -34,10 +34,8 @@ import {
   THAI_DAYS,
   THAI_MONTHS,
   relativeDay,
-  isPast,
   statusLabel,
   statusChipClass,
-  eventProgress,
 } from '@/lib/utils/date';
 import {
   AlertCircle,
@@ -819,9 +817,30 @@ export function TodayClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 28: SmartGroupCard — ออกแบบใหม่ให้กว้างสมดุลมั่นคง
-//   Group header = slim accent banner
-//   Items = individual mini-cards (เหมือน TaskRow) with gap
+// ★ v3.10.0 รอบที่ 30: SmartGroupCard — ออกแบบใหม่ทั้งหมดตามหลักการ
+//   ออกแบบระดับมืออาชีพ (Apple HIG + Material 3 + Linear + Things 3)
+//
+//   หลักการที่ใช้:
+//   1. มั่นคง — โครงสร้างชัดเจน: header (banner) + body (list)
+//      มี background ใน body ทำให้รายการย่อยไม่ "ลอย"
+//   2. สวยงาม น่าใช้ — ใช้ accent tint อ่อนๆ แทนสีเข้ม
+//      progress bar แบบ thin, modern แสดงความคืบหน้าของกลุ่ม
+//   3. สะอาดตา — ใช้ whitespace + alignment แทนเส้นขอบหนา
+//      ลด chip ที่ไม่จำเป็น เก็บไว้แค่สารสำคัญ
+//   4. สมดุล — มุมโค้งด้านบนกว้าง ด้านล่างแคบลง เพื่อให้กลมกลืน
+//      กับการ์ดย่อยด้านในที่มีมุมโค้งเล็กกว่า
+//
+//   โครงสร้างใหม่:
+//   ┌─────────────────────────────────────┐ ← top: lg radius
+//   │ ▒  วันแม่แห่งชาติ   ⏰ 08:00  →  │    banner (accent tint)
+//   │    โรงเรียน · 5/8 เสร็จ  ▰▰▰▰▱▱▱▱ │    progress (NEW)
+//   ├─────────────────────────────────────┤
+//   │ ┌─────────────────────────────────┐ │ ← inner cards: sm radius
+//   │ │ ● ซื้อของ         ✓ เสร็จ       │ │    compact list style
+//   │ ├─────────────────────────────────┤ │
+//   │ │ ● ตกแต่งบูธ      ⏳ กำลังทำ    │ │
+//   │ └─────────────────────────────────┘ │
+//   └─────────────────────────────────────┘ ← bottom: sm radius
 // ═══════════════════════════════════════════════════════════════
 function SmartGroupCard({
   group,
@@ -848,13 +867,23 @@ function SmartGroupCard({
     );
   }
 
-  // ★ กลุ่มรายการ — banner header + individual mini-cards
+  // ★ v3.10.0 รอบที่ 30: คำนวณความคืบหน้าของกลุ่มจาก parentEvent.tasks
+  //   ถ้า parentEvent มี tasks → ใช้ progress จริง
+  //   ถ้าไม่มี → คำนวณจาก items ในกลุ่มแทน (fallback)
+  const totalGroupTasks = parentEvent?.tasks?.length || items.length;
+  const doneGroupTasks = parentEvent?.tasks
+    ? parentEvent.tasks.filter((t) => t.status === 'done').length
+    : items.filter((i) => i.status === 'done').length;
+  const progressPct = totalGroupTasks > 0
+    ? Math.round((doneGroupTasks / totalGroupTasks) * 100)
+    : 0;
+
   const detailHref = parentEvent ? `/events/${parentEvent.id}` : '#';
   const groupDate = parentEvent?.date || firstItem.dueDate || '';
 
   return (
     <div className="yp-today-group" style={{ ['--accent' as string]: accent }}>
-      {/* ── Group banner ── */}
+      {/* ── Group banner (header) ── */}
       <div className="yp-today-group__banner">
         <span className="yp-today-group__icon" aria-hidden="true">
           <Layers width={14} height={14} strokeWidth={2} />
@@ -868,7 +897,9 @@ function SmartGroupCard({
             </span>
           ) : null}
           {firstItem.location ? (
-            <span className="yp-today-group__banner-chip">{firstItem.location}</span>
+            <span className="yp-today-group__banner-chip yp-today-group__banner-chip--muted">
+              {firstItem.location}
+            </span>
           ) : null}
           {/* ★ date badge for overdue/upcoming */}
           {isOverdue && groupDate ? (
@@ -894,7 +925,32 @@ function SmartGroupCard({
         </Link>
       </div>
 
-      {/* ── Items: individual mini-cards ── */}
+      {/* ── Group progress bar (NEW — v3.10.0 รอบที่ 30) ── */}
+      {/* ★ แสดงเฉพาะเมื่อมี tasks มากกว่า 1 รายการ
+          ใช้ progress จาก parentEvent ทั้งหมด ไม่ใช่แค่ items ในกลุ่มนี้
+          เพราะอยากให้เห็นภาพรวมของกลุ่มรายการนั้นๆ ไม่ใช่แค่ส่วนที่แสดง */}
+      {totalGroupTasks > 0 ? (
+        <div className="yp-today-group__progress">
+          <span className="yp-today-group__progress-text">
+            {doneGroupTasks}/{totalGroupTasks} เสร็จ
+          </span>
+          <div
+            className="yp-today-group__progress-bar"
+            role="progressbar"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`ความคืบหน้า ${progressPct}%`}
+          >
+            <div
+              className="yp-today-group__progress-fill"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Items: compact list (★ v3.10.0 รอบที่ 30: ใช้ compact variant) ── */}
       <div className="yp-today-group__cards">
         {items.map((item) => (
           <TodayItemCard
@@ -911,9 +967,24 @@ function SmartGroupCard({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 28: TodayItemCard — ออกแบบใหม่ให้กว้างสมดุลมั่นคง
-//   เหมือน TaskRow ในหน้ากลุ่มรายการ — 2-line layout + pill chips
-//   คลิก = เปิด Bottom Sheet เลือกสถานะ
+// ★ v3.10.0 รอบที่ 30: TodayItemCard — ออกแบบใหม่ 2 โหมด:
+//
+//   1. Standalone (ไม่ใช่ในกลุ่ม): การ์ดเต็มรูปแบบ เหมือนเดิม
+//      - มี border + shadow + lg radius
+//      - 2-line layout: title + meta chips
+//      - ใช้ใน: รายการเดี่ยวใน today, overdue, upcoming
+//
+//   2. In-group (อยู่ในกลุ่มรายการ): compact list item แบบใหม่
+//      - ไม่มี shadow ใช้แค่ border บางๆ ด้านล่างคั่นระหว่างรายการ
+//      - 1-line layout: status dot + title + status chip + chevron
+//      - ขนาดกระทัดรัด มองง่าย ดูง่าย แต่มีพื้นที่พอสมควร
+//      - ใช้ใน: รายการย่อยในกลุ่มรายการบน today page
+//
+//   หลักการออกแบบ (จาก Linear + Things 3 + Apple Reminders):
+//   - ใน list ใช้ divider lines แทนการ์ดแยก → ลด visual noise
+//   - status dot ขนาดเล็ก (12px) ไม่เด่นเกิน title
+//   - status chip แค่ colored dot + label ไม่มี icon ซ้ำ
+//   - chevron บอกว่าคลิกได้ ไม่ใช่แค่ข้อความธรรมดา
 // ═══════════════════════════════════════════════════════════════
 function TodayItemCard({
   item,
@@ -932,8 +1003,79 @@ function TodayItemCard({
   const isUpcoming = item.dateContext === 'upcoming';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
-  const overdue = item.dueDate && isPast(item.dueDate) && item.status !== 'done';
 
+  // ★ v3.10.0 รอบที่ 30: ถ้าอยู่ในกลุ่ม → ใช้ compact list item layout
+  //   กระทัดรัดกว่า, มองง่าย, ดูง่าย แต่ยังมีพื้นที่พอสมควร
+  if (isInGroup) {
+    return (
+      <div
+        className={`yp-today-item-compact${item.status === 'done' ? ' is-done' : ''}`}
+        style={{ ['--accent' as string]: accent }}
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpenStatusPicker(item)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
+        aria-label={`${item.title} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
+      >
+        {/* ── Status dot (compact, smaller) ── */}
+        <button
+          type="button"
+          className={`yp-today-item-compact__dot yp-today-item-compact__dot--${item.status}`}
+          aria-label={`เลือกสถานะ — ${statusLabel(item.status)}`}
+          onClick={(e) => { e.stopPropagation(); onOpenStatusPicker(item); }}
+          style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
+        />
+
+        {/* ── Title (single line, truncated) ── */}
+        <div className="yp-today-item-compact__title">{item.title}</div>
+
+        {/* ── Meta (compact: just essential info) ── */}
+        <div className="yp-today-item-compact__meta">
+          {/* Status label (compact, no icon) */}
+          <span className={`yp-today-item-compact__status yp-today-item-compact__status--${item.status}`}>
+            {statusLabel(item.status)}
+          </span>
+
+          {/* Time (if any) */}
+          {item.startTime ? (
+            <span className="yp-today-item-compact__time">
+              <Clock width={10} height={10} />
+              {item.startTime}
+            </span>
+          ) : null}
+
+          {/* Priority (only high shows) */}
+          {priority === 'high' ? (
+            <span className="yp-today-item-compact__priority">เร่ง</span>
+          ) : null}
+
+          {/* Date for overdue/upcoming */}
+          {isOverdue && item.dueDate && item.dueDate !== todayStr ? (
+            <span className="yp-today-item-compact__date yp-today-item-compact__date--overdue">
+              {relativeDay(item.dueDate)}
+            </span>
+          ) : null}
+          {isUpcoming && item.dueDate && item.dueDate !== todayStr ? (
+            <span className="yp-today-item-compact__date">
+              {relativeDay(item.dueDate)}
+            </span>
+          ) : null}
+        </div>
+
+        {/* ── Detail link (chevron) ── */}
+        <Link
+          href={detailHref}
+          className="yp-today-item-compact__link"
+          aria-label={`ดูรายละเอียด: ${item.title}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ChevronRight width={14} height={14} />
+        </Link>
+      </div>
+    );
+  }
+
+  // ★ Standalone (ไม่อยู่ในกลุ่ม) — full card layout เหมือนเดิม
   return (
     <div
       className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}`}
