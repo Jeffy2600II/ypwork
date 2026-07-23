@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r33 — การ์ดเดี่ยวทั้งหมด)
+// YP WORK · Today Dashboard (v3.10.0-r34 — elevated section panels)
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 33: ปรับปรุงครั้งใหญ่
 //
@@ -706,7 +706,7 @@ export function TodayClient({
   const renderOverdueSection = () => {
     if (overdueCount === 0) return null;
     return (
-      <section className="yp-today-section">
+      <section className="yp-today-section is-overdue">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title yp-today-section__title--overdue">
             รายการที่เลยกำหนด
