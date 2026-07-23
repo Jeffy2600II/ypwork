@@ -107,6 +107,9 @@ interface TimelineItem {
 
 // ═══════════════════════════════════════════════════════════════
 // Helper: สร้าง TimelineItems จาก events ของวันใดวันหนึ่ง
+// ★ v3.10.0 รอบที่ 31: เพิ่มการกรอง subtask ตาม start_date
+//   ถ้า subtask มี start_date > dateStr → ไม่รวมใน section นี้
+//   (จะไปอยู่ใน upcoming แทน แม้ว่า parent event จะอยู่ในวันนี้ก็ตาม)
 // ═══════════════════════════════════════════════════════════════
 function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: string): TimelineItem[] {
   const items: TimelineItem[] = [];
@@ -136,8 +139,11 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
         });
       } else {
         for (const t of tasks) {
-          // ★ ถ้าเลยกำหนด แสดงเฉพาะรายการย่อยที่ยังไม่เสร็จ
           if (dateContext === 'overdue' && t.status === 'done') continue;
+          // ★ v3.10.0 รอบที่ 31: ถ้า subtask เริ่มในอนาคต (start_date > dateStr)
+          //   → ไม่รวมใน section นี้ จะไปอยู่ใน upcoming แทน
+          //   ยกเว้นถ้า dateContext เป็น 'upcoming' ก็รวมได้
+          if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
           items.push({
             id: `task-${t.id}`,
             startTime: t.start_time || ev.time || null,
@@ -186,6 +192,8 @@ function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: str
     for (const t of ev.tasks || []) {
       if (t.due_date === dateStr) {
         if (dateContext === 'overdue' && t.status === 'done') continue;
+        // ★ v3.10.0 รอบที่ 31: ถ้า subtask เริ่มในอนาคต → ไม่รวมใน section นี้
+        if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
         items.push({
           id: `task-${t.id}`,
           startTime: t.start_time || null,
@@ -421,12 +429,18 @@ export function TodayClient({
     [events, todayStr]
   );
 
-  const upcoming = events.filter((e) => e.date > todayStr).slice(0, 4);
+  // ★ v3.10.0 รอบที่ 31: upcoming รวม events ที่ deadline ในอนาคต
+  //   PLUS subtasks ที่ start_date ในอนาคต (แม้ parent event จะอยู่วันนี้หรือเลยกำหนด)
+  //   ปรับจากเดิมที่ slice(0, 4) → ใช้ทั้งหมด เพราะต้องรวม future-start subtasks ด้วย
+  const upcomingEvents = events.filter((e) => e.date > todayStr);
 
   // ★ สร้าง upcoming items แยก dateContext = 'upcoming'
   const upcomingTimelineItems = React.useMemo(() => {
     const items: TimelineItem[] = [];
-    for (const ev of upcoming) {
+    const seenTaskIds = new Set<string>();
+
+    // 1. Events ที่ deadline ในอนาคต (เหมือนเดิม)
+    for (const ev of upcomingEvents) {
       if (ev.type === 'group') {
         const tasks = ev.tasks || [];
         if (tasks.length === 0) {
@@ -452,6 +466,7 @@ export function TodayClient({
           // ★ upcoming: แสดงเฉพาะรายการย่อยที่ยังไม่เสร็จ (เพื่อความสะดวก)
           for (const t of tasks) {
             if (t.status === 'done') continue;
+            seenTaskIds.add(t.id);
             items.push({
               id: `task-${t.id}`,
               startTime: t.start_time || ev.time || null,
@@ -493,8 +508,61 @@ export function TodayClient({
         });
       }
     }
+
+    // ★ v3.10.0 รอบที่ 31: 2. Subtasks ที่ start_date ในอนาคต จาก events ทั้งหมด
+    //   แม้ parent event จะอยู่วันนี้หรือเลยกำหนด แต่ถ้า subtask เริ่มในอนาคต
+    //   → ไปอยู่ใน upcoming (ไม่รวมซ้ำกับที่เพิ่ง add ไปแล้ว)
+    for (const ev of events) {
+      if (ev.date > todayStr) continue; // ← ข้าม events ที่ deadline ในอนาคต (จัดไปแล้ว)
+      const tasks = ev.tasks || [];
+      for (const t of tasks) {
+        if (t.status === 'done') continue;
+        if (seenTaskIds.has(t.id)) continue; // ← ข้ามถ้าเพิ่ง add ไปแล้ว
+        // ★ เฉพาะ subtask ที่ start_date > today และยังไม่เสร็จ
+        if (t.start_date && t.start_date > todayStr) {
+          seenTaskIds.add(t.id);
+          items.push({
+            id: `task-${t.id}`,
+            startTime: t.start_time || ev.time || null,
+            title: t.title,
+            status: t.status,
+            accent: ev.color || '#4F46E5',
+            parentEvent: ev,
+            task: t,
+            event: null,
+            assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
+            assigneeColor: t.assignees?.[0]?.color || null,
+            priority: t.priority || 'medium',
+            estimatedTime: t.estimated_time || null,
+            dueDate: t.due_date || null,
+            location: ev.location || null,
+            eventTime: ev.time || null,
+            dateContext: 'upcoming',
+          });
+        }
+      }
+    }
+
+    // เรียง: start_date → time → priority → title
+    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    items.sort((a, b) => {
+      // ★ upcoming: เรียงตาม start_date ของ task หรือ date ของ event
+      const da = a.task?.start_date || a.parentEvent?.date || a.dueDate || '';
+      const db = b.task?.start_date || b.parentEvent?.date || b.dueDate || '';
+      if (da && db && da !== db) return da.localeCompare(db);
+      const pa = PRIORITY_ORDER[a.priority] ?? 3;
+      const pb = PRIORITY_ORDER[b.priority] ?? 3;
+      if (pa !== pb) return pa - pb;
+      const sa = a.startTime || '';
+      const sb = b.startTime || '';
+      if (sa && sb && sa !== sb) return sa.localeCompare(sb);
+      if (sa && !sb) return -1;
+      if (!sa && sb) return 1;
+      return a.title.localeCompare(b.title, 'th');
+    });
+
     return items;
-  }, [upcoming]);
+  }, [upcomingEvents, events, todayStr]);
 
   const timeGroups = React.useMemo(
     () => buildTimeGroups(todayTimelineItems),
@@ -518,7 +586,9 @@ export function TodayClient({
 
   const todayTotalCount = todayTimelineItems.length;
   const overdueCount = overdueTimelineItems.length;
-  const upcomingCount = upcoming.length;
+  // ★ v3.10.0 รอบที่ 31: upcomingCount นับจาก timeline items แทน events
+  //   เพราะตอนนี้ upcoming รวม future-start subtasks ด้วย ไม่ใช่แค่ events
+  const upcomingCount = upcomingTimelineItems.length;
 
   const deptStats = React.useMemo(() => {
     if (!dept) return initialDeptStats;

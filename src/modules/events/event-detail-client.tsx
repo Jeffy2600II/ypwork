@@ -1596,6 +1596,12 @@ function AddTaskSheet({
       setErr('กรุณากรอกชื่อ task');
       return;
     }
+    // ★ v3.10.0 รอบที่ 31: ตรวจสอบกำหนดส่ง >= วันที่เริ่ม
+    //   ถ้าตั้งทั้งสองวัน → กำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม
+    if (startDate && dueDate && dueDate < startDate) {
+      setErr('วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม');
+      return;
+    }
     const tags = tagsStr
       .split(',')
       .map((s) => s.trim())
@@ -1946,6 +1952,11 @@ function EditTaskSheet({
       setErr('กรุณากรอกชื่อ task');
       return;
     }
+    // ★ v3.10.0 รอบที่ 31: ตรวจสอบกำหนดส่ง >= วันที่เริ่ม (เหมือน AddTaskSheet)
+    if (startDate && dueDate && dueDate < startDate) {
+      setErr('วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม');
+      return;
+    }
     const tags = tagsStr
       .split(',')
       .map((s) => s.trim())
@@ -2294,11 +2305,19 @@ function EditEventSheet({
     event.department_id || departments[0]?.id || ''
   );
   const [color, setColor] = React.useState(event.color || COLOR_OPTIONS[0]);
+  // ★ v3.10.0 รอบที่ 31: เพิ่ม err state สำหรับ validation
+  const [err, setErr] = React.useState<string | null>(null);
 
   // v1.5: รีเซ็ต form โดยใช้ key-prop remount pattern แทน useEffect
   // (parent ส่ง key={`edit-event-${open ? 'open' : 'closed'}`} → remount เมื่อ open เปลี่ยน)
 
   const handleSubmit = () => {
+    // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม
+    if (startDate && date && date < startDate) {
+      setErr('วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม');
+      return;
+    }
+    setErr(null);
     onSubmit({
       title: title.trim() || event.title,
       date: date || event.date,
@@ -2341,6 +2360,23 @@ function EditEventSheet({
           ของการวางแผน: ชื่อ → รายละเอียด → วันเริ่ม → เวลาเริ่ม → กำหนดส่ง →
           สถานที่ → ฝ่าย → สี
           (เหมือน CreateEventForm เพื่อความสม่ำเสมอ) */}
+      {/* ★ v3.10.0 รอบที่ 31: แสดง error จาก validation */}
+      {err ? (
+        <div
+          style={{
+            background: 'rgba(244, 63, 94, 0.08)',
+            color: '#BE123C',
+            border: '1px solid rgba(244, 63, 94, 0.20)',
+            padding: 'var(--yp-space-3) var(--yp-space-4)',
+            borderRadius: 'var(--yp-radius-sm)',
+            marginBottom: 'var(--yp-space-4)',
+            fontSize: 'var(--yp-text-sm)',
+            fontWeight: 600,
+          }}
+        >
+          {err}
+        </div>
+      ) : null}
       <div className="field">
         <label className="field__label" htmlFor="ed-title">ชื่อรายการ</label>
         <input

@@ -137,6 +137,14 @@ export async function POST(request: NextRequest) {
     start_date = body.start_date;
   }
 
+  // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม (server-side validation)
+  if (start_date && body.date < start_date) {
+    return NextResponse.json(
+      { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
+      { status: 400 }
+    );
+  }
+
   // ── Generate ID ฝั่ง server (security: ป้องกัน user กำหนด ID เอง) ──
   const id = createId('ev');
 

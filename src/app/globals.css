@@ -1046,8 +1046,9 @@
 }
 
 .yp-auth__hero h1 {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
   color: white;
-  font-size: var(--yp-text-2xl);
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.01em;
   margin-bottom: var(--yp-space-2);
@@ -1334,10 +1335,11 @@
 }
 
 .yp-today-placeholder__name {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl ให้สมดุลกับ today-hero */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
-  line-height: 1.18;
+  line-height: 1.2;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
 }
 
@@ -1511,61 +1513,60 @@
    ★ v3.9.3: Premium hero redesign — Telegram-inspired layered surface
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-hero {
-  /* ★ v3.9.3: Layered mesh gradient + multiple radial light sources
-     แทน plain gradient — สร้าง depth แบบ premium ที่เห็นในงาน
-     ของ Linear, Stripe, และ Telegram Premium */
+  /* ★ v3.10.0 รอบที่ 31: ปรับให้สะอาดตาสบายตามากขึ้น
+     - ลดความอิ่มตัวของ radial lights (55→35%, 42→28%, 65→40%, 45→30%)
+     - ลดความเข้มของ base gradient (312E81 → 3730A3, 4F46E5 → 6366F1)
+     - ใช้สีอ่อนกว่าเดิมเล็กน้อยให้ดูสดใสขึ้น ไม่หนักจนเกินไป
+     - ยังคงความเป็น indigo/violet ที่เป็นเอกลักษณ์ของหน้า Today */
   background:
-    /* layer 1: mesh gradient — 4 radial lights at corners */
-    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.55) 0%, transparent 45%),
-    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.42) 0%, transparent 42%),
-    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.65) 0%, transparent 50%),
-    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.45) 0%, transparent 45%),
-    /* layer 2: base diagonal gradient */
-    linear-gradient(135deg, #312E81 0%, #4F46E5 50%, #7C3AED 100%);
+    /* layer 1: mesh gradient — 4 radial lights at corners (อ่อนกว่าเดิม) */
+    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.28) 0%, transparent 42%),
+    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.40) 0%, transparent 50%),
+    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.30) 0%, transparent 45%),
+    /* layer 2: base diagonal gradient (อ่อนกว่าเดิม — สดใสขึ้น) */
+    linear-gradient(135deg, #3730A3 0%, #6366F1 50%, #8B5CF6 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   color: white;
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-8) var(--yp-space-6);
+  padding: var(--yp-space-7) var(--yp-space-6);
   margin-bottom: var(--yp-space-6);
-  /* ★ v3.9.3: Deeper, more luxurious shadow with indigo tint */
+  /* ★ v3.10.0 รอบที่ 31: shadow อ่อนลง — ดูเบากว่า ไม่หนัา */
   box-shadow:
-    0 12px 40px rgba(49, 46, 129, 0.32),
-    0 4px 16px rgba(79, 70, 229, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 8px 28px rgba(49, 46, 129, 0.20),
+    0 3px 12px rgba(79, 70, 229, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   position: relative;
   overflow: hidden;
   animation: yp-hero-enter var(--yp-hero-enter) both;
   isolation: isolate;
 }
 
-/* ★ v3.9.3: Pattern layer 1 — SVG dot grid (Telegram-style)
-   ใช้ ::before เพื่อซ้อน dot pattern บน hero ให้มี texture
-   แทนที่จะเป็น gradient แบน ๆ */
+/* ★ v3.10.0 รอบที่ 31: Pattern layers — ลด opacity ลงเล็กน้อย
+   เพื่อให้ดูสะอาดตามากขึ้น ไม่รกเกินไป */
 .yp-today-hero::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image: var(--yp-hero-pattern-dots-white);
-  background-size: 64px 64px; /* v3.9.4: relaxed (was 32px) */
+  background-size: 64px 64px;
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 1;
+  opacity: 0.7;
 }
 
-/* ★ v3.9.3: Pattern layer 2 — sparkles (premium accent)
-   ใช้ ::after เพื่อซ้อน sparkle pattern บน hero ให้มี "ดาวเล็ก ๆ"
-   เหมือน Telegram Premium backgrounds */
 .yp-today-hero::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image: var(--yp-hero-pattern-sparkle-white);
-  background-size: 120px 120px; /* v3.9.4: relaxed (was 60px) */
+  background-size: 120px 120px;
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.7;
 }
 
 /* ★ v3.9.3: Soft glow blobs — เพิ่ม depth ด้วยการซ้อน ellipse gradients
@@ -1593,11 +1594,12 @@
 }
 
 .yp-today-hero__name {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
   margin-bottom: 6px;
-  line-height: 1.18;
+  line-height: 1.2;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
   word-break: break-word;
 }
@@ -1650,7 +1652,9 @@
 }
 
 .yp-today-hero__stat-value {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     stat value ไม่ต้องใหญ่เกิน — เป็นแค่ตัวเลข */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -2599,7 +2603,8 @@
 }
 
 .yp-stat__value {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   line-height: 1.1;
@@ -3205,7 +3210,8 @@
 }
 
 .yp-cal-list-summary__count {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
   color: var(--yp-indigo-600);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: -0.01em;
@@ -3264,7 +3270,8 @@
 }
 
 .yp-cal-list-day__num {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   line-height: 1;
@@ -3471,97 +3478,109 @@
    ★ v3.9.3: Premium theme per work page — accent-driven layered surface
    ═══════════════════════════════════════════════════════════════ */
 .yp-detail-hero {
-  /* ★ v3.9.3: Premium theme — mesh gradient + multiple light sources
-     ทำให้แต่ละงานมี "theme" ของตัวเองผ่าน --accent
-     คล้ายกับหน้า project ของ Linear ที่แต่ละ project มี vibe ต่างกัน */
+  /* ★ v3.10.0 รอบที่ 31: ออกแบบใหม่ — เน้นความสะอาดตา สีขาวเด่นกว่าสีเน้น
+     เปลี่ยนจากพื้นหลังเข้มแบบเก่า (ที่มี accent 65-80%) เป็นพื้นหลังสว่าง
+     แบบใหม่ (accent 8-16% บนพื้นขาว) เหมือน single-hero ที่ user ชอบ
+
+     หลักการ:
+     - พื้นหลังหลัก = ขาว + accent tint อ่อนๆ (ไม่ใช่ accent เข้ม)
+     - ตัวอักษร = สีเข้ม (text-strong) ไม่ใช่สีขาว → อ่านง่าย ไม่กลืน
+     - accent ยังคงชัดเจนผ่าน icon, type pill, meta item accent
+     - ผสมสีขาวเข้าไปให้ดูสะอาด สบายตา ตามที่ user ต้องการ */
   background:
-    /* layer 1: accent-tinted mesh gradient — 4 radial lights */
-    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 65%, transparent) 0%, transparent 48%),
-    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 35%, transparent) 0%, transparent 42%),
-    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 70%, transparent) 0%, transparent 52%),
-    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 42%, transparent) 0%, transparent 46%),
-    /* layer 2: deep accent → indigo blend (creates "richness") */
+    /* layer 1: accent-tinted mesh gradient — 4 radial lights (อ่อนกว่าเดิม) */
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 14%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 8%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent) 0%, transparent 46%),
+    /* layer 2: white base + subtle accent tint (สว่าง สะอาด) */
     linear-gradient(135deg,
-      color-mix(in srgb, var(--accent, #4F46E5) 80%, #1E1B4B) 0%,
-      color-mix(in srgb, var(--accent, #4F46E5) 55%, #312E81) 50%,
-      color-mix(in srgb, var(--accent, #4F46E5) 75%, #1E1B4B) 100%);
+      color-mix(in srgb, var(--accent, #4F46E5) 4%, white) 0%,
+      color-mix(in srgb, var(--accent, #4F46E5) 10%, white) 50%,
+      color-mix(in srgb, var(--accent, #4F46E5) 16%, white) 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
-  color: white;
+  color: var(--yp-text-strong);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent);
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-8) var(--yp-space-6) var(--yp-space-6);
+  padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
   margin-bottom: var(--yp-space-6);
   position: relative;
   overflow: hidden;
-  /* ★ v3.9.3: Deeper shadow with accent tint — ทำให้ hero "นั่ง" บนหน้า */
+  /* ★ v3.10.0 รอบที่ 31: shadow อ่อนลง — accent tint 12% แทน 30% */
   box-shadow:
-    0 14px 44px color-mix(in srgb, var(--accent, #4F46E5) 30%, rgba(30, 27, 70, 0.20)),
-    0 4px 14px color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    0 10px 32px color-mix(in srgb, var(--accent, #4F46E5) 14%, rgba(30, 27, 70, 0.08)),
+    0 3px 10px color-mix(in srgb, var(--accent, #4F46E5) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
   animation: yp-hero-enter var(--yp-hero-enter) both;
   isolation: isolate;
 }
 
-/* ★ v3.9.3: Pattern layer 1 — dot grid (Telegram-style) */
+/* ★ v3.10.0 รอบที่ 31: Pattern layers — อ่อนลงมาก (opacity 0.5)
+   เพราะพื้นหลังสว่างแล้ว pattern เก่าจะเด่นเกินไป */
 .yp-detail-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: var(--yp-hero-pattern-dots-white);
-  background-size: 64px 64px; /* v3.9.4: relaxed (was 32px) */
+  background-image: var(--yp-hero-pattern-dots-accent);
+  background-size: 64px 64px;
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 1;
+  opacity: 0.5;
 }
 
-/* ★ v3.9.3: Pattern layer 2 — plus signs (Linear-style) ซ้อนทับ dot grid
-   ทำให้มี texture หลายชั้น เหมือน Telegram chat backgrounds */
 .yp-detail-hero::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: var(--yp-hero-pattern-plus-white);
-  background-size: 80px 80px; /* v3.9.4: relaxed (was 40px) */
+  background-image: var(--yp-hero-pattern-plus-accent);
+  background-size: 80px 80px;
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.5;
 }
 
 .yp-detail-hero__type {
-  /* ★ v3.9.3: Frosted glass pill — เพิ่ม depth และ dimensionality */
+  /* ★ v3.10.0 รอบที่ 31: ปรับ frosted glass pill สำหรับพื้นหลังสว่าง
+     เปลี่ยนจาก white/18% → accent/12% บน white */
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 14px 7px 10px;
   border-radius: var(--yp-radius-pill);
-  background: rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--accent, #4F46E5) 12%, white);
   backdrop-filter: blur(10px) saturate(160%);
   -webkit-backdrop-filter: blur(10px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.30);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 26%, transparent);
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-bold);
-  margin-bottom: var(--yp-space-5);
+  color: var(--accent, var(--yp-indigo-600));
+  margin-bottom: var(--yp-space-4);
   position: relative;
   z-index: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.30),
-    0 2px 8px rgba(0, 0, 0, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 2px 8px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
 }
 .yp-detail-hero__type svg { width: 14px; height: 14px; }
 
 .yp-detail-hero__title {
-  font-size: var(--yp-text-3xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น
+     text-3xl (30px) ใหญ่เกินไปสำหรับ mobile, text-2xl (24px) พอดี
+     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว */
+  font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-extrabold);
-  color: white;
+  color: var(--yp-text-strong);
   letter-spacing: -0.005em;
-  margin-bottom: var(--yp-space-5);
-  line-height: 1.18;
+  margin-bottom: var(--yp-space-4);
+  line-height: 1.2;
   position: relative;
   z-index: 1;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  /* ★ v3.10.0 รอบที่ 31: ลบ text-shadow เพราะพื้นหลังสว่างแล้ว ไม่ต้องเพิ่ม */
 }
 
 .yp-detail-hero__meta {
@@ -3569,7 +3588,7 @@
   align-items: center;
   gap: var(--yp-space-2) var(--yp-space-3);
   font-size: var(--yp-text-sm);
-  opacity: 0.94;
+  color: var(--yp-text-body);
   position: relative;
   z-index: 1;
   flex-wrap: wrap;
@@ -3582,24 +3601,27 @@
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.005em;
 }
-.yp-detail-hero__meta-item svg { width: 14px; height: 14px; opacity: 0.85; }
+.yp-detail-hero__meta-item svg { width: 14px; height: 14px; opacity: 0.85; color: var(--accent, var(--yp-indigo-600)); }
 .yp-detail-hero__meta-item + .yp-detail-hero__meta-item::before {
   content: '·';
   margin-right: 2px;
-  opacity: 0.5;
+  opacity: 0.4;
   font-weight: bold;
+  color: var(--yp-text-muted);
 }
 
 /* ★ v3.8.0: Muted meta item — สำหรับ "ยังไม่ได้เลือกเวลา" */
 .yp-detail-hero__meta-item--muted {
-  opacity: 0.55;
+  opacity: 0.6;
   font-style: italic;
   font-weight: var(--yp-fw-normal);
+  color: var(--yp-text-muted);
 }
-.yp-detail-hero__meta-item--muted svg { opacity: 0.6; }
+.yp-detail-hero__meta-item--muted svg { opacity: 0.55; color: var(--yp-text-muted); }
 
 /* ★ v3.10.0 รอบที่ 29: Accent meta item — สำหรับ "เริ่ม ..." ที่เป็นจุดเริ่มต้นของงาน
-   ดูเด่นกว่า meta ปกติเพราะเป็นข้อมูลสำคัญที่ระบบอ้างอิงเป็นหลัก */
+   ดูเด่นกว่า meta ปกติเพราะเป็นข้อมูลสำคัญที่ระบบอ้างอิงเป็นหลัก
+   ★ v3.10.0 รอบที่ 31: ปรับสำหรับพื้นหลังสว่าง — ใช้ accent color เข้มขึ้น */
 .yp-detail-hero__meta-item--accent {
   color: var(--accent, var(--yp-indigo-600));
   font-weight: var(--yp-fw-bold);
@@ -3762,12 +3784,13 @@
 }
 
 .yp-single-hero__title {
-  font-size: var(--yp-text-3xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   letter-spacing: -0.012em;
-  margin-bottom: var(--yp-space-5);
-  line-height: 1.18;
+  margin-bottom: var(--yp-space-4);
+  line-height: 1.2;
   position: relative;
   z-index: 1;
 }
@@ -4851,8 +4874,9 @@
 }
 
 .yp-profile-hero__name {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
   color: white;
-  font-size: var(--yp-text-2xl);
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
   margin: 0 0 6px;
@@ -4924,7 +4948,8 @@
 }
 
 .yp-profile-stat__value {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   line-height: 1;
@@ -7166,11 +7191,13 @@ img,
 
 
 .yp-page-header__title {
-  font-size: var(--yp-text-2xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     page header ไม่ใช่ hero — ไม่ต้องใหญ่เท่า */
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.25;
   margin: 0 0 var(--yp-space-2);
 }
 

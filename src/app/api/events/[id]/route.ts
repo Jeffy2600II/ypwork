@@ -102,6 +102,18 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (body.description !== undefined) update.description = (body.description || '').trim();
   if (body.department_id !== undefined) update.department_id = body.department_id || null;
 
+  // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม (server-side)
+  //   กรณี PATCH ซับซ้อนเพราะ field ใด field หนึ่งอาจไม่ได้ส่งมา
+  //   → ใช้ค่าที่จะ update ถ้ามี, ถ้าไม่มีก็ไม่ตรวจ (defensive)
+  if (update.start_date !== undefined && update.date !== undefined) {
+    if (update.start_date && update.date < update.start_date) {
+      return NextResponse.json(
+        { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
+        { status: 400 }
+      );
+    }
+  }
+
   if (body.color !== undefined) {
     if (!VALID_COLORS.test(body.color)) {
       return NextResponse.json(

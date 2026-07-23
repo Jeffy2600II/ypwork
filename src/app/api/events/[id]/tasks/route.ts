@@ -97,6 +97,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     );
   }
 
+  // ★ v3.10.0 รอบที่ 31: ตรวจสอบกำหนดส่ง >= วันที่เริ่ม (server-side)
+  if (start_date && due_date && due_date < start_date) {
+    return NextResponse.json(
+      { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
+      { status: 400 }
+    );
+  }
+
   // ── Verify event exists ──
   const { data: eventRow, error: eventErr } = await guard.adminClient
     .from('ypwork_events')

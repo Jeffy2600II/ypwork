@@ -106,6 +106,17 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (body.notes !== undefined) update.notes = body.notes || '';
   if (body.tags !== undefined) update.tags = Array.isArray(body.tags) ? body.tags : [];
 
+  // ★ v3.10.0 รอบที่ 31: ตรวจสอบกำหนดส่ง >= วันที่เริ่ม (server-side)
+  //   ตรวจเฉพาะเมื่อทั้งสอง field ถูกส่งมาในครั้งเดียวกัน
+  if (update.start_date !== undefined && update.due_date !== undefined) {
+    if (update.start_date && update.due_date && update.due_date < update.start_date) {
+      return NextResponse.json(
+        { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
+        { status: 400 }
+      );
+    }
+  }
+
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
       { success: false, error: 'ไม่มี field ที่ต้องแก้ไข' },
