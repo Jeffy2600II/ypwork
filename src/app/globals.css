@@ -20,10 +20,33 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r37 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r38 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 26 → 37
+   Senior CSS Architect Refactor — Round 26 → 38
    ─────────────────────────────────────────────────────────────
+   ★ v3.10.0 รอบที่ 38: Sub-header Redesign (Anti-Confusion)
+   ปัญหา: sub-header ของ "ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา" ใน section
+   วันนี้ และ date cluster sub-header ใน section เลยกำหนด/กำลังจะถึง
+   ถูกออกแบบให้โดดเด่นเกินไป — มี icon box ใหญ่ มี count chip มี
+   label ตัวหนาสีเข้ม ทำให้ผู้ใช้เข้าใจผิดว่าเป็น "หัวข้อใหม่" หรือ
+   "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น" คั่นการ์ดภายใน section
+   เดียวกัน (ผู้พัฒนาเองยังเข้าใจผิด → ผู้ใช้ทั่วไปยิ่งเข้าใจผิดมาก)
+
+   แก้: ปรับ CSS ของ yp-today-time-section__head และ yp-task-time-group__head
+   (ไม่เปลี่ยน class) ให้ดูเป็น "divider" ที่บอกแค่ "ตั้งแต่การ์ดนี้ไป
+   เป็นของช่วงเช้า/วันที่ X" ไม่ใช่ "หัวข้อใหม่":
+   1. ลบ icon box — เหลือแค่ icon เล็กๆ inline (16px, ไม่มี background)
+   2. ลดขนาด label จาก --yp-text-sm bold heading → --yp-text-xs semibold
+      muted (เล็กและจางลงมาก ไม่แข่งกับ section title)
+   3. ลดขนาด caption ให้เล็กมาก (11px) และจาง (text-faint)
+   4. ลบ count chip — ให้เป็นตัวเลขเล็กๆ inline สีจาง ไม่มี background
+   5. เปลี่ยน border-bottom จากเส้นทึบ indigo-tinted → เส้นประบางๆ
+      สีจาง (dashed, 50% opacity) — เห็นเป็น "เส้นคั่น" ไม่ใช่ "ขอบหัวข้อ"
+   6. ลด margin/padding รอบๆ head ให้กระชับขึ้น — ไม่ดูเป็นบล็อกใหญ่
+
+   หลังปรับ: sub-header ดูเป็น "ป้ายเล็กๆ เหนือเส้นคั่น" ไม่ใช่
+   "หัวข้อใหญ่ของ section ใหม่" — ผู้ใช้รู้สึกว่า "อ๋อ มันแค่คั่นการ์ดเฉยๆ"
+
    ★ v3.10.0 รอบที่ 37: Today Page Cohesive Design
    1. ลดความแปลกแยกของการ์ดงาน (yp-today-item-card) โดยเพิ่ม layered
       accent wash + accent bar + accent blob เหมือน .yp-event-card
@@ -1785,66 +1808,97 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Time Section ── */
+/* ★ v3.10.0 รอบที่ 38: ปรับให้เป็น "subtle divider" ไม่ใช่ "section header"
+   ก่อนหน้านี้ margin-bottom เยอะ + มีเส้นทึบ + icon box ใหญ่ ทำให้ดูเป็น
+   "หัวข้อใหม่" เหมือน section title — ผู้ใช้เข้าใจผิดว่าเป็น section ใหม่
+   ตอนนี้ลด margin ลง + ใช้เส้นประ ทำให้รู้สึกเป็น "จุดขั้น" คั่นการ์ดเฉยๆ */
 .yp-today-time-section {
-  margin-bottom: var(--yp-space-5);
+  margin-bottom: var(--yp-space-4);
 }
 
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  gap: var(--yp-space-3);
-  margin-bottom: var(--yp-space-3);
-  padding-bottom: var(--yp-space-2);
-  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนเส้นแบ่งจาก border-subtle ธรรมดา
-     เป็น indigo-tinted gradient ที่ลงตัวกับ hero มากขึ้น */
-  border-bottom: 1px solid color-mix(in srgb, var(--yp-indigo-500) 10%, var(--yp-border-subtle));
+  /* ★ v3.10.0 รอบที่ 38: ลด gap จาก --yp-space-3 (12px) → 6px
+     ทำให้ icon กับ label ชิดกันเหมือน "inline label" ไม่ใช่ "icon + title" */
+  gap: 6px;
+  /* ★ v3.10.0 รอบที่ 38: ลด margin-bottom จาก --yp-space-3 → 6px
+     ทำให้ head ใกล้กับการ์ดด้านล่าง ไม่ดูเป็น "บล็อกใหญ่คั่น" */
+  margin-bottom: 6px;
+  /* ★ v3.10.0 รอบที่ 38: ลด padding-bottom จาก --yp-space-2 → 4px */
+  padding-bottom: 4px;
+  /* ★ v3.10.0 รอบที่ 38: เปลี่ยนจากเส้นทึบ indigo-tinted (โดดเด่น)
+     เป็นเส้นประ (dashed) สีจาง — ให้รู้สึกเป็น "เส้นคั่นการ์ด"
+     ไม่ใช่ "ขอบหัวข้อใหญ่" */
+  border-bottom: 1px dashed color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
 }
 
 .yp-today-time-section__icon {
-  display: flex;
+  /* ★ v3.10.0 รอบที่ 38: ลบ icon box ออกทั้งหมด (background, border,
+     border-radius, ขนาด 28×28) — เหลือแค่ icon เล็กๆ inline
+     ขนาด 14×14 สีจาง เหมือน "bullet" นำหน้า label */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--yp-radius-sm);
-  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนจาก plain white box เป็น indigo-tinted
-     แบบเดียวกับ .yp-event-card__icon — ทำให้ icon ดูเป็นส่วนหนึ่งของ
-     ระบบออกแบบ ไม่ใช่กล่องขาวลอยๆ ที่แปลกแยกจาก hero */
-  background: color-mix(in srgb, var(--yp-indigo-500) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
-  color: var(--yp-indigo-600);
-  font-size: var(--yp-text-xs);
+  width: auto;
+  height: auto;
+  color: var(--yp-text-faint);
+  flex-shrink: 0;
+}
+
+/* ★ v3.10.0 รอบที่ 38: บังคับให้ SVG ใน icon เล็กลง (12px) แม้ JSX
+   จะตั้ง width=16 height=16 ไว้ — เพื่อให้ icon ดูเป็น "bullet" เล็กๆ
+   ไม่ใช่ "icon ใหญ่" ที่ดึงความสนใจ */
+.yp-today-time-section__icon svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2;
 }
 
 .yp-today-time-section__text {
   flex: 1;
   min-width: 0;
+  /* ★ v3.10.0 รอบที่ 38: จัด baseline ให้ label กับ caption อยู่ในบรรทัด
+     เดียวกัน (inline) เพื่อให้ดูเป็น "caption เล็กๆ" ไม่ใช่ "title + subtitle" */
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .yp-today-time-section__label {
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-heading);
-  letter-spacing: 0.01em;
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก --yp-text-sm bold heading →
+     --yp-text-xs semibold muted (เล็กและจาง ไม่แข่งกับ section title) */
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 
 .yp-today-time-section__caption {
-  font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
-  font-weight: var(--yp-fw-medium);
-  margin-top: 2px;
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และใช้ text-faint (จางมาก)
+     ทำให้ caption ดูเป็น "คำอธิบายเล็กๆ" ไม่ใช่ "subtitle" */
+  font-size: 11px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-normal);
+  margin-top: 0;
+  line-height: 1.3;
 }
 
 .yp-today-time-section__count {
-  font-size: var(--yp-text-xs);
-  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนให้เข้ากับ section count ที่ปรับใหม่
-     ใช้ indigo-soft background + indigo-600 text */
-  color: var(--yp-indigo-600);
-  font-weight: var(--yp-fw-bold);
-  background: var(--yp-bg-indigo-soft);
-  padding: 4px 10px;
-  border-radius: var(--yp-radius-pill);
-  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
+  /* ★ v3.10.0 รอบที่ 38: ลบ count chip ออกทั้งหมด (background, border,
+     border-radius, padding) — เหลือแค่ตัวเลขเล็กๆ inline สีจาง
+     ไม่ดึงความสนใจ เห็นเป็น "ข้อมูลเสริม" ไม่ใช่ "badge" */
+  font-size: 11px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  flex-shrink: 0;
+  line-height: 1.3;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -4115,69 +4169,115 @@
 }
 
 /* ★ v3.10.0 รอบที่ 11: หัวข้อกลุ่มช่วงเวลาของรายการย่อย (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา)
-   ออกแบบใหม่ — มี icon chip + label + caption อธิบายสั้นๆ ให้เห็นชัดว่ากลุ่มนี้
-   คืออะไร (ก่อนหน้านี้มีแค่ label ลอยๆ บางทีผู้ใช้ไม่ทันสังเกต) */
+   ★ v3.10.0 รอบที่ 38: Redesign ใหม่ทั้งหมด — ปรับเป็น "subtle divider"
+   ก่อนหน้านี้ (รอบที่ 11-37): มี icon chip ใหญ่ + label ตัวหนา heading +
+   caption + count chip ทำให้ดูเป็น "หัวข้อใหม่" เหมือน section title
+   ผู้ใช้เข้าใจผิดว่าเป็น "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น"
+   คั่นรายการย่อยภายในกลุ่มเดียวกัน
+
+   รอบที่ 38: ปรับ CSS (ไม่เปลี่ยน class) ให้ดูเป็น "divider" ไม่ใช่ "header"
+   - ลบ icon chip ใหญ่ (28×28 + gradient background) → icon เล็ก inline 12px
+   - ลด label จาก text-sm bold heading → text-xs semibold muted
+   - ลด caption จาก text-xs → 11px faint
+   - ลบ count chip → ตัวเลขเล็ก inline
+   - ลด margin ระหว่าง group จาก --yp-space-6 → --yp-space-4
+   - ใช้ dashed border-bottom แทน (ไม่มี border เดิม) */
 .yp-task-time-group + .yp-task-time-group {
-  margin-top: var(--yp-space-6);
+  /* ★ v3.10.0 รอบที่ 38: ลดจาก --yp-space-6 → --yp-space-4
+     ทำให้กลุ่มช่วงเวลาอยู่ใกล้กัน ไม่ดูเป็น "section คนละบล็อก" */
+  margin-top: var(--yp-space-4);
 }
 .yp-task-time-group__head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* ★ v3.10.0 รอบที่ 38: ลด gap จาก 10px → 6px */
+  gap: 6px;
   padding: 0 var(--yp-space-1);
-  margin-bottom: var(--yp-space-3);
+  /* ★ v3.10.0 รอบที่ 38: ลด margin-bottom จาก --yp-space-3 → 6px */
+  margin-bottom: 6px;
+  /* ★ v3.10.0 รอบที่ 38: เพิ่ม padding-bottom 4px + เส้นประ สีจาง
+     ทำให้ head มี "เส้นคั่น" ใต้บรรทัด ไม่ใช่แค่ label ลอย */
+  padding-bottom: 4px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
 }
 .yp-task-time-group__icon {
-  width: 28px;
-  height: 28px;
+  /* ★ v3.10.0 รอบที่ 38: ลบ icon chip ใหญ่ออกทั้งหมด
+     (28×28, gradient bg, pill radius) → icon เล็ก inline auto-size */
+  width: auto;
+  height: auto;
   flex-shrink: 0;
-  border-radius: var(--yp-radius-pill);
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(124, 58, 237, 0.14));
-  color: var(--yp-indigo-600, #4F46E5);
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--yp-text-faint);
+}
+/* ★ v3.10.0 รอบที่ 38: บังคับให้ SVG ใน icon เล็กลง (12px) แม้ JSX
+   จะตั้ง width=14 height=14 ไว้ — เพื่อให้ icon ดูเป็น "bullet" เล็กๆ */
+.yp-task-time-group__icon svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2;
 }
 .yp-task-time-group__text {
   flex: 1;
   min-width: 0;
+  /* ★ v3.10.0 รอบที่ 38: จัด baseline ให้ label กับ caption อยู่ในบรรทัด
+     เดียวกัน (inline) เพื่อให้ดูเป็น "caption เล็กๆ" ไม่ใช่ "title + subtitle" */
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 .yp-task-time-group__label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-heading, #1E293B);
-  letter-spacing: 0.01em;
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก text-sm bold heading →
+     text-xs semibold muted (เล็กและจาง ไม่แข่งกับหัวข้อใหญ่) */
+  display: inline;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 .yp-task-time-group__caption {
-  font-size: var(--yp-text-xs);
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint) */
+  font-size: 11px;
   color: var(--yp-text-faint);
-  margin-top: 2px;
-  line-height: 1.4;
+  margin-top: 0;
+  line-height: 1.3;
+  font-weight: var(--yp-fw-normal);
 }
 .yp-task-time-group__count {
+  /* ★ v3.10.0 รอบที่ 38: ลบ count chip (background, border, padding,
+     border-radius) → ตัวเลขเล็ก inline สีจาง */
   margin-left: auto;
-  font-size: var(--yp-text-xs);
+  font-size: 11px;
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-faint);
-  background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-subtle);
-  padding: 1px 9px;
-  border-radius: var(--yp-radius-pill);
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  flex-shrink: 0;
+  line-height: 1.3;
 }
 .yp-task-time-group__body {
   display: flex;
   flex-direction: column;
 }
 
-/* Muted variant — "ไม่ระบุเวลา" กลุ่ม ดูเบากว่ากลุ่มที่มีเวลาจริง */
+/* Muted variant — "ไม่ระบุเวลา" กลุ่ม ดูเบากว่ากลุ่มที่มีเวลาจริง
+   ★ v3.10.0 รอบที่ 38: ปรับให้ icon ใช้ transparent bg (ตาม base ใหม่)
+   และ label ใช้ text-faint (จางกว่าปกติ) */
 .yp-task-time-group.is-muted .yp-task-time-group__icon {
-  background: var(--yp-bg-card-soft);
+  background: transparent;
   color: var(--yp-text-faint);
 }
 .yp-task-time-group.is-muted .yp-task-time-group__label {
-  color: var(--yp-text-muted);
+  color: var(--yp-text-faint);
 }
 
 .yp-task-empty {

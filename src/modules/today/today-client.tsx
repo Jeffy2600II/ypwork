@@ -1,7 +1,36 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r37 — Cohesive Design)
+// YP WORK · Today Dashboard (v3.10.0-r38 — Sub-header Redesign + Date Logic Fix)
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 38: แก้ปัญหา 2 อย่างที่ทำให้ผู้ใช้เข้าใจผิด
+//
+//   1. แก้การแบ่ง section ของรายการตาม "วันเริ่ม + วันกำหนดส่ง"
+//      ก่อนหน้านี้: ใช้ e.date (วันกำหนดส่ง) เป็นหลักในการแบ่ง
+//        - รายการที่เริ่มแล้ว แต่ยังไม่ถึงวันกำหนดส่ง → ไปอยู่ใน
+//          "กำลังจะถึง" ทั้งๆ ที่เริ่มทำแล้ว → ผิด!
+//      แก้แล้ว: แบ่งตาม effectiveStart และ effectiveDue ของแต่ละรายการ
+//        - effectiveDue < วันนี้ และยังไม่เสร็จ → "เลยกำหนด"
+//        - effectiveStart ≤ วันนี้ ≤ effectiveDue → "วันนี้"
+//          (รวมรายการที่เริ่มแล้วแต่ยังไม่ถึงวันส่ง)
+//        - effectiveStart > วันนี้ → "กำลังจะถึง"
+//      โดย effectiveStart = start_date || due_date (ถ้าไม่ระบุ start_date
+//      ระบบถือว่าเริ่มวันเดียวกับกำหนดส่ง) และ effectiveDue = due_date
+//
+//   2. ออกแบบ sub-header (yp-today-time-section__head สำหรับแยกช่วง
+//      เช้า/บ่าย/ไม่ระบุเวลา และแยกตามวันที่) ใหม่ทั้งหมด
+//      ปัญหา: sub-header เดิมโดดเด่นเกินไป มี icon box ใหญ่ มี count
+//      chip มี label ตัวหนา — ทำให้ผู้ใช้เข้าใจผิดว่าเป็น "หัวข้อใหม่"
+//      หรือ "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น" คั่นการ์ด
+//      ภายใน section เดียวกัน
+//      แก้: ปรับ CSS (ไม่เปลี่ยน class) ให้ sub-header ดูเป็น "divider"
+//      ที่บอกแค่ "ตั้งแต่การ์ดนี้ไปเป็นของช่วงเช้า/วันที่ X" ไม่ใช่หัวข้อใหม่
+//      - ลบ icon box (เหลือแค่ icon เล็กๆ inline)
+//      - ลดขนาด label/caption ให้เล็กและจางลง
+//      - ลบ count chip (ให้เป็นตัวเลขเล็กๆ inline)
+//      - ใช้เส้นประบางๆ ใต้หัวข้อแทนเส้นทึบ
+//      ความรู้สึกหลังปรับ: "อ๋อ มันแค่คั่นการ์ดเฉยๆ" ไม่ใช่ "อ๋อ section ใหม่"
+//      (ใช้กับทั้งหน้า today และหน้ารายละเอียดงาน)
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 37: ปรับปรุงการออกแบบให้ทั้งหน้า Today เข้ากันมากขึ้น
 //   1. ลบข้อความ "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
@@ -126,132 +155,122 @@ interface TimelineItem {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Helper: สร้าง TimelineItems จาก events ของวันใดวันหนึ่ง
-// ★ v3.10.0 รอบที่ 33: itemDate ใช้ start_date เป็นหลัก
-//   สำหรับ subtask → itemDate = task.start_date || ev.date
-//   สำหรับ event → itemDate = ev.start_date || ev.date
+// ★ v3.10.0 รอบที่ 38: การแบ่ง section ตาม effectiveStart / effectiveDue
+//   ก่อนหน้านี้ระบบใช้ e.date (วันกำหนดส่ง) เป็นหลักในการแบ่งว่า
+//   รายการจะอยู่ใน section ไหน (เลยกำหนด / วันนี้ / กำลังจะถึง)
+//   ทำให้รายการที่เริ่มทำแล้วแต่ยังไม่ถึงวันกำหนดส่ง ไปอยู่ใน "กำลังจะถึง"
+//   ทั้งที่จริงๆ ผู้ใช้กำลังทำอยู่แล้ว — ผิดจากความตั้งใจของผู้ใช้
+//
+//   รอบที่ 38 แก้: แบ่งตาม effectiveStart และ effectiveDue ของแต่ละรายการ
+//     - "เลยกำหนด": effectiveDue < วันนี้ และยังไม่เสร็จ
+//     - "วันนี้":     effectiveStart ≤ วันนี้ ≤ effectiveDue
+//     - "กำลังจะถึง": effectiveStart > วันนี้ (ยังไม่เริ่ม)
+//
+//   กรณีพิเศษ:
+//     - ถ้า status === 'done' และ effectiveDue < วันนี้ → ไม่แสดง
+//       (ทำเสร็จแล้วและเลยวันกำหนด ไม่ต้องแสดงใน "เลยกำหนด")
+//     - ถ้า status === 'done' และ effectiveStart > วันนี้ → ไม่แสดง
+//       (ทำเสร็จก่อนวันเริ่ม — กรณีแปลกๆ ไม่ต้องแสดง)
+//     - ถ้า status === 'done' และ effectiveStart ≤ วันนี้ ≤ effectiveDue
+//       → แสดงใน "วันนี้" (ทำเสร็จแล้วแต่ยังอยู่ในช่วงเวลาที่กำหนด)
 // ═══════════════════════════════════════════════════════════════
-function buildTimelineItems(events: YPEvent[], dateStr: string, dateContext: string): TimelineItem[] {
-  const items: TimelineItem[] = [];
-  const dateEvents = events.filter((e) => e.date === dateStr);
+type ItemDateContext = 'overdue' | 'today' | 'upcoming';
 
-  for (const ev of dateEvents) {
-    if (ev.type === 'group') {
-      const tasks = ev.tasks || [];
-      if (tasks.length === 0) {
-        items.push({
-          id: `ev-${ev.id}`,
-          startTime: ev.time || null,
-          title: ev.title,
-          status: resolveEventStatus(ev),
-          accent: ev.color || '#4F46E5',
-          parentEvent: ev,
-          task: null,
-          event: ev,
-          assigneeName: null,
-          assigneeColor: null,
-          priority: 'medium',
-          estimatedTime: null,
-          dueDate: ev.date,
-          location: ev.location || null,
-          eventTime: ev.time || null,
-          dateContext,
-          itemDate: ev.start_date || ev.date,
-        });
-      } else {
-        for (const t of tasks) {
-          if (dateContext === 'overdue' && t.status === 'done') continue;
-          // ★ รอบที่ 33: ใช้ start_date เป็นหลักในการกำหนด itemDate
-          if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
-          items.push({
-            id: `task-${t.id}`,
-            startTime: t.start_time || ev.time || null,
-            title: t.title,
-            status: t.status,
-            accent: ev.color || '#4F46E5',
-            parentEvent: ev,
-            task: t,
-            event: null,
-            assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
-            assigneeColor: t.assignees?.[0]?.color || null,
-            priority: t.priority || 'medium',
-            estimatedTime: t.estimated_time || null,
-            dueDate: t.due_date || null,
-            location: ev.location || null,
-            eventTime: ev.time || null,
-            dateContext,
-            itemDate: t.start_date || ev.start_date || ev.date,
-          });
-        }
-      }
-    } else {
-      items.push({
-        id: `ev-${ev.id}`,
-        startTime: ev.time || null,
-        title: ev.title,
-        status: ev.status,
-        accent: ev.color || '#4F46E5',
-        parentEvent: null,
-        task: null,
-        event: ev,
-        assigneeName: null,
-        assigneeColor: null,
-        priority: 'medium',
-        estimatedTime: null,
-        dueDate: ev.date,
-        location: ev.location || null,
-        eventTime: ev.time || null,
-        dateContext,
-        itemDate: ev.start_date || ev.date,
-      });
-    }
-  }
+function categorizeByDates(
+  effectiveStart: string,
+  effectiveDue: string,
+  todayStr: string,
+  isDone: boolean
+): ItemDateContext | null {
+  // ถ้าเลยกำหนดส่งและยังไม่เสร็จ → "เลยกำหนด"
+  if (effectiveDue < todayStr && !isDone) return 'overdue';
 
-  // ★ standalone tasks (due_date = dateStr แต่ parent event อยู่วันอื่น)
-  for (const ev of events) {
-    if (ev.date === dateStr) continue;
-    for (const t of ev.tasks || []) {
-      if (t.due_date === dateStr) {
-        if (dateContext === 'overdue' && t.status === 'done') continue;
-        if (dateContext !== 'upcoming' && t.start_date && t.start_date > dateStr) continue;
-        items.push({
-          id: `task-${t.id}`,
-          startTime: t.start_time || null,
-          title: t.title,
-          status: t.status,
-          accent: ev.color || '#4F46E5',
-          parentEvent: ev,
-          task: t,
-          event: null,
-          assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
-          assigneeColor: t.assignees?.[0]?.color || null,
-          priority: t.priority || 'medium',
-          estimatedTime: t.estimated_time || null,
-          dueDate: t.due_date || null,
-          location: ev.location || null,
-          eventTime: ev.time || null,
-          dateContext,
-          itemDate: t.start_date || ev.start_date || ev.date,
-        });
-      }
-    }
-  }
+  // ถ้าเริ่มไปแล้วและยังไม่เลยกำหนด → "วันนี้"
+  // (รวม done ที่อยู่ในช่วงเวลาที่กำหนดด้วย)
+  if (effectiveStart <= todayStr && effectiveDue >= todayStr) return 'today';
 
-  // เรียงตาม priority → time → title
-  const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
-  items.sort((a, b) => {
-    const pa = PRIORITY_ORDER[a.priority] ?? 3;
-    const pb = PRIORITY_ORDER[b.priority] ?? 3;
-    if (pa !== pb) return pa - pb;
-    const sa = a.startTime || '';
-    const sb = b.startTime || '';
-    if (sa && sb && sa !== sb) return sa.localeCompare(sb);
-    if (sa && !sb) return -1;
-    if (!sa && sb) return 1;
-    return a.title.localeCompare(b.title, 'th');
-  });
+  // ถ้ายังไม่เริ่ม → "กำลังจะถึง" (เฉพาะที่ยังไม่เสร็จ)
+  if (effectiveStart > todayStr && !isDone) return 'upcoming';
 
-  return items;
+  // กรณีที่เหลือ: done ในอดีต หรือ done ในอนาคต → ไม่แสดง
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Helper: สร้าง TimelineItem จาก standalone event
+//   (group ที่ไม่มี task หรือ event ประเภท task)
+// ═══════════════════════════════════════════════════════════════
+function buildStandaloneEventItem(ev: YPEvent, dateContext: ItemDateContext): TimelineItem {
+  return {
+    id: `ev-${ev.id}`,
+    startTime: ev.time || null,
+    title: ev.title,
+    status: ev.type === 'group' ? resolveEventStatus(ev) : ev.status,
+    accent: ev.color || '#4F46E5',
+    parentEvent: ev.type === 'group' ? ev : null,
+    task: null,
+    event: ev.type === 'group' ? null : ev,
+    assigneeName: null,
+    assigneeColor: null,
+    priority: 'medium',
+    estimatedTime: null,
+    dueDate: ev.date,
+    location: ev.location || null,
+    eventTime: ev.time || null,
+    dateContext,
+    itemDate: ev.start_date || ev.date,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Helper: สร้าง TimelineItem จาก task ในกลุ่ม
+//   effectiveStart/effectiveDue คำนวณจาก task ก่อน ถ้าไม่มี fallback ไป event
+// ═══════════════════════════════════════════════════════════════
+function buildTaskItem(ev: YPEvent, t: Task, dateContext: ItemDateContext): TimelineItem {
+  return {
+    id: `task-${t.id}`,
+    startTime: t.start_time || ev.time || null,
+    title: t.title,
+    status: t.status,
+    accent: ev.color || '#4F46E5',
+    parentEvent: ev,
+    task: t,
+    event: null,
+    assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
+    assigneeColor: t.assignees?.[0]?.color || null,
+    priority: t.priority || 'medium',
+    estimatedTime: t.estimated_time || null,
+    dueDate: t.due_date || ev.date,
+    location: ev.location || null,
+    eventTime: ev.time || null,
+    dateContext,
+    // ★ itemDate ใช้ start_date เป็นหลัก สำหรับจัดกลุ่มแสดงผล
+    itemDate: t.start_date || ev.start_date || ev.date,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Helper: เรียงลำดับ items — priority → time → title
+// ═══════════════════════════════════════════════════════════════
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+function sortByPriorityTimeTitle(a: TimelineItem, b: TimelineItem): number {
+  const pa = PRIORITY_ORDER[a.priority] ?? 3;
+  const pb = PRIORITY_ORDER[b.priority] ?? 3;
+  if (pa !== pb) return pa - pb;
+  const sa = a.startTime || '';
+  const sb = b.startTime || '';
+  if (sa && sb && sa !== sb) return sa.localeCompare(sb);
+  if (sa && !sb) return -1;
+  if (!sa && sb) return 1;
+  return a.title.localeCompare(b.title, 'th');
+}
+
+function sortByDatePriorityTimeTitle(a: TimelineItem, b: TimelineItem): number {
+  const da = a.itemDate;
+  const db = b.itemDate;
+  if (da && db && da !== db) return da.localeCompare(db);
+  return sortByPriorityTimeTitle(a, b);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -341,243 +360,81 @@ export function TodayClient({
   const todayStr = getLocalTodayStr();
 
   // ═══════════════════════════════════════════════════════════════
-  // ★ v3.10.0 รอบที่ 33: สร้าง timeline items แยกตาม dateContext
-  //   วันนี้, เลยกำหนด, กำลังจะถึง — แยกอย่างชัดเจน
-  //   ใช้ itemDate (start_date เป็นหลัก) ในการจัดกลุ่มตามวันที่
+  // ★ v3.10.0 รอบที่ 38: สร้าง timeline items แยกตาม dateContext
+  //   โดยใช้ effectiveStart / effectiveDue ของแต่ละรายการ
+  //
+  //   ก่อนหน้านี้ (รอบที่ 33-37): แบ่ง section ตาม e.date (วันกำหนดส่ง)
+  //     - รายการที่เริ่มแล้ว แต่ยังไม่ถึงวันกำหนดส่ง → ไป "กำลังจะถึง"
+  //       ทั้งที่จริงๆ ผู้ใช้กำลังทำอยู่แล้ว → ผิด!
+  //
+  //   รอบที่ 38: แบ่งตาม effectiveStart / effectiveDue ของแต่ละรายการ
+  //     - "เลยกำหนด": effectiveDue < วันนี้ และยังไม่เสร็จ
+  //     - "วันนี้":     effectiveStart ≤ วันนี้ ≤ effectiveDue
+  //     - "กำลังจะถึง": effectiveStart > วันนี้
+  //
+  //   แต่ละ task ในกลุ่มจะถูกแบ่งด้วยวันที่ของตัวเอง (ถ้ามี) ไม่ใช่
+  //   ของ parent event ทั้งกลุ่ม → ทำให้ task ที่เริ่มแล้วในกลุ่มที่ยัง
+  //   ไม่ถึงวันส่ง จะไปอยู่ใน "วันนี้" ของผู้ใช้ ไม่ใช่ "กำลังจะถึง"
   // ═══════════════════════════════════════════════════════════════
-  const overdueEvents = events.filter(
-    (e) => e.date < todayStr && resolveEventStatus(e) !== 'done'
-  );
+  const categorizedItems = React.useMemo(() => {
+    const overdue: TimelineItem[] = [];
+    const today: TimelineItem[] = [];
+    const upcoming: TimelineItem[] = [];
 
-  // ★ สร้าง overdue items
-  const overdueTimelineItems = React.useMemo(() => {
-    const items: TimelineItem[] = [];
-    for (const ev of overdueEvents) {
-      if (ev.type === 'group') {
-        const tasks = ev.tasks || [];
-        if (tasks.length === 0) {
-          items.push({
-            id: `ev-${ev.id}`,
-            startTime: ev.time || null,
-            title: ev.title,
-            status: resolveEventStatus(ev),
-            accent: ev.color || '#4F46E5',
-            parentEvent: ev,
-            task: null,
-            event: ev,
-            assigneeName: null,
-            assigneeColor: null,
-            priority: 'medium',
-            estimatedTime: null,
-            dueDate: ev.date,
-            location: ev.location || null,
-            eventTime: ev.time || null,
-            dateContext: 'overdue',
-            itemDate: ev.start_date || ev.date,
-          });
-        } else {
-          for (const t of tasks) {
-            if (t.status === 'done') continue;
-            items.push({
-              id: `task-${t.id}`,
-              startTime: t.start_time || ev.time || null,
-              title: t.title,
-              status: t.status,
-              accent: ev.color || '#4F46E5',
-              parentEvent: ev,
-              task: t,
-              event: null,
-              assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
-              assigneeColor: t.assignees?.[0]?.color || null,
-              priority: t.priority || 'medium',
-              estimatedTime: t.estimated_time || null,
-              dueDate: t.due_date || null,
-              location: ev.location || null,
-              eventTime: ev.time || null,
-              dateContext: 'overdue',
-              itemDate: t.start_date || ev.start_date || ev.date,
-            });
-          }
-        }
-      } else {
-        items.push({
-          id: `ev-${ev.id}`,
-          startTime: ev.time || null,
-          title: ev.title,
-          status: ev.status,
-          accent: ev.color || '#4F46E5',
-          parentEvent: null,
-          task: null,
-          event: ev,
-          assigneeName: null,
-          assigneeColor: null,
-          priority: 'medium',
-          estimatedTime: null,
-          dueDate: ev.date,
-          location: ev.location || null,
-          eventTime: ev.time || null,
-          dateContext: 'overdue',
-          itemDate: ev.start_date || ev.date,
-        });
-      }
-    }
-
-    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
-    items.sort((a, b) => {
-      // ★ รอบที่ 33: เรียงตาม itemDate (วันที่เริ่ม) ก่อน
-      const da = a.itemDate;
-      const db = b.itemDate;
-      if (da && db && da !== db) return da.localeCompare(db);
-      const pa = PRIORITY_ORDER[a.priority] ?? 3;
-      const pb = PRIORITY_ORDER[b.priority] ?? 3;
-      if (pa !== pb) return pa - pb;
-      const sa = a.startTime || '';
-      const sb = b.startTime || '';
-      if (sa && sb && sa !== sb) return sa.localeCompare(sb);
-      if (sa && !sb) return -1;
-      if (!sa && sb) return 1;
-      return a.title.localeCompare(b.title, 'th');
-    });
-    return items;
-  }, [overdueEvents]);
-
-  const todayTimelineItems = React.useMemo(
-    () => buildTimelineItems(events, todayStr, 'today'),
-    [events, todayStr]
-  );
-
-  const upcomingEvents = events.filter((e) => e.date > todayStr);
-
-  // ★ สร้าง upcoming items — ใช้ itemDate = start_date เป็นหลัก
-  const upcomingTimelineItems = React.useMemo(() => {
-    const items: TimelineItem[] = [];
-    const seenTaskIds = new Set<string>();
-
-    // 1. Events ที่ deadline ในอนาคต
-    for (const ev of upcomingEvents) {
-      if (ev.type === 'group') {
-        const tasks = ev.tasks || [];
-        if (tasks.length === 0) {
-          items.push({
-            id: `ev-${ev.id}`,
-            startTime: ev.time || null,
-            title: ev.title,
-            status: resolveEventStatus(ev),
-            accent: ev.color || '#4F46E5',
-            parentEvent: ev,
-            task: null,
-            event: ev,
-            assigneeName: null,
-            assigneeColor: null,
-            priority: 'medium',
-            estimatedTime: null,
-            dueDate: ev.date,
-            location: ev.location || null,
-            eventTime: ev.time || null,
-            dateContext: 'upcoming',
-            itemDate: ev.start_date || ev.date,
-          });
-        } else {
-          for (const t of tasks) {
-            if (t.status === 'done') continue;
-            seenTaskIds.add(t.id);
-            items.push({
-              id: `task-${t.id}`,
-              startTime: t.start_time || ev.time || null,
-              title: t.title,
-              status: t.status,
-              accent: ev.color || '#4F46E5',
-              parentEvent: ev,
-              task: t,
-              event: null,
-              assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
-              assigneeColor: t.assignees?.[0]?.color || null,
-              priority: t.priority || 'medium',
-              estimatedTime: t.estimated_time || null,
-              dueDate: t.due_date || null,
-              location: ev.location || null,
-              eventTime: ev.time || null,
-              dateContext: 'upcoming',
-              // ★ รอบที่ 33: itemDate ใช้ start_date เป็นหลักเสมอ
-              itemDate: t.start_date || ev.start_date || ev.date,
-            });
-          }
-        }
-      } else {
-        items.push({
-          id: `ev-${ev.id}`,
-          startTime: ev.time || null,
-          title: ev.title,
-          status: ev.status,
-          accent: ev.color || '#4F46E5',
-          parentEvent: null,
-          task: null,
-          event: ev,
-          assigneeName: null,
-          assigneeColor: null,
-          priority: 'medium',
-          estimatedTime: null,
-          dueDate: ev.date,
-          location: ev.location || null,
-          eventTime: ev.time || null,
-          dateContext: 'upcoming',
-          itemDate: ev.start_date || ev.date,
-        });
-      }
-    }
-
-    // ★ รอบที่ 33: 2. Subtasks ที่ start_date ในอนาคต จาก events ทั้งหมด
     for (const ev of events) {
-      if (ev.date > todayStr) continue;
-      const tasks = ev.tasks || [];
-      for (const t of tasks) {
-        if (t.status === 'done') continue;
-        if (seenTaskIds.has(t.id)) continue;
-        if (t.start_date && t.start_date > todayStr) {
-          seenTaskIds.add(t.id);
-          items.push({
-            id: `task-${t.id}`,
-            startTime: t.start_time || ev.time || null,
-            title: t.title,
-            status: t.status,
-            accent: ev.color || '#4F46E5',
-            parentEvent: ev,
-            task: t,
-            event: null,
-            assigneeName: t.assignees?.[0]?.full_name?.split(' ')[0] || null,
-            assigneeColor: t.assignees?.[0]?.color || null,
-            priority: t.priority || 'medium',
-            estimatedTime: t.estimated_time || null,
-            dueDate: t.due_date || null,
-            location: ev.location || null,
-            eventTime: ev.time || null,
-            dateContext: 'upcoming',
-            // ★ รอบที่ 33: itemDate = start_date ของ task (สำคัญ!)
-            itemDate: t.start_date || ev.start_date || ev.date,
-          });
+      if (ev.type === 'group') {
+        const tasks = ev.tasks || [];
+        if (tasks.length === 0) {
+          // Empty group → ใช้วันที่ของ event เอง
+          const effectiveStart = ev.start_date || ev.date;
+          const effectiveDue = ev.date;
+          const isDone = resolveEventStatus(ev) === 'done';
+          const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+          if (!ctx) continue;
+          const item = buildStandaloneEventItem(ev, ctx);
+          if (ctx === 'overdue') overdue.push(item);
+          else if (ctx === 'today') today.push(item);
+          else upcoming.push(item);
+        } else {
+          // แต่ละ task แบ่ง section ตามวันที่ของตัวเอง (fallback ไป event)
+          for (const t of tasks) {
+            const effectiveStart = t.start_date || ev.start_date || ev.date;
+            const effectiveDue = t.due_date || ev.date;
+            const isDone = t.status === 'done';
+            const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+            if (!ctx) continue;
+            const item = buildTaskItem(ev, t, ctx);
+            if (ctx === 'overdue') overdue.push(item);
+            else if (ctx === 'today') today.push(item);
+            else upcoming.push(item);
+          }
         }
+      } else {
+        // Standalone task event
+        const effectiveStart = ev.start_date || ev.date;
+        const effectiveDue = ev.date;
+        const isDone = ev.status === 'done';
+        const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+        if (!ctx) continue;
+        const item = buildStandaloneEventItem(ev, ctx);
+        if (ctx === 'overdue') overdue.push(item);
+        else if (ctx === 'today') today.push(item);
+        else upcoming.push(item);
       }
     }
 
-    // ★ รอบที่ 33: เรียงตาม itemDate → priority → time → title
-    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
-    items.sort((a, b) => {
-      const da = a.itemDate;
-      const db = b.itemDate;
-      if (da && db && da !== db) return da.localeCompare(db);
-      const pa = PRIORITY_ORDER[a.priority] ?? 3;
-      const pb = PRIORITY_ORDER[b.priority] ?? 3;
-      if (pa !== pb) return pa - pb;
-      const sa = a.startTime || '';
-      const sb = b.startTime || '';
-      if (sa && sb && sa !== sb) return sa.localeCompare(sb);
-      if (sa && !sb) return -1;
-      if (!sa && sb) return 1;
-      return a.title.localeCompare(b.title, 'th');
-    });
+    // เรียงลำดับ: overdue/upcoming ใช้ date → priority → time → title
+    // today ใช้ priority → time → title (ทุกรายการอยู่ในวันเดียวกัน)
+    overdue.sort(sortByDatePriorityTimeTitle);
+    today.sort(sortByPriorityTimeTitle);
+    upcoming.sort(sortByDatePriorityTimeTitle);
 
-    return items;
-  }, [upcomingEvents, events, todayStr]);
+    return { overdue, today, upcoming };
+  }, [events, todayStr]);
+
+  const overdueTimelineItems = categorizedItems.overdue;
+  const todayTimelineItems = categorizedItems.today;
+  const upcomingTimelineItems = categorizedItems.upcoming;
 
   const timeGroups = React.useMemo(
     () => buildTimeGroups(todayTimelineItems),
