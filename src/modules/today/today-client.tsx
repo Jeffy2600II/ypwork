@@ -1,7 +1,70 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r38 — Sub-header Redesign + Date Logic Fix)
+// YP WORK · Today Dashboard (v3.10.0-r39 — Card Redesign + Chip Cleanup)
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 39: ปรับปรุงการออกแบบการ์ดใน 3 section ของหน้า Today
+//   ให้สะอาด ละมุน และเป็นมืออาชีพระดับโลก โดยใช้งานวิจัยจาก
+//   แพลตฟอร์มใหญ่ๆ (Linear, Notion, Things 3, Todoist, Apple Reminders,
+//   Asana, Trello) เป็นแรงบันดาลใจ — แต่ยังคงไว้ซึ่งเอกลักษณ์
+//   การออกแบบเดิม (indigo→violet, accent system, hero cohesion)
+//
+//   ปัญหาเดิม:
+//   1. "ขอบด้านซ้ายของการ์ดรายการย่อย" — ใช้ border-left 3px solid
+//      accent ทึบ ๆ หนา ๆ เวลาหลาย ๆ การ์ดซ้อนกันในกลุ่ม ขอบนี้
+//      จะรวมกันเป็นแถบสียาว ๆ ขัดตามาก ดูหยาบ ไม่ละมุน
+//   2. ชิป (chip) เยอะเกินไป — มีถึง 6-7 ชิปต่อการ์ด (status, priority,
+//      assignee, time, est, location, due, from) แต่ละชิปมี label
+//      "เวลาเริ่ม", "ใช้เวลา", "กำหนด" ซ้ำกับ icon ทำให้รกและดูไม่เป็น
+//      มืออาชีพ
+//   3. Subtag "รายการย่อย" badge — ใหญ่และเด่นเกินไป แย่งความสนใจ
+//      จาก title ของงานจริง ๆ
+//   4. การจัดวางรวม ๆ — ดูเหมือนออกแบบส่ง ๆ ไม่ได้ใส่ใจรายละเอียด
+//
+//   การแก้ (CSS เท่านั้น ไม่เปลี่ยน class):
+//   1. ลบ border-left 3px solid ของ .is-subitem แล้วแทนด้วย:
+//      - พื้นหลังสี accent อ่อนมาก (1.5% alpha) เพื่อบอกว่า "เป็น
+//        รายการย่อย" แบบนุ่ม ๆ ไม่ใช้ขอบหนา
+//      - เส้นนำ accent บาง ๆ (2px, 35% opacity) สั้นกว่าความสูง
+//        การ์ด (top: 12px, bottom: 12px) คล้าย "tab marker" ของ
+//        Linear/Notion ไม่ใช่ "ขอบเต็ม"
+//      - เวลา hover เส้นนำจะขยายเต็มความสูงและเข้มขึ้น slightly
+//      ผล: ยังรู้ว่าเป็นรายการย่อย แต่ไม่ขัดตา ดูละมุน
+//
+//   2. ลด noise ของชิป:
+//      - ซ่อน label "เวลาเริ่ม/ใช้เวลา/กำหนด/เริ่ม" — icon ก็บอกอยู่แล้ว
+//        ว่าเป็นข้อมูลอะไร (clock = เวลา, calendar = วันที่, alert = เลยกำหนด)
+//      - ลด padding ชิปจาก 4px 10px → 3px 8px (กระชับขึ้น)
+//      - ลด font-size จาก text-xs (12px) → 11px (เล็กลง)
+//      - ลด gap ระหว่างชิปจาก 8px → 6px
+//      - ชิป "secondary" (assignee, location, est, from) ใช้สไตล์
+//        "ghost" (ไม่มี background, ไม่มี border) เป็นแค่ text + icon
+//        สี muted ลด visual weight ลง
+//      - ชิป "primary" (status, priority, due-overdue) ยังเป็น pill
+//        solid เพื่อให้ดูเด่นเป็นสถานะหลัก
+//      ผล: ลดจาก 6-7 ชิปรก ๆ เป็น 2 ชิปเด่น + metadata text บาง ๆ
+//
+//   3. ลด visual weight ของ subtag badge "รายการย่อย":
+//      - ลด background opacity จาก 10% → 5%
+//      - ลด border opacity จาก 18% → 10%
+//      - เปลี่ยน font-weight จาก bold → semibold
+//      - ลด padding จาก 1px 8px → 1px 7px
+//      - ปรับ color ให้ blend กับ text-muted (ไม่เด่นเกินไป)
+//      ผล: ยังเห็นว่าเป็น "รายการย่อย" แต่ไม่แย่งความสนใจจาก title
+//
+//   4. ปรับรายละเอียดเล็ก ๆ ที่ทำให้ดูเป็นมืออาชีพ:
+//      - Title เพิ่ม letter-spacing -0.005em (subtle refinement)
+//      - ลด margin-top ของ meta จาก 8px → 6px (ใกล้ title มากขึ้น)
+//      - ลด margin-bottom ของ subtag จาก 8px → 4px (subtag ใกล้ title)
+//      - ลด opacity ของ ::before accent bar ของ non-subitem จาก
+//        0.75 → 0.6 (ลด visual weight ของ accent bar)
+//      - ลด opacity ของ ::after accent blob จาก 0.05 → 0.04 (subtler)
+//      ผล: การ์ดดูสะอาดตา สมดุล ไม่มีอะไรโดดเด่นเกินไป
+//
+//   หลังปรับ: การ์ดใน 3 section ของหน้า Today ดูสะอาด ละมุน เป็น
+//   มืออาชีพ — ลด noise ลด chunky ลด visual weight ที่ไม่จำเป็น
+//   แต่ยังรักษาเอกลักษณ์การออกแบบเดิม (accent bar, layered wash,
+//   indigo→violet cohesion กับ hero)
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 38: แก้ปัญหา 2 อย่างที่ทำให้ผู้ใช้เข้าใจผิด
 //
