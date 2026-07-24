@@ -1,159 +1,66 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r40 — Pure White Card Redesign)
+// YP WORK · Today Dashboard (v3.10.0-r41 — Card Menu + Footer Redesign)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 40: Redesign การ์ดทั้งหมดใน 3 section ของหน้า Today
-//   โดยเน้น "ความขาวสะอาด" (pure white) เป็นหลัก — ลด visual noise
-//   ทุกชนิดออกจากการ์ด เพื่อให้การ์ดดูสะอาดตา มีพื้นที่ว่างมากขึ้น
-//   แต่ไม่มากเกินไป ผู้ใช้รู้สึกดีเมื่อใช้งานจริง
+// ★ v3.10.0 รอบที่ 41: ปรับปรุงการ์ดในหน้า Today รอบนี้โดยเน้น
+//   "ลดความสับสน เพิ่มความชัดเจน" เป็นหลักการออกแบบสูงสุด
+//   พร้อมเสริม interaction ที่ทันสมัยแบบระดับ award-winning UX
 //
-//   หลักการออกแบบ (วิจัยเพื่อให้เข้ากับแพลตฟอร์มของเรา ไม่ก็อปปี้
-//   แพลตฟอร์มอื่น 100%):
+//   การปรับปรุงครั้งนี้:
 //
-//   1. "ความขาว" เป็น hero ของการ์ด — พื้นหลัง pure white (var(--yp-bg-card))
-//      ไม่มี radial accent wash, ไม่มี accent blob, ไม่มี accent bar
-//      เพราะสิ่งเหล่านี้เป็น "decoration" ที่เพิ่ม visual noise ไม่ได้
-//      ช่วยให้ผู้ใช้เข้าใจเนื้อหา — ตรงข้ามกับหลักการ "สะอาดตา" ที่
-//      ผู้ใช้ต้องการ แพลตฟอร์มใหญ่ๆ อย่าง Apple Reminders, Things 3,
-//      Notion ใช้ pure white เป็นพื้นหลังการ์ดเป็นหลัก
+//   1. ลบ status dot ที่มุมซ้ายบนของการ์ด "รายการย่อย" ออกทั้งหมด
+//      เพราะไม่จำเป็นและทำให้ดูไม่สมดุล — badge "รายการย่อย"
+//      ก็บอกอยู่แล้ว ไม่ต้องมี status dot ที่มุมซ้ายบนอีก
+//      (การ์ดธรรมดายังคงมี status dot อยู่ เพราะเป็นจุดเริ่มต้นของ
+//      card scan และเป็นที่สำหรับคลิกเปลี่ยนสถานะ)
 //
-//   2. "รายการย่อย" ไม่มีขอบ ไม่มีเส้นนำ ไม่มี accent tint
-//      เพราะข้อความ "รายการย่อย" badge ก็บอกอยู่แล้ว — ไม่ต้องเพิ่ม
-//      สิ่งอื่นใดนอกเหนือจากนั้น การ์ดรายการย่อยดูเหมือนการ์ดธรรมดา
-//      ทุกประการ แค่มี badge เล็กๆ บอกว่าเป็นรายการย่อย
+//   2. มุมขวาบน: เปลี่ยนจาก chevron arrow เป็น "3 จุดแนวนอน"
+//      (MoreHorizontal icon) เป็น pattern มาตรฐานสากล (Material Design,
+//      iOS, Linear, Notion ใช้กันหมด) สำหรับ "actions menu"
+//      กด 3 จุด → เปิด popup ใต้ปุ่ม → ใน popup มีปุ่ม "ดูเพิ่มเติม"
 //
-//   3. "เวลา" ย้ายไปที่มุมบน-ขวาของการ์ด (top-right corner)
-//      ไม่อยู่ใน meta row แบบเดิม — ทำให้ meta row โล่งขึ้น และเวลา
-//      อยู่ที่ตำแหน่งที่สามารถมองเห็นได้ทันที (มุมบน-ขวาเป็นจุดที่ตา
-//      สแกนไปถึงเร็วที่สุดในการ์ด) — เหมือน Things 3 ที่เวลาอยู่ที่
-//      ขวาสุดของ title row
+//   3. ปุ่ม "ดูเพิ่มเติม" ใน popup → เปิด Bottom Sheet ขึ้นมา
+//      แสดงข้อมูลทั้งหมดของรายการนั้น (status, กำหนดการ, จากกลุ่ม,
+//      ผู้รับผิดชอบ, ระยะเวลา, สถานที่, ความสำคัญ) ในรูปแบบที่อ่านง่าย
+//      พร้อมปุ่ม "ดูหน้าเต็ม" ที่ลิงก์ไปหน้ารายละเอียด
+//      → ผู้ใช้เห็นข้อมูลได้โดยไม่ต้องออกจากหน้า Today
 //
-//   4. "Typography" ใช้ --yp-text-xs (12px) ทุกที่ในการ์ด
-//      ไม่ใช้ค่า 11px หรือ 10px แบบ custom อีกต่อไป — เพื่อให้
-//      เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา (ที่ใช้ --yp-text-xs
-//      เป็นหลัก) การ์ดจะได้ไม่รู้สึกเหมือน "คนละแพลตฟอร์ม" กับ
-//      ส่วนอื่นๆ ของแอป
+//   4. "จากกลุ่ม: XXX" — ย้ายจากด้านบน (subtag row) มาอยู่ด้านล่าง
+//      (footer row) และไม่ใช้ Link อีกต่อไป (เป็น text ธรรมดา) เพราะ
+//      การคลิกที่ card body จะไปเปิด status picker อยู่แล้ว และการ
+//      คลิก "ดูเพิ่มเติม" จะเปิด bottom sheet ที่มีลิงก์ไปกลุ่มอยู่แล้ว
+//      → ลด confusion ของ click target
 //
-//   5. "Hover" ใช้ subtle gray tint (var(--yp-bg-card-soft))
-//      ไม่ใช้ accent-tinted hover — เพราะ accent-tinted hover ทำให้
-//      การ์ด "กระโดด" สีเกินไปเวลา hover ดูไม่สะอาดตา สำหรับ
-//      ระบบเราที่เน้น pure white เป็นหลัก hover ควรเป็น subtle gray
-//      เหมือน Apple Reminders ที่ hover แค่เปลี่ยนเป็น gray นุ่นๆ
+//   5. "เวลา" — ย้ายจากมุมขวาบนมาอยู่ด้านล่างฝั่งขวา (footer row)
+//      แสดงเป็น "กำหนดการ {วันที่สัมพันธ์} {เวลา} น." แทนการแสดง
+//      แค่เวลา เพราะผู้ใช้สับสนว่าตัวเลขนั้นคืออะไร
+//      → ตัวคำว่า "กำหนดการ" ต้องแสดงเสมอ เพื่อให้ชัดเจน
+//      → สำหรับรายการที่เลยกำหนดแล้ว: ไม่แสดงเวลา เพราะเวลาที่
+//        เลยไปแล้วทำให้สับสน (ยังเป็นเวลาเดิมหรือเวลาใหม่?) แสดง
+//        เป็น "เลยกำหนด {X วัน}" ใน meta row แทน
 //
-//   6. "Shadow" ลดเหลือ subtle shadow ชั้นเดียว
-//      ไม่ใช้ 2-layer shadow แบบเดิม เพราะ 2-layer ทำให้การ์ดดู
-//      "ยกขึ้น" เกินไป สำหรับ pure white card แบบเรา shadow เดียว
-//      บางๆ พอ — การ์ดดู "วางอยู่" บนพื้นผิว ไม่ใช่ "ลอย" อยู่
+//   6. การ์ดทั้งหมดมี "footer row" ที่แยกจาก meta row ด้วยเส้นบางๆ
+//      (subtle divider) — เพื่อให้ visual hierarchy ชัดเจน:
+//      - Top: badge + title + meta (status, priority, assignee, est, location)
+//      - Bottom: จากกลุ่ม (left) + กำหนดการ (right)
 //
-//   สรุป: การ์ดใน 3 section ของหน้า Today จะดูสะอาด โล่ง สบายตา
-//   เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา — เน้น "ขาว" เป็นหลัก
-//   ลด decoration ทุกชนิด ใช้ typography มาตรฐานของระบบ
-//   ผู้ใช้รู้สึกดีเมื่อใช้งานจริง
+//   หลักการออกแบบ: "มั่นคง นิ่ง สะอาดตา สวยงาม น่าใช้งาน"
+//   ใช้แนวทางจากงานวิจัย UX ระดับโลก (Apple HIG, Material Design 3,
+//   Linear, Things 3, Notion) แต่ปรับให้เข้ากับแพลตฟอร์มของเรา
+//   เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา ไม่ก็อปปี้ใคร 100%
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 39: Card Redesign + Chip Cleanup (World-Class Polish)
-//   ให้สะอาด ละมุน และเป็นมืออาชีพระดับโลก โดยใช้งานวิจัยจาก
-//   แพลตฟอร์มใหญ่ๆ (Linear, Notion, Things 3, Todoist, Apple Reminders,
-//   Asana, Trello) เป็นแรงบันดาลใจ — แต่ยังคงไว้ซึ่งเอกลักษณ์
-//   การออกแบบเดิม (indigo→violet, accent system, hero cohesion)
-//
-//   ปัญหาเดิม:
-//   1. "ขอบด้านซ้ายของการ์ดรายการย่อย" — ใช้ border-left 3px solid
-//      accent ทึบ ๆ หนา ๆ เวลาหลาย ๆ การ์ดซ้อนกันในกลุ่ม ขอบนี้
-//      จะรวมกันเป็นแถบสียาว ๆ ขัดตามาก ดูหยาบ ไม่ละมุน
-//   2. ชิป (chip) เยอะเกินไป — มีถึง 6-7 ชิปต่อการ์ด (status, priority,
-//      assignee, time, est, location, due, from) แต่ละชิปมี label
-//      "เวลาเริ่ม", "ใช้เวลา", "กำหนด" ซ้ำกับ icon ทำให้รกและดูไม่เป็น
-//      มืออาชีพ
-//   3. Subtag "รายการย่อย" badge — ใหญ่และเด่นเกินไป แย่งความสนใจ
-//      จาก title ของงานจริง ๆ
-//   4. การจัดวางรวม ๆ — ดูเหมือนออกแบบส่ง ๆ ไม่ได้ใส่ใจรายละเอียด
-//
-//   การแก้ (CSS เท่านั้น ไม่เปลี่ยน class):
-//   1. ลบ border-left 3px solid ของ .is-subitem แล้วแทนด้วย:
-//      - พื้นหลังสี accent อ่อนมาก (1.5% alpha) เพื่อบอกว่า "เป็น
-//        รายการย่อย" แบบนุ่ม ๆ ไม่ใช้ขอบหนา
-//      - เส้นนำ accent บาง ๆ (2px, 35% opacity) สั้นกว่าความสูง
-//        การ์ด (top: 12px, bottom: 12px) คล้าย "tab marker" ของ
-//        Linear/Notion ไม่ใช่ "ขอบเต็ม"
-//      - เวลา hover เส้นนำจะขยายเต็มความสูงและเข้มขึ้น slightly
-//      ผล: ยังรู้ว่าเป็นรายการย่อย แต่ไม่ขัดตา ดูละมุน
-//
-//   2. ลด noise ของชิป:
-//      - ซ่อน label "เวลาเริ่ม/ใช้เวลา/กำหนด/เริ่ม" — icon ก็บอกอยู่แล้ว
-//        ว่าเป็นข้อมูลอะไร (clock = เวลา, calendar = วันที่, alert = เลยกำหนด)
-//      - ลด padding ชิปจาก 4px 10px → 3px 8px (กระชับขึ้น)
-//      - ลด font-size จาก text-xs (12px) → 11px (เล็กลง)
-//      - ลด gap ระหว่างชิปจาก 8px → 6px
-//      - ชิป "secondary" (assignee, location, est, from) ใช้สไตล์
-//        "ghost" (ไม่มี background, ไม่มี border) เป็นแค่ text + icon
-//        สี muted ลด visual weight ลง
-//      - ชิป "primary" (status, priority, due-overdue) ยังเป็น pill
-//        solid เพื่อให้ดูเด่นเป็นสถานะหลัก
-//      ผล: ลดจาก 6-7 ชิปรก ๆ เป็น 2 ชิปเด่น + metadata text บาง ๆ
-//
-//   3. ลด visual weight ของ subtag badge "รายการย่อย":
-//      - ลด background opacity จาก 10% → 5%
-//      - ลด border opacity จาก 18% → 10%
-//      - เปลี่ยน font-weight จาก bold → semibold
-//      - ลด padding จาก 1px 8px → 1px 7px
-//      - ปรับ color ให้ blend กับ text-muted (ไม่เด่นเกินไป)
-//      ผล: ยังเห็นว่าเป็น "รายการย่อย" แต่ไม่แย่งความสนใจจาก title
-//
-//   4. ปรับรายละเอียดเล็ก ๆ ที่ทำให้ดูเป็นมืออาชีพ:
-//      - Title เพิ่ม letter-spacing -0.005em (subtle refinement)
-//      - ลด margin-top ของ meta จาก 8px → 6px (ใกล้ title มากขึ้น)
-//      - ลด margin-bottom ของ subtag จาก 8px → 4px (subtag ใกล้ title)
-//      - ลด opacity ของ ::before accent bar ของ non-subitem จาก
-//        0.75 → 0.6 (ลด visual weight ของ accent bar)
-//      - ลด opacity ของ ::after accent blob จาก 0.05 → 0.04 (subtler)
-//      ผล: การ์ดดูสะอาดตา สมดุล ไม่มีอะไรโดดเด่นเกินไป
-//
-//   หลังปรับ: การ์ดใน 3 section ของหน้า Today ดูสะอาด ละมุน เป็น
-//   มืออาชีพ — ลด noise ลด chunky ลด visual weight ที่ไม่จำเป็น
-//   แต่ยังรักษาเอกลักษณ์การออกแบบเดิม (accent bar, layered wash,
-//   indigo→violet cohesion กับ hero)
+// ★ v3.10.0 รอบที่ 40 (สืบทอดมา): Pure white card background, ลด
+//   decoration ทุกชนิด (accent bar, accent blob, accent guide line)
+//   ใช้ typography มาตรฐาน --yp-text-xs (12px) ทุกที่ — ยังคงไว้
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 38: แก้ปัญหา 2 อย่างที่ทำให้ผู้ใช้เข้าใจผิด
-//
-//   1. แก้การแบ่ง section ของรายการตาม "วันเริ่ม + วันกำหนดส่ง"
-//      ก่อนหน้านี้: ใช้ e.date (วันกำหนดส่ง) เป็นหลักในการแบ่ง
-//        - รายการที่เริ่มแล้ว แต่ยังไม่ถึงวันกำหนดส่ง → ไปอยู่ใน
-//          "กำลังจะถึง" ทั้งๆ ที่เริ่มทำแล้ว → ผิด!
-//      แก้แล้ว: แบ่งตาม effectiveStart และ effectiveDue ของแต่ละรายการ
-//        - effectiveDue < วันนี้ และยังไม่เสร็จ → "เลยกำหนด"
-//        - effectiveStart ≤ วันนี้ ≤ effectiveDue → "วันนี้"
-//          (รวมรายการที่เริ่มแล้วแต่ยังไม่ถึงวันส่ง)
-//        - effectiveStart > วันนี้ → "กำลังจะถึง"
-//      โดย effectiveStart = start_date || due_date (ถ้าไม่ระบุ start_date
-//      ระบบถือว่าเริ่มวันเดียวกับกำหนดส่ง) และ effectiveDue = due_date
-//
-//   2. ออกแบบ sub-header (yp-today-time-section__head สำหรับแยกช่วง
-//      เช้า/บ่าย/ไม่ระบุเวลา และแยกตามวันที่) ใหม่ทั้งหมด
-//      ปัญหา: sub-header เดิมโดดเด่นเกินไป มี icon box ใหญ่ มี count
-//      chip มี label ตัวหนา — ทำให้ผู้ใช้เข้าใจผิดว่าเป็น "หัวข้อใหม่"
-//      หรือ "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น" คั่นการ์ด
-//      ภายใน section เดียวกัน
-//      แก้: ปรับ CSS (ไม่เปลี่ยน class) ให้ sub-header ดูเป็น "divider"
-//      ที่บอกแค่ "ตั้งแต่การ์ดนี้ไปเป็นของช่วงเช้า/วันที่ X" ไม่ใช่หัวข้อใหม่
-//      - ลบ icon box (เหลือแค่ icon เล็กๆ inline)
-//      - ลดขนาด label/caption ให้เล็กและจางลง
-//      - ลบ count chip (ให้เป็นตัวเลขเล็กๆ inline)
-//      - ใช้เส้นประบางๆ ใต้หัวข้อแทนเส้นทึบ
-//      ความรู้สึกหลังปรับ: "อ๋อ มันแค่คั่นการ์ดเฉยๆ" ไม่ใช่ "อ๋อ section ใหม่"
-//      (ใช้กับทั้งหน้า today และหน้ารายละเอียดงาน)
+// ★ v3.10.0 รอบที่ 38 (สืบทอดมา): แก้การแบ่ง section ตาม effectiveStart/
+//   effectiveDue (รายการที่เริ่มแล้วแต่ยังไม่ถึงวันส่ง ต้องอยู่ใน "วันนี้")
+//   + sub-header เป็น "subtle divider" แทน "section header"
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 37: ปรับปรุงการออกแบบให้ทั้งหน้า Today เข้ากันมากขึ้น
-//   1. ลบข้อความ "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
-//      (ไม่ต้องการ hint ซ้ำซ้อน — ผู้ใช้เข้าใจจากการโต้ตอบได้เอง)
-//   2. เพิ่มระยะห่างระหว่าง section ทั้งหมด (hero, overdue, today,
-//      upcoming, department overview) ให้เห็นชัดว่า section ไหนจบที่ไหน
-//   3. ปรับการ์ดงาน (yp-today-item-card) ให้เข้ากับ hero มากขึ้น
-//      โดยใช้ต้นแบบจาก yp-event-card (layered accent wash, accent
-//      bar, premium hover) — ไม่เปลี่ยน class แค่ปรับ CSS
-//   4. ปรับ yp-today-time-section และ yp-today-section__head ให้มี
-//      accent-tinted icon และ count chip ที่ลงตัวกับ hero มากขึ้น
-//      ทำให้ทุก section ดูเชื่อมโยงกันแทนแปลกแยก
+// ★ v3.10.0 รอบที่ 37 (สืบทอดมา): ลบ hint "แตะรายการเพื่อเปลี่ยนสถานะ"
+//   + section title accent bar + indigo-tinted section count
+//   + yp-today-time-section accent-tinted icon และ count chip
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 36: ย้อนกลับการเปลี่ยนแปลงของรอบที่ 35 ทั้งหมด
 //   (พื้นหลังขาว มุมโค้ง เต็มขอบจอ) กลับไปเหมือนรอบที่ 33
@@ -209,6 +116,11 @@ import {
   ChevronRight,
   RefreshCw,
   ArrowUpRight,
+  MoreHorizontal,
+  Eye,
+  MapPin,
+  User as UserIcon,
+  Timer,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
@@ -586,6 +498,13 @@ export function TodayClient({
   const [activeItem, setActiveItem] = React.useState<TimelineItem | null>(null);
   const [toast, setToast] = React.useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
+  // ★ v3.10.0 รอบที่ 41: state สำหรับ 3-dot menu popup และ detail sheet
+  //   - menuOpenFor: item ที่กำลังเปิด popup อยู่ (null = ปิด popup)
+  //   - detailSheetItem: item ที่กำลังแสดงใน Bottom Sheet "ดูเพิ่มเติม"
+  //   ทั้งสองอย่างเป็น singleton — เปิดได้ทีละอัน
+  const [menuOpenFor, setMenuOpenFor] = React.useState<TimelineItem | null>(null);
+  const [detailSheetItem, setDetailSheetItem] = React.useState<TimelineItem | null>(null);
+
   React.useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2400);
@@ -596,6 +515,20 @@ export function TodayClient({
     setActiveItem(item);
     setStatusPickerOpen(true);
   };
+
+  // ★ v3.10.0 รอบที่ 41: handler สำหรับ 3-dot menu
+  //   - handleOpenCardMenu: เปิด popup ของ item ที่ระบุ (toggle ถ้าเปิดอยู่แล้ว)
+  //   - handleCloseCardMenu: ปิด popup
+  //   - handleOpenDetailSheet: ปิด popup แล้วเปิด Bottom Sheet แสดงรายละเอียด
+  const handleOpenCardMenu = (item: TimelineItem) => {
+    setMenuOpenFor((prev) => (prev?.id === item.id ? null : item));
+  };
+  const handleCloseCardMenu = () => setMenuOpenFor(null);
+  const handleOpenDetailSheet = (item: TimelineItem) => {
+    setMenuOpenFor(null);
+    setDetailSheetItem(item);
+  };
+  const handleCloseDetailSheet = () => setDetailSheetItem(null);
 
   const handleStatusChange = async (newStatus: TaskStatus | EventStatus) => {
     if (!activeItem) return;
@@ -643,6 +576,10 @@ export function TodayClient({
   // ★ รอบที่ 33: render การ์ดแต่ละใบ
   //   ★ รอบที่ 37: ลบ hint "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
   //     เพราะผู้ใช้เข้าใจการโต้ตอบได้เองจากการแตะ ไม่ต้องการ hint ซ้ำ
+  //   ★ v3.10.0 รอบที่ 41: ส่ง props ใหม่ให้ TodayItemCard
+  //     - isMenuOpen: บอกว่า popup ของการ์ดนี้เปิดอยู่หรือไม่
+  //     - onOpenMenu / onCloseMenu: เปิด/ปิด popup
+  //     - onViewMore: เปิด Bottom Sheet แสดงรายละเอียด
   const renderCardList = (items: TimelineItem[]) => (
     <div className="yp-today-card-list">
       {items.map((item) => (
@@ -651,6 +588,10 @@ export function TodayClient({
           item={item}
           onOpenStatusPicker={handleOpenStatusPicker}
           todayStr={todayStr}
+          isMenuOpen={menuOpenFor?.id === item.id}
+          onOpenMenu={handleOpenCardMenu}
+          onCloseMenu={handleCloseCardMenu}
+          onViewMore={handleOpenDetailSheet}
         />
       ))}
     </div>
@@ -887,6 +828,165 @@ export function TodayClient({
         </div>
       </BottomSheet>
 
+      {/* ── ★ v3.10.0 รอบที่ 41: DETAIL SHEET (เปิดจากปุ่ม "ดูเพิ่มเติม") ──
+         แสดงข้อมูลทั้งหมดของรายการในรูปแบบที่อ่านง่าย พร้อมปุ่ม
+         "ดูหน้าเต็ม" ที่ลิงก์ไปหน้ารายละเอียดแบบเต็ม */}
+      <BottomSheet
+        open={!!detailSheetItem}
+        onClose={handleCloseDetailSheet}
+        title={detailSheetItem?.title}
+        description={detailSheetItem && (detailSheetItem.task && detailSheetItem.parentEvent) ? 'รายการย่อย' : 'รายการ'}
+      >
+        {detailSheetItem ? (() => {
+          const di = detailSheetItem;
+          const diIsSubItem = !!di.parentEvent && !!di.task;
+          const diDetailHref = di.event ? `/events/${di.event.id}` : (di.parentEvent ? `/events/${di.parentEvent.id}` : '#');
+          const diIsOverdue = di.dateContext === 'overdue';
+          const diIsToday = di.dateContext === 'today';
+          const diIsUpcoming = di.dateContext === 'upcoming';
+          const diStatusMeta = STATUS_META[di.status];
+          const diPriorityLbl = PRIORITY_LBL[di.priority || 'medium'] || 'ปกติ';
+          // ★ คำนวณ schedule text สำหรับ detail sheet (เหมือนในการ์ด)
+          const diScheduleText: string | null = (() => {
+            if (diIsOverdue) {
+              // สำหรับ overdue: แสดงวันที่เดิมที่ครบกำหนด ไม่ใช่เวลา
+              if (di.itemDate && di.itemDate !== todayStr) {
+                return `เลยกำหนด ${relativeDay(di.itemDate)}`;
+              }
+              return 'เลยกำหนด';
+            }
+            if (!di.startTime) return null;
+            if (diIsToday) {
+              if (di.itemDate !== todayStr) {
+                // เริ่มในอดีต แต่ยังอยู่ในช่วง "วันนี้"
+                return `เริ่ม ${relativeDay(di.itemDate)} ${di.startTime} น.`;
+              }
+              return `วันนี้ ${di.startTime} น.`;
+            }
+            if (diIsUpcoming && di.itemDate) {
+              return `${relativeDay(di.itemDate)} ${di.startTime} น.`;
+            }
+            return null;
+          })();
+
+          return (
+            <div className="yp-card-detail">
+              {/* Status row */}
+              <div className="yp-card-detail__row">
+                <div className="yp-card-detail__label">
+                  <span className="yp-card-detail__label-text">สถานะ</span>
+                </div>
+                <div className="yp-card-detail__value">
+                  <span
+                    className={`yp-card-detail__chip yp-card-detail__chip--status yp-card-detail__chip--status-${di.status}`}
+                    style={{ ['--status-color' as string]: diStatusMeta.color }}
+                  >
+                    {di.status === 'done' ? <Check width={12} height={12} /> : di.status === 'ongoing' ? <RefreshCw width={12} height={12} /> : <Clock width={12} height={12} />}
+                    {diStatusMeta.label}
+                  </span>
+                </div>
+              </div>
+
+              {/* Schedule row */}
+              {diScheduleText ? (
+                <div className="yp-card-detail__row">
+                  <div className="yp-card-detail__label">
+                    <Clock width={14} height={14} />
+                    <span className="yp-card-detail__label-text">กำหนดการ</span>
+                  </div>
+                  <div className="yp-card-detail__value">
+                    <span className={`yp-card-detail__schedule${diIsOverdue ? ' is-overdue' : ''}`}>
+                      {diScheduleText}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* From group row (sub-items only) */}
+              {diIsSubItem && di.parentEvent ? (
+                <div className="yp-card-detail__row">
+                  <div className="yp-card-detail__label">
+                    <Layers width={14} height={14} />
+                    <span className="yp-card-detail__label-text">จากกลุ่ม</span>
+                  </div>
+                  <div className="yp-card-detail__value">
+                    <Link
+                      href={`/events/${di.parentEvent.id}`}
+                      className="yp-card-detail__link"
+                      onClick={handleCloseDetailSheet}
+                    >
+                      {di.parentEvent.title}
+                      <ArrowUpRight width={12} height={12} />
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Assignee row */}
+              {di.assigneeName ? (
+                <div className="yp-card-detail__row">
+                  <div className="yp-card-detail__label">
+                    <UserIcon width={14} height={14} />
+                    <span className="yp-card-detail__label-text">ผู้รับผิดชอบ</span>
+                  </div>
+                  <div className="yp-card-detail__value">
+                    <span className="yp-card-detail__assignee">
+                      {di.assigneeColor ? <Avatar name={di.assigneeName} color={di.assigneeColor} size={20} /> : null}
+                      {di.assigneeName}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Estimated time row */}
+              {di.estimatedTime ? (
+                <div className="yp-card-detail__row">
+                  <div className="yp-card-detail__label">
+                    <Timer width={14} height={14} />
+                    <span className="yp-card-detail__label-text">ระยะเวลา</span>
+                  </div>
+                  <div className="yp-card-detail__value">{di.estimatedTime}</div>
+                </div>
+              ) : null}
+
+              {/* Location row */}
+              {di.location ? (
+                <div className="yp-card-detail__row">
+                  <div className="yp-card-detail__label">
+                    <MapPin width={14} height={14} />
+                    <span className="yp-card-detail__label-text">สถานที่</span>
+                  </div>
+                  <div className="yp-card-detail__value">{di.location}</div>
+                </div>
+              ) : null}
+
+              {/* Priority row */}
+              <div className="yp-card-detail__row">
+                <div className="yp-card-detail__label">
+                  <Flag width={14} height={14} />
+                  <span className="yp-card-detail__label-text">ความสำคัญ</span>
+                </div>
+                <div className="yp-card-detail__value">
+                  <span className={`yp-card-detail__priority yp-card-detail__priority--${di.priority || 'medium'}`}>
+                    {diPriorityLbl}
+                  </span>
+                </div>
+              </div>
+
+              {/* CTA: open full detail page */}
+              <Link
+                href={diDetailHref}
+                className="yp-card-detail__cta"
+                onClick={handleCloseDetailSheet}
+              >
+                ดูหน้าเต็ม
+                <ChevronRight width={14} height={14} />
+              </Link>
+            </div>
+          );
+        })() : null}
+      </BottomSheet>
+
       {/* ── Toast ── */}
       {toast ? <div className={`yp-toast yp-toast--${toast.type || 'info'}`}>{toast.msg}</div> : null}
     </div>
@@ -894,44 +994,84 @@ export function TodayClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 33: TodayItemCard — การ์ดเดี่ยวสำหรับทุกรายการ
+// ★ v3.10.0 รอบที่ 41: TodayItemCard — Card Menu + Footer Redesign
 //
-//   การออกแบบ:
-//   - เหมือน TaskRow ในหน้ารายละเอียดกลุ่มรายการ (border, shadow,
-//     pill chips, 2-line layout)
-//   - รายการย่อย: มีแถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
-//     (Link ไปหน้ารายละเอียดกลุ่มรายการ)
-//   - รายการธรรมดา: ไม่มีแถบรายการย่อย
-//   - แตะที่การ์ด → เปลี่ยนสถานะ
-//   - กดลูกศร → ไปหน้ารายละเอียด
+//   โครงสร้างการ์ดใหม่:
+//   - มุมซ้ายบน: status dot (เฉพาะการ์ดธรรมดา — รายการย่อยไม่มี
+//     เพราะ badge "รายการย่อย" ก็บอกอยู่แล้ว และทำให้ดูไม่สมดุล)
+//   - มุมขวาบน: 3-dot menu (แทน chevron arrow) — กดแล้วเปิด popup
+//     ใต้ปุ่ม ใน popup มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet
+//   - Body: badge (รายการย่อย) + title + meta (status, priority, ...)
+//   - Footer (ใหม่!): แยกจาก meta ด้วยเส้นบางๆ
+//     - ซ้าย: "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
+//     - ขวา: "กำหนดการ {วัน} {เวลา} น." (เฉพาะ today/upcoming ที่มีเวลา)
+//       - ไม่แสดงสำหรับ overdue เพราะเวลาที่เลยไปแล้วทำให้สับสน
+//   - Popup: เมนูขนาดเล็กที่เปิดจาก 3-dot button
+//     - มี overlay จับ click นอก popup เพื่อปิด
+//     - มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet
+//
+//   ★ v3.10.0 รอบที่ 33 (สืบทอดมา): รายการย่อยมี badge "รายการย่อย"
+//   ★ v3.10.0 รอบที่ 40 (สืบทอดมา): pure white background, ลด decoration
+//   ★ v3.10.0 รอบที่ 38 (สืบทอดมา): ใช้ itemDate (effectiveStart) สำหรับ date chip
 // ═══════════════════════════════════════════════════════════════
 function TodayItemCard({
   item,
   onOpenStatusPicker,
   todayStr,
+  isMenuOpen,
+  onOpenMenu,
+  onCloseMenu,
+  onViewMore,
 }: {
   item: TimelineItem;
   onOpenStatusPicker: (item: TimelineItem) => void;
   todayStr: string;
+  isMenuOpen: boolean;
+  onOpenMenu: (item: TimelineItem) => void;
+  onCloseMenu: () => void;
+  onViewMore: (item: TimelineItem) => void;
 }) {
   const accent = item.accent;
   const detailHref = item.event ? `/events/${item.event.id}` : (item.parentEvent ? `/events/${item.parentEvent.id}` : '#');
   const isOverdue = item.dateContext === 'overdue';
   const isUpcoming = item.dateContext === 'upcoming';
+  const isToday = item.dateContext === 'today';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
   // ★ รอบที่ 33: ระบุว่าเป็นรายการย่อยหรือไม่
   const isSubItem = !!item.parentEvent && !!item.task;
 
+  // ★ v3.10.0 รอบที่ 41: คำนวณ schedule label สำหรับ footer
+  //   - overdue: ไม่แสดง (เวลาที่เลยไปแล้วทำให้สับสน)
+  //   - today (itemDate === todayStr): "กำหนดการ วันนี้ HH:MM น."
+  //   - today (itemDate < todayStr): ไม่แสดง (เริ่มไปแล้ว ตัวเลขเวลาไม่ใช่
+  //     กำหนดการของวันนี้ — แสดงแล้วสับสน)
+  //   - upcoming: "กำหนดการ {relativeDay} HH:MM น."
+  //   เหตุผล: ผู้ใช้สับสนเวลาเห็นแค่ตัวเลขเวลา (เช่น "14:00") เพราะไม่รู้ว่า
+  //   เป็นเวลาของวันไหน และไม่รู้ว่าเป็นอะไร (เริ่ม? จบ? ครบกำหนด?)
+  //   การเติม "กำหนดการ" + วันที่สัมพันธ์ ทำให้ชัดเจนทันที
+  const scheduleLabel: string | null = (() => {
+    if (isOverdue) return null;
+    if (!item.startTime) return null;
+    if (isToday) {
+      // ถ้า itemDate ไม่ใช่วันนี้ → เริ่มไปแล้ว ไม่แสดง schedule
+      if (item.itemDate !== todayStr) return null;
+      return `กำหนดการ วันนี้ ${item.startTime} น.`;
+    }
+    if (isUpcoming && item.itemDate) {
+      return `กำหนดการ ${relativeDay(item.itemDate)} ${item.startTime} น.`;
+    }
+    return null;
+  })();
+
+  // ★ v3.10.0 รอบที่ 41: แสดง footer ถ้ามี "จากกลุ่ม" หรือ schedule
+  const showFooter = (isSubItem && !!item.parentEvent) || !!scheduleLabel;
+
   return (
     <div
-      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}`}
+      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
       style={{
         ['--accent' as string]: accent,
-        // ★ v3.10.0 รอบที่ 40: ส่ง --has-time ให้ CSS เพื่อ reserve พื้นที่
-        //   ที่มุมบน-ขวาของการ์ดสำหรับ time chip — ถ้าไม่มีเวลา ก็ไม่ต้อง
-        //   reserve พื้นที่ (title ใช้พื้นที่เต็มได้)
-        ['--has-time' as string]: item.startTime ? '1' : '0',
       }}
       role="button"
       tabIndex={0}
@@ -939,35 +1079,32 @@ function TodayItemCard({
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
       aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
     >
-      {/* ── Status dot ── */}
-      <button
-        type="button"
-        className={`yp-today-item-card__dot yp-today-item-card__dot--${item.status}`}
-        aria-label={`เลือกสถานะ — ${statusLabel(item.status)}`}
-        onClick={(e) => { e.stopPropagation(); onOpenStatusPicker(item); }}
-        style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
-      />
+      {/* ── Status dot — เฉพาะการ์ดธรรมดา (รายการย่อยไม่มี) ──
+         ★ v3.10.0 รอบที่ 41: ลบ status dot ออกจากรายการย่อย เพราะ
+           1. badge "รายการย่อย" ก็บอกอยู่แล้ว ไม่ต้องมี indicator ซ้ำ
+           2. มี status dot อยู่มุมซ้ายบนทำให้การ์ดรายการย่อยดูไม่สมดุล
+           3. ผู้ใช้ยังเปลี่ยนสถานะได้โดยคลิกที่ card body */}
+      {!isSubItem ? (
+        <button
+          type="button"
+          className={`yp-today-item-card__dot yp-today-item-card__dot--${item.status}`}
+          aria-label={`เลือกสถานะ — ${statusLabel(item.status)}`}
+          onClick={(e) => { e.stopPropagation(); onOpenStatusPicker(item); }}
+          style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
+        />
+      ) : null}
 
-      {/* ── Body (title + chips — ไม่มี time chip แล้ว) ── */}
+      {/* ── Body (badge + title + meta + footer) ── */}
       <div className="yp-today-item-card__body">
-        {/* ★ รอบที่ 33: แถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
-           ★ v3.10.0 รอบที่ 40: badge เล็กลง ไม่เด่น เพราะแค่บอกว่าเป็น
-             รายการย่อย ไม่ต้องเพิ่ม decoration อื่นๆ (ขอบ เส้นนำ ฯลฯ) */}
-        {isSubItem && item.parentEvent ? (
+        {/* ★ v3.10.0 รอบที่ 41: subtag มีแค่ badge "รายการย่อย"
+           (เดิมมี Link "จากกลุ่ม" ด้วย แต่ย้ายไป footer แล้ว เป็น text
+           ธรรมดาไม่ใช่ link) */}
+        {isSubItem ? (
           <div className="yp-today-item-card__subtag">
             <span className="yp-today-item-card__subtag-badge">
               <Layers width={11} height={11} />
               รายการย่อย
             </span>
-            <Link
-              href={`/events/${item.parentEvent.id}`}
-              className="yp-today-item-card__subtag-group"
-              onClick={(e) => e.stopPropagation()}
-              aria-label={`ดูกลุ่มรายการ: ${item.parentEvent.title}`}
-            >
-              จากกลุ่ม: {item.parentEvent.title}
-              <ArrowUpRight width={10} height={10} className="yp-today-item-card__subtag-arrow" />
-            </Link>
           </div>
         ) : null}
 
@@ -994,10 +1131,6 @@ function TodayItemCard({
             </span>
           ) : null}
 
-          {/* ★ v3.10.0 รอบที่ 40: Time chip ย้ายออกจาก meta ไปอยู่ที่มุม
-             บน-ขวาของการ์ดแทน — ทำให้ meta row โล่งขึ้น และเวลาอยู่ที่
-             ตำแหน่งที่มองเห็นได้ทันที */}
-
           {/* Est time chip */}
           {item.estimatedTime ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--est">
@@ -1012,20 +1145,25 @@ function TodayItemCard({
             <span className="yp-today-item-card__chip">{item.location}</span>
           ) : null}
 
-          {/* ★ รอบที่ 33: Date chip for overdue — ใช้ itemDate (start_date) */}
+          {/* ★ รอบที่ 33: Date chip for overdue — ใช้ itemDate (start_date)
+             ★ v3.10.0 รอบที่ 41: ปรับ label จาก "กำหนด" เป็น "เลยกำหนด"
+             เพื่อให้ชัดเจนว่ารายการนี้เลยกำหนดไปแล้ว ไม่ใช่กำหนดการในอนาคต */}
           {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due is-overdue">
               <AlertTriangle width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">กำหนด</span>
+              <span className="yp-today-item-card__chip-label">เลยกำหนด</span>
               {relativeDay(item.itemDate)}
             </span>
           ) : null}
 
-          {/* ★ รอบที่ 33: Date chip for upcoming — ใช้ itemDate */}
-          {isUpcoming && item.itemDate && item.itemDate !== todayStr ? (
+          {/* ★ v3.10.0 รอบที่ 41: Date chip for upcoming — ปรับ label
+             จาก "เริ่ม" เป็น "จะเริ่ม" เพื่อให้ชัดเจนว่าเป็นวันในอนาคต
+             และไม่แสดงถ้ามี scheduleLabel แล้ว (scheduleLabel จะบอก
+             วันที่และเวลาใน footer อยู่แล้ว ไม่ต้องซ้ำ) */}
+          {isUpcoming && item.itemDate && item.itemDate !== todayStr && !scheduleLabel ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due">
               <CalIcon width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">เริ่ม</span>
+              <span className="yp-today-item-card__chip-label">จะเริ่ม</span>
               {relativeDay(item.itemDate)}
             </span>
           ) : null}
@@ -1039,32 +1177,69 @@ function TodayItemCard({
             </span>
           ) : null}
         </div>
+
+        {/* ★ v3.10.0 รอบที่ 41: Footer row — แยกจาก meta ด้วยเส้นบางๆ
+           - ซ้าย: "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
+           - ขวา: schedule label (today/upcoming ที่มีเวลา)
+           ใช้ justify-content: space-between เพื่อจัดวาง */}
+        {showFooter ? (
+          <div className="yp-today-item-card__footer">
+            {isSubItem && item.parentEvent ? (
+              <span className="yp-today-item-card__source">
+                จากกลุ่ม: {item.parentEvent.title}
+              </span>
+            ) : null}
+            {scheduleLabel ? (
+              <span className="yp-today-item-card__schedule">
+                <Clock width={12} height={12} />
+                {scheduleLabel}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
-      {/* ── ★ v3.10.0 รอบที่ 40: Time chip ที่มุมบน-ขวาของการ์ด ──
-         ย้ายออกจาก meta row มาอยู่ที่ top-right corner — เหมือน Things 3
-         ที่เวลาอยู่ขวาสุดของ title row ทำให้มองเห็นได้ทันทีโดยไม่ต้องสแกน
-         ไปที่ meta row ด้านล่าง ใช้ absolute positioning เพื่อให้ไม่
-         กระทบกับ flex layout ของ card body */}
-      {item.startTime ? (
-        <span
-          className="yp-today-item-card__chip yp-today-item-card__chip--time"
-          aria-label={`เวลาเริ่ม ${item.startTime}`}
-        >
-          <Clock width={12} height={12} />
-          {item.startTime}
-        </span>
-      ) : null}
-
-      {/* ── Detail link ── */}
-      <Link
-        href={detailHref}
-        className="yp-today-item-card__link"
-        aria-label={`ดูรายละเอียด: ${item.title}`}
-        onClick={(e) => e.stopPropagation()}
+      {/* ── ★ v3.10.0 รอบที่ 41: 3-dot menu (แทน chevron arrow) ──
+         pattern มาตรฐานสากลสำหรับ "actions menu" (Material Design,
+         iOS, Linear, Notion ใช้กันหมด) กดแล้วเปิด popup ใต้ปุ่ม */}
+      <button
+        type="button"
+        className="yp-today-item-card__menu"
+        aria-label="ตัวเลือกเพิ่มเติม"
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (isMenuOpen) onCloseMenu();
+          else onOpenMenu(item);
+        }}
       >
-        <ChevronRight width={14} height={14} />
-      </Link>
+        <MoreHorizontal width={16} height={16} />
+      </button>
+
+      {/* ── ★ v3.10.0 รอบที่ 41: Popup menu (เปิดจาก 3-dot button) ──
+         - overlay: จับ click นอก popup เพื่อปิด (position: fixed เต็มจอ)
+         - popup: เมนูขนาดเล็ก มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet */}
+      {isMenuOpen ? (
+        <>
+          <div
+            className="yp-today-item-card__popup-overlay"
+            onClick={(e) => { e.stopPropagation(); onCloseMenu(); }}
+            aria-hidden="true"
+          />
+          <div className="yp-today-item-card__popup" role="menu">
+            <button
+              type="button"
+              className="yp-today-item-card__popup-item"
+              role="menuitem"
+              onClick={(e) => { e.stopPropagation(); onViewMore(item); }}
+            >
+              <Eye width={14} height={14} />
+              ดูเพิ่มเติม
+            </button>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
