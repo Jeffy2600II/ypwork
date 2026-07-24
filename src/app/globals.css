@@ -20,10 +20,95 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r39 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r40 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 26 → 39
+   Senior CSS Architect Refactor — Round 26 → 40
    ─────────────────────────────────────────────────────────────
+   ★ v3.10.0 รอบที่ 40: Pure White Card Redesign (Platform-Aligned)
+   ปัญหา: การ์ดใน 3 section ของหน้า Today ยังดูไม่เข้ากับแพลตฟอร์ม
+   ของเราจริงๆ มี decoration มากเกินไป (accent bar, accent blob,
+   layered wash, accent guide line สำหรับ subitem) — ทำให้การ์ด
+   รู้สึกเหมือน "คนละแพลตฟอร์ม" กับส่วนอื่นๆ ของแอป และไม่สะอาดตา
+   เท่าที่ควร
+
+   งานวิจัยที่ใช้ (วิจัยเพื่อหาสิ่งที่เหมาะกับแพลตฟอร์มเรา ไม่ก็อป 100%):
+   - แพลตฟอร์มเราเอง: ใช้ pure white (var(--yp-bg-card)) เป็นพื้นหลัง
+     หลักของ card ทุกชนิด ใช้ --yp-text-xs (12px) เป็น metadata
+     typography มาตรฐาน ใช้ --yp-bg-card-soft เป็น subtle gray tint
+     สำหรับ hover/active state — การ์ด today ควรเป็นแบบเดียวกัน
+   - Apple Reminders: pure white card, subtle gray hover, no decoration
+     บนตัวการ์ดเอง — ความสะอาดเป็น hero
+   - Things 3: เวลาอยู่ขวาสุดของ title row (top-right corner),
+     ไม่อยู่ใน meta row ทำให้มองเห็นได้ทันที
+   - Notion: sub-item ไม่มี decoration พิเศษ ใช้แค่ indent + label
+     บอก nesting — ไม่ใช้ขอบหรือเส้นนำ
+   - Linear: typography สม่ำเสมอ ใช้ size เดียวทั้งระบบ metadata
+
+   การแก้ (CSS เท่านั้น ไม่เปลี่ยน class):
+
+   1. .yp-today-item-card — Pure white background:
+      • ลบ radial-gradient accent wash ออกจาก background
+      • ใช้ pure var(--yp-bg-card) เท่านั้น — สะอาด โล่ง สบายตา
+      • ลด shadow จาก 2-layer เป็น 1-layer subtle shadow
+      • ลด border-color opacity ลงเล็กน้อย เพื่อความสะอาดตา
+
+   2. .yp-today-item-card::before / ::after — REMOVE ทั้งหมด:
+      • ลบ accent bar ของ non-subitem (เดิม 3px width, 60% opacity)
+      • ลบ accent blob ของทุกการ์ด (เดิม radial gradient มุมบน-ขวา)
+      • ลบ hover state ของ ::before และ ::after ด้วย
+      เหตุผล: decoration เหล่านี้เพิ่ม visual noise ไม่ได้ช่วยให้
+      ผู้ใช้เข้าใจเนื้อหา — ตรงข้ามกับหลักการ "สะอาดตา" ที่ผู้ใช้ต้องการ
+
+   3. .yp-today-item-card.is-subitem — REMOVE special treatment:
+      • ลบ accent tint background (เดิม 1.5% alpha)
+      • ลบ ::before accent guide line (เดิม 2px width, 35% opacity)
+      • ลบ hover state ของ ::before
+      • ใช้ pure var(--yp-bg-card) เหมือนการ์ดธรรมดา
+      เหตุผล: badge "รายการย่อย" ก็บอกอยู่แล้ว — ไม่ต้องเพิ่มขอบ
+      หรือเส้นนำใดๆ (ผู้ใช้ยืนยันชัดเจน)
+
+   4. .yp-today-item-card:hover — Subtle gray tint:
+      • เปลี่ยน background จาก accent-tinted → var(--yp-bg-card-soft)
+        (subtle gray นุ่นๆ ไม่ใช่ accent color)
+      • เปลี่ยน border-color จาก accent-tinted → var(--yp-border-default)
+      • ลบ accent shadow — ใช้ subtle shadow ธรรมดา
+      • ลบ transform: translateY(-1px) lift — การ์ดอยู่นิ่ง ไม่ "กระโดด"
+      เหตุผล: accent-tinted hover ทำให้การ์ด "กระโดด" สีเกินไป
+      สำหรับ pure white card hover ควรเป็น subtle gray เหมือน
+      Apple Reminders
+
+   5. .yp-today-item-card__chip--time — Top-right corner:
+      • เปลี่ยนจาก inline chip ใน meta row → absolute positioning
+        ที่มุมบน-ขวาของการ์ด (top: 16px, right: ~52px)
+      • ทำให้เวลาอยู่ที่ตำแหน่งที่มองเห็นได้ทันที (top-right เป็นจุด
+        ที่ตาสแกนถึงเร็วที่สุดในการ์ด)
+      • ใช้ --yp-text-xs (12px) font-size, padding 4px 10px
+      • Reserve พื้นที่ผ่าน --has-time CSS variable บน body
+        (padding-right: calc(var(--has-time, 0) * 72px))
+
+   6. Typography — ใช้ --yp-text-xs (12px) ทุกที่ในการ์ด:
+      • .yp-today-item-card__chip: 11px → var(--yp-text-xs) (12px)
+      • .yp-today-item-card__subtag-badge: 10px → var(--yp-text-xs) (12px)
+      • .yp-today-item-card__subtag-group: 11px → var(--yp-text-xs) (12px)
+      • .yp-today-item-card__chip-label: 11px → var(--yp-text-xs) (12px)
+      เหตุผล: ใช้ size มาตรฐานของระบบ ไม่ใช่ custom size — ทำให้
+      การ์ดเป็นไปในทิศทางเดียวกับแพลตฟอร์ม
+
+   7. Chip padding — เพิ่ม breathing room เล็กน้อย:
+      • padding จาก 3px 8px → 4px 10px (สบายตาขึ้น)
+      • gap ใน chip จาก 4px → 5px
+
+   8. .yp-today-item-card__subtag-badge — Subtle indicator:
+      • background opacity 5% → 4% (จางลง)
+      • border opacity 10% → 8% (จางลง)
+      • color blend 70% accent → 60% accent + 40% text-muted
+        (ลดความเด่นของสี accent ลงอีก)
+      • padding 1px 7px → 2px 8px (slightly more balanced)
+
+   หลังปรับ: การ์ดใน 3 section ของหน้า Today ดูสะอาด โล่ง สบายตา
+   เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา — เน้น "ขาว" เป็นหลัก
+   ลด decoration ทุกชนิด ใช้ typography มาตรฐานของระบบ
+
    ★ v3.10.0 รอบที่ 39: Card Redesign + Chip Cleanup (World-Class Polish)
    ปัญหา: การ์ดใน 3 section ของหน้า Today ดูรก ไม่เป็นมืออาชีพ
    1. "ขอบด้านซ้ายของการ์ดรายการย่อย" — ใช้ border-left 3px solid accent
@@ -2167,104 +2252,55 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (รายการเดี่ยว + รายการย่อยในกลุ่ม) ── */
-/* ★ v3.10.0 รอบที่ 28: เหมือน TaskRow — standalone card with border + shadow
-   2-line layout: title + pill chips (เหมือนแพลตฟอร์มขนาดใหญ่)
-   ★ v3.10.0 รอบที่ 37: เพิ่ม layered accent wash + accent bar + accent blob
-   เหมือน .yp-event-card เพื่อให้การ์ดเข้ากับ hero และระบบออกแบบ
-   ไม่ใช่กล่องขาวลอยๆ ที่แปลกแยก */
+/* ── Today Item Card (รายการเดี่ยว + รายการย่อยในกลุ่ม) ──
+   ★ v3.10.0 รอบที่ 40: Pure White Card Redesign
+   ลด decoration ทุกชนิดออกจากการ์ด — ใช้ pure white background,
+   subtle gray hover, ไม่มี accent bar / accent blob / accent guide line
+   เน้น "ความขาวสะอาด" เป็น hero ของการ์ด เหมือน Apple Reminders / Things 3
+   typography ใช้ --yp-text-xs (12px) ทุกที่ — เป็นไปในทิศทางเดียวกับแพลตฟอร์ม */
 .yp-today-item-card {
   display: flex;
   align-items: flex-start;
   gap: var(--yp-space-3);
   padding: var(--yp-space-4) var(--yp-space-4);
-  /* ★ v3.10.0 รอบที่ 37: Layered background เหมือน .yp-event-card
-     มี radial accent wash ที่มุมบน-ขวา บนพื้น white card
-     ทำให้การ์ดมี "characteristic" ที่สัมพันธ์กับ accent ของงาน */
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent) 0%, transparent 50%),
-    var(--yp-bg-card);
+  /* ★ v3.10.0 รอบที่ 40: Pure white background — ลด radial accent wash ออก
+     ใช้ pure var(--yp-bg-card) เท่านั้น สะอาด โล่ง สบายตา */
+  background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   cursor: pointer;
-  /* ★ v3.10.0 รอบที่ 37: เพิ่ม position relative + overflow hidden
-     สำหรับ ::before (accent bar) และ ::after (accent blob) */
+  /* ★ v3.10.0 รอบที่ 40: ยังคง position: relative สำหรับ absolute positioning
+     ของ time chip ที่มุมบน-ขวา แต่ลบ overflow: hidden ออกเพราะไม่มี ::before
+     หรือ ::after ที่ต้อง clip แล้ว */
   position: relative;
-  overflow: hidden;
   transition:
     background 160ms var(--yp-ease-m3-decelerate),
     border-color var(--yp-t-fast),
-    box-shadow var(--yp-t-fast),
-    transform 180ms var(--yp-ease-standard);
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03);
+    box-shadow var(--yp-t-fast);
+  /* ★ v3.10.0 รอบที่ 40: ลด shadow จาก 2-layer เป็น 1-layer subtle shadow
+     การ์ดดู "วางอยู่" บนพื้นผิว ไม่ "ลอย" อยู่ */
+  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
 }
 
-/* ★ v3.10.0 รอบที่ 37: Accent bar ที่ขอบซ้าย (เหมือน .yp-event-card::before)
-   เฉพาะ non-subitem — subitem มี accent guide เป็น ::before ของตัวเอง (รอบที่ 39)
-   bar จะขยายเต็มสูงเมื่อ hover เหมือน .yp-event-card
-   ★ v3.10.0 รอบที่ 39: ลด opacity จาก 0.75 → 0.6 ลด visual weight ของ accent bar
-   ไม่ให้โดดเด่นเกินไป — การ์ดสะอาดตามากขึ้น */
-.yp-today-item-card:not(.is-subitem)::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 18px; bottom: 18px;
-  width: 3px;
-  background: var(--accent, var(--yp-indigo-500));
-  border-radius: 0 3px 3px 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.6;
-  transition: top 200ms var(--yp-ease-standard), bottom 200ms var(--yp-ease-standard), opacity 200ms;
-}
-
-.yp-today-item-card:not(.is-subitem):hover::before {
-  top: 0;
-  bottom: 0;
-  opacity: 1;
-}
-
-/* ★ v3.10.0 รอบที่ 37: Accent blob ที่มุมบน-ขวา (เหมือน .yp-event-card::after)
-   เป็นจุดไฮไลต์ที่ทำให้การ์ดดูมีมิติ เหมือนมีแสงตกกระทบ
-   ★ v3.10.0 รอบที่ 39: ลด opacity จาก 0.05 → 0.04 — subtler highlight
-   ลด visual noise ให้การ์ดดูสะอาดตามากขึ้น */
-.yp-today-item-card::after {
-  content: '';
-  position: absolute;
-  top: -40px; right: -40px;
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent, #4F46E5) 0%, transparent 70%);
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
-  transition: opacity var(--yp-t-fast);
-}
-
-.yp-today-item-card:hover::after {
-  opacity: 0.09;
-}
+/* ★ v3.10.0 รอบที่ 40: REMOVE ทั้งหมด — ไม่มี accent bar และ accent blob แล้ว
+   เหตุผล: decoration เหล่านี้เพิ่ม visual noise ไม่ได้ช่วยให้ผู้ใช้เข้าใจเนื้อหา
+   ตรงข้ามกับหลักการ "สะอาดตา" ที่ผู้ใช้ต้องการ
+   (.yp-today-item-card:not(.is-subitem)::before, ::after, hover::before, hover::after
+   ถูกลบทั้งหมด — ไม่มีใน CSS อีกต่อไป) */
 
 .yp-today-item-card:hover {
-  /* ★ v3.10.0 รอบที่ 37: Hover แบบ accent-tinted เหมือน .yp-event-card
-     ใช้ accent ของงาน (ไม่ใช่ indigo ตายตัว) ทำให้แต่ละการ์ดมีสีเฉพาะตัว
-     + เพิ่ม lift แบบ subtle (translateY -1px) ให้การ์ดดู "ลอย" เหมือนกดได้ */
-  background: color-mix(in srgb, var(--accent, #4F46E5) 4%, var(--yp-bg-card));
-  border-color: color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
-  transform: translateY(-1px);
+  /* ★ v3.10.0 รอบที่ 40: Subtle gray tint hover — เปลี่ยนจาก accent-tinted
+     เป็น var(--yp-bg-card-soft) (subtle gray นุ่นๆ) เหมือน Apple Reminders
+     การ์ดอยู่นิ่ง ไม่ "กระโดด" สี ไม่ "ลอย" ขึ้น — สะอาดตา */
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-default);
+  box-shadow: 0 1px 3px rgba(30, 27, 70, 0.06);
 }
 
-/* ★ v3.10.0 รอบที่ 39: Hover สำหรับ subitem — ปรับให้ใช้ layered tint
-   background แบบเดียวกับ non-subitem แต่มี accent tint อ่อน ๆ ของตัวเอง
-   (ไม่ใช้ border-left-color อีกต่อไปเพราะเราลบ border-left ทิ้งแล้ว)
-   เพิ่มเส้นนำให้เข้มขึ้นเมื่อ hover เพื่อ feedback ที่ละมุน */
-.yp-today-item-card.is-subitem:hover {
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 5%, transparent) 0%, transparent 50%),
-    color-mix(in srgb, var(--accent, #4F46E5) 3%, var(--yp-bg-card));
-}
+/* ★ v3.10.0 รอบที่ 40: Subitem = same as regular card
+   ไม่มี special treatment อีกต่อไป — badge "รายการย่อย" ก็บอกอยู่แล้ว
+   ไม่ต้องเพิ่มขอบ, เส้นนำ, accent tint ใดๆ (ผู้ใช้ยืนยันชัดเจน)
+   (.yp-today-item-card.is-subitem และ ::before, :hover::before ถูกลบแล้ว) */
 
 .yp-today-item-card.is-done {
   opacity: 0.5;
@@ -2334,7 +2370,11 @@
   flex: 1;
   min-width: 0;
   padding-top: 1px;
-  /* ★ v3.10.0 รอบที่ 37: z-index 1 ให้อยู่เหนือ ::after blob ของ parent */
+  /* ★ v3.10.0 รอบที่ 40: Reserve พื้นที่ที่มุมบน-ขวาของ body สำหรับ time chip
+     ที่ย้ายมาอยู่ที่ top-right corner — ใช้ --has-time CSS variable
+     (set ใน JSX เป็น '1' ถ้ามี startTime, '0' ถ้าไม่มี)
+     padding-right: 0 ถ้าไม่มีเวลา, 72px ถ้ามีเวลา */
+  padding-right: calc(var(--has-time, 0) * 72px);
   position: relative;
   z-index: 1;
 }
@@ -2367,20 +2407,19 @@
   flex-wrap: wrap;
 }
 
-/* ── Chips (เหมือน yp-task-row__chip — pill-shaped with background) ──
-   ★ v3.10.0 รอบที่ 39: ปรับ chip ทั้งระบบให้กระชับขึ้น ลด visual noise
-   - ลด padding จาก 4px 10px → 3px 8px (กระชับ)
-   - ลด font-size จาก text-xs (12px) → 11px (เล็กลง)
-   - ลด gap ใน chip จาก 5px → 4px
-   - ลด letter-spacing จาก 0.01em → 0 (ไม่จำเป็น ลดองค์ประกอบนุ่น ๆ) */
+/* ── Chips (pill-shaped, platform-aligned typography) ──
+   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) ทุกที่ — เป็นไปในทิศทาง
+   เดียวกับแพลตฟอร์มของเรา ไม่ใช้ custom 11px อีกต่อไป
+   เพิ่ม padding จาก 3px 8px → 4px 10px (สบายตาขึ้น)
+   เพิ่ม gap ใน chip จาก 4px → 5px */
 .yp-today-item-card__chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 5px;
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
-  padding: 3px 8px;
+  padding: 4px 10px;
   background: var(--yp-bg-card-soft);
   border: 1px solid transparent;
   border-radius: var(--yp-radius-pill);
@@ -2388,8 +2427,8 @@
 }
 
 .yp-today-item-card__chip svg {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   stroke-width: 2;
   flex-shrink: 0;
 }
@@ -2442,13 +2481,36 @@
   padding-right: 4px;
 }
 
-/* Time chip — ★ v3.10.0 รอบที่ 39: คงไว้เป็น pill เด่น เพราะเป็น info สำคัญ
-   แต่ลด border opacity ลง เพื่อความสะอาดตามากขึ้น */
+/* Time chip — ★ v3.10.0 รอบที่ 40: Time chip ย้ายไปอยู่ที่มุมบน-ขวาของการ์ด
+   ใช้ absolute positioning แทนที่จะเป็น inline chip ใน meta row
+   ทำให้เวลาอยู่ที่ตำแหน่งที่มองเห็นได้ทันที (top-right เป็นจุดที่ตา
+   สแกนถึงเร็วที่สุดในการ์ด) เหมือน Things 3 ที่เวลาอยู่ขวาสุดของ title row
+   จัดให้อยู่ติดกับ chevron ทางขวา (right: 52px = card padding 16 +
+   chevron width 28 + gap 8)
+   top: 16px = aligned กับ padding-top ของการ์ด ทำให้ตัว chip อยู่ในแนว
+   เดียวกับ title row */
 .yp-today-item-card__chip--time {
+  position: absolute;
+  top: var(--yp-space-4);
+  right: calc(var(--yp-space-4) + 28px + var(--yp-space-2));
   color: var(--yp-text-heading);
   background: var(--yp-bg-card-soft);
   border-color: transparent;
   font-weight: var(--yp-fw-semibold);
+  font-size: var(--yp-text-xs);
+  padding: 4px 10px;
+  z-index: 2;
+  flex-shrink: 0;
+  /* ★ v3.10.0 รอบที่ 40: hover state — subtle indigo tint เพื่อ feedback
+     เหมือน chip อื่นๆ ในระบบ */
+  transition: background var(--yp-t-fast), color var(--yp-t-fast);
+}
+
+/* ★ v3.10.0 รอบที่ 40: hover ของ time chip — subtle indigo tint
+   เหมือน .yp-today-item-card__link:hover ที่ใช้ indigo-soft */
+.yp-today-item-card:hover .yp-today-item-card__chip--time {
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
 }
 
 /* Est time chip — ★ v3.10.0 รอบที่ 39: ghost style เพราะเป็น metadata
@@ -2463,13 +2525,15 @@
 
 /* Chip label — ★ v3.10.0 รอบที่ 39: ซ่อน label ในชิป time/est/due เพราะ
    icon ก็บอกอยู่แล้วว่าเป็นข้อมูลอะไร (clock = เวลา, calendar = วันที่,
-   alert = เลยกำหนด) — ลด redundancy ลด visual noise */
+   alert = เลยกำหนด) — ลด redundancy ลด visual noise
+   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 11px —
+   เป็นไปในทิศทางเดียวกับแพลตฟอร์ม */
 .yp-today-item-card__chip-label {
   color: var(--yp-text-faint);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  font-size: 11px;
+  font-size: var(--yp-text-xs);
   margin-right: -2px;
 }
 
@@ -2499,9 +2563,10 @@
 .yp-today-item-card__chip--due.is-overdue .yp-today-item-card__chip-label { display: none; }
 
 /* From parent chip — ★ v3.10.0 รอบที่ 39: ghost style เพราะเป็น metadata
-   สาระ แค่บอกว่ารายการนี้มาจากกลุ่มไหน */
+   สาระ แค่บอกว่ารายการนี้มาจากกลุ่มไหน
+   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 11px */
 .yp-today-item-card__chip--from {
-  font-size: 11px;
+  font-size: var(--yp-text-xs);
   color: var(--accent, var(--yp-indigo-500));
   font-weight: var(--yp-fw-medium);
   background: transparent;
@@ -2536,94 +2601,55 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 33: Sub-item indicator + Card list hint
+   ★ v3.10.0 รอบที่ 40: Sub-item indicator (minimal — no decoration)
 
    การออกแบบ:
    - รายการย่อยมีแถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
    - ชื่อกลุ่มเป็น Link ที่ hover ได้ คลิกไปหน้ารายละเอียด
 
-   ★ v3.10.0 รอบที่ 39: Redesign sub-item indicator ทั้งหมด
-   ปัญหาเดิม: ใช้ border-left: 3px solid accent ทึบ ๆ หนา ๆ — เวลา
-   หลาย ๆ การ์ดซ้อนกันในกลุ่ม ขอบนี้จะรวมกันเป็นแถบสียาว ๆ ขัดตามาก
-   ดูหยาบ ไม่ละมุน ไม่เป็นมืออาชีพ
+   ★ v3.10.0 รอบที่ 40: REMOVE ทุก decoration ของ subitem
+   ปัญหาเดิม: มี accent tint background + accent guide line (2px) ที่
+   ขอบซ้าย ทำให้การ์ดรายการย่อยดูต่างจากการ์ดธรรมดา — เพิ่ม visual noise
 
-   แก้ใหม่ (inspired by Linear, Notion, Things 3, Asana):
-   1. ลบ border-left 3px solid ออกทั้งหมด
-   2. ใช้ layered background แบบเดียวกับ non-subitem แต่เพิ่ม
-      accent tint อ่อนมาก (1.5% alpha) เพื่อบอก nesting แบบนุ่น ๆ
-      ไม่ใช้ขอบหนา
-   3. เพิ่ม ::before accent guide line บาง ๆ (2px, 35% opacity)
-      สั้นกว่าความสูงการ์ด (top: 12px, bottom: 12px) คล้าย "tab marker"
-      ของ Linear ไม่ใช่ "ขอบเต็ม"
-   4. Hover: เส้นนำขยายเต็มความสูง + เข้มขึ้น slightly (60% opacity)
-      เป็น micro-interaction ที่ละมุน
-   ═══════════════════════════════════════════════════════════════ */
-
-.yp-today-item-card.is-subitem {
-  /* ★ v3.10.0 รอบที่ 39: ลบ border-left 3px solid accent
-     แทนที่ด้วย layered background ที่มี accent tint อ่อน ๆ (1.5%)
-     ทำให้รายการย่อย "ต่างจาก" รายการหลักแบบนุ่น ๆ ผ่านสีพื้น
-     ไม่ใช้ขอบหนา */
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 3%, transparent) 0%, transparent 50%),
-    color-mix(in srgb, var(--accent, #4F46E5) 1.5%, var(--yp-bg-card));
-  /* padding-left กลับเป็นค่าปกติ เพราะไม่มี border-left ที่ต้องชดเชย */
-  padding-left: var(--yp-space-4);
-}
-
-/* ★ v3.10.0 รอบที่ 39: Thin accent guide line (แทน border-left หนา)
-   เป็นเส้นบาง ๆ 2px, 35% opacity, สั้นกว่าความสูงการ์ด (top/bottom 12px)
-   คล้าย Linear/Notion "tab marker" ไม่ใช่ "ขอบเต็ม"
-   เมื่อ hover เส้นจะขยายเต็มความสูง + เข้มขึ้น slightly */
-.yp-today-item-card.is-subitem::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 35%, transparent);
-  border-radius: 0 2px 2px 0;
-  pointer-events: none;
-  z-index: 0;
-  transition:
-    top 200ms var(--yp-ease-standard),
-    bottom 200ms var(--yp-ease-standard),
-    background 200ms var(--yp-ease-standard);
-}
-
-.yp-today-item-card.is-subitem:hover::before {
-  top: 0;
-  bottom: 0;
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 60%, transparent);
-}
+   แก้ใหม่: badge "รายการย่อย" ก็บอกอยู่แล้วว่าเป็นรายการย่อย — ไม่ต้องเพิ่ม
+   ขอบ, เส้นนำ, accent tint ใดๆ (ผู้ใช้ยืนยันชัดเจนว่า "มันมีข้อความบอกแล้ว
+   ว่าเป็นรายการย่อย ก็ไม่ต้องเพิ่มอะไรนอกเหนือจากนั้น")
+   ผล: การ์ดรายการย่อยดูเหมือนการ์ดธรรมดาทุกประการ แค่มี badge เล็กๆ บอก
+   ═══════════════════════════════════════════════════════════════
+   (.yp-today-item-card.is-subitem, ::before, :hover::before ถูกลบแล้ว
+   ในส่วนของ .yp-today-item-card ด้านบน — subitem ใช้ pure white background
+   เหมือนการ์ดธรรมดา) */
 
 .yp-today-item-card__subtag {
   display: flex;
   align-items: center;
   gap: 6px;
-  /* ★ v3.10.0 รอบที่ 39: ลด margin-bottom จาก --yp-space-2 (8px) → 4px
-     ให้ subtag ใกล้ title มากขึ้น สร้าง visual grouping ที่แน่นแฟ้น */
-  margin-bottom: 4px;
+  /* ★ v3.10.0 รอบที่ 40: ลด margin-bottom จาก 4px → 3px — ให้ subtag ใกล้
+     title มากขึ้นอีก เนื่องจากไม่มี decoration อื่นๆ แล้ว การชิดกันช่วยให้
+     badge + group ดูเป็น "inline label" ของ title */
+  margin-bottom: 3px;
   flex-wrap: wrap;
 }
 
 .yp-today-item-card__subtag-badge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  font-size: 10px;
-  /* ★ v3.10.0 รอบที่ 39: ลดจาก bold → semibold ลด visual weight */
+  gap: 4px;
+  /* ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 10px —
+     เป็นไปในทิศทางเดียวกับแพลตฟอร์ม */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-semibold);
-  /* ★ v3.10.0 รอบที่ 39: blend color กับ text-muted ลดความเด่น
-     ไม่ใช้ accent solid อีกต่อไป */
-  color: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 70%, var(--yp-text-muted));
-  /* ★ v3.10.0 รอบที่ 39: ลด background opacity จาก 10% → 5%
-     ลด border opacity จาก 18% → 10% — ลด visual weight โดยรวม */
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
-  /* ★ v3.10.0 รอบที่ 39: ลด padding จาก 1px 8px → 1px 7px (กระชับขึ้น) */
-  padding: 1px 7px;
+  /* ★ v3.10.0 รอบที่ 40: ลด color blend จาก 70% accent → 60% accent
+     + 40% text-muted — ลดความเด่นของ accent ลงอีก เพราะ badge เป็นแค่
+     "indicator" ไม่ใช่ info หลัก */
+  color: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 60%, var(--yp-text-muted));
+  /* ★ v3.10.0 รอบที่ 40: ลด background opacity จาก 5% → 4%
+     ลด border opacity จาก 10% → 8% — จางลงอีก สะอาดตา */
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
+  /* ★ v3.10.0 รอบที่ 40: ปรับ padding จาก 1px 7px → 2px 8px —
+     สมดุลขึ้น (เท่ากับ chip อื่นๆ ในระบบ) */
+  padding: 2px 8px;
   border-radius: var(--yp-radius-pill);
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -2631,21 +2657,22 @@
 }
 
 .yp-today-item-card__subtag-badge svg {
-  width: 10px;
-  height: 10px;
-  opacity: 0.75;
+  width: 11px;
+  height: 11px;
+  opacity: 0.7;
 }
 
 .yp-today-item-card__subtag-group {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  /* ★ v3.10.0 รอบที่ 39: ลดจาก text-xs (12px) → 11px (เล็กลง)
-     ลดจาก medium → normal ลด visual weight */
-  font-size: 11px;
+  gap: 3px;
+  /* ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 11px —
+     เป็นไปในทิศทางเดียวกับแพลตฟอร์ม
+     ★ v3.10.0 รอบที่ 40: เปลี่ยน color จาก text-faint → text-muted
+     (อ่านง่ายขึ้น เพราะเป็น link ที่ผู้ใช้อาจต้องการคลิก) */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-normal);
-  /* ★ v3.10.0 รอบที่ 39: เปลี่ยนจาก muted → faint (จางลง) */
-  color: var(--yp-text-faint);
+  color: var(--yp-text-muted);
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;

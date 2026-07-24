@@ -1,9 +1,57 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r39 — Card Redesign + Chip Cleanup)
+// YP WORK · Today Dashboard (v3.10.0-r40 — Pure White Card Redesign)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 39: ปรับปรุงการออกแบบการ์ดใน 3 section ของหน้า Today
+// ★ v3.10.0 รอบที่ 40: Redesign การ์ดทั้งหมดใน 3 section ของหน้า Today
+//   โดยเน้น "ความขาวสะอาด" (pure white) เป็นหลัก — ลด visual noise
+//   ทุกชนิดออกจากการ์ด เพื่อให้การ์ดดูสะอาดตา มีพื้นที่ว่างมากขึ้น
+//   แต่ไม่มากเกินไป ผู้ใช้รู้สึกดีเมื่อใช้งานจริง
+//
+//   หลักการออกแบบ (วิจัยเพื่อให้เข้ากับแพลตฟอร์มของเรา ไม่ก็อปปี้
+//   แพลตฟอร์มอื่น 100%):
+//
+//   1. "ความขาว" เป็น hero ของการ์ด — พื้นหลัง pure white (var(--yp-bg-card))
+//      ไม่มี radial accent wash, ไม่มี accent blob, ไม่มี accent bar
+//      เพราะสิ่งเหล่านี้เป็น "decoration" ที่เพิ่ม visual noise ไม่ได้
+//      ช่วยให้ผู้ใช้เข้าใจเนื้อหา — ตรงข้ามกับหลักการ "สะอาดตา" ที่
+//      ผู้ใช้ต้องการ แพลตฟอร์มใหญ่ๆ อย่าง Apple Reminders, Things 3,
+//      Notion ใช้ pure white เป็นพื้นหลังการ์ดเป็นหลัก
+//
+//   2. "รายการย่อย" ไม่มีขอบ ไม่มีเส้นนำ ไม่มี accent tint
+//      เพราะข้อความ "รายการย่อย" badge ก็บอกอยู่แล้ว — ไม่ต้องเพิ่ม
+//      สิ่งอื่นใดนอกเหนือจากนั้น การ์ดรายการย่อยดูเหมือนการ์ดธรรมดา
+//      ทุกประการ แค่มี badge เล็กๆ บอกว่าเป็นรายการย่อย
+//
+//   3. "เวลา" ย้ายไปที่มุมบน-ขวาของการ์ด (top-right corner)
+//      ไม่อยู่ใน meta row แบบเดิม — ทำให้ meta row โล่งขึ้น และเวลา
+//      อยู่ที่ตำแหน่งที่สามารถมองเห็นได้ทันที (มุมบน-ขวาเป็นจุดที่ตา
+//      สแกนไปถึงเร็วที่สุดในการ์ด) — เหมือน Things 3 ที่เวลาอยู่ที่
+//      ขวาสุดของ title row
+//
+//   4. "Typography" ใช้ --yp-text-xs (12px) ทุกที่ในการ์ด
+//      ไม่ใช้ค่า 11px หรือ 10px แบบ custom อีกต่อไป — เพื่อให้
+//      เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา (ที่ใช้ --yp-text-xs
+//      เป็นหลัก) การ์ดจะได้ไม่รู้สึกเหมือน "คนละแพลตฟอร์ม" กับ
+//      ส่วนอื่นๆ ของแอป
+//
+//   5. "Hover" ใช้ subtle gray tint (var(--yp-bg-card-soft))
+//      ไม่ใช้ accent-tinted hover — เพราะ accent-tinted hover ทำให้
+//      การ์ด "กระโดด" สีเกินไปเวลา hover ดูไม่สะอาดตา สำหรับ
+//      ระบบเราที่เน้น pure white เป็นหลัก hover ควรเป็น subtle gray
+//      เหมือน Apple Reminders ที่ hover แค่เปลี่ยนเป็น gray นุ่นๆ
+//
+//   6. "Shadow" ลดเหลือ subtle shadow ชั้นเดียว
+//      ไม่ใช้ 2-layer shadow แบบเดิม เพราะ 2-layer ทำให้การ์ดดู
+//      "ยกขึ้น" เกินไป สำหรับ pure white card แบบเรา shadow เดียว
+//      บางๆ พอ — การ์ดดู "วางอยู่" บนพื้นผิว ไม่ใช่ "ลอย" อยู่
+//
+//   สรุป: การ์ดใน 3 section ของหน้า Today จะดูสะอาด โล่ง สบายตา
+//   เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา — เน้น "ขาว" เป็นหลัก
+//   ลด decoration ทุกชนิด ใช้ typography มาตรฐานของระบบ
+//   ผู้ใช้รู้สึกดีเมื่อใช้งานจริง
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 39: Card Redesign + Chip Cleanup (World-Class Polish)
 //   ให้สะอาด ละมุน และเป็นมืออาชีพระดับโลก โดยใช้งานวิจัยจาก
 //   แพลตฟอร์มใหญ่ๆ (Linear, Notion, Things 3, Todoist, Apple Reminders,
 //   Asana, Trello) เป็นแรงบันดาลใจ — แต่ยังคงไว้ซึ่งเอกลักษณ์
@@ -878,7 +926,13 @@ function TodayItemCard({
   return (
     <div
       className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}`}
-      style={{ ['--accent' as string]: accent }}
+      style={{
+        ['--accent' as string]: accent,
+        // ★ v3.10.0 รอบที่ 40: ส่ง --has-time ให้ CSS เพื่อ reserve พื้นที่
+        //   ที่มุมบน-ขวาของการ์ดสำหรับ time chip — ถ้าไม่มีเวลา ก็ไม่ต้อง
+        //   reserve พื้นที่ (title ใช้พื้นที่เต็มได้)
+        ['--has-time' as string]: item.startTime ? '1' : '0',
+      }}
       role="button"
       tabIndex={0}
       onClick={() => onOpenStatusPicker(item)}
@@ -894,9 +948,11 @@ function TodayItemCard({
         style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
       />
 
-      {/* ── Body (title + chips) ── */}
+      {/* ── Body (title + chips — ไม่มี time chip แล้ว) ── */}
       <div className="yp-today-item-card__body">
-        {/* ★ รอบที่ 33: แถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้ */}
+        {/* ★ รอบที่ 33: แถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
+           ★ v3.10.0 รอบที่ 40: badge เล็กลง ไม่เด่น เพราะแค่บอกว่าเป็น
+             รายการย่อย ไม่ต้องเพิ่ม decoration อื่นๆ (ขอบ เส้นนำ ฯลฯ) */}
         {isSubItem && item.parentEvent ? (
           <div className="yp-today-item-card__subtag">
             <span className="yp-today-item-card__subtag-badge">
@@ -938,14 +994,9 @@ function TodayItemCard({
             </span>
           ) : null}
 
-          {/* Time chip */}
-          {item.startTime ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--time">
-              <Clock width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">เวลาเริ่ม</span>
-              {item.startTime}
-            </span>
-          ) : null}
+          {/* ★ v3.10.0 รอบที่ 40: Time chip ย้ายออกจาก meta ไปอยู่ที่มุม
+             บน-ขวาของการ์ดแทน — ทำให้ meta row โล่งขึ้น และเวลาอยู่ที่
+             ตำแหน่งที่มองเห็นได้ทันที */}
 
           {/* Est time chip */}
           {item.estimatedTime ? (
@@ -989,6 +1040,21 @@ function TodayItemCard({
           ) : null}
         </div>
       </div>
+
+      {/* ── ★ v3.10.0 รอบที่ 40: Time chip ที่มุมบน-ขวาของการ์ด ──
+         ย้ายออกจาก meta row มาอยู่ที่ top-right corner — เหมือน Things 3
+         ที่เวลาอยู่ขวาสุดของ title row ทำให้มองเห็นได้ทันทีโดยไม่ต้องสแกน
+         ไปที่ meta row ด้านล่าง ใช้ absolute positioning เพื่อให้ไม่
+         กระทบกับ flex layout ของ card body */}
+      {item.startTime ? (
+        <span
+          className="yp-today-item-card__chip yp-today-item-card__chip--time"
+          aria-label={`เวลาเริ่ม ${item.startTime}`}
+        >
+          <Clock width={12} height={12} />
+          {item.startTime}
+        </span>
+      ) : null}
 
       {/* ── Detail link ── */}
       <Link
