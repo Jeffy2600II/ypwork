@@ -1,7 +1,24 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r41 — Card Menu + Footer Redesign)
+// YP WORK · Today Dashboard (v3.10.0-r42 — Footer Badge + Dot Removal)
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 42: ตามคำขอผู้ใช้ 3 ข้อ
+//
+//   1. ลบ status dot มุมซ้ายบนออกทั้งหมด (ทั้งการ์ดธรรมดาและรายการย่อย)
+//      — เดิมการ์ดธรรมดายังมี dot อยู่ ผู้ใช้แจ้งว่าอยากเอาออกด้วย
+//      เปลี่ยนสถานะยังทำได้เหมือนเดิมโดยแตะที่ card body ทั้งใบ
+//
+//   2. ย้าย badge "รายการย่อย" จาก subtag row (บนสุดของการ์ด ก่อน title)
+//      ไปอยู่ใน footer row (ล่างสุด) ต่อหน้า "จากกลุ่ม: XXX" — ผู้ใช้
+//      รู้สึกว่าอยู่บนสุดแล้ว "เคืองหูเคืองตา"
+//
+//   3. แก้บัคปุ่ม "ดูหน้าเต็ม" และ "จากกลุ่ม: XXX" ใน detail sheet กดแล้ว
+//      ไม่มีอะไรเกิดขึ้น (แค่ปิด sheet) — root cause อยู่ใน Window
+//      Framework (src/components/framework/window.tsx) ที่เรียก
+//      history.back() ทุกครั้งที่ sheet ปิด ทำให้ยกเลิกการ navigate ที่
+//      Link เพิ่งพาไป — แก้ไขที่ window.tsx จุดเดียว มีผลกับทุก sheet
+//      ในเว็บที่มีลิงก์ข้างใน ไม่ใช่แค่หน้านี้
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 41: ปรับปรุงการ์ดในหน้า Today รอบนี้โดยเน้น
 //   "ลดความสับสน เพิ่มความชัดเจน" เป็นหลักการออกแบบสูงสุด
@@ -1079,35 +1096,14 @@ function TodayItemCard({
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
       aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
     >
-      {/* ── Status dot — เฉพาะการ์ดธรรมดา (รายการย่อยไม่มี) ──
-         ★ v3.10.0 รอบที่ 41: ลบ status dot ออกจากรายการย่อย เพราะ
-           1. badge "รายการย่อย" ก็บอกอยู่แล้ว ไม่ต้องมี indicator ซ้ำ
-           2. มี status dot อยู่มุมซ้ายบนทำให้การ์ดรายการย่อยดูไม่สมดุล
-           3. ผู้ใช้ยังเปลี่ยนสถานะได้โดยคลิกที่ card body */}
-      {!isSubItem ? (
-        <button
-          type="button"
-          className={`yp-today-item-card__dot yp-today-item-card__dot--${item.status}`}
-          aria-label={`เลือกสถานะ — ${statusLabel(item.status)}`}
-          onClick={(e) => { e.stopPropagation(); onOpenStatusPicker(item); }}
-          style={{ border: '2px solid', background: 'transparent', cursor: 'pointer', padding: 0 }}
-        />
-      ) : null}
+      {/* ── ★ v3.10.0 รอบที่ 42: ลบ status dot มุมซ้ายบนออกทั้งหมด (ทั้งการ์ด
+         ธรรมดาและรายการย่อย) ตามคำขอของผู้ใช้ — วงกลมสถานะซ้ำซ้อนกับ
+         status chip ใน meta row อยู่แล้ว และผู้ใช้ยังเปลี่ยนสถานะได้เหมือน
+         เดิมโดยแตะที่ card body ทั้งใบ (onOpenStatusPicker ผูกอยู่กับ
+         card root ด้านล่างอยู่แล้ว) ── */}
 
-      {/* ── Body (badge + title + meta + footer) ── */}
+      {/* ── Body (title + meta + footer) ── */}
       <div className="yp-today-item-card__body">
-        {/* ★ v3.10.0 รอบที่ 41: subtag มีแค่ badge "รายการย่อย"
-           (เดิมมี Link "จากกลุ่ม" ด้วย แต่ย้ายไป footer แล้ว เป็น text
-           ธรรมดาไม่ใช่ link) */}
-        {isSubItem ? (
-          <div className="yp-today-item-card__subtag">
-            <span className="yp-today-item-card__subtag-badge">
-              <Layers width={11} height={11} />
-              รายการย่อย
-            </span>
-          </div>
-        ) : null}
-
         <div className="yp-today-item-card__title">{item.title}</div>
         <div className="yp-today-item-card__meta">
           {/* Status chip */}
@@ -1178,16 +1174,26 @@ function TodayItemCard({
           ) : null}
         </div>
 
-        {/* ★ v3.10.0 รอบที่ 41: Footer row — แยกจาก meta ด้วยเส้นบางๆ
-           - ซ้าย: "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
+        {/* ★ v3.10.0 รอบที่ 42: Footer row — แยกจาก meta ด้วยเส้นบางๆ
+           - ซ้าย: badge "รายการย่อย" (ย้ายมาจากด้านบนสุดของการ์ด — ผู้ใช้
+             รู้สึกว่าอยู่บนสุดแล้ว "เคืองหูเคืองตา") ต่อด้วย
+             "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
            - ขวา: schedule label (today/upcoming ที่มีเวลา)
            ใช้ justify-content: space-between เพื่อจัดวาง */}
         {showFooter ? (
           <div className="yp-today-item-card__footer">
-            {isSubItem && item.parentEvent ? (
-              <span className="yp-today-item-card__source">
-                จากกลุ่ม: {item.parentEvent.title}
-              </span>
+            {isSubItem ? (
+              <div className="yp-today-item-card__footer-left">
+                <span className="yp-today-item-card__subtag-badge">
+                  <Layers width={11} height={11} />
+                  รายการย่อย
+                </span>
+                {item.parentEvent ? (
+                  <span className="yp-today-item-card__source">
+                    จากกลุ่ม: {item.parentEvent.title}
+                  </span>
+                ) : null}
+              </div>
             ) : null}
             {scheduleLabel ? (
               <span className="yp-today-item-card__schedule">

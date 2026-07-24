@@ -2294,14 +2294,9 @@
   box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
 }
 
-/* ★ v3.10.0 รอบที่ 41: Sub-item — ไม่มี status dot ที่มุมซ้ายบน
-   การ์ดรายการย่อยเริ่มที่ body ทันที (ไม่มี space สำหรับ dot ที่หายไป)
-   ใช้ selector :not(.is-subitem) > .yp-today-item-card__body หรือ
-   ใช้ gap แบบเดิมแต่ body จะถูกชดเชยด้วย padding-left ที่เท่ากับ
-   dot width + gap — แต่วิธีที่ง่ายกว่าคือใช้ padding-left ที่เท่ากัน
-   ทั้งสองกรณี เพื่อให้ title อยู่ในแนวเดียวกัน
-   ★ ที่นี่: ใช้ approach "ไม่มี padding-left พิเศษ" เพราะ badge
-   "รายการย่อย" ก็บอกอยู่แล้ว ไม่ต้อง align กับ status dot ของการ์ดธรรมดา */
+/* ★ v3.10.0 รอบที่ 42: การ์ดธรรมดาและรายการย่อยไม่มี status dot อีกต่อไป
+   ทั้งคู่ — ไม่ต้อง compensate padding-left ใดๆ แล้ว ทั้งสองแบบมีโครงสร้าง
+   เหมือนกันทุกประการ (body เริ่มที่ขอบซ้ายของการ์ด) */
 .yp-today-item-card.is-subitem {
   /* ไม่มี padding-left พิเศษ — body เริ่มที่ขอบซ้ายตามปกติของการ์ด */
 }
@@ -2337,64 +2332,9 @@
   opacity: 0.5;
 }
 
-/* ── Status dot (เหมือน yp-task-status-dot) ── */
-.yp-today-item-card__dot {
-  width: 18px;
-  height: 18px;
-  border-radius: var(--yp-radius-pill);
-  flex-shrink: 0;
-  margin-top: 2px;
-  border: 2px solid;
-  position: relative;
-  /* ★ v3.10.0 รอบที่ 37: z-index 1 ให้อยู่เหนือ ::after blob ของ parent */
-  z-index: 1;
-  cursor: pointer;
-  background: transparent;
-  padding: 0;
-  /* ★ v3.10.0 รอบที่ 32: ring แบบ static (ไม่ต้อง hover) — บนมือถือไม่มี hover
-     เอฟเฟกต์ hover เดิมเลยไม่มีใครเห็นเลย ต้องมีสัญญาณ "กดได้" ที่เห็นตลอดเวลา */
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.10);
-  transition: transform 150ms var(--yp-ease-m3-standard), box-shadow var(--yp-t-fast);
-}
-
-.yp-today-item-card:hover .yp-today-item-card__dot {
-  transform: scale(1.15);
-}
-
-.yp-today-item-card__dot--todo {
-  border-color: #F59E0B;
-  background: rgba(245, 158, 11, 0.15);
-}
-
-.yp-today-item-card__dot--ongoing {
-  border-color: #6366F1;
-  background: rgba(99, 102, 241, 0.20);
-}
-
-.yp-today-item-card__dot--ongoing::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border-radius: var(--yp-radius-pill);
-  background: #6366F1;
-}
-
-.yp-today-item-card__dot--done {
-  border-color: #10B981;
-  background: #10B981;
-}
-
-.yp-today-item-card__dot--done::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 4px;
-  width: 4px;
-  height: 8px;
-  border-right: 2px solid white;
-  border-bottom: 2px solid white;
-  transform: rotate(45deg);
-}
+/* ★ v3.10.0 รอบที่ 42: .yp-today-item-card__dot (status dot มุมซ้ายบน)
+   ถูกลบทั้งหมดแล้ว ตามคำขอผู้ใช้ — ไม่มีการ์ดไหนแสดง dot นี้อีกต่อไป
+   เปลี่ยนสถานะทำได้โดยแตะที่ card body ทั้งใบเหมือนเดิม */
 
 /* ── Body (title + meta + footer) ──
    ★ v3.10.0 รอบที่ 41: ลบ padding-right ที่เคย reserve สำหรับ time chip
@@ -2731,6 +2671,16 @@
   min-width: 0;
 }
 
+/* ★ v3.10.0 รอบที่ 42: ห่อ badge "รายการย่อย" + "จากกลุ่ม" ไว้ด้วยกัน
+   ฝั่งซ้ายของ footer (ย้ายมาจาก subtag row เดิมที่อยู่บนสุดของการ์ด) */
+.yp-today-item-card__footer-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
 /* ★ v3.10.0 รอบที่ 41: "จากกลุ่ม: XXX" — text ธรรมดา ไม่ใช่ link
    - color: text-muted (ไม่เด่น)
    - text-overflow: ellipsis สำหรับชื่อกลุ่มที่ยาว
@@ -2807,17 +2757,9 @@
    ในส่วนของ .yp-today-item-card ด้านบน — subitem ใช้ pure white background
    เหมือนการ์ดธรรมดา) */
 
-.yp-today-item-card__subtag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  /* ★ v3.10.0 รอบที่ 40: ลด margin-bottom จาก 4px → 3px — ให้ subtag ใกล้
-     title มากขึ้นอีก เนื่องจากไม่มี decoration อื่นๆ แล้ว การชิดกันช่วยให้
-     badge + group ดูเป็น "inline label" ของ title */
-  margin-bottom: 3px;
-  flex-wrap: wrap;
-}
-
+/* ★ v3.10.0 รอบที่ 42: .yp-today-item-card__subtag (wrapper เดิมที่อยู่บนสุด
+   ของการ์ด ก่อน title) ถูกลบแล้ว — badge "รายการย่อย" ย้ายไปอยู่ใน footer
+   (.yp-today-item-card__footer-left) แทน ดู CSS ของ __footer-left ด้านบน */
 .yp-today-item-card__subtag-badge {
   display: inline-flex;
   align-items: center;

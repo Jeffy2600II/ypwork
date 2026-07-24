@@ -303,10 +303,25 @@ export function Window({
       window.removeEventListener('popstate', onPop);
       if (historyPushedRef.current) {
         historyPushedRef.current = false;
-        try {
-          window.history.back();
-        } catch (_) {
-          /* ignore */
+        // ★ v3.10.0 รอบที่ 42: BUG FIX — ลิงก์ภายใน sheet (เช่น "ดูหน้าเต็ม",
+        //   "จากกลุ่ม: XXX") กดแล้วไม่มีอะไรเกิดขึ้น เพราะโค้ดเดิมเรียก
+        //   window.history.back() ทุกครั้งที่ sheet ปิด ไม่ว่าจะปิดเพราะอะไร
+        //   ปัญหา: ตอนกด Link ภายใน sheet, Next.js Link จะ pushState ไปหน้าใหม่
+        //   ก่อน แล้ว state ของ React ค่อย set open=false ตามมา (เพราะ onClick
+        //   ของ Link ปิด sheet ไปด้วย) — effect cleanup นี้เลยทำงานหลังจาก
+        //   navigate ไปแล้ว และเรียก history.back() ซึ่งเท่ากับ "ย้อนกลับ"
+        //   ไปยัง history entry ของ sheet ทันที ยกเลิกการ navigate ที่เพิ่งเกิด
+        //   แก้ไข: เช็คก่อนว่า window.history.state ยังเป็น entry ที่เราผลัก
+        //   ไว้ ({ ypWindow: true }) หรือไม่ — ถ้าไม่ใช่แล้ว (เพราะมีการ
+        //   navigate ไปหน้าอื่นทับไปแล้ว) ให้ข้ามการเรียก history.back()
+        const stillAtSheetHistoryEntry =
+          !!window.history.state && window.history.state.ypWindow === true;
+        if (stillAtSheetHistoryEntry) {
+          try {
+            window.history.back();
+          } catch (_) {
+            /* ignore */
+          }
         }
       }
     };

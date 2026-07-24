@@ -1402,6 +1402,13 @@ function TaskRow({
   const startLabel = task.start_date ? relativeDay(task.start_date) : '';
   const showStartChip = !!startLabel && startLabel !== dueLabel;
 
+  // ★ v3.10.0 รอบที่ 42: BUG FIX — เดิมถ้ามี start_time จะแสดง chip
+  //   "เวลาเริ่ม 18:00" โดยไม่บอกว่าเป็นวันไหน ผู้ใช้แจ้งว่าเห็นแค่ตัวเลข
+  //   เวลาแล้วไม่รู้ว่าหมายถึงวันนี้หรือพรุ่งนี้ — แก้โดยรวมวันที่เข้าไปด้วย
+  //   เสมอ: ใช้ start_date ถ้ามี ถ้าไม่มีให้ใช้ due_date แทน (วันที่ใกล้เคียง
+  //   ที่สุดที่ระบบรู้จัก) แล้วแสดงเป็น chip เดียว "เริ่ม {วัน} {เวลา} น."
+  const startDayForTime = startLabel || dueLabel;
+
   return (
     <div
       className={`yp-task-row yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
@@ -1417,21 +1424,10 @@ function TaskRow({
       }}
       aria-label={`เปลี่ยนสถานะรายการย่อย: ${task.title}`}
     >
-      <button
-        type="button"
-        className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
-        aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onStatusClick();
-        }}
-        style={{
-          border: '2px solid',
-          background: 'transparent',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-      />
+      {/* ★ v3.10.0 รอบที่ 42: ลบ status dot มุมซ้ายบนออก ตามคำขอผู้ใช้ —
+         status chip ใน meta row ก็บอกสถานะอยู่แล้ว ไม่ต้องมี indicator
+         ซ้ำซ้อน แตะที่ row ทั้งแถวก็เปลี่ยนสถานะได้เหมือนเดิม (onClick
+         ผูกอยู่กับ root ของ .yp-task-row ด้านบนอยู่แล้ว) */}
       <div className="yp-task-row__body">
         <div className="yp-task-row__title">{task.title}</div>
         <div className="yp-task-row__meta">
@@ -1469,16 +1465,16 @@ function TaskRow({
             </span>
           ) : null}
 
+          {/* ★ v3.10.0 รอบที่ 42: chip "เริ่ม" รวมวัน+เวลาไว้ด้วยกันเสมอ
+             ถ้ามี start_time → แสดงวัน + เวลา (ไม่ให้เวลาลอยโดยไม่มีวัน)
+             ถ้ามีแค่ start_date (ไม่มีเวลา) และต่างจาก due_date → แสดงแค่วัน */}
           {task.start_time ? (
-            <span className="yp-task-row__chip yp-task-row__chip--due">
+            <span className="yp-task-row__chip yp-task-row__chip--start">
               <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">เวลาเริ่ม</span>
-              {task.start_time}
+              <span className="yp-task-row__chip-label">เริ่ม</span>
+              {startDayForTime ? `${startDayForTime} ` : ''}{task.start_time} น.
             </span>
-          ) : null}
-
-          {/* ★ v3.10.0 รอบที่ 29: chip "เริ่ม ..." — ถ้า start_date มีและต่างจาก due_date */}
-          {showStartChip ? (
+          ) : showStartChip ? (
             <span className="yp-task-row__chip yp-task-row__chip--start">
               <CalIcon width={11} height={11} />
               <span className="yp-task-row__chip-label">เริ่ม</span>
