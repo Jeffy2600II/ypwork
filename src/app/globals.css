@@ -20,11 +20,11 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r41 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r44 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 26 → 41
+   Senior CSS Architect Refactor — Round 26 → 44
    ─────────────────────────────────────────────────────────────
-   ★ v3.10.0 รอบที่ 41: Card Menu + Footer Redesign (Award-Winning UX)
+   ★ v3.10.0 รอบที่ 44: Card UX Refine — 4-Row Layout Redesign
    ปัญหา: การ์ดในหน้า Today ยังมีจุดที่ทำให้ผู้ใช้สับสนและดูไม่สมดุล
    1. การ์ดรายการย่อยมี status dot ที่มุมซ้ายบน ทำให้ดูไม่สมดุล —
       badge "รายการย่อย" ก็บอกอยู่แล้ว ไม่จำเป็นต้องมี indicator ซ้ำ
@@ -2268,264 +2268,94 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (รายการเดี่ยว + รายการย่อยในกลุ่ม) ──
-   ★ v3.10.0 รอบที่ 41: Card Menu + Footer Redesign
-   เปลี่ยน chevron arrow เป็น 3-dot menu, เพิ่ม footer row สำหรับ
-   "จากกลุ่ม" + "กำหนดการ", ลบ status dot ของรายการย่อย
-   สืบทอด pure white background จากรอบที่ 40
-   ★ v3.10.0 รอบที่ 40 (สืบทอดมา): pure white background, subtle gray hover */
+/* ── Today Item Card (v3.10.0-r44 — 4-Row Layout) ──
+   ★ r44: Card UX Refine
+   - ย้ายเวลาขึ้น Row 1 ขวา (subtle, ไม่มี capsule, ไม่โดดเด่น)
+   - Title ขึ้นเป็น Row 2 พระเอก (ใหญ่, เด่น, มีไอคอนประเภท)
+   - Row 3: "จากกลุ่ม" (รายการย่อยเท่านั้น, ตัดคำว่า "รายการย่อย")
+   - Row 4: Badges (สถานะ, priority, สถานที่, etc.)
+   - ไม่มี Divider — ใช้ spacing แทน
+   - display: block — menu อยู่ใน body */
 .yp-today-item-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--yp-space-3);
-  padding: var(--yp-space-4) var(--yp-space-4);
-  /* ★ v3.10.0 รอบที่ 40: Pure white background */
+  position: relative;
+  padding: var(--yp-space-4);
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   cursor: pointer;
-  /* ★ v3.10.0 รอบที่ 41: position: relative สำหรับ popup menu */
-  position: relative;
   transition:
     background 160ms var(--yp-ease-m3-decelerate),
     border-color var(--yp-t-fast),
     box-shadow var(--yp-t-fast);
-  /* ★ v3.10.0 รอบที่ 40: 1-layer subtle shadow */
   box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
 }
 
-/* ★ v3.10.0 รอบที่ 42: การ์ดธรรมดาและรายการย่อยไม่มี status dot อีกต่อไป
-   ทั้งคู่ — ไม่ต้อง compensate padding-left ใดๆ แล้ว ทั้งสองแบบมีโครงสร้าง
-   เหมือนกันทุกประการ (body เริ่มที่ขอบซ้ายของการ์ด) */
+/* Sub-item = same as regular (icon in title tells the type) */
 .yp-today-item-card.is-subitem {
-  /* ไม่มี padding-left พิเศษ — body เริ่มที่ขอบซ้ายตามปกติของการ์ด */
+  /* No special treatment */
 }
 
-/* ★ v3.10.0 รอบที่ 41: Card menu open state — เพิ่ม border เล็กน้อย
-   เพื่อให้ผู้ใช้เห็นว่า popup ของการ์ดนี้เปิดอยู่ */
+/* Menu open state */
 .yp-today-item-card.is-menu-open {
   border-color: var(--yp-border-default);
   box-shadow: 0 1px 3px rgba(30, 27, 70, 0.08);
 }
 
-/* ★ v3.10.0 รอบที่ 40: REMOVE ทั้งหมด — ไม่มี accent bar และ accent blob แล้ว
-   เหตุผล: decoration เหล่านี้เพิ่ม visual noise ไม่ได้ช่วยให้ผู้ใช้เข้าใจเนื้อหา
-   ตรงข้ามกับหลักการ "สะอาดตา" ที่ผู้ใช้ต้องการ
-   (.yp-today-item-card:not(.is-subitem)::before, ::after, hover::before, hover::after
-   ถูกลบทั้งหมด — ไม่มีใน CSS อีกต่อไป) */
-
 .yp-today-item-card:hover {
-  /* ★ v3.10.0 รอบที่ 40: Subtle gray tint hover — เปลี่ยนจาก accent-tinted
-     เป็น var(--yp-bg-card-soft) (subtle gray นุ่นๆ) เหมือน Apple Reminders
-     การ์ดอยู่นิ่ง ไม่ "กระโดด" สี ไม่ "ลอย" ขึ้น — สะอาดตา */
   background: var(--yp-bg-card-soft);
   border-color: var(--yp-border-default);
   box-shadow: 0 1px 3px rgba(30, 27, 70, 0.06);
 }
 
-/* ★ v3.10.0 รอบที่ 40: Subitem = same as regular card
-   ไม่มี special treatment อีกต่อไป — badge "รายการย่อย" ก็บอกอยู่แล้ว
-   ไม่ต้องเพิ่มขอบ, เส้นนำ, accent tint ใดๆ (ผู้ใช้ยืนยันชัดเจน)
-   (.yp-today-item-card.is-subitem และ ::before, :hover::before ถูกลบแล้ว) */
-
 .yp-today-item-card.is-done {
   opacity: 0.5;
 }
 
-/* ★ v3.10.0 รอบที่ 42: .yp-today-item-card__dot (status dot มุมซ้ายบน)
-   ถูกลบทั้งหมดแล้ว ตามคำขอผู้ใช้ — ไม่มีการ์ดไหนแสดง dot นี้อีกต่อไป
-   เปลี่ยนสถานะทำได้โดยแตะที่ card body ทั้งใบเหมือนเดิม */
-
-/* ── Body (title + meta + footer) ──
-   ★ v3.10.0 รอบที่ 41: ลบ padding-right ที่เคย reserve สำหรับ time chip
-   เพราะ time chip ย้ายไป footer แล้ว — ใช้ padding-right ตามปกติ */
+/* ── Body ── */
 .yp-today-item-card__body {
-  flex: 1;
   min-width: 0;
-  padding-top: 1px;
-  position: relative;
-  z-index: 1;
-  /* ★ v3.10.0 รอบที่ 41: ไม่ต้อง reserve พื้นที่มุมขวาบน ให้ title ใช้พื้นที่
-     เต็ม ยกเว้น padding-right สำหรับไม่ให้ทับ 3-dot menu button */
 }
 
-.yp-today-item-card__title {
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-body);
-  line-height: 1.4;
-  word-break: break-word;
-  /* ★ v3.10.0 รอบที่ 39: เพิ่ม letter-spacing ลบลิบน้ำ — subtle refinement
-     แบบ Linear/Notion ที่ title ดูละมุนขึ้น เป็นมืออาชีพขึ้น */
-  letter-spacing: -0.005em;
-}
-
-.yp-today-item-card.is-done .yp-today-item-card__title {
-  text-decoration: line-through;
-  color: var(--yp-text-faint);
-}
-
-.yp-today-item-card__meta {
+/* ── Row 1: Top-right (time + menu) ── */
+.yp-today-item-card__top-right {
   display: flex;
   align-items: center;
-  /* ★ v3.10.0 รอบที่ 39: ลด gap จาก 8px → 6px — ชิปชิดกันขึ้น
-     ลด visual spacing ทำให้ meta ดูเป็น block เดียวกัน ไม่กระจัดกระจาย */
-  gap: 6px;
-  /* ★ v3.10.0 รอบที่ 39: ลด margin-top จาก 8px → 6px — meta ใกล้ title มากขึ้น
-     สร้างความสม่ำเสมอของ vertical rhythm ภายในการ์ด */
-  margin-top: 6px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  min-height: 20px;
+  margin-bottom: 2px;
 }
 
-/* ── Chips (pill-shaped, platform-aligned typography) ──
-   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) ทุกที่ — เป็นไปในทิศทาง
-   เดียวกับแพลตฟอร์มของเรา ไม่ใช้ custom 11px อีกต่อไป
-   เพิ่ม padding จาก 3px 8px → 4px 10px (สบายตาขึ้น)
-   เพิ่ม gap ใน chip จาก 4px → 5px */
-.yp-today-item-card__chip {
+/* ★ r44: Time — subtle, no capsule, no border, no bg
+   Just plain text + clock icon in muted color */
+.yp-today-item-card__time {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
-  padding: 4px 10px;
-  background: var(--yp-bg-card-soft);
-  border: 1px solid transparent;
-  border-radius: var(--yp-radius-pill);
-  letter-spacing: 0;
+  color: var(--yp-text-muted);
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.yp-today-item-card__chip svg {
+.yp-today-item-card__time svg {
   width: 12px;
   height: 12px;
   stroke-width: 2;
-  flex-shrink: 0;
+  opacity: 0.7;
 }
 
-/* Status chip */
-.yp-today-item-card__status {
-  font-weight: var(--yp-fw-medium);
+/* Hover: time becomes slightly more visible */
+.yp-today-item-card:hover .yp-today-item-card__time {
+  color: var(--yp-text-body);
 }
 
-.yp-today-item-card__status--todo { color: var(--yp-amber-500); }
-.yp-today-item-card__status--ongoing { color: var(--yp-indigo-500); }
-.yp-today-item-card__status--done { color: #047857; }
-
-/* Priority chip */
-.yp-today-item-card__priority {
-  font-weight: var(--yp-fw-semibold);
+.yp-today-item-card:hover .yp-today-item-card__time svg {
+  opacity: 1;
 }
 
-.yp-today-item-card__priority::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: var(--yp-radius-pill);
-  background: currentColor;
-  flex-shrink: 0;
-}
-
-.yp-today-item-card__priority svg { display: none; }
-
-.yp-today-item-card__priority.is-priority-low {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.20);
-}
-
-.yp-today-item-card__priority.is-priority-high {
-  color: #BE123C;
-  background: rgba(244, 63, 94, 0.08);
-  border-color: rgba(244, 63, 94, 0.22);
-}
-
-/* Assignee chip — ★ v3.10.0 รอบที่ 39: ghost style (no bg, no border)
-   เป็นแค่ text + avatar สี muted ลด visual weight — แบบ Linear/Notion
-   ที่ assignee เป็น metadata ไม่ใช่ badge */
-.yp-today-item-card__chip--assignee {
-  background: transparent;
-  border-color: transparent;
-  color: var(--yp-text-muted);
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-/* ★ v3.10.0 รอบที่ 41: .yp-today-item-card__chip--time ถูกลบแล้ว
-   ย้ายไปเป็น .yp-today-item-card__schedule ใน footer row
-   ดู CSS ของ __schedule และ __footer ด้านล่าง */
-
-/* Est time chip — ★ v3.10.0 รอบที่ 39: ghost style เพราะเป็น metadata
-   สาระ ไม่ใช่ info หลัก ลด visual weight */
-.yp-today-item-card__chip--est {
-  color: var(--yp-text-muted);
-  background: transparent;
-  border-color: transparent;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-/* Chip label — ★ v3.10.0 รอบที่ 39: ซ่อน label ในชิป time/est/due เพราะ
-   icon ก็บอกอยู่แล้วว่าเป็นข้อมูลอะไร (clock = เวลา, calendar = วันที่,
-   alert = เลยกำหนด) — ลด redundancy ลด visual noise
-   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 11px —
-   เป็นไปในทิศทางเดียวกับแพลตฟอร์ม */
-.yp-today-item-card__chip-label {
-  color: var(--yp-text-faint);
-  font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.02em;
-  text-transform: lowercase;
-  font-size: var(--yp-text-xs);
-  margin-right: -2px;
-}
-
-/* ★ v3.10.0 รอบที่ 39: ซ่อน label ในชิปที่มี icon บอกอยู่แล้ว */
-.yp-today-item-card__chip--time .yp-today-item-card__chip-label,
-.yp-today-item-card__chip--est .yp-today-item-card__chip-label,
-.yp-today-item-card__chip--due .yp-today-item-card__chip-label {
-  display: none;
-}
-
-/* Due date chip — ★ v3.10.0 รอบที่ 39: คงไว้เป็น pill เด่น สำหรับ due date
-   โดยเฉพาะ overdue variant ที่ต้องเด่นชัด */
-.yp-today-item-card__chip--due {
-  color: var(--yp-text-heading);
-  background: var(--yp-bg-card-soft);
-  border-color: transparent;
-  font-weight: var(--yp-fw-semibold);
-}
-
-.yp-today-item-card__chip--due.is-overdue {
-  color: #BE123C;
-  background: rgba(244, 63, 94, 0.06);
-  border-color: rgba(244, 63, 94, 0.20);
-  font-weight: var(--yp-fw-bold);
-}
-
-.yp-today-item-card__chip--due.is-overdue .yp-today-item-card__chip-label { display: none; }
-
-/* From parent chip — ★ v3.10.0 รอบที่ 39: ghost style เพราะเป็น metadata
-   สาระ แค่บอกว่ารายการนี้มาจากกลุ่มไหน
-   ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 11px */
-.yp-today-item-card__chip--from {
-  font-size: var(--yp-text-xs);
-  color: var(--accent, var(--yp-indigo-500));
-  font-weight: var(--yp-fw-medium);
-  background: transparent;
-  border-color: transparent;
-  padding-left: 4px;
-  padding-right: 4px;
-  opacity: 0.85;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 41: 3-dot menu button (แทน chevron link)
-   pattern มาตรฐานสากลสำหรับ "actions menu"
-   - ขนาด 28x28px (เท่าเดิม เพื่อรักษา tap target 44px รวม padding)
-   - transparent background, subtle hover (เหมือน __link เดิม)
-   - ไม่มี border, ไม่มี shadow — minimal
-   - z-index: 2 ให้อยู่เหนือ __popup-overlay
-   ═══════════════════════════════════════════════════════════════ */
+/* ── 3-dot menu button ── */
 .yp-today-item-card__menu {
   display: flex;
   align-items: center;
@@ -2538,10 +2368,9 @@
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  margin-top: 2px;
   padding: 0;
   position: relative;
-  z-index: 3; /* อยู่เหนือ overlay และ popup */
+  z-index: 3;
   transition: background 150ms var(--yp-ease-m3-standard), color 150ms var(--yp-ease-m3-standard);
 }
 
@@ -2561,19 +2390,163 @@
   stroke-width: 2;
 }
 
+/* ── Row 2: Title (hero) ── */
+.yp-today-item-card__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  line-height: 1.45;
+  word-break: break-word;
+  letter-spacing: -0.005em;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ★ r44: Title icon for sub-items (Layers replaces "รายการย่อย" text) */
+.yp-today-item-card__title-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--yp-text-muted);
+  opacity: 0.6;
+}
+
+.yp-today-item-card.is-done .yp-today-item-card__title {
+  text-decoration: line-through;
+  color: var(--yp-text-faint);
+}
+
+.yp-today-item-card.is-done .yp-today-item-card__title-icon {
+  opacity: 0.4;
+}
+
+/* ── Row 3: From group (sub-items only) ── */
+.yp-today-item-card__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  min-width: 0;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-today-item-card__group svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.yp-today-item-card__group-label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.yp-today-item-card__group-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ── Row 4: Badges ── */
+.yp-today-item-card__badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* Individual badge — small pill */
+.yp-today-item-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  padding: 3px 10px;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid transparent;
+  border-radius: var(--yp-radius-pill);
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+.yp-today-item-card__badge svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+/* Status badge variants */
+.yp-today-item-card__badge--status {
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-today-item-card__badge--todo { color: var(--yp-amber-500); }
+.yp-today-item-card__badge--ongoing { color: var(--yp-indigo-500); }
+.yp-today-item-card__badge--done { color: #047857; }
+.yp-today-item-card__badge--planning { color: #A78BFA; }
+
+/* Overdue badge */
+.yp-today-item-card__badge--overdue {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.06);
+  border-color: rgba(244, 63, 94, 0.20);
+  font-weight: var(--yp-fw-bold);
+}
+
+/* Priority badge */
+.yp-today-item-card__badge--priority {
+  font-weight: var(--yp-fw-semibold);
+}
+
+.yp-today-item-card__badge--priority::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--yp-radius-pill);
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.yp-today-item-card__badge--priority svg { display: none; }
+
+.yp-today-item-card__badge--priority.is-priority-low {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.20);
+}
+
+.yp-today-item-card__badge--priority.is-priority-high {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.22);
+}
+
+/* Assignee badge — ghost style */
+.yp-today-item-card__badge--assignee {
+  background: transparent;
+  border-color: transparent;
+  color: var(--yp-text-muted);
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 41: Popup menu (เปิดจาก 3-dot button)
-   - position: absolute ใต้ปุ่ม 3-dot (ใช้ top offset ที่คำนวณจาก
-     card padding-top + button height + gap)
-   - มี border + shadow อ่อน
-   - animation: scale + fade (subtle, 150ms)
-   - z-index: 4 ให้อยู่เหนือ __menu button
+   Popup menu (3-dot actions)
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-item-card__popup {
   position: absolute;
-  /* ★ top: ปุ่ม 3-dot อยู่ที่ padding-top (16px) + margin-top (2px) = 18px
-     จากขอบบนของการ์ด ปุ่มสูง 28px ดังนั้น bottom ของปุ่มอยู่ที่ 46px
-     เพิ่ม gap 4px → popup เริ่มที่ 50px จากขอบบนของการ์ด */
+  /* ★ r44: top adjusted — menu now inside body at top-right
+     card-padding(16) + top-right-margin(2) + menu-height(28) + gap(4) = 50px */
   top: calc(var(--yp-space-4) + 2px + 28px + 4px);
   right: var(--yp-space-4);
   min-width: 180px;
@@ -2583,7 +2556,6 @@
   box-shadow: 0 4px 16px rgba(30, 27, 70, 0.12), 0 1px 3px rgba(30, 27, 70, 0.08);
   padding: 4px;
   z-index: 4;
-  /* ★ animation: scale + fade เหมือน iOS/Material popup */
   transform-origin: top right;
   animation: yp-today-popup-enter 150ms var(--yp-ease-m3-decelerate);
 }
@@ -2639,10 +2611,7 @@
   color: var(--yp-indigo-600);
 }
 
-/* ★ v3.10.0 รอบที่ 41: Popup overlay — จับ click นอก popup เพื่อปิด
-   - position: fixed เต็มจอ
-   - transparent background (ไม่บังสายตา)
-   - z-index: 2 ใต้ __menu และ __popup แต่เหนือ card body */
+/* Popup overlay — catches clicks outside popup */
 .yp-today-item-card__popup-overlay {
   position: fixed;
   inset: 0;
@@ -2650,176 +2619,6 @@
   z-index: 2;
   cursor: default;
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 43: Info section — flex-column layout
-   แยกเป็น source row (รายการย่อย + จากกลุ่ม) และ schedule row
-   อยู่คนละบรรทัดเสมอ — แก้ปัญหา schedule ทับกลุ่มชื่อ
-   ═══════════════════════════════════════════════════════════════ */
-.yp-today-item-card__info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  /* ★ เส้นบางๆ คั่น info section จาก meta row — subtle divider */
-  margin-top: var(--yp-space-3);
-  padding-top: var(--yp-space-3);
-  border-top: 1px solid color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
-  min-width: 0;
-}
-
-/* ★ Backward compat: __footer เป็น alias ของ __info */
-.yp-today-item-card__footer {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: var(--yp-space-3);
-  padding-top: var(--yp-space-3);
-  border-top: 1px solid color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
-  min-width: 0;
-}
-
-/* ★ v3.10.0 รอบที่ 43: Source row — sub-item badge + group name
-   อยู่ในบรรทัดเดียวกัน flex-row แต่ schedule อยู่คนละบรรทัด */
-.yp-today-item-card__source-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  flex-shrink: 1;
-}
-
-/* ★ Backward compat: __footer-left เป็น alias ของ __source-row */
-.yp-today-item-card__footer-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  flex-shrink: 1;
-}
-
-/* ★ v3.10.0 รอบที่ 43: Schedule row — container for schedule label
-   เป็นบรรทัดต่างหากเสมอ ไม่รวมกับ source row */
-.yp-today-item-card__schedule-row {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-/* ★ v3.10.0 รอบที่ 41 → รอบที่ 43: "จากกลุ่ม: XXX" — text ธรรมดา
-   - color: text-muted (ไม่เด่น)
-   - text-overflow: ellipsis สำหรับชื่อกลุ่มที่ยาว
-   - max-width เพิ่มจาก 60% → 75% เพราะไม่แชร์แถวกับ schedule แล้ว */
-.yp-today-item-card__source {
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 75%;
-  flex-shrink: 1;
-  min-width: 0;
-}
-
-/* ★ v3.10.0 รอบที่ 43: Schedule label — "กำหนดการ วันนี้ HH:MM น."
-   ★ เปลี่ยน: ลบ margin-left: auto — ตอนนี้อยู่บรรทัดต่างหาก left-aligned
-   - color: text-heading (เด่นกว่า meta เพราะเป็น info สำคัญ)
-   - Clock icon + text
-   - ไม่แสดงสำหรับ overdue (เวลาเลยไปแล้วทำให้สับสน) */
-.yp-today-item-card__schedule {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-heading);
-  white-space: nowrap;
-  flex-shrink: 0;
-  /* ★ r43: ลบ margin-left: auto — schedule อยู่บรรทัดต่างหาก left-aligned */
-  padding: 3px 8px;
-  background: var(--yp-bg-card-soft);
-  border-radius: var(--yp-radius-pill);
-  letter-spacing: 0;
-}
-
-.yp-today-item-card__schedule svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2;
-  color: var(--yp-text-muted);
-  flex-shrink: 0;
-}
-
-/* ★ v3.10.0 รอบที่ 41: Hover state ของ schedule — subtle indigo tint
-   เหมือน chip อื่นๆ ในระบบ */
-.yp-today-item-card:hover .yp-today-item-card__schedule {
-  background: var(--yp-bg-indigo-soft);
-  color: var(--yp-indigo-600);
-}
-
-.yp-today-item-card:hover .yp-today-item-card__schedule svg {
-  color: var(--yp-indigo-600);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 40: Sub-item indicator (minimal — no decoration)
-
-   การออกแบบ:
-   - รายการย่อยมีแถบบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
-   - ชื่อกลุ่มเป็น Link ที่ hover ได้ คลิกไปหน้ารายละเอียด
-
-   ★ v3.10.0 รอบที่ 40: REMOVE ทุก decoration ของ subitem
-   ปัญหาเดิม: มี accent tint background + accent guide line (2px) ที่
-   ขอบซ้าย ทำให้การ์ดรายการย่อยดูต่างจากการ์ดธรรมดา — เพิ่ม visual noise
-
-   แก้ใหม่: badge "รายการย่อย" ก็บอกอยู่แล้วว่าเป็นรายการย่อย — ไม่ต้องเพิ่ม
-   ขอบ, เส้นนำ, accent tint ใดๆ (ผู้ใช้ยืนยันชัดเจนว่า "มันมีข้อความบอกแล้ว
-   ว่าเป็นรายการย่อย ก็ไม่ต้องเพิ่มอะไรนอกเหนือจากนั้น")
-   ผล: การ์ดรายการย่อยดูเหมือนการ์ดธรรมดาทุกประการ แค่มี badge เล็กๆ บอก
-   ═══════════════════════════════════════════════════════════════
-   (.yp-today-item-card.is-subitem, ::before, :hover::before ถูกลบแล้ว
-   ในส่วนของ .yp-today-item-card ด้านบน — subitem ใช้ pure white background
-   เหมือนการ์ดธรรมดา) */
-
-/* ★ v3.10.0 รอบที่ 42: .yp-today-item-card__subtag (wrapper เดิมที่อยู่บนสุด
-   ของการ์ด ก่อน title) ถูกลบแล้ว — badge "รายการย่อย" ย้ายไปอยู่ใน footer
-   (.yp-today-item-card__footer-left) แทน ดู CSS ของ __footer-left ด้านบน */
-.yp-today-item-card__subtag-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  /* ★ v3.10.0 รอบที่ 40: ใช้ --yp-text-xs (12px) แทน custom 10px —
-     เป็นไปในทิศทางเดียวกับแพลตฟอร์ม */
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-semibold);
-  /* ★ v3.10.0 รอบที่ 40: ลด color blend จาก 70% accent → 60% accent
-     + 40% text-muted — ลดความเด่นของ accent ลงอีก เพราะ badge เป็นแค่
-     "indicator" ไม่ใช่ info หลัก */
-  color: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 60%, var(--yp-text-muted));
-  /* ★ v3.10.0 รอบที่ 40: ลด background opacity จาก 5% → 4%
-     ลด border opacity จาก 10% → 8% — จางลงอีก สะอาดตา */
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
-  /* ★ v3.10.0 รอบที่ 40: ปรับ padding จาก 1px 7px → 2px 8px —
-     สมดุลขึ้น (เท่ากับ chip อื่นๆ ในระบบ) */
-  padding: 2px 8px;
-  border-radius: var(--yp-radius-pill);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.yp-today-item-card__subtag-badge svg {
-  width: 11px;
-  height: 11px;
-  opacity: 0.7;
-}
-
-/* ★ v3.10.0 รอบที่ 41: .yp-today-item-card__subtag-group และ __subtag-arrow
-   ถูกลบแล้ว เพราะ "จากกลุ่ม" ย้ายไป footer เป็น text ธรรมดา (.yp-today-item-card__source)
-   ไม่ใช้ Link อีกต่อไป — ลด confusion ของ click target
-   (ดู CSS ของ __source และ __footer ด้านบน) */
-
 .yp-today-card-list__hint {
   text-align: center;
   font-size: var(--yp-text-xs);

@@ -1,29 +1,23 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r43 — Modular Redesign)
+// YP WORK · Today Dashboard (v3.10.0-r44 — Card UX Refine)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 43: ปรับโครงสร้างเป็น module + แก้ schedule overlap
+// ★ v3.10.0 รอบที่ 44: Card UX Refine — ออกแบบการ์ดใหม่ 4 แถว
 //
-//   1. แก้ปัญหา schedule label ทับกับ "จากกลุ่ม: XXX" ใน footer row
-//      ย้าย schedule ออกจาก footer มาเป็น row ต่างหากด้านล่างสุด
-//      เพื่อไม่ให้ทับกันเมื่อชื่อกลุ่มยาวหรือมี sub-item badge
-//
-//   2. แปลงโค้ด monolithic 1252 lines เป็น modular architecture
-//      แบ่งเป็น 8 modules ชัดเจน อ่านง่าย ดูแลรักษาสะดวก
-//
-//   3. สร้าง formatScheduleLabel() แบบ centralized
-//      ใช้ทั้งในการ์ดและใน detail sheet (DRY principle)
+//   1. ย้ายเวลาขึ้น Row 1 ขวา (ไม่โดดเด่น ไม่มีกรอบแคปซูล)
+//   2. ดันชื่องานขึ้นเป็น Row 2 พระเอก (ใหญ่ เด่น พร้อมไอคอนประเภท)
+//   3. ตัดคำว่า "รายการย่อย" ออก (ไอคอนใน Row 2 บอกแล้ว)
+//   4. ย้าย Tag/Chip สถานะลงไป Row 4 ฐานการ์ด
+//   5. ถอดเส้น Divider ออก — ใช้ Padding/Spacing แทน
 //
 //   Layout การ์ดใหม่ (TOP → BOTTOM):
-//   ┌─────────────────────────────────────────┐
-//   │  Row 1: [Title]              [3-dot]    │
-//   │  Row 2: [chips: status, pri, assignee…] │
-//   │  ── divider (if rows below exist) ──    │
-//   │  Row 3: [รายการย่อย badge] จากกลุ่ม   │
-//   │  Row 4: 🕐 กำหนดการ วันนี้ 14:00 น.    │
-//   └─────────────────────────────────────────┘
-//   Row 3 และ Row 4 อยู่คนละบรรทัด เสมอ ไม่ว่าจะมีอะไรบ้าง
+//   ┌──────────────────────────────────────────────┐
+//   │  Row 1: [ว่าง]        [🕐 วันนี้ 14:00] [•••] │
+//   │  Row 2: 📚 ชื่องาน (Title)                     │
+//   │  Row 3: 👥 จากกลุ่ม: XXXXXX                     │
+//   │  Row 4: [🔴 เลยกำหนด] [🟡 รอเริ่ม] [📍 โรงยิม]  │
+//   └──────────────────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -54,6 +48,7 @@ import {
   RefreshCw,
   ArrowUpRight,
   MoreHorizontal,
+  Users,
   Eye,
   MapPin,
   User as UserIcon,
@@ -347,33 +342,27 @@ function formatScheduleLabel(
 }
 
 /**
- * Build the schedule text specifically for the card footer display.
- * Same rules as formatScheduleLabel but prefixed with "กำหนดการ"
- * for card display. Returns null for overdue (not shown on card).
+ * Format time text for Row 1 of the card (subtle, no capsule).
+ * Returns null for overdue (overdue badge handles this in Row 4).
+ * No "กำหนดการ" prefix — context is clear from position.
  */
-function formatCardScheduleLabel(
+function formatCardTimeDisplay(
   item: TimelineItem,
   todayStr: string,
 ): string | null {
-  const isOverdue = item.dateContext === 'overdue';
-
-  // Overdue: never show schedule on card (confusing)
-  if (isOverdue) return null;
+  // Overdue: don't show time in Row 1 (overdue badge in Row 4 instead)
+  if (item.dateContext === 'overdue') return null;
+  // No start time → no display
   if (!item.startTime) return null;
-
-  const isToday = item.dateContext === 'today';
-  const isUpcoming = item.dateContext === 'upcoming';
-
-  if (isToday) {
-    // If itemDate != today, started in the past → don't show schedule on card
+  // Today: "วันนี้ HH:MM น." (only if itemDate is today)
+  if (item.dateContext === 'today') {
     if (item.itemDate !== todayStr) return null;
-    return `กำหนดการ วันนี้ ${item.startTime} น.`;
+    return `วันนี้ ${item.startTime} น.`;
   }
-
-  if (isUpcoming && item.itemDate) {
-    return `กำหนดการ ${relativeDay(item.itemDate)} ${item.startTime} น.`;
+  // Upcoming: "{relativeDay} HH:MM น."
+  if (item.dateContext === 'upcoming' && item.itemDate) {
+    return `${relativeDay(item.itemDate)} ${item.startTime} น.`;
   }
-
   return null;
 }
 
@@ -1182,19 +1171,19 @@ export function TodayClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODULE 7: TODAY ITEM CARD
+// MODULE 7: TODAY ITEM CARD (v3.10.0-r44 — 4-Row Layout)
 // ═══════════════════════════════════════════════════════════════
 //
 // Card layout (TOP → BOTTOM):
 //
-//  Row 1: [Title]                    [3-dot menu]
-//  Row 2: [chips: status, priority, assignee, est, location, due]
-//  ── divider (only if Row 3 or Row 4 has content) ──
-//  Row 3: [รายการย่อย badge] จากกลุ่ม: XXX  (source row)
-//  Row 4: 🕐 กำหนดการ วันนี้ 14:00 น.     (schedule row — ALWAYS own line)
+//  Row 1: [ว่าง]                    [🕐 เวลา] [•••]
+//  Row 2: 📚 ชื่องาน (Title — พระเอก ใหญ่ เด่น)
+//  Row 3: 👥 จากกลุ่ม: XXX  (รายการย่อยเท่านั้น)
+//  Row 4: [🔴 เลยกำหนด] [🟡 รอเริ่ม] [📍 สถานที่]
 //
-// ★ Row 3 and Row 4 are ALWAYS separate lines — they never share a row.
-// This is the critical fix for the overlapping schedule label issue.
+//  ★ ไม่มีเส้น Divider — ใช้ Padding/Spacing จัดกลุ่มข้อมูล
+//  ★ เวลาใน Row 1 ไม่โดดเด่น ไม่มีกรอบแคปซูล
+//  ★ ไอคอน Layers บอกประเภทรายการย่อยแทนคำว่า "รายการย่อย"
 // ═══════════════════════════════════════════════════════════════
 
 function TodayItemCard({
@@ -1217,22 +1206,16 @@ function TodayItemCard({
   const accent = item.accent;
   const isOverdue = item.dateContext === 'overdue';
   const isUpcoming = item.dateContext === 'upcoming';
-  const isToday = item.dateContext === 'today';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
   const isSubItem = !!item.parentEvent && !!item.task;
 
-  // ★ r43: Use centralized formatCardScheduleLabel (Module 5)
-  const scheduleLabel = formatCardScheduleLabel(item, todayStr);
-
-  // Whether to show the info section (source row or schedule row)
-  const hasSourceRow = isSubItem && !!item.parentEvent;
-  const hasScheduleRow = !!scheduleLabel;
-  const showInfo = hasSourceRow || hasScheduleRow;
+  // Row 1: Time display (subtle, no capsule)
+  const timeDisplay = formatCardTimeDisplay(item, todayStr);
 
   return (
     <div
-      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
+      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
       style={{ ['--accent' as string]: accent }}
       role="button"
       tabIndex={0}
@@ -1247,145 +1230,129 @@ function TodayItemCard({
     >
       {/* ── Body ── */}
       <div className="yp-today-item-card__body">
-        {/* Row 1: Title */}
-        <div className="yp-today-item-card__title">{item.title}</div>
-
-        {/* Row 2: Meta chips */}
-        <div className="yp-today-item-card__meta">
-          {/* Status chip */}
-          <span
-            className={`yp-today-item-card__chip yp-today-item-card__status yp-today-item-card__status--${item.status}`}
+        {/* Row 1: Time + Menu (right-aligned) */}
+        <div className="yp-today-item-card__top-right">
+          {timeDisplay ? (
+            <span className="yp-today-item-card__time">
+              <Clock width={12} height={12} />
+              {timeDisplay}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            className="yp-today-item-card__menu"
+            aria-label="ตัวเลือกเพิ่มเติม"
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isMenuOpen) onCloseMenu();
+              else onOpenMenu(item);
+            }}
           >
-            {item.status === 'done' ? (
-              <Check width={11} height={11} />
-            ) : item.status === 'ongoing' ? (
-              <RefreshCw width={11} height={11} />
-            ) : (
-              <Clock width={11} height={11} />
-            )}
-            {statusLabel(item.status)}
-          </span>
+            <MoreHorizontal width={16} height={16} />
+          </button>
+        </div>
 
-          {/* Priority chip */}
+        {/* Row 2: Title (hero — large, prominent, with type icon) */}
+        <div className="yp-today-item-card__title">
+          {isSubItem ? (
+            <Layers
+              width={14}
+              height={14}
+              className="yp-today-item-card__title-icon"
+            />
+          ) : null}
+          {item.title}
+        </div>
+
+        {/* Row 3: From group (sub-items only) */}
+        {isSubItem && item.parentEvent ? (
+          <div className="yp-today-item-card__group">
+            <Users width={12} height={12} />
+            <span className="yp-today-item-card__group-label">
+              จากกลุ่ม:
+            </span>
+            <span className="yp-today-item-card__group-name">
+              {item.parentEvent.title}
+            </span>
+          </div>
+        ) : null}
+
+        {/* Row 4: Badges (status, priority, location, etc.) */}
+        <div className="yp-today-item-card__badges">
+          {/* Status / Overdue badge */}
+          {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
+            <span className="yp-today-item-card__badge yp-today-item-card__badge--overdue">
+              <AlertTriangle width={11} height={11} />
+              เลยกำหนด {relativeDay(item.itemDate)}
+            </span>
+          ) : (
+            <span
+              className={`yp-today-item-card__badge yp-today-item-card__badge--status yp-today-item-card__badge--${item.status}`}
+            >
+              {item.status === 'done' ? (
+                <Check width={11} height={11} />
+              ) : item.status === 'ongoing' ? (
+                <RefreshCw width={11} height={11} />
+              ) : (
+                <Clock width={11} height={11} />
+              )}
+              {statusLabel(item.status)}
+            </span>
+          )}
+
+          {/* Priority badge (skip medium) */}
           {priority !== 'medium' ? (
             <span
-              className={`yp-today-item-card__chip yp-today-item-card__priority is-priority-${priority}`}
+              className={`yp-today-item-card__badge yp-today-item-card__badge--priority is-priority-${priority}`}
             >
               {priorityLbl}
             </span>
           ) : null}
 
-          {/* Assignee chip */}
+          {/* Location badge */}
+          {item.location ? (
+            <span className="yp-today-item-card__badge">
+              <MapPin width={11} height={11} />
+              {item.location}
+            </span>
+          ) : null}
+
+          {/* Estimated time badge */}
+          {item.estimatedTime ? (
+            <span className="yp-today-item-card__badge">
+              <Timer width={11} height={11} />
+              {item.estimatedTime}
+            </span>
+          ) : null}
+
+          {/* Assignee badge */}
           {item.assigneeName ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--assignee">
+            <span className="yp-today-item-card__badge yp-today-item-card__badge--assignee">
               {item.assigneeColor ? (
                 <Avatar
                   name={item.assigneeName}
                   color={item.assigneeColor}
-                  size={16}
+                  size={14}
                 />
               ) : null}
               {item.assigneeName}
             </span>
           ) : null}
 
-          {/* Est time chip */}
-          {item.estimatedTime ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--est">
-              <Clock width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">ใช้เวลา</span>
-              {item.estimatedTime}
-            </span>
-          ) : null}
-
-          {/* Location chip */}
-          {item.location ? (
-            <span className="yp-today-item-card__chip">{item.location}</span>
-          ) : null}
-
-          {/* Overdue date chip */}
-          {isOverdue &&
-          item.itemDate &&
-          item.itemDate !== todayStr ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--due is-overdue">
-              <AlertTriangle width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">เลยกำหนด</span>
-              {relativeDay(item.itemDate)}
-            </span>
-          ) : null}
-
-          {/* Upcoming date chip (only if no schedule label) */}
+          {/* Upcoming date badge (only if no time display in Row 1) */}
           {isUpcoming &&
           item.itemDate &&
           item.itemDate !== todayStr &&
-          !scheduleLabel ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--due">
+          !timeDisplay ? (
+            <span className="yp-today-item-card__badge">
               <CalIcon width={11} height={11} />
-              <span className="yp-today-item-card__chip-label">จะเริ่ม</span>
-              {relativeDay(item.itemDate)}
-            </span>
-          ) : null}
-
-          {/* From parent chip (standalone tasks from other events) */}
-          {!isSubItem &&
-          item.parentEvent &&
-          item.parentEvent.date !== todayStr &&
-          !isOverdue &&
-          !isUpcoming ? (
-            <span className="yp-today-item-card__chip yp-today-item-card__chip--from">
-              ↪ จาก: {item.parentEvent.title}
+              จะเริ่ม {relativeDay(item.itemDate)}
             </span>
           ) : null}
         </div>
-
-        {/* ── Info section (Row 3: source + Row 4: schedule) ──
-            ★ r43: Each on its own row — NEVER same row.
-            Container uses flex-column layout. */}
-        {showInfo ? (
-          <div className="yp-today-item-card__info">
-            {/* Row 3: Source row (sub-item badge + group name) */}
-            {hasSourceRow ? (
-              <div className="yp-today-item-card__source-row">
-                <span className="yp-today-item-card__subtag-badge">
-                  <Layers width={11} height={11} />
-                  รายการย่อย
-                </span>
-                {item.parentEvent ? (
-                  <span className="yp-today-item-card__source">
-                    จากกลุ่ม: {item.parentEvent.title}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
-
-            {/* Row 4: Schedule row — ALWAYS its own line */}
-            {hasScheduleRow ? (
-              <div className="yp-today-item-card__schedule-row">
-                <span className="yp-today-item-card__schedule">
-                  <Clock width={12} height={12} />
-                  {scheduleLabel}
-                </span>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </div>
-
-      {/* ── 3-dot menu button ── */}
-      <button
-        type="button"
-        className="yp-today-item-card__menu"
-        aria-label="ตัวเลือกเพิ่มเติม"
-        aria-haspopup="menu"
-        aria-expanded={isMenuOpen}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (isMenuOpen) onCloseMenu();
-          else onOpenMenu(item);
-        }}
-      >
-        <MoreHorizontal width={16} height={16} />
-      </button>
 
       {/* ── Popup menu ── */}
       {isMenuOpen ? (
