@@ -20,10 +20,25 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global CSS v3.10.0-r26 (Indigo Trust theme)
+   YP WORK · Global CSS v3.10.0-r37 (Indigo Trust theme)
    ═══════════════════════════════════════════════════════════════
-   Senior CSS Architect Refactor — Round 26
+   Senior CSS Architect Refactor — Round 26 → 37
    ─────────────────────────────────────────────────────────────
+   ★ v3.10.0 รอบที่ 37: Today Page Cohesive Design
+   1. ลดความแปลกแยกของการ์ดงาน (yp-today-item-card) โดยเพิ่ม layered
+      accent wash + accent bar + accent blob เหมือน .yp-event-card
+      ทำให้การ์ดเข้ากับ hero ที่เป็น indigo→violet มากขึ้น
+   2. ปรับ yp-today-section__title ให้มี accent bar (gradient indigo→violet)
+      เหมือน hero — เชื่อมโยง section กับ hero ผ่าน visual language
+   3. ปรับ yp-today-section__count, yp-today-time-section__icon,
+      yp-today-time-section__count ให้ใช้ indigo-tinted background
+      แทน plain white — กลมกลืนกับระบบออกแบบ
+   4. เพิ่มระยะห่างระหว่าง section จาก --yp-space-6 → --yp-space-10
+      ทุก section ใช้ระยะเดียวกัน เห็นชัดว่า section ไหนจบที่ไหน
+   5. Hover ของ yp-today-item-card ใช้ accent-tinted background +
+      shadow + lift (เหมือน .yp-event-card) ทำให้การ์ดดู interactive
+      และสอดคล้องกับระบบเดียวกัน
+
    Fixes applied (r24) — ปรับปรุง desktop left-rail + cross-device padding:
    1. Desktop (≥900px) left-rail: เพิ่ม flex column + center ให้
       .bottom-nav__item เหมือนมือถือ (ก่อนหน้านี้ใช้ค่า default
@@ -1531,7 +1546,10 @@
   color: white;
   border-radius: var(--yp-radius-hero);
   padding: var(--yp-space-7) var(--yp-space-6);
-  margin-bottom: var(--yp-space-6);
+  /* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างจาก hero ไป section แรก
+     จาก --yp-space-6 (26px) เป็น --yp-space-8 (36px) — ให้ hero
+     "หายใจ" มากขึ้น และเห็นชัดว่า hero จบที่ไหน section ถัดไปเริ่มที่ไหน */
+  margin-bottom: var(--yp-space-8);
   /* ★ v3.10.0 รอบที่ 31: shadow อ่อนลง — ดูเบากว่า ไม่หนัา */
   box-shadow:
     0 8px 28px rgba(49, 46, 129, 0.20),
@@ -1672,13 +1690,18 @@
 }
 
 /* Today sections */
-.yp-today-section + .yp-today-section { margin-top: var(--yp-space-6); }
+/* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างระหว่าง section ให้เห็นชัดเจนว่า
+   section ไหนจบที่ไหน — จาก --yp-space-6 (26px) เป็น --yp-space-10
+   (44px) ทุก section ใช้ระยะเดียวกัน กลมกลืนกันทั้งหน้า */
+.yp-today-section + .yp-today-section { margin-top: var(--yp-space-10); }
 
 /* ★ v3.10.0 รอบที่ 36: ย้อนกลับพื้นหลัง/มุมโค้ง/เต็มขอบจอของรอบที่ 35
    ทั้งหมด กลับไปเหมือนรอบที่ 33 — คงไว้แค่ระยะห่างระหว่าง 3 section
-   (เลยกำหนด/วันนี้/กำลังจะถึง) ที่เพิ่มขึ้น */
+   (เลยกำหนด/วันนี้/กำลังจะถึง) ที่เพิ่มขึ้น
+   ★ v3.10.0 รอบที่ 37: ปรับให้เท่ากับ section + section ปกติ
+   เพื่อความสม่ำเสมอ — ทุก transition ระหว่าง section ใช้ระยะเดียวกัน */
 .yp-today-section--panel + .yp-today-section--panel {
-  margin-top: var(--yp-space-8);
+  margin-top: var(--yp-space-10);
 }
 
 .yp-today-section__head {
@@ -1686,7 +1709,9 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  margin-bottom: var(--yp-space-4);
+  /* ★ v3.10.0 รอบที่ 37: เพิ่มจาก --yp-space-4 → --yp-space-5
+     ให้มีระยะหายใจระหว่างหัวข้อ section กับเนื้อหาด้านล่างมากขึ้น */
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-section__title {
@@ -1695,16 +1720,47 @@
   color: var(--yp-text-heading);
   letter-spacing: 0.005em;
   line-height: 1.3;
+  /* ★ v3.10.0 รอบที่ 37: เพิ่ม accent bar ข้างหน้า title ให้เชื่อมโยงกับ
+     hero ที่เป็น indigo→violet gradient — ทำให้ section ดูเป็นส่วนหนึ่งของ
+     ระบบเดียวกัน ไม่แปลกแยก */
+  position: relative;
+  padding-left: 14px;
+}
+
+/* ★ v3.10.0 รอบที่ 37: Accent bar ข้างหน้า section title
+   ใช้ gradient เดียวกับ hero (indigo→violet) เพื่อให้เชื่อมโยงกัน */
+.yp-today-section__title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--yp-indigo-500) 0%, var(--yp-violet-500) 100%);
+  border-radius: var(--yp-radius-pill);
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+}
+
+/* ★ v3.10.0 รอบที่ 37: Overdue variant ใช้ rose color แทน indigo→violet
+   เพื่อรักษา semantic ของสีที่บอกว่า "เลยกำหนด" */
+.yp-today-section__title--overdue::before {
+  background: linear-gradient(135deg, var(--yp-rose-500) 0%, #BE123C 100%);
+  box-shadow: 0 1px 3px rgba(244, 63, 94, 0.25);
 }
 
 .yp-today-section__count {
   font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
+  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนจาก --yp-text-muted เป็น indigo-600
+     ให้ count chip เข้ากับ hero และ accent bar ของ title */
+  color: var(--yp-indigo-600);
   font-weight: var(--yp-fw-bold);
-  background: var(--yp-bg-card);
+  /* ★ v3.10.0 รอบที่ 37: ใช้ indigo-soft background แทน plain white
+     ทำให้ chip ดูเป็นส่วนหนึ่งของระบบออกแบบ ไม่ใช่กล่องขาวลอยๆ */
+  background: var(--yp-bg-indigo-soft);
   padding: 5px 14px;
   border-radius: var(--yp-radius-pill);
-  border: 1px solid var(--yp-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
   letter-spacing: 0.02em;
 }
 
@@ -1739,7 +1795,9 @@
   gap: var(--yp-space-3);
   margin-bottom: var(--yp-space-3);
   padding-bottom: var(--yp-space-2);
-  border-bottom: 1px solid var(--yp-border-subtle);
+  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนเส้นแบ่งจาก border-subtle ธรรมดา
+     เป็น indigo-tinted gradient ที่ลงตัวกับ hero มากขึ้น */
+  border-bottom: 1px solid color-mix(in srgb, var(--yp-indigo-500) 10%, var(--yp-border-subtle));
 }
 
 .yp-today-time-section__icon {
@@ -1749,9 +1807,12 @@
   width: 28px;
   height: 28px;
   border-radius: var(--yp-radius-sm);
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  color: var(--yp-indigo-500);
+  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนจาก plain white box เป็น indigo-tinted
+     แบบเดียวกับ .yp-event-card__icon — ทำให้ icon ดูเป็นส่วนหนึ่งของ
+     ระบบออกแบบ ไม่ใช่กล่องขาวลอยๆ ที่แปลกแยกจาก hero */
+  background: color-mix(in srgb, var(--yp-indigo-500) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
+  color: var(--yp-indigo-600);
   font-size: var(--yp-text-xs);
 }
 
@@ -1776,12 +1837,14 @@
 
 .yp-today-time-section__count {
   font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
+  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนให้เข้ากับ section count ที่ปรับใหม่
+     ใช้ indigo-soft background + indigo-600 text */
+  color: var(--yp-indigo-600);
   font-weight: var(--yp-fw-bold);
-  background: var(--yp-bg-card);
+  background: var(--yp-bg-indigo-soft);
   padding: 4px 10px;
   border-radius: var(--yp-radius-pill);
-  border: 1px solid var(--yp-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1991,28 +2054,94 @@
 
 /* ── Today Item Card (รายการเดี่ยว + รายการย่อยในกลุ่ม) ── */
 /* ★ v3.10.0 รอบที่ 28: เหมือน TaskRow — standalone card with border + shadow
-   2-line layout: title + pill chips (เหมือนแพลตฟอร์มขนาดใหญ่) */
+   2-line layout: title + pill chips (เหมือนแพลตฟอร์มขนาดใหญ่)
+   ★ v3.10.0 รอบที่ 37: เพิ่ม layered accent wash + accent bar + accent blob
+   เหมือน .yp-event-card เพื่อให้การ์ดเข้ากับ hero และระบบออกแบบ
+   ไม่ใช่กล่องขาวลอยๆ ที่แปลกแยก */
 .yp-today-item-card {
   display: flex;
   align-items: flex-start;
   gap: var(--yp-space-3);
   padding: var(--yp-space-4) var(--yp-space-4);
-  background: var(--yp-bg-card);
+  /* ★ v3.10.0 รอบที่ 37: Layered background เหมือน .yp-event-card
+     มี radial accent wash ที่มุมบน-ขวา บนพื้น white card
+     ทำให้การ์ดมี "characteristic" ที่สัมพันธ์กับ accent ของงาน */
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent) 0%, transparent 50%),
+    var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   cursor: pointer;
+  /* ★ v3.10.0 รอบที่ 37: เพิ่ม position relative + overflow hidden
+     สำหรับ ::before (accent bar) และ ::after (accent blob) */
+  position: relative;
+  overflow: hidden;
   transition:
     background 160ms var(--yp-ease-m3-decelerate),
     border-color var(--yp-t-fast),
-    box-shadow var(--yp-t-fast);
+    box-shadow var(--yp-t-fast),
+    transform 180ms var(--yp-ease-standard);
   box-shadow:
     0 1px 2px rgba(30, 27, 70, 0.04),
     0 2px 8px rgba(30, 27, 70, 0.03);
 }
 
+/* ★ v3.10.0 รอบที่ 37: Accent bar ที่ขอบซ้าย (เหมือน .yp-event-card::before)
+   เฉพาะ non-subitem — subitem มี border-left accent อยู่แล้ว
+   bar จะขยายเต็มสูงเมื่อ hover เหมือน .yp-event-card */
+.yp-today-item-card:not(.is-subitem)::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 18px; bottom: 18px;
+  width: 3px;
+  background: var(--accent, var(--yp-indigo-500));
+  border-radius: 0 3px 3px 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.75;
+  transition: top 200ms var(--yp-ease-standard), bottom 200ms var(--yp-ease-standard), opacity 200ms;
+}
+
+.yp-today-item-card:not(.is-subitem):hover::before {
+  top: 0;
+  bottom: 0;
+  opacity: 1;
+}
+
+/* ★ v3.10.0 รอบที่ 37: Accent blob ที่มุมบน-ขวา (เหมือน .yp-event-card::after)
+   เป็นจุดไฮไลต์ที่ทำให้การ์ดดูมีมิติ เหมือนมีแสงตกกระทบ */
+.yp-today-item-card::after {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent, #4F46E5) 0%, transparent 70%);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--yp-t-fast);
+}
+
+.yp-today-item-card:hover::after {
+  opacity: 0.10;
+}
+
 .yp-today-item-card:hover {
-  background: var(--yp-bg-card-soft);
-  border-color: var(--yp-border-indigo);
+  /* ★ v3.10.0 รอบที่ 37: Hover แบบ accent-tinted เหมือน .yp-event-card
+     ใช้ accent ของงาน (ไม่ใช่ indigo ตายตัว) ทำให้แต่ละการ์ดมีสีเฉพาะตัว
+     + เพิ่ม lift แบบ subtle (translateY -1px) ให้การ์ดดู "ลอย" เหมือนกดได้ */
+  background: color-mix(in srgb, var(--accent, #4F46E5) 4%, var(--yp-bg-card));
+  border-color: color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
+  transform: translateY(-1px);
+}
+
+/* ★ v3.10.0 รอบที่ 37: Preserve subitem's solid accent border-left on hover
+   ไม่งั้น hover จะทำให้ border-left เปลี่ยนจาก solid accent
+   เป็น 28% accent (จางลง) */
+.yp-today-item-card.is-subitem:hover {
+  border-left-color: var(--accent, var(--yp-indigo-500));
 }
 
 .yp-today-item-card.is-done {
@@ -2028,6 +2157,8 @@
   margin-top: 2px;
   border: 2px solid;
   position: relative;
+  /* ★ v3.10.0 รอบที่ 37: z-index 1 ให้อยู่เหนือ ::after blob ของ parent */
+  z-index: 1;
   cursor: pointer;
   background: transparent;
   padding: 0;
@@ -2081,6 +2212,9 @@
   flex: 1;
   min-width: 0;
   padding-top: 1px;
+  /* ★ v3.10.0 รอบที่ 37: z-index 1 ให้อยู่เหนือ ::after blob ของ parent */
+  position: relative;
+  z-index: 1;
 }
 
 .yp-today-item-card__title {
@@ -2236,6 +2370,9 @@
   text-decoration: none;
   flex-shrink: 0;
   margin-top: 2px;
+  /* ★ v3.10.0 รอบที่ 37: z-index 1 ให้อยู่เหนือ ::after blob ของ parent */
+  position: relative;
+  z-index: 1;
   transition: all 150ms var(--yp-ease-m3-standard);
 }
 

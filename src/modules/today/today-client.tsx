@@ -1,7 +1,19 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r36 — การ์ดเดี่ยวทั้งหมด)
+// YP WORK · Today Dashboard (v3.10.0-r37 — Cohesive Design)
+// ═══════════════════════════════════════════════════════════════
+// ★ v3.10.0 รอบที่ 37: ปรับปรุงการออกแบบให้ทั้งหน้า Today เข้ากันมากขึ้น
+//   1. ลบข้อความ "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
+//      (ไม่ต้องการ hint ซ้ำซ้อน — ผู้ใช้เข้าใจจากการโต้ตอบได้เอง)
+//   2. เพิ่มระยะห่างระหว่าง section ทั้งหมด (hero, overdue, today,
+//      upcoming, department overview) ให้เห็นชัดว่า section ไหนจบที่ไหน
+//   3. ปรับการ์ดงาน (yp-today-item-card) ให้เข้ากับ hero มากขึ้น
+//      โดยใช้ต้นแบบจาก yp-event-card (layered accent wash, accent
+//      bar, premium hover) — ไม่เปลี่ยน class แค่ปรับ CSS
+//   4. ปรับ yp-today-time-section และ yp-today-section__head ให้มี
+//      accent-tinted icon และ count chip ที่ลงตัวกับ hero มากขึ้น
+//      ทำให้ทุก section ดูเชื่อมโยงกันแทนแปลกแยก
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.10.0 รอบที่ 36: ย้อนกลับการเปลี่ยนแปลงของรอบที่ 35 ทั้งหมด
 //   (พื้นหลังขาว มุมโค้ง เต็มขอบจอ) กลับไปเหมือนรอบที่ 33
@@ -660,8 +672,10 @@ export function TodayClient({
   // RENDER
   // ═══════════════════════════════════════════════════════════════
 
-  // ★ รอบที่ 33: render การ์ดแต่ละใบพร้อม section hint
-  const renderCardList = (items: TimelineItem[], showHint = false) => (
+  // ★ รอบที่ 33: render การ์ดแต่ละใบ
+  //   ★ รอบที่ 37: ลบ hint "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
+  //     เพราะผู้ใช้เข้าใจการโต้ตอบได้เองจากการแตะ ไม่ต้องการ hint ซ้ำ
+  const renderCardList = (items: TimelineItem[]) => (
     <div className="yp-today-card-list">
       {items.map((item) => (
         <TodayItemCard
@@ -671,11 +685,6 @@ export function TodayClient({
           todayStr={todayStr}
         />
       ))}
-      {showHint ? (
-        <div className="yp-today-card-list__hint">
-          แตะรายการเพื่อเปลี่ยนสถานะ
-        </div>
-      ) : null}
     </div>
   );
 
@@ -704,7 +713,7 @@ export function TodayClient({
             </div>
             <span className="yp-today-time-section__count">{cluster.itemCount}</span>
           </div>
-          {renderCardList(cluster.items, true)}
+          {renderCardList(cluster.items)}
         </div>
       ))}
     </>
@@ -722,7 +731,7 @@ export function TodayClient({
         </div>
         {/* ★ รอบที่ 33: แยกตามวันที่ด้วย date cluster */}
         {overdueDateClusters.length <= 1 ? (
-          renderCardList(overdueTimelineItems, true)
+          renderCardList(overdueTimelineItems)
         ) : (
           renderDateClusterSection(overdueDateClusters, <AlertTriangle width={16} height={16} strokeWidth={2} />, (dk) => relativeDay(dk), true)
         )}
