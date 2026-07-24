@@ -2652,27 +2652,43 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 41: Footer row — แยกจาก meta row ด้วยเส้นบางๆ
-   - Left: "จากกลุ่ม: XXX" (เฉพาะ sub-item, เป็น text ไม่ใช่ link)
-   - Right: schedule label (today/upcoming ที่มีเวลา)
-   - justify-content: space-between เพื่อจัดวาง
+   ★ v3.10.0 รอบที่ 43: Info section — flex-column layout
+   แยกเป็น source row (รายการย่อย + จากกลุ่ม) และ schedule row
+   อยู่คนละบรรทัดเสมอ — แก้ปัญหา schedule ทับกลุ่มชื่อ
    ═══════════════════════════════════════════════════════════════ */
-.yp-today-item-card__footer {
+.yp-today-item-card__info {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--yp-space-3);
-  /* ★ เส้นบางๆ คั่น footer จาก meta row — subtle divider
-     เหมือน iOS Reminders ที่คั่น primary content กับ metadata */
+  flex-direction: column;
+  gap: 6px;
+  /* ★ เส้นบางๆ คั่น info section จาก meta row — subtle divider */
   margin-top: var(--yp-space-3);
   padding-top: var(--yp-space-3);
   border-top: 1px solid color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
-  /* ★ ป้องกัน footer ยืดเกินขอบเขตของ card */
   min-width: 0;
 }
 
-/* ★ v3.10.0 รอบที่ 42: ห่อ badge "รายการย่อย" + "จากกลุ่ม" ไว้ด้วยกัน
-   ฝั่งซ้ายของ footer (ย้ายมาจาก subtag row เดิมที่อยู่บนสุดของการ์ด) */
+/* ★ Backward compat: __footer เป็น alias ของ __info */
+.yp-today-item-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--yp-space-3);
+  padding-top: var(--yp-space-3);
+  border-top: 1px solid color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
+  min-width: 0;
+}
+
+/* ★ v3.10.0 รอบที่ 43: Source row — sub-item badge + group name
+   อยู่ในบรรทัดเดียวกัน flex-row แต่ schedule อยู่คนละบรรทัด */
+.yp-today-item-card__source-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* ★ Backward compat: __footer-left เป็น alias ของ __source-row */
 .yp-today-item-card__footer-left {
   display: flex;
   align-items: center;
@@ -2681,10 +2697,18 @@
   flex-shrink: 1;
 }
 
-/* ★ v3.10.0 รอบที่ 41: "จากกลุ่ม: XXX" — text ธรรมดา ไม่ใช่ link
+/* ★ v3.10.0 รอบที่ 43: Schedule row — container for schedule label
+   เป็นบรรทัดต่างหากเสมอ ไม่รวมกับ source row */
+.yp-today-item-card__schedule-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* ★ v3.10.0 รอบที่ 41 → รอบที่ 43: "จากกลุ่ม: XXX" — text ธรรมดา
    - color: text-muted (ไม่เด่น)
    - text-overflow: ellipsis สำหรับชื่อกลุ่มที่ยาว
-   - ไม่มี hover state (ไม่ใช่ link) */
+   - max-width เพิ่มจาก 60% → 75% เพราะไม่แชร์แถวกับ schedule แล้ว */
 .yp-today-item-card__source {
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
@@ -2692,14 +2716,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 60%;
+  max-width: 75%;
   flex-shrink: 1;
   min-width: 0;
 }
 
-/* ★ v3.10.0 รอบที่ 41: Schedule label — "กำหนดการ วันนี้ HH:MM น."
+/* ★ v3.10.0 รอบที่ 43: Schedule label — "กำหนดการ วันนี้ HH:MM น."
+   ★ เปลี่ยน: ลบ margin-left: auto — ตอนนี้อยู่บรรทัดต่างหาก left-aligned
    - color: text-heading (เด่นกว่า meta เพราะเป็น info สำคัญ)
-   - margin-left: auto ให้อยู่ฝั่งขวาเสมอ
    - Clock icon + text
    - ไม่แสดงสำหรับ overdue (เวลาเลยไปแล้วทำให้สับสน) */
 .yp-today-item-card__schedule {
@@ -2711,7 +2735,7 @@
   color: var(--yp-text-heading);
   white-space: nowrap;
   flex-shrink: 0;
-  margin-left: auto;
+  /* ★ r43: ลบ margin-left: auto — schedule อยู่บรรทัดต่างหาก left-aligned */
   padding: 3px 8px;
   background: var(--yp-bg-card-soft);
   border-radius: var(--yp-radius-pill);

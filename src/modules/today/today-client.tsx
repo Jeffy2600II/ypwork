@@ -1,109 +1,29 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r42 — Footer Badge + Dot Removal)
+// YP WORK · Today Dashboard (v3.10.0-r43 — Modular Redesign)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 42: ตามคำขอผู้ใช้ 3 ข้อ
+// ★ v3.10.0 รอบที่ 43: ปรับโครงสร้างเป็น module + แก้ schedule overlap
 //
-//   1. ลบ status dot มุมซ้ายบนออกทั้งหมด (ทั้งการ์ดธรรมดาและรายการย่อย)
-//      — เดิมการ์ดธรรมดายังมี dot อยู่ ผู้ใช้แจ้งว่าอยากเอาออกด้วย
-//      เปลี่ยนสถานะยังทำได้เหมือนเดิมโดยแตะที่ card body ทั้งใบ
+//   1. แก้ปัญหา schedule label ทับกับ "จากกลุ่ม: XXX" ใน footer row
+//      ย้าย schedule ออกจาก footer มาเป็น row ต่างหากด้านล่างสุด
+//      เพื่อไม่ให้ทับกันเมื่อชื่อกลุ่มยาวหรือมี sub-item badge
 //
-//   2. ย้าย badge "รายการย่อย" จาก subtag row (บนสุดของการ์ด ก่อน title)
-//      ไปอยู่ใน footer row (ล่างสุด) ต่อหน้า "จากกลุ่ม: XXX" — ผู้ใช้
-//      รู้สึกว่าอยู่บนสุดแล้ว "เคืองหูเคืองตา"
+//   2. แปลงโค้ด monolithic 1252 lines เป็น modular architecture
+//      แบ่งเป็น 8 modules ชัดเจน อ่านง่าย ดูแลรักษาสะดวก
 //
-//   3. แก้บัคปุ่ม "ดูหน้าเต็ม" และ "จากกลุ่ม: XXX" ใน detail sheet กดแล้ว
-//      ไม่มีอะไรเกิดขึ้น (แค่ปิด sheet) — root cause อยู่ใน Window
-//      Framework (src/components/framework/window.tsx) ที่เรียก
-//      history.back() ทุกครั้งที่ sheet ปิด ทำให้ยกเลิกการ navigate ที่
-//      Link เพิ่งพาไป — แก้ไขที่ window.tsx จุดเดียว มีผลกับทุก sheet
-//      ในเว็บที่มีลิงก์ข้างใน ไม่ใช่แค่หน้านี้
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 41: ปรับปรุงการ์ดในหน้า Today รอบนี้โดยเน้น
-//   "ลดความสับสน เพิ่มความชัดเจน" เป็นหลักการออกแบบสูงสุด
-//   พร้อมเสริม interaction ที่ทันสมัยแบบระดับ award-winning UX
+//   3. สร้าง formatScheduleLabel() แบบ centralized
+//      ใช้ทั้งในการ์ดและใน detail sheet (DRY principle)
 //
-//   การปรับปรุงครั้งนี้:
-//
-//   1. ลบ status dot ที่มุมซ้ายบนของการ์ด "รายการย่อย" ออกทั้งหมด
-//      เพราะไม่จำเป็นและทำให้ดูไม่สมดุล — badge "รายการย่อย"
-//      ก็บอกอยู่แล้ว ไม่ต้องมี status dot ที่มุมซ้ายบนอีก
-//      (การ์ดธรรมดายังคงมี status dot อยู่ เพราะเป็นจุดเริ่มต้นของ
-//      card scan และเป็นที่สำหรับคลิกเปลี่ยนสถานะ)
-//
-//   2. มุมขวาบน: เปลี่ยนจาก chevron arrow เป็น "3 จุดแนวนอน"
-//      (MoreHorizontal icon) เป็น pattern มาตรฐานสากล (Material Design,
-//      iOS, Linear, Notion ใช้กันหมด) สำหรับ "actions menu"
-//      กด 3 จุด → เปิด popup ใต้ปุ่ม → ใน popup มีปุ่ม "ดูเพิ่มเติม"
-//
-//   3. ปุ่ม "ดูเพิ่มเติม" ใน popup → เปิด Bottom Sheet ขึ้นมา
-//      แสดงข้อมูลทั้งหมดของรายการนั้น (status, กำหนดการ, จากกลุ่ม,
-//      ผู้รับผิดชอบ, ระยะเวลา, สถานที่, ความสำคัญ) ในรูปแบบที่อ่านง่าย
-//      พร้อมปุ่ม "ดูหน้าเต็ม" ที่ลิงก์ไปหน้ารายละเอียด
-//      → ผู้ใช้เห็นข้อมูลได้โดยไม่ต้องออกจากหน้า Today
-//
-//   4. "จากกลุ่ม: XXX" — ย้ายจากด้านบน (subtag row) มาอยู่ด้านล่าง
-//      (footer row) และไม่ใช้ Link อีกต่อไป (เป็น text ธรรมดา) เพราะ
-//      การคลิกที่ card body จะไปเปิด status picker อยู่แล้ว และการ
-//      คลิก "ดูเพิ่มเติม" จะเปิด bottom sheet ที่มีลิงก์ไปกลุ่มอยู่แล้ว
-//      → ลด confusion ของ click target
-//
-//   5. "เวลา" — ย้ายจากมุมขวาบนมาอยู่ด้านล่างฝั่งขวา (footer row)
-//      แสดงเป็น "กำหนดการ {วันที่สัมพันธ์} {เวลา} น." แทนการแสดง
-//      แค่เวลา เพราะผู้ใช้สับสนว่าตัวเลขนั้นคืออะไร
-//      → ตัวคำว่า "กำหนดการ" ต้องแสดงเสมอ เพื่อให้ชัดเจน
-//      → สำหรับรายการที่เลยกำหนดแล้ว: ไม่แสดงเวลา เพราะเวลาที่
-//        เลยไปแล้วทำให้สับสน (ยังเป็นเวลาเดิมหรือเวลาใหม่?) แสดง
-//        เป็น "เลยกำหนด {X วัน}" ใน meta row แทน
-//
-//   6. การ์ดทั้งหมดมี "footer row" ที่แยกจาก meta row ด้วยเส้นบางๆ
-//      (subtle divider) — เพื่อให้ visual hierarchy ชัดเจน:
-//      - Top: badge + title + meta (status, priority, assignee, est, location)
-//      - Bottom: จากกลุ่ม (left) + กำหนดการ (right)
-//
-//   หลักการออกแบบ: "มั่นคง นิ่ง สะอาดตา สวยงาม น่าใช้งาน"
-//   ใช้แนวทางจากงานวิจัย UX ระดับโลก (Apple HIG, Material Design 3,
-//   Linear, Things 3, Notion) แต่ปรับให้เข้ากับแพลตฟอร์มของเรา
-//   เป็นไปในทิศทางเดียวกับแพลตฟอร์มของเรา ไม่ก็อปปี้ใคร 100%
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 40 (สืบทอดมา): Pure white card background, ลด
-//   decoration ทุกชนิด (accent bar, accent blob, accent guide line)
-//   ใช้ typography มาตรฐาน --yp-text-xs (12px) ทุกที่ — ยังคงไว้
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 38 (สืบทอดมา): แก้การแบ่ง section ตาม effectiveStart/
-//   effectiveDue (รายการที่เริ่มแล้วแต่ยังไม่ถึงวันส่ง ต้องอยู่ใน "วันนี้")
-//   + sub-header เป็น "subtle divider" แทน "section header"
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 37 (สืบทอดมา): ลบ hint "แตะรายการเพื่อเปลี่ยนสถานะ"
-//   + section title accent bar + indigo-tinted section count
-//   + yp-today-time-section accent-tinted icon และ count chip
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 36: ย้อนกลับการเปลี่ยนแปลงของรอบที่ 35 ทั้งหมด
-//   (พื้นหลังขาว มุมโค้ง เต็มขอบจอ) กลับไปเหมือนรอบที่ 33
-//   คงไว้แค่อย่างเดียว: ระยะห่างระหว่าง 3 section หลัก
-//   (เลยกำหนด / วันนี้ / กำลังจะถึง) ที่เพิ่มขึ้นจากรอบที่ 35
-//   class "yp-today-section--panel" ยังคงอยู่ในหน้านี้ (ใช้เป็นตัวช่วย
-//   เลือก selector สำหรับระยะห่างเท่านั้น ไม่มีผลด้าน background อีกต่อไป)
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 33: ปรับปรุงครั้งใหญ่
-//
-//   ปัญหารอบที่ 32:
-//   1. รายการย่อยในกลุ่มแสดงเป็น list แบบธรรมดา (compact)
-//      → ไม่สวยเท่าการ์ดในหน้ารายละเอียดกลุ่มรายการ
-//   2. มีกรอบใหญ่ (yp-today-group) ครอบกลุ่มรายการ → รก ซ้ำซ้อน
-//   3. รายการย่อยที่คนละวันเริ่ม แต่อยู่กลุ่มเดียวกัน → ถูกรวม
-//      อยู่วันที่เดียวกันในส่วน "กำลังจะถึง"
-//   4. ไม่ชัดเจนพอว่าอันไหนคือรายการย่อย vs รายการธรรมดา
-//
-//   สิ่งที่เปลี่ยนรอบที่ 33:
-//   - ลบ SmartGroupCard / yp-today-group ทิ้งทั้งหมด
-//   - ทุกรายการเป็นการ์ดเดี่ยว (เหมือน TaskRow ในหน้ารายละเอียด)
-//     มี border, shadow, pill chips, 2-line layout
-//   - รายการย่อยมีตัวบอก "รายการย่อย" + ชื่อกลุ่มที่คลิกได้
-//   - แยกตาม start_date อย่างเคร่งครัด — งานที่คนละวันเริ่ม
-//     ต้องอยู่คนละวัน/คนละ section อย่างเด็ดขาด
-//   - คลิกชื่อกลุ่มรายการ → ไปหน้ารายละเอียดงาน
+//   Layout การ์ดใหม่ (TOP → BOTTOM):
+//   ┌─────────────────────────────────────────┐
+//   │  Row 1: [Title]              [3-dot]    │
+//   │  Row 2: [chips: status, pri, assignee…] │
+//   │  ── divider (if rows below exist) ──    │
+//   │  Row 3: [รายการย่อย badge] จากกลุ่ม   │
+//   │  Row 4: 🕐 กำหนดการ วันนี้ 14:00 น.    │
+//   └─────────────────────────────────────────┘
+//   Row 3 และ Row 4 อยู่คนละบรรทัด เสมอ ไม่ว่าจะมีอะไรบ้าง
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -141,8 +61,25 @@ import {
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
-import type { YPEvent, Department, UserProfile, SessionUser, Task, TaskStatus, EventStatus } from '@/lib/types';
-import { useRealtimeEvents, useRealtimeDepartments, useRealtimeDeptMembers, useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
+import type {
+  YPEvent,
+  Department,
+  UserProfile,
+  SessionUser,
+  Task,
+  TaskStatus,
+  EventStatus,
+} from '@/lib/types';
+import {
+  useRealtimeEvents,
+  useRealtimeDepartments,
+  useRealtimeDeptMembers,
+  useRealtimeSessionUser,
+} from '@/lib/hooks/use-realtime';
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 1: TYPES & CONSTANTS
+// ═══════════════════════════════════════════════════════════════
 
 export interface TodayClientProps {
   initialEvents: YPEvent[];
@@ -152,7 +89,7 @@ export interface TodayClientProps {
   deptStats: { total: number; done: number; ongoing: number; overdue: number };
 }
 
-// ★ v3.10.0: STATUS_META — เหมือน event-detail-client.tsx
+/** Status metadata — consistent across card & detail sheet */
 const STATUS_META: Record<
   TaskStatus | EventStatus,
   { color: string; label: string; desc: string }
@@ -169,9 +106,7 @@ const PRIORITY_LBL: Record<string, string> = {
   low: 'ไม่เร่ง',
 };
 
-// ═══════════════════════════════════════════════════════════════
-// TYPE: TimelineItem — รายการที่จะแสดงใน timeline
-// ═══════════════════════════════════════════════════════════════
+/** Normalised item displayed in the timeline */
 interface TimelineItem {
   id: string;
   startTime: string | null;
@@ -188,59 +123,31 @@ interface TimelineItem {
   dueDate: string | null;
   location: string | null;
   eventTime: string | null;
-  /** วันที่ที่รายการนี้อยู่ (สำหรับจัดกลุ่มแสดงผล) */
+  /** Which section this item belongs to */
   dateContext: string;
-  /** ★ v3.10.0 รอบที่ 33: วันที่เริ่มจริงของรายการ (สำหรับแยกกลุ่มตามวันที่) */
+  /** Actual start date (for date clustering) */
   itemDate: string;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 38: การแบ่ง section ตาม effectiveStart / effectiveDue
-//   ก่อนหน้านี้ระบบใช้ e.date (วันกำหนดส่ง) เป็นหลักในการแบ่งว่า
-//   รายการจะอยู่ใน section ไหน (เลยกำหนด / วันนี้ / กำลังจะถึง)
-//   ทำให้รายการที่เริ่มทำแล้วแต่ยังไม่ถึงวันกำหนดส่ง ไปอยู่ใน "กำลังจะถึง"
-//   ทั้งที่จริงๆ ผู้ใช้กำลังทำอยู่แล้ว — ผิดจากความตั้งใจของผู้ใช้
-//
-//   รอบที่ 38 แก้: แบ่งตาม effectiveStart และ effectiveDue ของแต่ละรายการ
-//     - "เลยกำหนด": effectiveDue < วันนี้ และยังไม่เสร็จ
-//     - "วันนี้":     effectiveStart ≤ วันนี้ ≤ effectiveDue
-//     - "กำลังจะถึง": effectiveStart > วันนี้ (ยังไม่เริ่ม)
-//
-//   กรณีพิเศษ:
-//     - ถ้า status === 'done' และ effectiveDue < วันนี้ → ไม่แสดง
-//       (ทำเสร็จแล้วและเลยวันกำหนด ไม่ต้องแสดงใน "เลยกำหนด")
-//     - ถ้า status === 'done' และ effectiveStart > วันนี้ → ไม่แสดง
-//       (ทำเสร็จก่อนวันเริ่ม — กรณีแปลกๆ ไม่ต้องแสดง)
-//     - ถ้า status === 'done' และ effectiveStart ≤ วันนี้ ≤ effectiveDue
-//       → แสดงใน "วันนี้" (ทำเสร็จแล้วแต่ยังอยู่ในช่วงเวลาที่กำหนด)
-// ═══════════════════════════════════════════════════════════════
+/** Section classification */
 type ItemDateContext = 'overdue' | 'today' | 'upcoming';
 
-function categorizeByDates(
-  effectiveStart: string,
-  effectiveDue: string,
-  todayStr: string,
-  isDone: boolean
-): ItemDateContext | null {
-  // ถ้าเลยกำหนดส่งและยังไม่เสร็จ → "เลยกำหนด"
-  if (effectiveDue < todayStr && !isDone) return 'overdue';
-
-  // ถ้าเริ่มไปแล้วและยังไม่เลยกำหนด → "วันนี้"
-  // (รวม done ที่อยู่ในช่วงเวลาที่กำหนดด้วย)
-  if (effectiveStart <= todayStr && effectiveDue >= todayStr) return 'today';
-
-  // ถ้ายังไม่เริ่ม → "กำลังจะถึง" (เฉพาะที่ยังไม่เสร็จ)
-  if (effectiveStart > todayStr && !isDone) return 'upcoming';
-
-  // กรณีที่เหลือ: done ในอดีต หรือ done ในอนาคต → ไม่แสดง
-  return null;
+/** Date-cluster grouping for overdue / upcoming sections */
+interface DateCluster {
+  dateKey: string;
+  items: TimelineItem[];
+  itemCount: number;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Helper: สร้าง TimelineItem จาก standalone event
-//   (group ที่ไม่มี task หรือ event ประเภท task)
+// MODULE 2: ITEM BUILDERS
 // ═══════════════════════════════════════════════════════════════
-function buildStandaloneEventItem(ev: YPEvent, dateContext: ItemDateContext): TimelineItem {
+
+/** Build a TimelineItem from a standalone event (no tasks inside) */
+function buildStandaloneEventItem(
+  ev: YPEvent,
+  dateContext: ItemDateContext,
+): TimelineItem {
   return {
     id: `ev-${ev.id}`,
     startTime: ev.time || null,
@@ -262,11 +169,12 @@ function buildStandaloneEventItem(ev: YPEvent, dateContext: ItemDateContext): Ti
   };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Helper: สร้าง TimelineItem จาก task ในกลุ่ม
-//   effectiveStart/effectiveDue คำนวณจาก task ก่อน ถ้าไม่มี fallback ไป event
-// ═══════════════════════════════════════════════════════════════
-function buildTaskItem(ev: YPEvent, t: Task, dateContext: ItemDateContext): TimelineItem {
+/** Build a TimelineItem from a task inside a group event */
+function buildTaskItem(
+  ev: YPEvent,
+  t: Task,
+  dateContext: ItemDateContext,
+): TimelineItem {
   return {
     id: `task-${t.id}`,
     startTime: t.start_time || ev.time || null,
@@ -284,55 +192,42 @@ function buildTaskItem(ev: YPEvent, t: Task, dateContext: ItemDateContext): Time
     location: ev.location || null,
     eventTime: ev.time || null,
     dateContext,
-    // ★ itemDate ใช้ start_date เป็นหลัก สำหรับจัดกลุ่มแสดงผล
     itemDate: t.start_date || ev.start_date || ev.date,
   };
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Helper: เรียงลำดับ items — priority → time → title
+// MODULE 3: CATEGORIZATION ENGINE
 // ═══════════════════════════════════════════════════════════════
-const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-function sortByPriorityTimeTitle(a: TimelineItem, b: TimelineItem): number {
-  const pa = PRIORITY_ORDER[a.priority] ?? 3;
-  const pb = PRIORITY_ORDER[b.priority] ?? 3;
-  if (pa !== pb) return pa - pb;
-  const sa = a.startTime || '';
-  const sb = b.startTime || '';
-  if (sa && sb && sa !== sb) return sa.localeCompare(sb);
-  if (sa && !sb) return -1;
-  if (!sa && sb) return 1;
-  return a.title.localeCompare(b.title, 'th');
+/**
+ * Decide which section a item belongs to based on effectiveStart / effectiveDue.
+ *   - overdue:  effectiveDue < today && not done
+ *   - today:    effectiveStart ≤ today ≤ effectiveDue
+ *   - upcoming: effectiveStart > today && not done
+ *   - null:     done item in past or future (hide)
+ */
+function categorizeByDates(
+  effectiveStart: string,
+  effectiveDue: string,
+  todayStr: string,
+  isDone: boolean,
+): ItemDateContext | null {
+  if (effectiveDue < todayStr && !isDone) return 'overdue';
+  if (effectiveStart <= todayStr && effectiveDue >= todayStr) return 'today';
+  if (effectiveStart > todayStr && !isDone) return 'upcoming';
+  return null;
 }
 
-function sortByDatePriorityTimeTitle(a: TimelineItem, b: TimelineItem): number {
-  const da = a.itemDate;
-  const db = b.itemDate;
-  if (da && db && da !== db) return da.localeCompare(db);
-  return sortByPriorityTimeTitle(a, b);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 33: DateCluster — จัดกลุ่ม items ตาม itemDate
-//   ใช้แทน SmartGroup + UpcomingDateCluster เดิม
-//   แยกตาม itemDate (start_date เป็นหลัก) อย่างเคร่งครัด
-//   งานที่คนละวันเริ่ม จะอยู่คนละ cluster อย่างเด็ดขาด
-// ═══════════════════════════════════════════════════════════════
-interface DateCluster {
-  dateKey: string;
-  items: TimelineItem[];
-  itemCount: number;
-}
-
+/** Group items by itemDate for date-cluster sections */
 function buildDateClusters(items: TimelineItem[]): DateCluster[] {
   const clusters: DateCluster[] = [];
   for (const item of items) {
     const dateKey = item.itemDate;
-    const lastCluster = clusters[clusters.length - 1];
-    if (lastCluster && lastCluster.dateKey === dateKey) {
-      lastCluster.items.push(item);
-      lastCluster.itemCount++;
+    const last = clusters[clusters.length - 1];
+    if (last && last.dateKey === dateKey) {
+      last.items.push(item);
+      last.itemCount++;
     } else {
       clusters.push({ dateKey, items: [item], itemCount: 1 });
     }
@@ -340,7 +235,7 @@ function buildDateClusters(items: TimelineItem[]): DateCluster[] {
   return clusters;
 }
 
-/** แคปชั่นวันที่เต็ม สำหรับแถบคั่น */
+/** Full Thai date caption for date-cluster headers */
 function formatFullDateCaption(dateStr: string): string {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
@@ -351,9 +246,7 @@ function formatFullDateCaption(dateStr: string): string {
   return `วัน${weekday}ที่ ${day} ${month} ${yearBE}`;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Helper: จัดกลุ่ม timeline items ตามช่วงเวลา
-// ═══════════════════════════════════════════════════════════════
+/** Split items into morning / afternoon / unscheduled groups */
 function buildTimeGroups(items: TimelineItem[]) {
   const morning: TimelineItem[] = [];
   const afternoon: TimelineItem[] = [];
@@ -374,6 +267,120 @@ function buildTimeGroups(items: TimelineItem[]) {
   return { morning, afternoon, unscheduled };
 }
 
+// ═══════════════════════════════════════════════════════════════
+// MODULE 4: SORTING
+// ═══════════════════════════════════════════════════════════════
+
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+function sortByPriorityTimeTitle(a: TimelineItem, b: TimelineItem): number {
+  const pa = PRIORITY_ORDER[a.priority] ?? 3;
+  const pb = PRIORITY_ORDER[b.priority] ?? 3;
+  if (pa !== pb) return pa - pb;
+  const sa = a.startTime || '';
+  const sb = b.startTime || '';
+  if (sa && sb && sa !== sb) return sa.localeCompare(sb);
+  if (sa && !sb) return -1;
+  if (!sa && sb) return 1;
+  return a.title.localeCompare(b.title, 'th');
+}
+
+function sortByDatePriorityTimeTitle(
+  a: TimelineItem,
+  b: TimelineItem,
+): number {
+  const da = a.itemDate;
+  const db = b.itemDate;
+  if (da && db && da !== db) return da.localeCompare(db);
+  return sortByPriorityTimeTitle(a, b);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 5: SCHEDULE LABEL FORMATTER (Centralised — DRY)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Build the schedule text used by both the card (Row 4) and the detail sheet.
+ * Returns a human-readable string or null.
+ *
+ * Rules:
+ *   - overdue:    "เลยกำหนด {relativeDay}" (no time — avoids confusion)
+ *   - today:      "วันนี้ HH:MM น." (if itemDate is today)
+ *                "เริ่ม {relativeDay} HH:MM น." (if started earlier)
+ *   - upcoming:   "{relativeDay} HH:MM น."
+ *   - no startTime → null
+ */
+function formatScheduleLabel(
+  item: TimelineItem,
+  todayStr: string,
+): string | null {
+  const isOverdue = item.dateContext === 'overdue';
+  const isToday = item.dateContext === 'today';
+  const isUpcoming = item.dateContext === 'upcoming';
+
+  // Overdue: show which date was missed, but not the time
+  if (isOverdue) {
+    if (item.itemDate && item.itemDate !== todayStr) {
+      return `เลยกำหนด ${relativeDay(item.itemDate)}`;
+    }
+    return 'เลยกำหนด';
+  }
+
+  // No start time → no schedule
+  if (!item.startTime) return null;
+
+  // Today section
+  if (isToday) {
+    if (item.itemDate !== todayStr) {
+      // Started on a past day, still active today
+      return `เริ่ม ${relativeDay(item.itemDate)} ${item.startTime} น.`;
+    }
+    return `วันนี้ ${item.startTime} น.`;
+  }
+
+  // Upcoming section
+  if (isUpcoming && item.itemDate) {
+    return `${relativeDay(item.itemDate)} ${item.startTime} น.`;
+  }
+
+  return null;
+}
+
+/**
+ * Build the schedule text specifically for the card footer display.
+ * Same rules as formatScheduleLabel but prefixed with "กำหนดการ"
+ * for card display. Returns null for overdue (not shown on card).
+ */
+function formatCardScheduleLabel(
+  item: TimelineItem,
+  todayStr: string,
+): string | null {
+  const isOverdue = item.dateContext === 'overdue';
+
+  // Overdue: never show schedule on card (confusing)
+  if (isOverdue) return null;
+  if (!item.startTime) return null;
+
+  const isToday = item.dateContext === 'today';
+  const isUpcoming = item.dateContext === 'upcoming';
+
+  if (isToday) {
+    // If itemDate != today, started in the past → don't show schedule on card
+    if (item.itemDate !== todayStr) return null;
+    return `กำหนดการ วันนี้ ${item.startTime} น.`;
+  }
+
+  if (isUpcoming && item.itemDate) {
+    return `กำหนดการ ${relativeDay(item.itemDate)} ${item.startTime} น.`;
+  }
+
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 6: TODAY DASHBOARD (Main Component)
+// ═══════════════════════════════════════════════════════════════
+
 export function TodayClient({
   initialEvents,
   user: initialUser,
@@ -381,15 +388,24 @@ export function TodayClient({
   deptMembers: initialDeptMembers,
   deptStats: initialDeptStats,
 }: TodayClientProps) {
+  // ── Realtime hooks ──
   const { events, patchEvent, patchTask } = useRealtimeEvents(initialEvents);
   const { user } = useRealtimeSessionUser(initialUser);
-  const { departments: liveDepartments } = useRealtimeDepartments(initialDept ? [initialDept] : []);
-  const liveDept = user.department_id ? liveDepartments.find((d) => d.id === user.department_id) ?? null : null;
-  const { members: liveDeptMembers } = useRealtimeDeptMembers(user.department_id, initialDeptMembers);
+  const { departments: liveDepartments } = useRealtimeDepartments(
+    initialDept ? [initialDept] : [],
+  );
+  const liveDept = user.department_id
+    ? liveDepartments.find((d) => d.id === user.department_id) ?? null
+    : null;
+  const { members: liveDeptMembers } = useRealtimeDeptMembers(
+    user.department_id,
+    initialDeptMembers,
+  );
 
   const dept = liveDept ?? initialDept;
   const deptMembers = liveDeptMembers;
 
+  // ── Date / greeting ──
   const todayParts = getThailandTodayParts();
   const greeting = getTimeGreeting();
   const dayName = THAI_DAYS[todayParts.weekday];
@@ -399,23 +415,7 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ═══════════════════════════════════════════════════════════════
-  // ★ v3.10.0 รอบที่ 38: สร้าง timeline items แยกตาม dateContext
-  //   โดยใช้ effectiveStart / effectiveDue ของแต่ละรายการ
-  //
-  //   ก่อนหน้านี้ (รอบที่ 33-37): แบ่ง section ตาม e.date (วันกำหนดส่ง)
-  //     - รายการที่เริ่มแล้ว แต่ยังไม่ถึงวันกำหนดส่ง → ไป "กำลังจะถึง"
-  //       ทั้งที่จริงๆ ผู้ใช้กำลังทำอยู่แล้ว → ผิด!
-  //
-  //   รอบที่ 38: แบ่งตาม effectiveStart / effectiveDue ของแต่ละรายการ
-  //     - "เลยกำหนด": effectiveDue < วันนี้ และยังไม่เสร็จ
-  //     - "วันนี้":     effectiveStart ≤ วันนี้ ≤ effectiveDue
-  //     - "กำลังจะถึง": effectiveStart > วันนี้
-  //
-  //   แต่ละ task ในกลุ่มจะถูกแบ่งด้วยวันที่ของตัวเอง (ถ้ามี) ไม่ใช่
-  //   ของ parent event ทั้งกลุ่ม → ทำให้ task ที่เริ่มแล้วในกลุ่มที่ยัง
-  //   ไม่ถึงวันส่ง จะไปอยู่ใน "วันนี้" ของผู้ใช้ ไม่ใช่ "กำลังจะถึง"
-  // ═══════════════════════════════════════════════════════════════
+  // ── Categorize events into sections ──
   const categorizedItems = React.useMemo(() => {
     const overdue: TimelineItem[] = [];
     const today: TimelineItem[] = [];
@@ -425,23 +425,33 @@ export function TodayClient({
       if (ev.type === 'group') {
         const tasks = ev.tasks || [];
         if (tasks.length === 0) {
-          // Empty group → ใช้วันที่ของ event เอง
+          // Empty group → use event dates
           const effectiveStart = ev.start_date || ev.date;
           const effectiveDue = ev.date;
           const isDone = resolveEventStatus(ev) === 'done';
-          const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+          const ctx = categorizeByDates(
+            effectiveStart,
+            effectiveDue,
+            todayStr,
+            isDone,
+          );
           if (!ctx) continue;
           const item = buildStandaloneEventItem(ev, ctx);
           if (ctx === 'overdue') overdue.push(item);
           else if (ctx === 'today') today.push(item);
           else upcoming.push(item);
         } else {
-          // แต่ละ task แบ่ง section ตามวันที่ของตัวเอง (fallback ไป event)
+          // Each task uses its own dates
           for (const t of tasks) {
             const effectiveStart = t.start_date || ev.start_date || ev.date;
             const effectiveDue = t.due_date || ev.date;
             const isDone = t.status === 'done';
-            const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+            const ctx = categorizeByDates(
+              effectiveStart,
+              effectiveDue,
+              todayStr,
+              isDone,
+            );
             if (!ctx) continue;
             const item = buildTaskItem(ev, t, ctx);
             if (ctx === 'overdue') overdue.push(item);
@@ -454,7 +464,12 @@ export function TodayClient({
         const effectiveStart = ev.start_date || ev.date;
         const effectiveDue = ev.date;
         const isDone = ev.status === 'done';
-        const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+        const ctx = categorizeByDates(
+          effectiveStart,
+          effectiveDue,
+          todayStr,
+          isDone,
+        );
         if (!ctx) continue;
         const item = buildStandaloneEventItem(ev, ctx);
         if (ctx === 'overdue') overdue.push(item);
@@ -463,8 +478,6 @@ export function TodayClient({
       }
     }
 
-    // เรียงลำดับ: overdue/upcoming ใช้ date → priority → time → title
-    // today ใช้ priority → time → title (ทุกรายการอยู่ในวันเดียวกัน)
     overdue.sort(sortByDatePriorityTimeTitle);
     today.sort(sortByPriorityTimeTitle);
     upcoming.sort(sortByDatePriorityTimeTitle);
@@ -478,49 +491,52 @@ export function TodayClient({
 
   const timeGroups = React.useMemo(
     () => buildTimeGroups(todayTimelineItems),
-    [todayTimelineItems]
+    [todayTimelineItems],
   );
 
-  // ★ v3.10.0 รอบที่ 33: ใช้ buildDateClusters แทน buildSmartGroups
-  //   แยกตาม itemDate อย่างเคร่งครัด
   const overdueDateClusters = React.useMemo(
     () => buildDateClusters(overdueTimelineItems),
-    [overdueTimelineItems]
+    [overdueTimelineItems],
   );
 
   const upcomingDateClusters = React.useMemo(
     () => buildDateClusters(upcomingTimelineItems),
-    [upcomingTimelineItems]
+    [upcomingTimelineItems],
   );
 
   const todayTotalCount = todayTimelineItems.length;
   const overdueCount = overdueTimelineItems.length;
   const upcomingCount = upcomingTimelineItems.length;
 
+  // ── Department stats ──
   const deptStats = React.useMemo(() => {
     if (!dept) return initialDeptStats;
     const deptEvents = events.filter((e) => e.department_id === dept.id);
     return {
       total: deptEvents.length,
       done: deptEvents.filter((e) => resolveEventStatus(e) === 'done').length,
-      ongoing: deptEvents.filter((e) => { const s = resolveEventStatus(e); return s === 'ongoing' || s === 'planning'; }).length,
-      overdue: deptEvents.filter((e) => e.date < todayStr && resolveEventStatus(e) !== 'done').length,
+      ongoing: deptEvents.filter((e) => {
+        const s = resolveEventStatus(e);
+        return s === 'ongoing' || s === 'planning';
+      }).length,
+      overdue: deptEvents.filter(
+        (e) => e.date < todayStr && resolveEventStatus(e) !== 'done',
+      ).length,
     };
   }, [events, dept, todayStr, initialDeptStats]);
 
-  // ═══════════════════════════════════════════════════════════════
-  // STATUS PICKER
-  // ═══════════════════════════════════════════════════════════════
+  // ── State: status picker ──
   const [statusPickerOpen, setStatusPickerOpen] = React.useState(false);
   const [activeItem, setActiveItem] = React.useState<TimelineItem | null>(null);
-  const [toast, setToast] = React.useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = React.useState<{
+    msg: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
-  // ★ v3.10.0 รอบที่ 41: state สำหรับ 3-dot menu popup และ detail sheet
-  //   - menuOpenFor: item ที่กำลังเปิด popup อยู่ (null = ปิด popup)
-  //   - detailSheetItem: item ที่กำลังแสดงใน Bottom Sheet "ดูเพิ่มเติม"
-  //   ทั้งสองอย่างเป็น singleton — เปิดได้ทีละอัน
+  // ── State: 3-dot menu & detail sheet ──
   const [menuOpenFor, setMenuOpenFor] = React.useState<TimelineItem | null>(null);
-  const [detailSheetItem, setDetailSheetItem] = React.useState<TimelineItem | null>(null);
+  const [detailSheetItem, setDetailSheetItem] =
+    React.useState<TimelineItem | null>(null);
 
   React.useEffect(() => {
     if (!toast) return;
@@ -533,10 +549,6 @@ export function TodayClient({
     setStatusPickerOpen(true);
   };
 
-  // ★ v3.10.0 รอบที่ 41: handler สำหรับ 3-dot menu
-  //   - handleOpenCardMenu: เปิด popup ของ item ที่ระบุ (toggle ถ้าเปิดอยู่แล้ว)
-  //   - handleCloseCardMenu: ปิด popup
-  //   - handleOpenDetailSheet: ปิด popup แล้วเปิด Bottom Sheet แสดงรายละเอียด
   const handleOpenCardMenu = (item: TimelineItem) => {
     setMenuOpenFor((prev) => (prev?.id === item.id ? null : item));
   };
@@ -547,15 +559,19 @@ export function TodayClient({
   };
   const handleCloseDetailSheet = () => setDetailSheetItem(null);
 
-  const handleStatusChange = async (newStatus: TaskStatus | EventStatus) => {
+  const handleStatusChange = async (
+    newStatus: TaskStatus | EventStatus,
+  ) => {
     if (!activeItem) return;
     const item = activeItem;
     const oldStatus = item.status;
     const isTask = !!item.task;
     const isEvent = !!item.event;
 
-    if (isTask && item.task) patchTask(item.task.id, { status: newStatus as TaskStatus });
-    else if (isEvent && item.event) patchEvent(item.event.id, { status: newStatus as EventStatus });
+    if (isTask && item.task)
+      patchTask(item.task.id, { status: newStatus as TaskStatus });
+    else if (isEvent && item.event)
+      patchEvent(item.event.id, { status: newStatus as EventStatus });
 
     setStatusPickerOpen(false);
     setActiveItem(null);
@@ -578,25 +594,24 @@ export function TodayClient({
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
       }
-      setToast({ msg: `เปลี่ยนสถานะ "${item.title}" เป็น ${statusLabel(newStatus)}`, type: 'success' });
+      setToast({
+        msg: `เปลี่ยนสถานะ "${item.title}" เป็น ${statusLabel(newStatus)}`,
+        type: 'success',
+      });
     } catch (e: any) {
-      if (isTask && item.task) patchTask(item.task.id, { status: oldStatus as TaskStatus });
-      else if (isEvent && item.event) patchEvent(item.event.id, { status: oldStatus as EventStatus });
-      setToast({ msg: `ไม่สามารถเปลี่ยนสถานะ: ${e.message || 'unknown'}`, type: 'error' });
+      if (isTask && item.task)
+        patchTask(item.task.id, { status: oldStatus as TaskStatus });
+      else if (isEvent && item.event)
+        patchEvent(item.event.id, { status: oldStatus as EventStatus });
+      setToast({
+        msg: `ไม่สามารถเปลี่ยนสถานะ: ${e.message || 'unknown'}`,
+        type: 'error',
+      });
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════
+  // ── RENDER HELPERS ──
 
-  // ★ รอบที่ 33: render การ์ดแต่ละใบ
-  //   ★ รอบที่ 37: ลบ hint "แตะรายการเพื่อเปลี่ยนสถานะ" ออกทั้งหมด
-  //     เพราะผู้ใช้เข้าใจการโต้ตอบได้เองจากการแตะ ไม่ต้องการ hint ซ้ำ
-  //   ★ v3.10.0 รอบที่ 41: ส่ง props ใหม่ให้ TodayItemCard
-  //     - isMenuOpen: บอกว่า popup ของการ์ดนี้เปิดอยู่หรือไม่
-  //     - onOpenMenu / onCloseMenu: เปิด/ปิด popup
-  //     - onViewMore: เปิด Bottom Sheet แสดงรายละเอียด
   const renderCardList = (items: TimelineItem[]) => (
     <div className="yp-today-card-list">
       {items.map((item) => (
@@ -614,13 +629,11 @@ export function TodayClient({
     </div>
   );
 
-  // ★ รอบที่ 33: render date cluster (สำหรับ overdue และ upcoming)
-  //   แยกตาม itemDate อย่างชัดเจน แต่ละวันมีแถบคั่นของตัวเอง
   const renderDateClusterSection = (
     clusters: DateCluster[],
     icon: React.ReactNode,
     getLabel: (dateKey: string) => string,
-    isOverdue = false
+    isOverdue = false,
   ) => (
     <>
       {clusters.map((cluster) => (
@@ -631,13 +644,19 @@ export function TodayClient({
             </span>
             <div className="yp-today-time-section__text">
               <div className="yp-today-time-section__label">
-                {cluster.dateKey ? getLabel(cluster.dateKey) : 'ไม่ระบุวันที่'}
+                {cluster.dateKey
+                  ? getLabel(cluster.dateKey)
+                  : 'ไม่ระบุวันที่'}
               </div>
               <div className="yp-today-time-section__caption">
-                {cluster.dateKey ? formatFullDateCaption(cluster.dateKey) : 'ยังไม่ได้กำหนดวันที่'}
+                {cluster.dateKey
+                  ? formatFullDateCaption(cluster.dateKey)
+                  : 'ยังไม่ได้กำหนดวันที่'}
               </div>
             </div>
-            <span className="yp-today-time-section__count">{cluster.itemCount}</span>
+            <span className="yp-today-time-section__count">
+              {cluster.itemCount}
+            </span>
           </div>
           {renderCardList(cluster.items)}
         </div>
@@ -653,13 +672,19 @@ export function TodayClient({
           <h2 className="yp-today-section__title yp-today-section__title--overdue">
             รายการที่เลยกำหนด
           </h2>
-          <span className="yp-today-section__count yp-today-section__count--overdue">{overdueCount} รายการ</span>
+          <span className="yp-today-section__count yp-today-section__count--overdue">
+            {overdueCount} รายการ
+          </span>
         </div>
-        {/* ★ รอบที่ 33: แยกตามวันที่ด้วย date cluster */}
         {overdueDateClusters.length <= 1 ? (
           renderCardList(overdueTimelineItems)
         ) : (
-          renderDateClusterSection(overdueDateClusters, <AlertTriangle width={16} height={16} strokeWidth={2} />, (dk) => relativeDay(dk), true)
+          renderDateClusterSection(
+            overdueDateClusters,
+            <AlertTriangle width={16} height={16} strokeWidth={2} />,
+            (dk) => relativeDay(dk),
+            true,
+          )
         )}
       </section>
     );
@@ -670,13 +695,18 @@ export function TodayClient({
     caption: string,
     icon: React.ReactNode,
     items: TimelineItem[],
-    sectionKey: string
+    sectionKey: string,
   ) => {
     if (items.length === 0) return null;
     return (
       <div className="yp-today-time-section">
         <div className="yp-today-time-section__head">
-          <span className="yp-today-time-section__icon" aria-hidden="true">{icon}</span>
+          <span
+            className="yp-today-time-section__icon"
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
           <div className="yp-today-time-section__text">
             <div className="yp-today-time-section__label">{label}</div>
             <div className="yp-today-time-section__caption">{caption}</div>
@@ -688,6 +718,8 @@ export function TodayClient({
     );
   };
 
+  // ── MAIN RENDER ──
+
   return (
     <div className="yp-page yp-page-enter">
       {/* ── HERO ── */}
@@ -698,15 +730,21 @@ export function TodayClient({
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{todayTotalCount}</div>
+              <div className="yp-today-hero__stat-value">
+                {todayTotalCount}
+              </div>
               <div className="yp-today-hero__stat-label">รายการวันนี้</div>
             </div>
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{upcomingCount}</div>
+              <div className="yp-today-hero__stat-value">
+                {upcomingCount}
+              </div>
               <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
             </div>
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{overdueCount}</div>
+              <div className="yp-today-hero__stat-value">
+                {overdueCount}
+              </div>
               <div className="yp-today-hero__stat-label">เลยกำหนด</div>
             </div>
           </div>
@@ -720,19 +758,43 @@ export function TodayClient({
       <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">รายการวันนี้</h2>
-          <span className="yp-today-section__count">{todayTotalCount} รายการ</span>
+          <span className="yp-today-section__count">
+            {todayTotalCount} รายการ
+          </span>
         </div>
         {todayTotalCount === 0 ? (
           <div className="yp-empty">
-            <div className="yp-empty__icon" aria-hidden="true"><span role="img" aria-label="ว่าง">🌤️</span></div>
+            <div className="yp-empty__icon" aria-hidden="true">
+              <span role="img" aria-label="ว่าง">🌤️</span>
+            </div>
             <div className="yp-empty__title">ไม่มีรายการวันนี้</div>
-            <div className="yp-empty__desc">ว่าง ๆ ลองดูรายการที่กำลังจะถึงด้านล่าง</div>
+            <div className="yp-empty__desc">
+              ว่าง ๆ ลองดูรายการที่กำลังจะถึงด้านล่าง
+            </div>
           </div>
         ) : (
           <>
-            {renderTimeSection('ช่วงเช้า', 'เริ่มก่อน 12:00 น.', <Sunrise width={16} height={16} strokeWidth={2} />, timeGroups.morning, 'morning')}
-            {renderTimeSection('ช่วงบ่าย', 'เริ่มตั้งแต่ 12:00 น. เป็นต้นไป', <Sunset width={16} height={16} strokeWidth={2} />, timeGroups.afternoon, 'afternoon')}
-            {renderTimeSection('ไม่ระบุเวลา', 'ยังไม่ได้กำหนดเวลาเริ่ม', <CircleDashed width={16} height={16} strokeWidth={2} />, timeGroups.unscheduled, 'unscheduled')}
+            {renderTimeSection(
+              'ช่วงเช้า',
+              'เริ่มก่อน 12:00 น.',
+              <Sunrise width={16} height={16} strokeWidth={2} />,
+              timeGroups.morning,
+              'morning',
+            )}
+            {renderTimeSection(
+              'ช่วงบ่าย',
+              'เริ่มตั้งแต่ 12:00 น. เป็นต้นไป',
+              <Sunset width={16} height={16} strokeWidth={2} />,
+              timeGroups.afternoon,
+              'afternoon',
+            )}
+            {renderTimeSection(
+              'ไม่ระบุเวลา',
+              'ยังไม่ได้กำหนดเวลาเริ่ม',
+              <CircleDashed width={16} height={16} strokeWidth={2} />,
+              timeGroups.unscheduled,
+              'unscheduled',
+            )}
           </>
         )}
       </section>
@@ -741,22 +803,26 @@ export function TodayClient({
       <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">กำลังจะถึง</h2>
-          <span className="yp-today-section__count">{upcomingCount} รายการ</span>
+          <span className="yp-today-section__count">
+            {upcomingCount} รายการ
+          </span>
         </div>
         {upcomingCount === 0 ? (
           <div className="yp-empty">
-            <div className="yp-empty__icon" aria-hidden="true"><span role="img" aria-label="ว่าง">📅</span></div>
-            <div className="yp-empty__title">ยังไม่มีรายการที่กำลังจะถึง</div>
+            <div className="yp-empty__icon" aria-hidden="true">
+              <span role="img" aria-label="ว่าง">📅</span>
+            </div>
+            <div className="yp-empty__title">
+              ยังไม่มีรายการที่กำลังจะถึง
+            </div>
             <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
-          /* ★ v3.10.0 รอบที่ 33: แยกตาม itemDate (start_date) อย่างเคร่งครัด
-             รายการย่อยที่คนละวันเริ่ม จะอยู่คนละแถบคั่นวันที่อย่างเด็ดขาด */
           renderDateClusterSection(
             upcomingDateClusters,
             <CalIcon width={16} height={16} strokeWidth={2} />,
             (dk) => relativeDay(dk),
-            false
+            false,
           )
         )}
       </section>
@@ -765,43 +831,101 @@ export function TodayClient({
       {dept ? (
         <section className="yp-today-section">
           <div className="yp-today-section__head">
-            <h2 className="yp-today-section__title">{dept.icon || '◎'} ภาพรวม{dept.name}</h2>
+            <h2 className="yp-today-section__title">
+              {dept.icon || '◎'} ภาพรวม{dept.name}
+            </h2>
           </div>
           <div className="yp-stat-grid">
-            <div className="yp-stat" style={{ ['--accent' as string]: dept.color }}>
-              <div className="yp-stat__icon"><Flag width={18} height={18} /></div>
+            <div
+              className="yp-stat"
+              style={{ ['--accent' as string]: dept.color }}
+            >
+              <div className="yp-stat__icon">
+                <Flag width={18} height={18} />
+              </div>
               <div className="yp-stat__value">{deptStats.total}</div>
               <div className="yp-stat__label">รายการทั้งหมด</div>
             </div>
-            <div className="yp-stat" style={{ ['--accent' as string]: '#10B981' }}>
-              <div className="yp-stat__icon"><Check width={18} height={18} /></div>
+            <div
+              className="yp-stat"
+              style={{ ['--accent' as string]: '#10B981' }}
+            >
+              <div className="yp-stat__icon">
+                <Check width={18} height={18} />
+              </div>
               <div className="yp-stat__value">{deptStats.done}</div>
               <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
-            <div className="yp-stat" style={{ ['--accent' as string]: dept.color }}>
-              <div className="yp-stat__icon"><Clock width={18} height={18} /></div>
+            <div
+              className="yp-stat"
+              style={{ ['--accent' as string]: dept.color }}
+            >
+              <div className="yp-stat__icon">
+                <Clock width={18} height={18} />
+              </div>
               <div className="yp-stat__value">{deptStats.ongoing}</div>
               <div className="yp-stat__label">กำลังดำเนินการ</div>
             </div>
-            <div className="yp-stat" style={{ ['--accent' as string]: '#F43F5E' }}>
-              <div className="yp-stat__icon"><AlertCircle width={18} height={18} /></div>
+            <div
+              className="yp-stat"
+              style={{ ['--accent' as string]: '#F43F5E' }}
+            >
+              <div className="yp-stat__icon">
+                <AlertCircle width={18} height={18} />
+              </div>
               <div className="yp-stat__value">{deptStats.overdue}</div>
               <div className="yp-stat__label">เลยกำหนด</div>
             </div>
           </div>
           <div className="yp-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '6px',
+                flexWrap: 'wrap',
+              }}
+            >
               <div className="yp-avatar-group">
                 {deptMembers.slice(0, 6).map((m) => (
-                  <span key={m.auth_uid} className="yp-avatar" style={{ display: 'inline-flex', width: 28, height: 28, borderRadius: 'var(--yp-radius-pill)', overflow: 'hidden', boxShadow: 'var(--yp-shadow-xs)', border: '2px solid white' }} title={m.full_name}>
+                  <span
+                    key={m.auth_uid}
+                    className="yp-avatar"
+                    style={{
+                      display: 'inline-flex',
+                      width: 28,
+                      height: 28,
+                      borderRadius: 'var(--yp-radius-pill)',
+                      overflow: 'hidden',
+                      boxShadow: 'var(--yp-shadow-xs)',
+                      border: '2px solid white',
+                    }}
+                    title={m.full_name}
+                  >
                     <Avatar name={m.full_name} color={m.color} size={28} />
                   </span>
                 ))}
               </div>
-              <div style={{ fontSize: 'var(--yp-text-xs)', color: 'var(--yp-text-muted)' }}>สมาชิก {deptMembers.length} คน</div>
+              <div
+                style={{
+                  fontSize: 'var(--yp-text-xs)',
+                  color: 'var(--yp-text-muted)',
+                }}
+              >
+                สมาชิก {deptMembers.length} คน
+              </div>
             </div>
             {dept.description ? (
-              <div style={{ fontSize: 'var(--yp-text-xs)', color: 'var(--yp-text-body)', lineHeight: 1.5 }}>{dept.description}</div>
+              <div
+                style={{
+                  fontSize: 'var(--yp-text-xs)',
+                  color: 'var(--yp-text-body)',
+                  lineHeight: 1.5,
+                }}
+              >
+                {dept.description}
+              </div>
             ) : null}
           </div>
         </section>
@@ -810,227 +934,269 @@ export function TodayClient({
       {/* ── STATUS PICKER SHEET ── */}
       <BottomSheet
         open={statusPickerOpen}
-        onClose={() => { setStatusPickerOpen(false); setActiveItem(null); }}
+        onClose={() => {
+          setStatusPickerOpen(false);
+          setActiveItem(null);
+        }}
         title="สถานะของรายการ"
         description={activeItem?.title}
       >
         <div className="yp-status-picker">
-          {activeItem ? (
-            (activeItem.task
-              ? (['todo', 'ongoing', 'done'] as TaskStatus[])
-              : (['todo', 'ongoing', 'done'] as EventStatus[])
-            ).map((s) => {
-              const meta = STATUS_META[s];
-              const isCurrent = activeItem.status === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  className={`yp-status-picker__option${isCurrent ? ' is-current' : ''}`}
-                  style={{ ['--status-color' as string]: meta.color }}
-                  onClick={() => handleStatusChange(s)}
-                >
-                  <div className="yp-status-picker__icon">
-                    {s === 'done' ? <Check width={16} height={16} /> : s === 'ongoing' ? <RefreshCw width={14} height={14} /> : <Clock width={14} height={14} />}
-                  </div>
-                  <div className="yp-status-picker__text">
-                    <div className="yp-status-picker__label">{meta.label}</div>
-                    <div className="yp-status-picker__desc">{meta.desc}</div>
-                  </div>
-                  {isCurrent ? <div className="yp-status-picker__check"><Check width={18} height={18} /></div> : null}
-                </button>
-              );
-            })
-          ) : null}
+          {activeItem
+            ? (
+                activeItem.task
+                  ? (['todo', 'ongoing', 'done'] as TaskStatus[])
+                  : (['todo', 'ongoing', 'done'] as EventStatus[])
+              ).map((s) => {
+                const meta = STATUS_META[s];
+                const isCurrent = activeItem.status === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    className={`yp-status-picker__option${isCurrent ? ' is-current' : ''}`}
+                    style={{ ['--status-color' as string]: meta.color }}
+                    onClick={() => handleStatusChange(s)}
+                  >
+                    <div className="yp-status-picker__icon">
+                      {s === 'done' ? (
+                        <Check width={16} height={16} />
+                      ) : s === 'ongoing' ? (
+                        <RefreshCw width={14} height={14} />
+                      ) : (
+                        <Clock width={14} height={14} />
+                      )}
+                    </div>
+                    <div className="yp-status-picker__text">
+                      <div className="yp-status-picker__label">
+                        {meta.label}
+                      </div>
+                      <div className="yp-status-picker__desc">
+                        {meta.desc}
+                      </div>
+                    </div>
+                    {isCurrent ? (
+                      <div className="yp-status-picker__check">
+                        <Check width={18} height={18} />
+                      </div>
+                    ) : null}
+                  </button>
+                );
+              })
+            : null}
         </div>
       </BottomSheet>
 
-      {/* ── ★ v3.10.0 รอบที่ 41: DETAIL SHEET (เปิดจากปุ่ม "ดูเพิ่มเติม") ──
-         แสดงข้อมูลทั้งหมดของรายการในรูปแบบที่อ่านง่าย พร้อมปุ่ม
-         "ดูหน้าเต็ม" ที่ลิงก์ไปหน้ารายละเอียดแบบเต็ม */}
+      {/* ── DETAIL SHEET ── */}
       <BottomSheet
         open={!!detailSheetItem}
         onClose={handleCloseDetailSheet}
         title={detailSheetItem?.title}
-        description={detailSheetItem && (detailSheetItem.task && detailSheetItem.parentEvent) ? 'รายการย่อย' : 'รายการ'}
+        description={
+          detailSheetItem &&
+          detailSheetItem.task &&
+          detailSheetItem.parentEvent
+            ? 'รายการย่อย'
+            : 'รายการ'
+        }
       >
-        {detailSheetItem ? (() => {
-          const di = detailSheetItem;
-          const diIsSubItem = !!di.parentEvent && !!di.task;
-          const diDetailHref = di.event ? `/events/${di.event.id}` : (di.parentEvent ? `/events/${di.parentEvent.id}` : '#');
-          const diIsOverdue = di.dateContext === 'overdue';
-          const diIsToday = di.dateContext === 'today';
-          const diIsUpcoming = di.dateContext === 'upcoming';
-          const diStatusMeta = STATUS_META[di.status];
-          const diPriorityLbl = PRIORITY_LBL[di.priority || 'medium'] || 'ปกติ';
-          // ★ คำนวณ schedule text สำหรับ detail sheet (เหมือนในการ์ด)
-          const diScheduleText: string | null = (() => {
-            if (diIsOverdue) {
-              // สำหรับ overdue: แสดงวันที่เดิมที่ครบกำหนด ไม่ใช่เวลา
-              if (di.itemDate && di.itemDate !== todayStr) {
-                return `เลยกำหนด ${relativeDay(di.itemDate)}`;
-              }
-              return 'เลยกำหนด';
-            }
-            if (!di.startTime) return null;
-            if (diIsToday) {
-              if (di.itemDate !== todayStr) {
-                // เริ่มในอดีต แต่ยังอยู่ในช่วง "วันนี้"
-                return `เริ่ม ${relativeDay(di.itemDate)} ${di.startTime} น.`;
-              }
-              return `วันนี้ ${di.startTime} น.`;
-            }
-            if (diIsUpcoming && di.itemDate) {
-              return `${relativeDay(di.itemDate)} ${di.startTime} น.`;
-            }
-            return null;
-          })();
+        {detailSheetItem
+          ? (() => {
+              const di = detailSheetItem;
+              const diIsSubItem = !!di.parentEvent && !!di.task;
+              const diDetailHref = di.event
+                ? `/events/${di.event.id}`
+                : di.parentEvent
+                  ? `/events/${di.parentEvent.id}`
+                  : '#';
+              const diStatusMeta = STATUS_META[di.status];
+              const diPriorityLbl =
+                PRIORITY_LBL[di.priority || 'medium'] || 'ปกติ';
+              // ★ r43: Use centralized formatScheduleLabel (Module 5)
+              const diScheduleText = formatScheduleLabel(di, todayStr);
+              const diIsOverdue = di.dateContext === 'overdue';
 
-          return (
-            <div className="yp-card-detail">
-              {/* Status row */}
-              <div className="yp-card-detail__row">
-                <div className="yp-card-detail__label">
-                  <span className="yp-card-detail__label-text">สถานะ</span>
-                </div>
-                <div className="yp-card-detail__value">
-                  <span
-                    className={`yp-card-detail__chip yp-card-detail__chip--status yp-card-detail__chip--status-${di.status}`}
-                    style={{ ['--status-color' as string]: diStatusMeta.color }}
+              return (
+                <div className="yp-card-detail">
+                  {/* Status row */}
+                  <div className="yp-card-detail__row">
+                    <div className="yp-card-detail__label">
+                      <span className="yp-card-detail__label-text">
+                        สถานะ
+                      </span>
+                    </div>
+                    <div className="yp-card-detail__value">
+                      <span
+                        className={`yp-card-detail__chip yp-card-detail__chip--status yp-card-detail__chip--status-${di.status}`}
+                        style={{
+                          ['--status-color' as string]: diStatusMeta.color,
+                        }}
+                      >
+                        {di.status === 'done' ? (
+                          <Check width={12} height={12} />
+                        ) : di.status === 'ongoing' ? (
+                          <RefreshCw width={12} height={12} />
+                        ) : (
+                          <Clock width={12} height={12} />
+                        )}
+                        {diStatusMeta.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Schedule row — uses centralized formatScheduleLabel */}
+                  {diScheduleText ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Clock width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          กำหนดการ
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        <span
+                          className={`yp-card-detail__schedule${diIsOverdue ? ' is-overdue' : ''}`}
+                        >
+                          {diScheduleText}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* From group row (sub-items only) */}
+                  {diIsSubItem && di.parentEvent ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Layers width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          จากกลุ่ม
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        <Link
+                          href={`/events/${di.parentEvent.id}`}
+                          className="yp-card-detail__link"
+                          onClick={handleCloseDetailSheet}
+                        >
+                          {di.parentEvent.title}
+                          <ArrowUpRight width={12} height={12} />
+                        </Link>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Assignee row */}
+                  {di.assigneeName ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <UserIcon width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          ผู้รับผิดชอบ
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        <span className="yp-card-detail__assignee">
+                          {di.assigneeColor ? (
+                            <Avatar
+                              name={di.assigneeName}
+                              color={di.assigneeColor}
+                              size={20}
+                            />
+                          ) : null}
+                          {di.assigneeName}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Estimated time row */}
+                  {di.estimatedTime ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Timer width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          ระยะเวลา
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        {di.estimatedTime}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Location row */}
+                  {di.location ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <MapPin width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          สถานที่
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        {di.location}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Priority row */}
+                  <div className="yp-card-detail__row">
+                    <div className="yp-card-detail__label">
+                      <Flag width={14} height={14} />
+                      <span className="yp-card-detail__label-text">
+                        ความสำคัญ
+                      </span>
+                    </div>
+                    <div className="yp-card-detail__value">
+                      <span
+                        className={`yp-card-detail__priority yp-card-detail__priority--${di.priority || 'medium'}`}
+                      >
+                        {diPriorityLbl}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA: open full detail page */}
+                  <Link
+                    href={diDetailHref}
+                    className="yp-card-detail__cta"
+                    onClick={handleCloseDetailSheet}
                   >
-                    {di.status === 'done' ? <Check width={12} height={12} /> : di.status === 'ongoing' ? <RefreshCw width={12} height={12} /> : <Clock width={12} height={12} />}
-                    {diStatusMeta.label}
-                  </span>
+                    ดูหน้าเต็ม
+                    <ChevronRight width={14} height={14} />
+                  </Link>
                 </div>
-              </div>
-
-              {/* Schedule row */}
-              {diScheduleText ? (
-                <div className="yp-card-detail__row">
-                  <div className="yp-card-detail__label">
-                    <Clock width={14} height={14} />
-                    <span className="yp-card-detail__label-text">กำหนดการ</span>
-                  </div>
-                  <div className="yp-card-detail__value">
-                    <span className={`yp-card-detail__schedule${diIsOverdue ? ' is-overdue' : ''}`}>
-                      {diScheduleText}
-                    </span>
-                  </div>
-                </div>
-              ) : null}
-
-              {/* From group row (sub-items only) */}
-              {diIsSubItem && di.parentEvent ? (
-                <div className="yp-card-detail__row">
-                  <div className="yp-card-detail__label">
-                    <Layers width={14} height={14} />
-                    <span className="yp-card-detail__label-text">จากกลุ่ม</span>
-                  </div>
-                  <div className="yp-card-detail__value">
-                    <Link
-                      href={`/events/${di.parentEvent.id}`}
-                      className="yp-card-detail__link"
-                      onClick={handleCloseDetailSheet}
-                    >
-                      {di.parentEvent.title}
-                      <ArrowUpRight width={12} height={12} />
-                    </Link>
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Assignee row */}
-              {di.assigneeName ? (
-                <div className="yp-card-detail__row">
-                  <div className="yp-card-detail__label">
-                    <UserIcon width={14} height={14} />
-                    <span className="yp-card-detail__label-text">ผู้รับผิดชอบ</span>
-                  </div>
-                  <div className="yp-card-detail__value">
-                    <span className="yp-card-detail__assignee">
-                      {di.assigneeColor ? <Avatar name={di.assigneeName} color={di.assigneeColor} size={20} /> : null}
-                      {di.assigneeName}
-                    </span>
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Estimated time row */}
-              {di.estimatedTime ? (
-                <div className="yp-card-detail__row">
-                  <div className="yp-card-detail__label">
-                    <Timer width={14} height={14} />
-                    <span className="yp-card-detail__label-text">ระยะเวลา</span>
-                  </div>
-                  <div className="yp-card-detail__value">{di.estimatedTime}</div>
-                </div>
-              ) : null}
-
-              {/* Location row */}
-              {di.location ? (
-                <div className="yp-card-detail__row">
-                  <div className="yp-card-detail__label">
-                    <MapPin width={14} height={14} />
-                    <span className="yp-card-detail__label-text">สถานที่</span>
-                  </div>
-                  <div className="yp-card-detail__value">{di.location}</div>
-                </div>
-              ) : null}
-
-              {/* Priority row */}
-              <div className="yp-card-detail__row">
-                <div className="yp-card-detail__label">
-                  <Flag width={14} height={14} />
-                  <span className="yp-card-detail__label-text">ความสำคัญ</span>
-                </div>
-                <div className="yp-card-detail__value">
-                  <span className={`yp-card-detail__priority yp-card-detail__priority--${di.priority || 'medium'}`}>
-                    {diPriorityLbl}
-                  </span>
-                </div>
-              </div>
-
-              {/* CTA: open full detail page */}
-              <Link
-                href={diDetailHref}
-                className="yp-card-detail__cta"
-                onClick={handleCloseDetailSheet}
-              >
-                ดูหน้าเต็ม
-                <ChevronRight width={14} height={14} />
-              </Link>
-            </div>
-          );
-        })() : null}
+              );
+            })()
+          : null}
       </BottomSheet>
 
       {/* ── Toast ── */}
-      {toast ? <div className={`yp-toast yp-toast--${toast.type || 'info'}`}>{toast.msg}</div> : null}
+      {toast ? (
+        <div className={`yp-toast yp-toast--${toast.type || 'info'}`}>
+          {toast.msg}
+        </div>
+      ) : null}
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 41: TodayItemCard — Card Menu + Footer Redesign
-//
-//   โครงสร้างการ์ดใหม่:
-//   - มุมซ้ายบน: status dot (เฉพาะการ์ดธรรมดา — รายการย่อยไม่มี
-//     เพราะ badge "รายการย่อย" ก็บอกอยู่แล้ว และทำให้ดูไม่สมดุล)
-//   - มุมขวาบน: 3-dot menu (แทน chevron arrow) — กดแล้วเปิด popup
-//     ใต้ปุ่ม ใน popup มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet
-//   - Body: badge (รายการย่อย) + title + meta (status, priority, ...)
-//   - Footer (ใหม่!): แยกจาก meta ด้วยเส้นบางๆ
-//     - ซ้าย: "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
-//     - ขวา: "กำหนดการ {วัน} {เวลา} น." (เฉพาะ today/upcoming ที่มีเวลา)
-//       - ไม่แสดงสำหรับ overdue เพราะเวลาที่เลยไปแล้วทำให้สับสน
-//   - Popup: เมนูขนาดเล็กที่เปิดจาก 3-dot button
-//     - มี overlay จับ click นอก popup เพื่อปิด
-//     - มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet
-//
-//   ★ v3.10.0 รอบที่ 33 (สืบทอดมา): รายการย่อยมี badge "รายการย่อย"
-//   ★ v3.10.0 รอบที่ 40 (สืบทอดมา): pure white background, ลด decoration
-//   ★ v3.10.0 รอบที่ 38 (สืบทอดมา): ใช้ itemDate (effectiveStart) สำหรับ date chip
+// MODULE 7: TODAY ITEM CARD
 // ═══════════════════════════════════════════════════════════════
+//
+// Card layout (TOP → BOTTOM):
+//
+//  Row 1: [Title]                    [3-dot menu]
+//  Row 2: [chips: status, priority, assignee, est, location, due]
+//  ── divider (only if Row 3 or Row 4 has content) ──
+//  Row 3: [รายการย่อย badge] จากกลุ่ม: XXX  (source row)
+//  Row 4: 🕐 กำหนดการ วันนี้ 14:00 น.     (schedule row — ALWAYS own line)
+//
+// ★ Row 3 and Row 4 are ALWAYS separate lines — they never share a row.
+// This is the critical fix for the overlapping schedule label issue.
+// ═══════════════════════════════════════════════════════════════
+
 function TodayItemCard({
   item,
   onOpenStatusPicker,
@@ -1049,72 +1215,62 @@ function TodayItemCard({
   onViewMore: (item: TimelineItem) => void;
 }) {
   const accent = item.accent;
-  const detailHref = item.event ? `/events/${item.event.id}` : (item.parentEvent ? `/events/${item.parentEvent.id}` : '#');
   const isOverdue = item.dateContext === 'overdue';
   const isUpcoming = item.dateContext === 'upcoming';
   const isToday = item.dateContext === 'today';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
-  // ★ รอบที่ 33: ระบุว่าเป็นรายการย่อยหรือไม่
   const isSubItem = !!item.parentEvent && !!item.task;
 
-  // ★ v3.10.0 รอบที่ 41: คำนวณ schedule label สำหรับ footer
-  //   - overdue: ไม่แสดง (เวลาที่เลยไปแล้วทำให้สับสน)
-  //   - today (itemDate === todayStr): "กำหนดการ วันนี้ HH:MM น."
-  //   - today (itemDate < todayStr): ไม่แสดง (เริ่มไปแล้ว ตัวเลขเวลาไม่ใช่
-  //     กำหนดการของวันนี้ — แสดงแล้วสับสน)
-  //   - upcoming: "กำหนดการ {relativeDay} HH:MM น."
-  //   เหตุผล: ผู้ใช้สับสนเวลาเห็นแค่ตัวเลขเวลา (เช่น "14:00") เพราะไม่รู้ว่า
-  //   เป็นเวลาของวันไหน และไม่รู้ว่าเป็นอะไร (เริ่ม? จบ? ครบกำหนด?)
-  //   การเติม "กำหนดการ" + วันที่สัมพันธ์ ทำให้ชัดเจนทันที
-  const scheduleLabel: string | null = (() => {
-    if (isOverdue) return null;
-    if (!item.startTime) return null;
-    if (isToday) {
-      // ถ้า itemDate ไม่ใช่วันนี้ → เริ่มไปแล้ว ไม่แสดง schedule
-      if (item.itemDate !== todayStr) return null;
-      return `กำหนดการ วันนี้ ${item.startTime} น.`;
-    }
-    if (isUpcoming && item.itemDate) {
-      return `กำหนดการ ${relativeDay(item.itemDate)} ${item.startTime} น.`;
-    }
-    return null;
-  })();
+  // ★ r43: Use centralized formatCardScheduleLabel (Module 5)
+  const scheduleLabel = formatCardScheduleLabel(item, todayStr);
 
-  // ★ v3.10.0 รอบที่ 41: แสดง footer ถ้ามี "จากกลุ่ม" หรือ schedule
-  const showFooter = (isSubItem && !!item.parentEvent) || !!scheduleLabel;
+  // Whether to show the info section (source row or schedule row)
+  const hasSourceRow = isSubItem && !!item.parentEvent;
+  const hasScheduleRow = !!scheduleLabel;
+  const showInfo = hasSourceRow || hasScheduleRow;
 
   return (
     <div
       className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isSubItem ? ' is-subitem' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
-      style={{
-        ['--accent' as string]: accent,
-      }}
+      style={{ ['--accent' as string]: accent }}
       role="button"
       tabIndex={0}
       onClick={() => onOpenStatusPicker(item)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenStatusPicker(item); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpenStatusPicker(item);
+        }
+      }}
       aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
     >
-      {/* ── ★ v3.10.0 รอบที่ 42: ลบ status dot มุมซ้ายบนออกทั้งหมด (ทั้งการ์ด
-         ธรรมดาและรายการย่อย) ตามคำขอของผู้ใช้ — วงกลมสถานะซ้ำซ้อนกับ
-         status chip ใน meta row อยู่แล้ว และผู้ใช้ยังเปลี่ยนสถานะได้เหมือน
-         เดิมโดยแตะที่ card body ทั้งใบ (onOpenStatusPicker ผูกอยู่กับ
-         card root ด้านล่างอยู่แล้ว) ── */}
-
-      {/* ── Body (title + meta + footer) ── */}
+      {/* ── Body ── */}
       <div className="yp-today-item-card__body">
+        {/* Row 1: Title */}
         <div className="yp-today-item-card__title">{item.title}</div>
+
+        {/* Row 2: Meta chips */}
         <div className="yp-today-item-card__meta">
           {/* Status chip */}
-          <span className={`yp-today-item-card__chip yp-today-item-card__status yp-today-item-card__status--${item.status}`}>
-            {item.status === 'done' ? <Check width={11} height={11} /> : item.status === 'ongoing' ? <RefreshCw width={11} height={11} /> : <Clock width={11} height={11} />}
+          <span
+            className={`yp-today-item-card__chip yp-today-item-card__status yp-today-item-card__status--${item.status}`}
+          >
+            {item.status === 'done' ? (
+              <Check width={11} height={11} />
+            ) : item.status === 'ongoing' ? (
+              <RefreshCw width={11} height={11} />
+            ) : (
+              <Clock width={11} height={11} />
+            )}
             {statusLabel(item.status)}
           </span>
 
           {/* Priority chip */}
           {priority !== 'medium' ? (
-            <span className={`yp-today-item-card__chip yp-today-item-card__priority is-priority-${priority}`}>
+            <span
+              className={`yp-today-item-card__chip yp-today-item-card__priority is-priority-${priority}`}
+            >
               {priorityLbl}
             </span>
           ) : null}
@@ -1122,7 +1278,13 @@ function TodayItemCard({
           {/* Assignee chip */}
           {item.assigneeName ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--assignee">
-              {item.assigneeColor ? <Avatar name={item.assigneeName} color={item.assigneeColor} size={16} /> : null}
+              {item.assigneeColor ? (
+                <Avatar
+                  name={item.assigneeName}
+                  color={item.assigneeColor}
+                  size={16}
+                />
+              ) : null}
               {item.assigneeName}
             </span>
           ) : null}
@@ -1141,10 +1303,10 @@ function TodayItemCard({
             <span className="yp-today-item-card__chip">{item.location}</span>
           ) : null}
 
-          {/* ★ รอบที่ 33: Date chip for overdue — ใช้ itemDate (start_date)
-             ★ v3.10.0 รอบที่ 41: ปรับ label จาก "กำหนด" เป็น "เลยกำหนด"
-             เพื่อให้ชัดเจนว่ารายการนี้เลยกำหนดไปแล้ว ไม่ใช่กำหนดการในอนาคต */}
-          {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
+          {/* Overdue date chip */}
+          {isOverdue &&
+          item.itemDate &&
+          item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due is-overdue">
               <AlertTriangle width={11} height={11} />
               <span className="yp-today-item-card__chip-label">เลยกำหนด</span>
@@ -1152,11 +1314,11 @@ function TodayItemCard({
             </span>
           ) : null}
 
-          {/* ★ v3.10.0 รอบที่ 41: Date chip for upcoming — ปรับ label
-             จาก "เริ่ม" เป็น "จะเริ่ม" เพื่อให้ชัดเจนว่าเป็นวันในอนาคต
-             และไม่แสดงถ้ามี scheduleLabel แล้ว (scheduleLabel จะบอก
-             วันที่และเวลาใน footer อยู่แล้ว ไม่ต้องซ้ำ) */}
-          {isUpcoming && item.itemDate && item.itemDate !== todayStr && !scheduleLabel ? (
+          {/* Upcoming date chip (only if no schedule label) */}
+          {isUpcoming &&
+          item.itemDate &&
+          item.itemDate !== todayStr &&
+          !scheduleLabel ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--due">
               <CalIcon width={11} height={11} />
               <span className="yp-today-item-card__chip-label">จะเริ่ม</span>
@@ -1164,26 +1326,26 @@ function TodayItemCard({
             </span>
           ) : null}
 
-          {/* ★ รอบที่ 33: ถ้าเป็น standalone task ที่มาจาก event อื่น
-              (ไม่ใช่ sub-item แต่เป็น standalone task ที่ due_date ตรง)
-              แสดง "จาก:" chip */}
-          {!isSubItem && item.parentEvent && item.parentEvent.date !== todayStr && !isOverdue && !isUpcoming ? (
+          {/* From parent chip (standalone tasks from other events) */}
+          {!isSubItem &&
+          item.parentEvent &&
+          item.parentEvent.date !== todayStr &&
+          !isOverdue &&
+          !isUpcoming ? (
             <span className="yp-today-item-card__chip yp-today-item-card__chip--from">
               ↪ จาก: {item.parentEvent.title}
             </span>
           ) : null}
         </div>
 
-        {/* ★ v3.10.0 รอบที่ 42: Footer row — แยกจาก meta ด้วยเส้นบางๆ
-           - ซ้าย: badge "รายการย่อย" (ย้ายมาจากด้านบนสุดของการ์ด — ผู้ใช้
-             รู้สึกว่าอยู่บนสุดแล้ว "เคืองหูเคืองตา") ต่อด้วย
-             "จากกลุ่ม: XXX" (เฉพาะรายการย่อย, เป็น text ไม่ใช่ link)
-           - ขวา: schedule label (today/upcoming ที่มีเวลา)
-           ใช้ justify-content: space-between เพื่อจัดวาง */}
-        {showFooter ? (
-          <div className="yp-today-item-card__footer">
-            {isSubItem ? (
-              <div className="yp-today-item-card__footer-left">
+        {/* ── Info section (Row 3: source + Row 4: schedule) ──
+            ★ r43: Each on its own row — NEVER same row.
+            Container uses flex-column layout. */}
+        {showInfo ? (
+          <div className="yp-today-item-card__info">
+            {/* Row 3: Source row (sub-item badge + group name) */}
+            {hasSourceRow ? (
+              <div className="yp-today-item-card__source-row">
                 <span className="yp-today-item-card__subtag-badge">
                   <Layers width={11} height={11} />
                   รายการย่อย
@@ -1195,19 +1357,21 @@ function TodayItemCard({
                 ) : null}
               </div>
             ) : null}
-            {scheduleLabel ? (
-              <span className="yp-today-item-card__schedule">
-                <Clock width={12} height={12} />
-                {scheduleLabel}
-              </span>
+
+            {/* Row 4: Schedule row — ALWAYS its own line */}
+            {hasScheduleRow ? (
+              <div className="yp-today-item-card__schedule-row">
+                <span className="yp-today-item-card__schedule">
+                  <Clock width={12} height={12} />
+                  {scheduleLabel}
+                </span>
+              </div>
             ) : null}
           </div>
         ) : null}
       </div>
 
-      {/* ── ★ v3.10.0 รอบที่ 41: 3-dot menu (แทน chevron arrow) ──
-         pattern มาตรฐานสากลสำหรับ "actions menu" (Material Design,
-         iOS, Linear, Notion ใช้กันหมด) กดแล้วเปิด popup ใต้ปุ่ม */}
+      {/* ── 3-dot menu button ── */}
       <button
         type="button"
         className="yp-today-item-card__menu"
@@ -1223,14 +1387,15 @@ function TodayItemCard({
         <MoreHorizontal width={16} height={16} />
       </button>
 
-      {/* ── ★ v3.10.0 รอบที่ 41: Popup menu (เปิดจาก 3-dot button) ──
-         - overlay: จับ click นอก popup เพื่อปิด (position: fixed เต็มจอ)
-         - popup: เมนูขนาดเล็ก มีปุ่ม "ดูเพิ่มเติม" ที่เปิด Bottom Sheet */}
+      {/* ── Popup menu ── */}
       {isMenuOpen ? (
         <>
           <div
             className="yp-today-item-card__popup-overlay"
-            onClick={(e) => { e.stopPropagation(); onCloseMenu(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCloseMenu();
+            }}
             aria-hidden="true"
           />
           <div className="yp-today-item-card__popup" role="menu">
@@ -1238,7 +1403,10 @@ function TodayItemCard({
               type="button"
               className="yp-today-item-card__popup-item"
               role="menuitem"
-              onClick={(e) => { e.stopPropagation(); onViewMore(item); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewMore(item);
+              }}
             >
               <Eye width={14} height={14} />
               ดูเพิ่มเติม
