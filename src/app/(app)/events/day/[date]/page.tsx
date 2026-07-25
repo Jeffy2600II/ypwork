@@ -70,8 +70,8 @@ export default async function DayViewPage({ params }: PageProps) {
     id: e.id,
     type: e.type,
     title: e.title,
-    date: e.date,
-    start_date: e.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
+    date: e.date ?? null,   // ★ r51: nullable สำหรับ group type (แต่หน้า day view กรองด้วย .eq('date', dateStr) จึงไม่มี null ในหน้านี้)
+    start_date: e.start_date ?? null,
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',

@@ -33,12 +33,13 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
 
   // ★ v3.4.0: ถ้ามี editId ให้ดึง event ฝั่ง server (จำเป็นต้อง preload)
   // ถ้าไม่มี editId (โหมดสร้าง) — ไม่ดึงอะไรเลย ปล่อยให้ form render ทันที
+  // ★ r51: editEvent.date เป็น string | null (group type อาจเป็น null)
   let editEvent: {
     id: string;
     type: 'group' | 'task';
     title: string;
-    date: string;
-    start_date: string | null;   // ★ v3.10.0 รอบที่ 29
+    date: string | null;
+    start_date: string | null;
     time: string;
     location: string;
     description: string;
@@ -61,8 +62,8 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
         id: evRaw.id,
         type: evRaw.type as 'group' | 'task',
         title: evRaw.title,
-        date: evRaw.date,
-        start_date: evRaw.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
+        date: evRaw.date ?? null,   // ★ r51: nullable สำหรับ group type
+        start_date: evRaw.start_date ?? null,
         time: evRaw.time || '',
         location: evRaw.location || '',
         description: evRaw.description || '',

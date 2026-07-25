@@ -2,18 +2,30 @@
 
 /**
  * ============================================================
- * YP WORK - Event Detail - EditEventSheet (r48)
+ * YP WORK - Event Detail - EditEventSheet (r51)
  * ============================================================
  * Bottom sheet สำหรับแก้ไขรายการหลัก (event)
- * - title, date, start_date, time, location, description,
- *   department, color
+ * - title, type, date (task เท่านั้น), start_date, time, location,
+ *   description, department, color
+ *
+ * ★ r51 (aerospace refactor):
+ *   - เพิ่ม type picker (group/task) เพื่อให้ผู้ใช้สลับ type ได้ตอนแก้ไข
+ *   - ซ่อนช่อง "กำหนดส่ง" เมื่อ type=group (group ไม่มี deadline ระดับตัวเอง)
+ *   - ใช้ shared constants จาก event-colors.ts (single source of truth)
+ *   - ใช้ requiresDeadline() จาก event-date.ts (single source of truth)
  * ============================================================
  */
 
 import * as React from 'react';
-import type { YPEvent, Department } from '@/lib/types';
+import { Layers, Flag } from 'lucide-react';
+import type { YPEvent, Department, EventType } from '@/lib/types';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
-import { COLOR_OPTIONS, type EventPatch } from './event-detail-types';
+import { EVENT_COLOR_OPTIONS, DEFAULT_EVENT_COLOR } from './event-colors';
+import { requiresDeadline } from '@/lib/utils/event-date';
+import type { EventPatch } from './event-detail-types';
+
+// alias สำหรับ compatibility กับโค้ดเดิม
+const COLOR_OPTIONS = EVENT_COLOR_OPTIONS;
 
 // ═══════════════════════════════════════════════════════════════
 // EditEventSheet — Bottom sheet สำหรับแก้ไขรายการ (เหมือน demo edit.js)
@@ -34,34 +46,48 @@ export function EditEventSheet({
   onSubmit: (patch: EventPatch) => void;
   submitting: boolean;
 }) {
+  const [type, setType] = React.useState<EventType>(event.type);
   const [title, setTitle] = React.useState(event.title);
   // ★ v3.10.0 รอบที่ 29: เพิ่ม start_date — วันที่เริ่มลงมือทำ (ไม่บังคับ)
   const [startDate, setStartDate] = React.useState<string>(event.start_date || '');
-  const [date, setDate] = React.useState(event.date);
+  // ★ r51: date อาจเป็น null สำหรับ group → state ใช้ '' เป็นค่าว่างใน form
+  const [date, setDate] = React.useState<string>(event.date || '');
   const [time, setTime] = React.useState(event.time || '');
   const [location, setLocation] = React.useState(event.location || '');
   const [description, setDescription] = React.useState(event.description || '');
   const [departmentId, setDepartmentId] = React.useState(
     event.department_id || departments[0]?.id || ''
   );
-  const [color, setColor] = React.useState(event.color || COLOR_OPTIONS[0]);
+  const [color, setColor] = React.useState(event.color || DEFAULT_EVENT_COLOR);
   // ★ v3.10.0 รอบที่ 31: เพิ่ม err state สำหรับ validation
   const [err, setErr] = React.useState<string | null>(null);
 
   // v1.5: รีเซ็ต form โดยใช้ key-prop remount pattern แทน useEffect
   // (parent ส่ง key={`edit-event-${open ? 'open' : 'closed'}`} → remount เมื่อ open เปลี่ยน)
 
+  // ★ r51: ไม่ต้องมี useEffect เพื่อ clear date state เมื่อ type=group
+  //   เพราะ submit handler ส่ง date='' สำหรับ group type อยู่แล้ว (API จะ set null)
+  //   และ UI ซ่อน field อยู่แล้วเมื่อ type=group → user ไม่เห็นค่า date ใน form
+
   const handleSubmit = () => {
+    // ★ r51: ตรวจ date เฉพาะเมื่อ type=task
+    if (requiresDeadline(type) && !date) {
+      setErr('กรุณาเลือกวันกำหนดส่ง');
+      return;
+    }
     // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม
+    //   ★ r51: date อาจเป็นค่าว่างสำหรับ group → ข้ามการตรวจ range
     if (startDate && date && date < startDate) {
       setErr('วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม');
       return;
     }
     setErr(null);
     onSubmit({
+      type,
       title: title.trim() || event.title,
-      date: date || event.date,
-      start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
+      // ★ r51: ส่ง date เป็น string ว่าง ถ้า group type (API จะ normalize เป็น null)
+      date: requiresDeadline(type) ? (date || event.date || '') : '',
+      start_date: startDate || null,
       time,
       location: location.trim(),
       description: description.trim(),
@@ -96,10 +122,6 @@ export function EditEventSheet({
         </div>
       }
     >
-      {/* ★ v3.10.0 รอบที่ 29: เรียงลำดับฟอร์มใหม่ — ให้กรอกได้เป็นลำดับตามธรรมชาติ
-          ของการวางแผน: ชื่อ → รายละเอียด → วันเริ่ม → เวลาเริ่ม → กำหนดส่ง →
-          สถานที่ → ฝ่าย → สี
-          (เหมือน CreateEventForm เพื่อความสม่ำเสมอ) */}
       {/* ★ v3.10.0 รอบที่ 31: แสดง error จาก validation */}
       {err ? (
         <div
@@ -117,6 +139,46 @@ export function EditEventSheet({
           {err}
         </div>
       ) : null}
+
+      {/* ★ r51: Type picker — ให้ผู้ใช้สลับ type ระหว่าง group/task ได้ตอนแก้ไข
+          (ก่อนหน้านี้ไม่มี ทำให้ลืม task ที่สร้างผิด type แก้ไขไม่ได้) */}
+      <div className="field">
+        <label className="field__label">ประเภทรายการ</label>
+        <div className="yp-type-picker">
+          <button
+            type="button"
+            className={`yp-type-option${type === 'group' ? ' is-selected' : ''}`}
+            onClick={() => setType('group')}
+            aria-pressed={type === 'group'}
+            disabled={submitting}
+          >
+            <div className="yp-type-option__icon">
+              <Layers width={20} height={20} />
+            </div>
+            <div className="yp-type-option__title">กลุ่มรายการ</div>
+            <div className="yp-type-option__desc">
+              สร้างรายการย่อยภายในได้
+            </div>
+          </button>
+
+          <button
+            type="button"
+            className={`yp-type-option${type === 'task' ? ' is-selected' : ''}`}
+            onClick={() => setType('task')}
+            aria-pressed={type === 'task'}
+            disabled={submitting}
+          >
+            <div className="yp-type-option__icon">
+              <Flag width={20} height={20} />
+            </div>
+            <div className="yp-type-option__title">รายการ</div>
+            <div className="yp-type-option__desc">
+              รายการเดียวจบ
+            </div>
+          </button>
+        </div>
+      </div>
+
       <div className="field">
         <label className="field__label" htmlFor="ed-title">ชื่อรายการ</label>
         <input
@@ -181,24 +243,38 @@ export function EditEventSheet({
         />
       </div>
 
-      {/* ★ v3.10.0 รอบที่ 29: เปลี่ยน label จาก "วันที่" → "กำหนดส่ง" */}
-      <div className="field">
-        <label className="field__label" htmlFor="ed-date">
-          กำหนดส่ง <span className="yp-required">*</span>
-        </label>
-        <input
-          id="ed-date"
-          type="date"
-          className="yp-input"
-          required
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          disabled={submitting}
-        />
-        <div className="field__hint">
-          วันสุดท้ายที่ต้องส่งมอบงานนี้
+      {/* ★ r51: ซ่อนช่อง "กำหนดส่ง" เมื่อ type=group
+          เหตุผล: group ไม่มี deadline ระดับตัวเอง — ให้ตั้ง deadline ที่รายการย่อย
+          ใช้ requiresDeadline() จาก event-date.ts (single source of truth) */}
+      {requiresDeadline(type) ? (
+        <div className="field">
+          <label className="field__label" htmlFor="ed-date">
+            กำหนดส่ง <span className="yp-required">*</span>
+          </label>
+          <input
+            id="ed-date"
+            type="date"
+            className="yp-input"
+            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            disabled={submitting}
+          />
+          <div className="field__hint">
+            วันสุดท้ายที่ต้องส่งมอบงานนี้
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="yp-info-callout yp-info-callout--info">
+          <div className="yp-info-callout__title">
+            กลุ่มรายการไม่มีกำหนดส่ง
+          </div>
+          <div className="yp-info-callout__body">
+            กลุ่มรายการสามารถมีรายการย่อยได้หลายอัน — ให้ตั้งค่า
+            &ldquo;กำหนดส่ง&rdquo; ที่รายการย่อยแต่ละอันแทน
+          </div>
+        </div>
+      )}
 
       <div className="field">
         <label className="field__label" htmlFor="ed-location">

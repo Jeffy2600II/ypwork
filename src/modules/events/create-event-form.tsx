@@ -14,19 +14,13 @@ import { Layers, Flag } from 'lucide-react';
 import type { Department, EventType } from '@/lib/types';
 import { getLocalTodayStr } from '@/lib/utils/date';   // ★ v3.9.4: Thailand timezone
 import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoOption, InfoExample, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoTldr, InfoCompare } from '@/components/ui/info-button';
+// ★ r51: ใช้ shared constants จาก event-colors.ts (single source of truth)
+import { EVENT_COLOR_OPTIONS, DEFAULT_EVENT_COLOR } from './event-colors';
+// ★ r51: ใช้ shared validation จาก event-validation.ts
+import { requiresDeadline } from '@/lib/utils/event-date';
 
-const COLOR_OPTIONS = [
-  '#4F46E5',
-  '#7C3AED',
-  '#A855F7',
-  '#14B8A6',
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EC4899',
-  '#D946EF',
-  '#F43F5E',
-];
+// alias สำหรับใช้ในไฟล์นี้ (compatibility กับโค้ดเดิมที่อ้าง COLOR_OPTIONS)
+const COLOR_OPTIONS = EVENT_COLOR_OPTIONS;
 
 export interface CreateEventFormProps {
   departments: Department[];
@@ -35,8 +29,9 @@ export interface CreateEventFormProps {
     id: string;
     type: EventType;
     title: string;
-    date: string;
-    start_date: string | null;   // ★ v3.10.0 รอบที่ 29
+    /** ★ r51: date เป็น string | null (group type อาจเป็น null) */
+    date: string | null;
+    start_date: string | null;
     time: string;
     location: string;
     description: string;
@@ -90,7 +85,7 @@ export function CreateEventForm({
     editEvent?.department_id || initialDepartments[0]?.id || ''
   );
   const [color, setColor] = React.useState<string>(
-    editEvent?.color || COLOR_OPTIONS[0]
+    editEvent?.color || DEFAULT_EVENT_COLOR
   );
 
   const [submitting, setSubmitting] = React.useState(false);
@@ -136,14 +131,17 @@ export function CreateEventForm({
       setError('กรุณากรอกชื่อรายการ');
       return;
     }
-    if (!date) {
+    // ★ r51: ตรวจ date เฉพาะเมื่อ type=task (group type ไม่บังคับมี deadline)
+    //   ใช้ requiresDeadline() จาก event-date.ts (single source of truth)
+    if (requiresDeadline(type) && !date) {
       setError('กรุณาเลือกวันกำหนดส่ง');
       return;
     }
     // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม
     //   ถ้าตั้งวันที่เริ่มไว้ → วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม
     //   ถ้าวันเดียวกัน → ไม่มีการตรวจสอบเวลา (เพราะ event มีแค่เวลาเริ่ม ไม่มีเวลาสิ้นสุด)
-    if (startDate && date < startDate) {
+    //   ★ r51: date อาจเป็นค่าว่างสำหรับ group type → ข้ามการตรวจ range นี้
+    if (startDate && date && date < startDate) {
       setError('วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม');
       return;
     }
@@ -160,8 +158,9 @@ export function CreateEventForm({
           body: JSON.stringify({
             type,
             title: title.trim(),
-            date,
-            start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
+            // ★ r51: ส่ง date เป็น string ว่าง ถ้า group type (API จะ normalize เป็น null)
+            date: requiresDeadline(type) ? date : '',
+            start_date: startDate || null,
             time: time || '',
             location: location.trim(),
             description: description.trim(),
@@ -181,8 +180,9 @@ export function CreateEventForm({
           body: JSON.stringify({
             type,
             title: title.trim(),
-            date,
-            start_date: startDate || null,   // ★ v3.10.0 รอบที่ 29
+            // ★ r51: ส่ง date เป็น string ว่าง ถ้า group type (API จะ normalize เป็น null)
+            date: requiresDeadline(type) ? date : '',
+            start_date: startDate || null,
             time: time || '',
             location: location.trim(),
             description: description.trim(),
@@ -437,24 +437,47 @@ export function CreateEventForm({
 
           {/* ★ v3.10.0 รอบที่ 29: เปลี่ยน label จาก "วันที่" → "กำหนดส่ง"
               ตามคำขอของผู้ใช้ที่ต้องการให้สื่อความหมายชัดเจนว่านี่คือ deadline
-              (แต่ไม่เปลี่ยนชื่อ field ใน DB ยังเก็บที่ column `date` เหมือนเดิม) */}
-          <div className="field">
-            <label className="field__label" htmlFor="ev-date">
-              กำหนดส่ง <span className="yp-required">*</span>
-            </label>
-            <input
-              id="ev-date"
-              type="date"
-              className="yp-input"
-              required
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              disabled={submitting}
-            />
-            <div className="field__hint">
-              วันสุดท้ายที่ต้องส่งมอบงานนี้
+              (แต่ไม่เปลี่ยนชื่อ field ใน DB ยังเก็บที่ column `date` เหมือนเดิม)
+              
+              ★ r51 (aerospace refactor): ซ่อนช่อง "กำหนดส่ง" เมื่อ type=group
+                เหตุผล: กลุ่มรายการสามารถสร้างรายการย่อยได้ แต่ละรายการย่อยมี
+                due_date ของตัวเอง การตั้ง deadline ระดับ group จึงไม่สื่อความหมาย
+                และทำให้ผู้ใช้สับสน (เห็น deadline ของ group แต่รายการย่อยอาจมี
+                deadline ต่างกัน)
+                ใช้ requiresDeadline() จาก event-date.ts (single source of truth) */}
+          {requiresDeadline(type) ? (
+            <div className="field">
+              <label className="field__label" htmlFor="ev-date">
+                กำหนดส่ง <span className="yp-required">*</span>
+              </label>
+              <input
+                id="ev-date"
+                type="date"
+                className="yp-input"
+                required
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                disabled={submitting}
+              />
+              <div className="field__hint">
+                วันสุดท้ายที่ต้องส่งมอบงานนี้
+              </div>
             </div>
-          </div>
+          ) : (
+            /* ★ r51: เมื่อ type=group → แสดง info callout แทน input field
+                อธิบายว่า group ไม่มี deadline ระดับตัวเอง ให้ตั้ง deadline ที่
+                รายการย่อยแทน */
+            <div className="yp-info-callout yp-info-callout--info">
+              <div className="yp-info-callout__title">
+                กลุ่มรายการไม่มีกำหนดส่ง
+              </div>
+              <div className="yp-info-callout__body">
+                กลุ่มรายการสามารถมีรายการย่อยได้หลายอัน — ให้ตั้งค่า
+                &ldquo;กำหนดส่ง&rdquo; ที่รายการย่อยแต่ละอันแทน
+                จะได้ความชัดเจนและยืดหยุ่นกว่า
+              </div>
+            </div>
+          )}
 
           <div className="field">
             <label className="field__label" htmlFor="ev-location">

@@ -19,6 +19,11 @@
 //     "รอเริ่ม 2 · กำลังทำ 1 · เสร็จ 3" ซึ่งเป็นข้อความสรุป ไม่ใช่รายการที่
 //     ดูเหมือนกดได้ทีละอัน ลด "รายการย่อยลอยเป็นการ์ดในการ์ด" ทั้งหมด
 //   → เพิ่มลูกศร (chevron) มุมขวาบนให้เห็นชัดว่าทั้งการ์ดกดเข้าไปดูรายละเอียดได้
+//
+// ★ r51 (aerospace refactor): event.date อาจเป็น null สำหรับ group type
+//   - ถ้าไม่มีทั้ง start_date และ date → แสดง "ไม่มีกำหนดส่ง" แทน date badge
+//   - ใช้ getEffectiveStartDate() จาก event-date.ts (single source of truth)
+//   - ป้องกัน null pointer exception ในทุก branch ที่เคยใช้ event.date ตรง ๆ
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -33,6 +38,8 @@ import {
   statusChipClass,
   getLocalTodayStr,
 } from '@/lib/utils/date';
+// ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
+import { getEffectiveStartDate } from '@/lib/utils/event-date';
 
 // ★ v3.10.0 รอบที่ 32: ลำดับแสดงผล breakdown — รอเริ่ม → กำลังทำ → เสร็จ
 //   (ลำดับตามขั้นตอนงานจริง ให้อ่านแล้วเข้าใจ flow ง่ายกว่าเรียงตามตัวอักษร)
@@ -47,7 +54,9 @@ export interface EventCardProps {
 // ★ v3.10.0 รอบที่ 26: Badge สำหรับแสดงวันนี้/พรุ่งนี้/เลยกำหนด
 //   ★ v3.10.0 รอบที่ 29: ถ้ามี start_date → badge อ้างอิงจาก start_date
 //     แทน deadline (date) เพื่อสื่อ "จะเริ่มตอนไหน" ไม่ใช่ "เลยกำหนดส่ง"
-function DateBadge({ date }: { date: string }) {
+//   ★ r51: ถ้า date เป็น null (group ที่ไม่มี deadline) → อ้างอิงจาก start_date เท่านั้น
+function DateBadge({ date }: { date: string | null }) {
+  if (!date) return null;
   const todayStr = getLocalTodayStr();
   const diffDays = Math.round(
     (new Date(date + 'T00:00:00').getTime() - new Date(todayStr + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24)
@@ -73,22 +82,29 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   const progress = eventProgress(event.tasks || []);
   const displayStatus = resolveEventStatus(event);
 
-  // ★ v3.10.0 รอบที่ 29: อ้างอิงจาก start_date แทน deadline
-  //   ถ้ามี start_date → ใช้เป็น meta หลัก (แสดง "จะเริ่มตอนไหน")
-  //   แล้วค่อยแสดง deadline เป็น meta รอง ถ้าต่างจาก start_date
-  //   ถ้าไม่มี start_date → ใช้ deadline (date) แบบเดิม (backward compatible)
+  // ★ r51: ใช้ getEffectiveStartDate() จาก event-date.ts (single source of truth)
+  //   ถ้าไม่มีทั้ง start_date และ date → null (group ที่ไม่มีกำหนดการเลย)
+  const effectiveStart = getEffectiveStartDate(event);
   const hasStartDate = !!event.start_date;
-  const referenceDateForBadge = hasStartDate ? event.start_date! : event.date;
+  const hasDeadline = !!event.date;
+  // ★ r51: badge อ้างอิงจาก effectiveStart — ถ้าไม่มีเลย → ไม่แสดง badge
+  const referenceDateForBadge = effectiveStart;
 
-  // ★ v3.10.0 รอบที่ 29: meta หลัก — "เริ่ม" หรือ "กำหนดส่ง" ตามที่มี
+  // ★ r51: meta หลัก — เปลี่ยนไปใช้ effectiveStart ที่รองรับ null
+  //   - ถ้ามี effectiveStart → แสดง "เริ่ม ..." หรือ date ปกติ
+  //   - ถ้าไม่มีเลย → แสดง "ไม่มีกำหนดส่ง" (group ที่ไม่มีกำหนดการ)
   const metaParts: string[] = [];
-  if (hasStartDate) {
-    metaParts.push(`เริ่ม ${relativeDay(event.start_date!)}`);
+  if (effectiveStart) {
+    if (hasStartDate) {
+      metaParts.push(`เริ่ม ${relativeDay(effectiveStart)}`);
+    } else {
+      // ไม่มี start_date แยก → effectiveStart คือ deadline → แสดงเป็น relativeDay ธรรมดา
+      metaParts.push(relativeDay(effectiveStart));
+    }
     if (event.time) metaParts.push(event.time);
   } else {
-    // fallback: ไม่มี start_date → แสดง deadline แบบเดิม
-    metaParts.push(relativeDay(event.date));
-    if (event.time) metaParts.push(event.time);
+    // ★ r51: group ที่ไม่มีทั้ง start_date และ date → แสดง "ไม่มีกำหนดส่ง"
+    metaParts.push('ไม่มีกำหนดส่ง');
   }
   if (event.location) metaParts.push(event.location);
   for (const m of extraMeta) metaParts.push(m);
@@ -126,16 +142,18 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
           <div className="yp-event-card__title">
             {event.title}
             {/* ★ v3.10.0 รอบที่ 26: Date Badge
-                ★ v3.10.0 รอบที่ 29: ถ้ามี start_date → badge อ้างอิงจาก start_date */}
+                ★ v3.10.0 รอบที่ 29: ถ้ามี start_date → badge อ้างอิงจาก start_date
+                ★ r51: ถ้าไม่มี effectiveStart เลย → ไม่แสดง badge */}
             <DateBadge date={referenceDateForBadge} />
           </div>
           <div className="yp-event-card__meta">{metaParts.join(' · ')}</div>
           {/* ★ v3.10.0 รอบที่ 29: ถ้ามี start_date และต่างจาก deadline
               → แสดงบรรทัด meta รอง "กำหนดส่ง ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุด
-              ถ้า start_date เท่ากับ deadline → ไม่ต้องแสดงซ้ำ */}
-          {hasStartDate && event.start_date !== event.date ? (
+              ถ้า start_date เท่ากับ deadline → ไม่ต้องแสดงซ้ำ
+              ★ r51: ถ้าไม่มี deadline (group) → ไม่แสดงบรรทัดนี้ */}
+          {hasStartDate && hasDeadline && event.start_date !== event.date ? (
             <div className="yp-event-card__meta yp-event-card__meta--secondary">
-              กำหนดส่ง {relativeDay(event.date)}
+              กำหนดส่ง {relativeDay(event.date!)}
             </div>
           ) : null}
         </div>

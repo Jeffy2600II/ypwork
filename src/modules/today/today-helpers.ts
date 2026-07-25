@@ -2,16 +2,29 @@
 
 /**
  * ============================================================
- * YP WORK - Today Module - Helpers (r48)
+ * YP WORK - Today Module - Helpers (r51 — aerospace refactor)
  * ============================================================
  * Item builders + categorization engine
  * - buildStandaloneEventItem, buildTaskItem
  * - categorizeByDates, buildDateClusters, formatFullDateCaption, buildTimeGroups
+ *
+ * ★ r51 changes:
+ *   - ใช้ getEffectiveStartDate / getEffectiveDueDate / getEffectiveTaskStartDate
+ *     / getEffectiveTaskDueDate จาก event-date.ts (single source of truth)
+ *   - ทุก function รองรับ null date (group type ที่ไม่มี deadline)
+ *   - categorizeByDates ไม่ crash เมื่อ effectiveStart/effectiveDue เป็น null
  * ============================================================
  */
 
 import type { YPEvent, Task } from '@/lib/types';
 import { THAI_DAYS, THAI_MONTHS, resolveEventStatus } from '@/lib/utils/date';
+// ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
+import {
+  getEffectiveStartDate,
+  getEffectiveDueDate,
+  getEffectiveTaskStartDate,
+  getEffectiveTaskDueDate,
+} from '@/lib/utils/event-date';
 import type {
   TimelineItem,
   ItemDateContext,
@@ -39,11 +52,13 @@ export function buildStandaloneEventItem(
     assigneeColor: null,
     priority: 'medium',
     estimatedTime: null,
-    dueDate: ev.date,
+    // ★ r51: ใช้ getEffectiveDueDate — อาจเป็น null สำหรับ group
+    dueDate: getEffectiveDueDate(ev),
     location: ev.location || null,
     eventTime: ev.time || null,
     dateContext,
-    itemDate: ev.start_date || ev.date,
+    // ★ r51: ใช้ getEffectiveStartDate — อาจเป็น null สำหรับ group ที่ไม่มี date เลย
+    itemDate: getEffectiveStartDate(ev),
   };
 }
 
@@ -66,11 +81,14 @@ export function buildTaskItem(
     assigneeColor: t.assignees?.[0]?.color || null,
     priority: t.priority || 'medium',
     estimatedTime: t.estimated_time || null,
-    dueDate: t.due_date || ev.date,
+    // ★ r51: ใช้ getEffectiveTaskDueDate — fallback chain: task.due_date → parent.date
+    dueDate: getEffectiveTaskDueDate(t, ev),
     location: ev.location || null,
     eventTime: ev.time || null,
     dateContext,
-    itemDate: t.start_date || ev.start_date || ev.date,
+    // ★ r51: ใช้ getEffectiveTaskStartDate — fallback chain:
+    //   task.start_date → parent.start_date → parent.date
+    itemDate: getEffectiveTaskStartDate(t, ev),
   };
 }
 
@@ -83,24 +101,36 @@ export function buildTaskItem(
  *   - overdue:  effectiveDue < today && not done
  *   - today:    effectiveStart ≤ today ≤ effectiveDue
  *   - upcoming: effectiveStart > today && not done
- *   - null:     done item in past or future (hide)
+ *   - null:     done item in past or future, OR null dates (cannot categorize)
+ *
+ * ★ r51: ถ้า effectiveStart หรือ effectiveDue เป็น null → คืน null (skip)
+ *   เพราะไม่สามารถ categorize ได้ (group ที่ไม่มี date เลยจะถูก skip)
  */
 export function categorizeByDates(
-  effectiveStart: string,
-  effectiveDue: string,
+  effectiveStart: string | null,
+  effectiveDue: string | null,
   todayStr: string,
   isDone: boolean,
 ): ItemDateContext | null {
-  if (effectiveDue < todayStr && !isDone) return 'overdue';
-  if (effectiveStart <= todayStr && effectiveDue >= todayStr) return 'today';
+  // ★ r51: ถ้าไม่มี effectiveDue → ใช้ effectiveStart แทน (defensive)
+  //   กรณีนี้เกิดขึ้นเฉพาะ group ที่ไม่มี date แต่มี start_date
+  //   ถ้าไม่มีทั้งสอง → คืน null (skip)
+  const due = effectiveDue ?? effectiveStart;
+  if (!due || !effectiveStart) return null;
+
+  if (due < todayStr && !isDone) return 'overdue';
+  if (effectiveStart <= todayStr && due >= todayStr) return 'today';
   if (effectiveStart > todayStr && !isDone) return 'upcoming';
   return null;
 }
 
-/** Group items by itemDate for date-cluster sections */
+/** Group items by itemDate for date-cluster sections
+ *  ★ r51: items ที่มี itemDate เป็น null จะถูกข้าม (defensive) */
 export function buildDateClusters(items: TimelineItem[]): DateCluster[] {
   const clusters: DateCluster[] = [];
   for (const item of items) {
+    // ★ r51: skip items ที่ไม่มี itemDate
+    if (!item.itemDate) continue;
     const dateKey = item.itemDate;
     const last = clusters[clusters.length - 1];
     if (last && last.dateKey === dateKey) {

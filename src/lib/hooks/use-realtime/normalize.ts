@@ -19,7 +19,7 @@ export function normalizeEvent(e: RawEvent): YPEvent {
     id: e.id,
     type: e.type,
     title: e.title,
-    date: e.date,
+    date: e.date ?? null,   // ★ r51: nullable สำหรับ group type
     start_date: e.start_date ?? null,
     end_date: e.end_date ?? null,
     time: e.time ?? '',

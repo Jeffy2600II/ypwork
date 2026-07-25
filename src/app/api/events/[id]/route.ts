@@ -6,15 +6,35 @@
 //
 // ★ v3.8.0: เพิ่ม apiCacheHeaders.noStore() ทุก response
 //   → กัน browser  replay mutation บน back/forward button
+//
+// ★ r51: รองรับ null date สำหรับ group type
+//   - ถ้า PATCH ส่ง date: null หรือ date: '' → set null (group type)
+//   - ถ้า PATCH ส่ง date: 'YYYY-MM-DD' → set ค่านั้น
+//   - ถ้า PATCH ส่ง date: undefined → ไม่แก้ไข date
+//   - ใช้ validation จาก event-validation.ts (single source of truth)
 // ═══════════════════════════════════════════════════════════════
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/user-guard';
 import { apiCacheHeaders } from '@/lib/api/cache';
-
-const VALID_TYPES = ['group', 'task'] as const;
-const VALID_COLORS = /^#[0-9A-Fa-f]{6}$/;
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+import {
+  validateEventType,
+  validateEventTitle,
+  validateEventDate,
+  validateStartDate,
+  validateDateRange,
+  validateTime,
+  validateLocation,
+  validateDescription,
+  validateColor,
+  validateDepartmentId,
+  DATE_REGEX,
+  EVENT_TITLE_MAX_LENGTH,
+  EVENT_LOCATION_MAX_LENGTH,
+  EVENT_DESCRIPTION_MAX_LENGTH,
+} from '@/modules/events/event-validation';
+import { resolveEventColor } from '@/modules/events/event-colors';
+import type { EventType } from '@/lib/types';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -48,36 +68,39 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   }
 
   // ── Validate input (all fields optional for PATCH) ──
+  // ★ r51: ใช้ validators จาก event-validation.ts เพื่อ consistency
   const update: Record<string, any> = {};
 
+  // type
   if (body.type !== undefined) {
-    if (!VALID_TYPES.includes(body.type)) {
-      return NextResponse.json(
-        { success: false, error: 'ประเภทงานไม่ถูกต้อง' },
-        { status: 400 }
-      );
-    }
-    update.type = body.type;
+    const r = validateEventType(body.type);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.type = body.type as EventType;
   }
 
+  // title
   if (body.title !== undefined) {
-    if (typeof body.title !== 'string' || !body.title.trim()) {
-      return NextResponse.json(
-        { success: false, error: 'ชื่อรายการไม่ถูกต้อง' },
-        { status: 400 }
-      );
-    }
-    update.title = body.title.trim();
+    const r = validateEventTitle(body.title);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.title = (body.title as string).trim().slice(0, EVENT_TITLE_MAX_LENGTH);
   }
 
+  // ★ r51: date — รองรับ null/empty string สำหรับ group type
+  //   ถ้า body.date === null หรือ '' → set null (เหมาะกับ group)
+  //   ถ้า body.date เป็น string ที่ผ่าน regex → set ค่านั้น
+  //   ถ้า body.date === undefined → ไม่แก้ไข
   if (body.date !== undefined) {
-    if (typeof body.date !== 'string' || !DATE_RE.test(body.date)) {
+    // กรณีที่ผู้ใช้ล้างค่า date (ส่ง null หรือ '')
+    if (body.date === null || body.date === '') {
+      update.date = null;
+    } else if (typeof body.date === 'string' && DATE_REGEX.test(body.date)) {
+      update.date = body.date;
+    } else {
       return NextResponse.json(
-        { success: false, error: 'วันที่ไม่ถูกต้อง' },
+        { success: false, error: 'วันที่ไม่ถูกต้อง (ต้องเป็น YYYY-MM-DD หรือ null)' },
         { status: 400 }
       );
     }
-    update.date = body.date;
   }
 
   // ★ v3.10.0 รอบที่ 29: start_date (YYYY-MM-DD, ไม่บังคับ)
@@ -87,41 +110,54 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (body.start_date !== undefined) {
     if (body.start_date === null || body.start_date === '') {
       update.start_date = null;
-    } else if (typeof body.start_date === 'string' && DATE_RE.test(body.start_date)) {
-      update.start_date = body.start_date;
     } else {
-      return NextResponse.json(
-        { success: false, error: 'วันที่เริ่มไม่ถูกต้อง' },
-        { status: 400 }
-      );
+      const r = validateStartDate(body.start_date);
+      if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+      update.start_date = body.start_date;
     }
   }
 
-  if (body.time !== undefined) update.time = body.time || '';
-  if (body.location !== undefined) update.location = (body.location || '').trim();
-  if (body.description !== undefined) update.description = (body.description || '').trim();
-  if (body.department_id !== undefined) update.department_id = body.department_id || null;
-
-  // ★ v3.10.0 รอบที่ 31: ตรวจสอบวันกำหนดส่ง >= วันที่เริ่ม (server-side)
-  //   กรณี PATCH ซับซ้อนเพราะ field ใด field หนึ่งอาจไม่ได้ส่งมา
-  //   → ใช้ค่าที่จะ update ถ้ามี, ถ้าไม่มีก็ไม่ตรวจ (defensive)
+  // ★ r51: ตรวจสอบ date range — defensive (กรณี PATCH ส่งทั้งสอง field)
+  //   ถ้า PATCH ส่งเพียง field เดียว → ไม่สามารถตรวจ range ได้ (defensive skip)
+  //   ถ้า PATCH ส่งทั้งสอง → ตรวจ
   if (update.start_date !== undefined && update.date !== undefined) {
-    if (update.start_date && update.date < update.start_date) {
-      return NextResponse.json(
-        { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
-        { status: 400 }
-      );
-    }
+    const r = validateDateRange(update.start_date as string | null, update.date as string | null);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
   }
 
+  // time
+  if (body.time !== undefined) {
+    const r = validateTime(body.time);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.time = body.time || '';
+  }
+
+  // location
+  if (body.location !== undefined) {
+    const r = validateLocation(body.location);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.location = (body.location || '').trim().slice(0, EVENT_LOCATION_MAX_LENGTH);
+  }
+
+  // description
+  if (body.description !== undefined) {
+    const r = validateDescription(body.description);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.description = (body.description || '').trim().slice(0, EVENT_DESCRIPTION_MAX_LENGTH);
+  }
+
+  // department_id
+  if (body.department_id !== undefined) {
+    const r = validateDepartmentId(body.department_id);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.department_id = body.department_id || null;
+  }
+
+  // color
   if (body.color !== undefined) {
-    if (!VALID_COLORS.test(body.color)) {
-      return NextResponse.json(
-        { success: false, error: 'รูปแบบสีไม่ถูกต้อง' },
-        { status: 400 }
-      );
-    }
-    update.color = body.color;
+    const r = validateColor(body.color);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 400 });
+    update.color = resolveEventColor(body.color);
   }
 
   if (Object.keys(update).length === 0) {

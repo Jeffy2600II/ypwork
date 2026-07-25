@@ -2,12 +2,17 @@
 
 /**
  * ============================================================
- * YP WORK - Event Detail - Shared Types & Constants (r48)
+ * YP WORK - Event Detail - Shared Types & Constants (r51)
  * ============================================================
  * รวม types และ constants ที่ใช้ร่วมกันระหว่าง components ใน event-detail module
  * - EventDetailClientProps, TaskPayload, EventPatch (types)
- * - PRIORITY_META, ESTIMATED_TIME_OPTIONS, COLOR_OPTIONS (constants)
+ * - PRIORITY_META, ESTIMATED_TIME_OPTIONS (constants)
  * - getEstimatedTimeSelectValue (helper)
+ *
+ * ★ r51 (aerospace refactor):
+ *   - COLOR_OPTIONS ย้ายไป event-colors.ts (single source of truth)
+ *   - EventPatch เพิ่ม field `type` (EditEventSheet สามารถเปลี่ยน type ได้)
+ *   - EventPatch.date เป็น string (empty string แทน null สำหรับ group type)
  * ============================================================
  */
 
@@ -17,7 +22,12 @@ import type {
   TaskPriority,
   Department,
   UserProfile,
+  EventType,
 } from '@/lib/types';
+
+// ★ r51: re-export COLOR_OPTIONS จาก event-colors.ts (single source of truth)
+//   เพื่อไม่ให้ไฟล์อื่นที่ import จาก event-detail-types พัง
+export { EVENT_COLOR_OPTIONS as COLOR_OPTIONS } from './event-colors';
 
 export interface EventDetailClientProps {
   event: YPEvent;
@@ -63,19 +73,6 @@ export function getEstimatedTimeSelectValue(stored: string | null | undefined): 
   return stored || '';
 }
 
-export const COLOR_OPTIONS = [
-  '#4F46E5',
-  '#7C3AED',
-  '#A855F7',
-  '#14B8A6',
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EC4899',
-  '#D946EF',
-  '#F43F5E',
-];
-
 /** Payload สำหรับ add/edit task */
 export interface TaskPayload {
   title: string;
@@ -91,9 +88,19 @@ export interface TaskPayload {
   notes: string;
 }
 
-/** Payload สำหรับ edit event */
+/**
+ * Payload สำหรับ edit event
+ *
+ * ★ r51: เพิ่ม field `type` (ก่อนหน้านี้ไม่มี ทำให้ EditEventSheet ไม่สามารถ
+ *   เปลี่ยน type ระหว่าง group/task ได้)
+ *
+ * ★ r51: `date` เป็น string (empty string '' แทน null สำหรับ group type)
+ *   เพื่อให้ตรงกับ form state และส่งผ่าน JSON ได้ง่าย
+ */
 export interface EventPatch {
+  type: EventType;
   title: string;
+  /** YYYY-MM-DD สำหรับ task type, '' (empty) สำหรับ group type */
   date: string;
   start_date: string | null;
   time: string;

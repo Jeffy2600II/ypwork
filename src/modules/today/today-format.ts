@@ -48,7 +48,9 @@ export function formatScheduleLabel(
 
   // Today section
   if (isToday) {
-    if (item.itemDate !== todayStr) {
+    // ★ r51: defensive — item.itemDate อาจเป็น null (group ที่ไม่มี date)
+    //   ถ้าเป็น null → แสดงแค่ "วันนี้ HH:MM น." (ไม่มี prefix "เริ่ม ...")
+    if (item.itemDate && item.itemDate !== todayStr) {
       // Started on a past day, still active today
       return `เริ่ม ${relativeDay(item.itemDate)} ${item.startTime} น.`;
     }

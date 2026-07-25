@@ -124,6 +124,8 @@ export function TodayClient({
   const todayStr = getLocalTodayStr();
 
   // ── Categorize events into sections ──
+  // ★ r51: handle null date — group type ที่ไม่มี date จะถูก categorize
+  //   โดยใช้ start_date เป็น fallback (ถ้ามี) หรือ skip ถ้าไม่มีอะไรเลย
   const categorizedItems = React.useMemo(() => {
     const overdue: TimelineItem[] = [];
     const today: TimelineItem[] = [];
@@ -134,6 +136,7 @@ export function TodayClient({
         const tasks = ev.tasks || [];
         if (tasks.length === 0) {
           // Empty group → use event dates
+          // ★ r51: ev.date อาจเป็น null → categorizeByDates จะ handle
           const effectiveStart = ev.start_date || ev.date;
           const effectiveDue = ev.date;
           const isDone = resolveEventStatus(ev) === 'done';
@@ -150,8 +153,10 @@ export function TodayClient({
           else upcoming.push(item);
         } else {
           // Each task uses its own dates
+          // ★ r51: parent event.date อาจเป็น null → ใช้ task.due_date เท่านั้น
           for (const t of tasks) {
-            const effectiveStart = t.start_date || ev.start_date || ev.date;
+            const effectiveStart =
+              t.start_date || ev.start_date || ev.date;
             const effectiveDue = t.due_date || ev.date;
             const isDone = t.status === 'done';
             const ctx = categorizeByDates(
@@ -169,6 +174,7 @@ export function TodayClient({
         }
       } else {
         // Standalone task event
+        // ★ r51: standalone task ยังบังคับมี date (per business rule)
         const effectiveStart = ev.start_date || ev.date;
         const effectiveDue = ev.date;
         const isDone = ev.status === 'done';
@@ -247,8 +253,10 @@ export function TodayClient({
         const s = resolveEventStatus(e);
         return s === 'ongoing' || s === 'planning';
       }).length,
+      // ★ r51: e.date อาจเป็น null (group type) → ใช้ ?? '' เพื่อ defensive
+      //   null < todayStr ใน JS จะได้ false แต่ TS strict จะ error ตอน compile
       overdue: deptEvents.filter(
-        (e) => e.date < todayStr && resolveEventStatus(e) !== 'done',
+        (e) => (e.date ?? '') < todayStr && resolveEventStatus(e) !== 'done',
       ).length,
     };
   }, [events, dept, todayStr, initialDeptStats]);

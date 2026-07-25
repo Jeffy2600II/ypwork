@@ -24,14 +24,21 @@ export interface YPEvent {
   id: string;
   type: EventType;
   title: string;
-  /** วันกำหนดส่ง (deadline) — YYYY-MM-DD
+  /** วันกำหนดส่ง (deadline) — YYYY-MM-DD หรือ null
    *  ★ v3.10.0 รอบที่ 29: เปลี่ยนความหมายของ field `date` ให้เป็น "วันกำหนดส่ง"
    *    ในมุมของ UX (label บนฟอร์มคือ "กำหนดส่ง") ส่วน `start_date` คือ
    *    วันที่เริ่มลงมือทำงานนั้นจริงๆ
    *    ค่าเดิมใน DB ยังเก็บที่ column `date` เหมือนเดิม เพียงแต่ label บน
    *    ฟอร์ม/UI เปลี่ยนจาก "วันที่" → "กำหนดส่ง" เพื่อสื่อความหมายชัดเจนขึ้น
+   *
+   *  ★ r51 (aerospace refactor): สำหรับ type='group' → date เป็น optional (null ได้)
+   *    เหตุผล: group สามารถมีรายการย่อยได้หลายอัน แต่ละอันมี due_date ของตัวเอง
+   *    การตั้ง deadline ระดับ group จึงไม่สื่อความหมาย และเมื่อเลือก type='group'
+   *    ในฟอร์ม ช่อง "กำหนดส่ง" จะถูกซ่อนอัตโนมัติ (ดู event-validation.ts และ
+   *    event-date.ts สำหรับ business rule เต็มรูปแบบ)
+   *    สำหรับ type='task' → date ยังบังคับเป็น YYYY-MM-DD (non-null)
    */
-  date: string; // YYYY-MM-DD (วันกำหนดส่ง)
+  date: string | null; // YYYY-MM-DD หรือ null (group type)
   /** ★ v3.10.0 รอบที่ 29: วันที่เริ่มลงมือทำงาน — YYYY-MM-DD (ไม่บังคับ)
    *    ถ้าไม่ระบุ → ระบบจะใช้ `date` (วันกำหนดส่ง) เป็นจุดอ้างอิงเวลาเริ่ม
    *    แต่ถ้าระบุ → ระบบจะอ้างอิงจาก start_date + start_time แทน

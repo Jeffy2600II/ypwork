@@ -43,13 +43,16 @@ export interface TimelineItem {
   assigneeColor: string | null;
   priority: 'low' | 'medium' | 'high';
   estimatedTime: string | null;
+  /** ★ r51: dueDate อาจเป็น null สำหรับ group ที่ไม่มี deadline */
   dueDate: string | null;
   location: string | null;
   eventTime: string | null;
   /** Which section this item belongs to */
   dateContext: string;
-  /** Actual start date (for date clustering) */
-  itemDate: string;
+  /** ★ r51: itemDate อาจเป็น null สำหรับ group ที่ไม่มี start_date และ date
+   *  (แต่ categorizeByDates จะ filter ออกอยู่แล้ว เพราะ null ไม่สามารถ
+   *   ถูก categorize ได้ — ดู today-client.tsx) */
+  itemDate: string | null;
 }
 
 /** Section classification */

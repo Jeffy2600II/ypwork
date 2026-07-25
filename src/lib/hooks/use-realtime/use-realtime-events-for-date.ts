@@ -38,9 +38,12 @@ export function useRealtimeEventsForDate(
       .then((rows) => {
         if (myToken === reloadTokenRef.current) {
           // กรองเฉพาะ event ของวันที่กำหนด (date หรือ end_date คลุมวันนี้)
+          // ★ r51: e.date อาจเป็น null (group type ที่ไม่มี deadline) →
+          //   ใช้ e.date ?? '' เพื่อ defensive (null จะไม่ตรงกับ dateStr)
           const filtered = rows.filter((e) => {
-            if (e.date === dateStr) return true;
-            if (e.end_date && e.date <= dateStr && e.end_date >= dateStr) return true;
+            const ed = e.date ?? '';
+            if (ed === dateStr) return true;
+            if (e.end_date && ed && ed <= dateStr && e.end_date >= dateStr) return true;
             return false;
           });
           // v3.3.0 guard: ถ้า filtered empty ทันทีหลัง mount และ initialEvents
