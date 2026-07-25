@@ -1,32 +1,46 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r45 — Navigation Fix + Smart Sections)
+// YP WORK · Today Dashboard (v3.10.0-r46 — Section Alignment + Subtask Clarity + Row Breathing)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 45: 3 ปัญหาหลัก
+// ★ v3.10.0 รอบที่ 46: ปรับปรุงจากมุมมองผู้ใช้ (ไม่ใช่ผู้พัฒนา)
 //
-//   FIX 1 — Bottom Sheet Navigation Bug:
-//     ปัญหา: กด Link ใน sheet แล้ว sheet ปิดแต่ไม่ navigate
-//     สาเหตุ: Next.js router.push ทำ spread existing history.state
-//     ทำให้ ypWindow: true ยังอยู่ → cleanup เรียก history.back() ยกเลิก
-//     แก้: window.tsx เก็บ ypUrl ใน state แล้วเช็ค URL ใน cleanup
-//     + today-client ใช้ window.location.href สำรอง (belt & suspenders)
+//   IMPROVE 1 — Section Alignment (ทั้ง 3 section ใช้ flow เดียวกัน):
+//     ปัญหา: Section "เลยกำหนด" เมื่อมี 1 date cluster จะแสดงการ์ดเลยโดยไม่มี
+//            sub-section header ทำให้ดูต่างจาก section "วันนี้" ที่มี sub-section
+//            header เสมอ (ช่วงเช้า/บ่าย/ฯลฯ)
+//     แก้: ย้าย logic ของ renderOverdueSection ให้ใช้ renderDateClusterSection
+//          เสมอ — เหมือน section "กำลังจะถึง" ตอนนี้ทั้ง 3 section ใช้ pattern
+//          เดียวกัน: panel title → sub-section header → cards
 //
-//   FIX 2 — Time Display Logic:
-//     ปัญหา: Carryover items (เริ่มก่อนวันนี้) ไม่แสดงเวลาบนการ์ด
-//     แก้: แสดง "เริ่ม{relativeDay} HH:MM น." สำหรับ carryover items
+//   IMPROVE 2 — Subtask Clarity (มองเห็นชัดว่าอันไหนคือรายการย่อย):
+//     ปัญหา: การ์ดรายการย่อยกับรายการหลักดูเหมือนกันเกินไป — แม้ผู้พัฒนายัง
+//            สับสน มีเพียง icon เล็กๆ ที่บอก ต้องอ่าน/สังเกตถึงรู้
+//     แก้: เพิ่มสัญลักษณ์หลายชั้นที่ทำให้แยกออกทันทีแค่มอง:
+//          ① Left accent bar สีของ parent event (4px) — เส้นเชื่อมกับพ่อแม่
+//          ② Tinted background สีอ่อนๆ ของ parent accent
+//          ③ "↳ รายการย่อย" label ที่มุมขวาบน — บอกชัดเจนเป็นภาษา
+//          ④ Layers icon ใหญ่ขึ้น (16px) สี accent เต็ม ไม่จาง
+//          ⑤ "จากกลุ่ม: NAME" ยังคงอยู่ (identity รอง)
 //
-//   FIX 3 — Today Section Smart Grouping:
-//     ปัญหา: งานที่เริ่มมาตั้งแต่เมื่อวานถูกจัดใส่ช่วงเช้า/บ่าย
-//     แก้: แยก "ดำเนินการต่อเนื่อง" (carryover) ออกจากกลุ่มเวลา
+//   IMPROVE 3 — Row Breathing (เพิ่มระยะหายใจระหว่าง 4 บรรทัด):
+//     ปัญหา: 4 บรรทัดในการ์ดชิดเกินไป ดูแออัด
+//     แก้: เพิ่ม margin-top ระหว่างบรรทัด:
+//          Row 1 → Row 2:  2px → 12px  (metadata → content)
+//          Row 2 → Row 3:  4px →  8px  (title → parent)
+//          Row 3 → Row 4:  8px → 14px  (parent → badges)
+//          เพิ่ม card padding 16px → 18px ให้ขอบเตียนขึ้น
+//          เพิ่ม subtle divider ระหว่าง Row 1 กับ Row 2 (faint hairline)
 //
-//   Layout การ์ด (r44 design ยังคงเดิม):
-//   ┌──────────────────────────────────────────────┐
-//   │  Row 1: [ว่าง]        [🕐 เวลา] [•••]          │
-//   │  Row 2: 📚 ชื่องาน (Title)                     │
-//   │  Row 3: 👥 จากกลุ่ม: XXXXXX                     │
-//   │  Row 4: [badges]                                │
-//   └──────────────────────────────────────────────┘
+//   Layout การ์ด (r46 — subtask vs standalone):
+//   ┌──────────────────────────────────────────────────┐
+//   │ ▌ Row 1: [↳ รายการย่อย*]    [🕐 เวลา] [•••]      │  *subtask เท่านั้น
+//   │ ▌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─      │  hairline
+//   │ ▌ Row 2: 🔷 ชื่องาน (Title)                       │  *icon = subtask
+//   │ ▌ Row 3: 👥 จากกลุ่ม: XXXXX                       │  *subtask เท่านั้น
+//   │ ▌ Row 4: [badges]                                  │
+//   └──────────────────────────────────────────────────┘
+//     ▌ = left accent bar (subtask เท่านั้น)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -61,6 +75,7 @@ import {
   MapPin,
   User as UserIcon,
   Timer,
+  CornerDownRight,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
@@ -701,15 +716,14 @@ export function TodayClient({
             {overdueCount} รายการ
           </span>
         </div>
-        {overdueDateClusters.length <= 1 ? (
-          renderCardList(overdueTimelineItems)
-        ) : (
-          renderDateClusterSection(
-            overdueDateClusters,
-            <AlertTriangle width={16} height={16} strokeWidth={2} />,
-            (dk) => relativeDay(dk),
-            true,
-          )
+        {/* ★ r46: ใช้ renderDateClusterSection เสมอ — ให้ทุก section มี sub-section
+            header เหมือน section "วันนี้" (ช่วงเช้า/บ่าย/ฯลฯ) และ section "กำลังจะถึง"
+            ก่อนหน้านี้เมื่อมี 1 cluster จะ render การ์ดเลย ทำให้ flow ต่างจาก section อื่น */}
+        {renderDateClusterSection(
+          overdueDateClusters,
+          <AlertTriangle width={16} height={16} strokeWidth={2} />,
+          (dk) => relativeDay(dk),
+          true,
         )}
       </section>
     );
@@ -1236,19 +1250,30 @@ export function TodayClient({
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODULE 7: TODAY ITEM CARD (v3.10.0-r44 — 4-Row Layout)
+// MODULE 7: TODAY ITEM CARD (v3.10.0-r46 — 4-Row Layout + Subtask Clarity)
 // ═══════════════════════════════════════════════════════════════
 //
 // Card layout (TOP → BOTTOM):
 //
-//  Row 1: [ว่าง]                    [🕐 เวลา] [•••]
-//  Row 2: 📚 ชื่องาน (Title — พระเอก ใหญ่ เด่น)
+//  Row 1: [↳ รายการย่อย*]            [🕐 เวลา] [•••]     *subtask เท่านั้น
+//         ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─      (faint hairline)
+//  Row 2: 🔷 ชื่องาน (Title — พระเอก ใหญ่ เด่น)            *icon = subtask เท่านั้น
 //  Row 3: 👥 จากกลุ่ม: XXX  (รายการย่อยเท่านั้น)
 //  Row 4: [🔴 เลยกำหนด] [🟡 รอเริ่ม] [📍 สถานที่]
 //
-//  ★ ไม่มีเส้น Divider — ใช้ Padding/Spacing จัดกลุ่มข้อมูล
+//  ★ r46: Subtask vs Standalone Clarity
+//    - Subtask: left accent bar + tinted bg + "↳ รายการย่อย" label +
+//               prominent Layers icon (16px, accent color)
+//    - Standalone: clean white card, no left bar, no label, no title icon
+//
+//  ★ r46: Row Breathing — margin-top ระหว่างบรรทัดเพิ่มขึ้น
+//    - Row 1 → Row 2: 12px (was 2px) + faint hairline divider
+//    - Row 2 → Row 3:  8px (was 4px)
+//    - Row 3 → Row 4: 14px (was 8px)
+//    - Card padding: 18px (was 16px)
+//
+//  ★ ไม่มีเส้น Divider หนา — ใช้ Padding/Spacing จัดกลุ่มข้อมูล
 //  ★ เวลาใน Row 1 ไม่โดดเด่น ไม่มีกรอบแคปซูล
-//  ★ ไอคอน Layers บอกประเภทรายการย่อยแทนคำว่า "รายการย่อย"
 // ═══════════════════════════════════════════════════════════════
 
 function TodayItemCard({
@@ -1280,7 +1305,7 @@ function TodayItemCard({
 
   return (
     <div
-      className={`yp-today-item-card${item.status === 'done' ? ' is-done' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
+      className={`yp-today-item-card${isSubItem ? ' is-subitem' : ''}${item.status === 'done' ? ' is-done' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
       style={{ ['--accent' as string]: accent }}
       role="button"
       tabIndex={0}
@@ -1295,36 +1320,57 @@ function TodayItemCard({
     >
       {/* ── Body ── */}
       <div className="yp-today-item-card__body">
-        {/* Row 1: Time + Menu (right-aligned) */}
-        <div className="yp-today-item-card__top-right">
-          {timeDisplay ? (
-            <span className="yp-today-item-card__time">
-              <Clock width={12} height={12} />
-              {timeDisplay}
+        {/* Row 1: Subtask label (left) + Time + Menu (right) */}
+        <div className="yp-today-item-card__top-row">
+          {/* ★ r46: Subtask label — explicit text identifier
+              แสดงเฉพาะรายการย่อย — ทำให้ user รู้ทันทีว่าเป็น subtask
+              ใช้ไอคอน CornerDownRight + ข้อความ "รายการย่อย"
+              สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่ */}
+          {isSubItem ? (
+            <span className="yp-today-item-card__subtag">
+              <CornerDownRight width={11} height={11} strokeWidth={2.5} />
+              รายการย่อย
             </span>
-          ) : null}
-          <button
-            type="button"
-            className="yp-today-item-card__menu"
-            aria-label="ตัวเลือกเพิ่มเติม"
-            aria-haspopup="menu"
-            aria-expanded={isMenuOpen}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isMenuOpen) onCloseMenu();
-              else onOpenMenu(item);
-            }}
-          >
-            <MoreHorizontal width={16} height={16} />
-          </button>
+          ) : (
+            <span className="yp-today-item-card__type-tag">
+              {/* ★ r46: Standalone indicator — ใช้ icon เดียวบอกประเภท
+                  (Flag = standalone task, Layers = subtask) */}
+              <Flag width={11} height={11} strokeWidth={2.5} />
+              รายการหลัก
+            </span>
+          )}
+
+          <div className="yp-today-item-card__top-right">
+            {timeDisplay ? (
+              <span className="yp-today-item-card__time">
+                <Clock width={12} height={12} />
+                {timeDisplay}
+              </span>
+            ) : null}
+            <button
+              type="button"
+              className="yp-today-item-card__menu"
+              aria-label="ตัวเลือกเพิ่มเติม"
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isMenuOpen) onCloseMenu();
+                else onOpenMenu(item);
+              }}
+            >
+              <MoreHorizontal width={16} height={16} />
+            </button>
+          </div>
         </div>
 
         {/* Row 2: Title (hero — large, prominent, with type icon) */}
         <div className="yp-today-item-card__title">
           {isSubItem ? (
             <Layers
-              width={14}
-              height={14}
+              width={16}
+              height={16}
+              strokeWidth={2.25}
               className="yp-today-item-card__title-icon"
             />
           ) : null}

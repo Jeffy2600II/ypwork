@@ -2268,17 +2268,20 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (v3.10.0-r44 — 4-Row Layout) ──
-   ★ r44: Card UX Refine
-   - ย้ายเวลาขึ้น Row 1 ขวา (subtle, ไม่มี capsule, ไม่โดดเด่น)
-   - Title ขึ้นเป็น Row 2 พระเอก (ใหญ่, เด่น, มีไอคอนประเภท)
-   - Row 3: "จากกลุ่ม" (รายการย่อยเท่านั้น, ตัดคำว่า "รายการย่อย")
-   - Row 4: Badges (สถานะ, priority, สถานที่, etc.)
-   - ไม่มี Divider — ใช้ spacing แทน
-   - display: block — menu อยู่ใน body */
+/* ── Today Item Card (v3.10.0-r46 — 4-Row Layout + Subtask Clarity + Row Breathing) ──
+   ★ r46: Card UX Refine (ปรับปรุงจากมุมมองผู้ใช้)
+   - 4-row layout เหมือนเดิม แต่เพิ่มระยะหายใจระหว่างบรรทัด
+   - Subtask Clarity: left accent bar + tinted bg + "↳ รายการย่อย" label +
+     prominent Layers icon (16px, accent color) + "จากกลุ่ม: NAME" row
+   - Standalone: clean white card + "รายการหลัก" label + Flag icon
+   - เพิ่ม subtle hairline divider ระหว่าง Row 1 (metadata) กับ Row 2 (title)
+   - ขยาย card padding 16px → 18px ให้ขอบเตียนขึ้น */
 .yp-today-item-card {
   position: relative;
-  padding: var(--yp-space-4);
+  /* ★ r46: เพิ่ม padding จาก --yp-space-4 (16px) → 18px ให้ขอบเตียนขึ้น
+     ใช้ค่าเฉพาะเพราะ --yp-space-4 = 16px และ --yp-space-5 = 20px
+     18px อยู่ระหว่างกลาง — ไม่ใหญ่เกิน, ไม่แคบเกิน */
+  padding: 18px;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
@@ -2288,11 +2291,26 @@
     border-color var(--yp-t-fast),
     box-shadow var(--yp-t-fast);
   box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
+  /* ★ r46: Reserve space for left accent bar (subtask เท่านั้น)
+     ใช้ border-left transparent 4px เพื่อไม่ให้กระโดดเวลาเปลี่ยนประเภท */
+  border-left: 4px solid transparent;
 }
 
-/* Sub-item = same as regular (icon in title tells the type) */
+/* ★ r46: Subtask Clarity — left accent bar + tinted background
+   ใช้สีของ parent event (via --accent CSS variable) ที่บอกว่า
+   "การ์ดนี้เป็นลูกของ event สีนี้" เหมือนใน Linear / Asana
+   - 4px left bar เป็นเส้นเชื่อมกับ parent (visual hierarchy)
+   - tinted background สีอ่อนๆ ทำให้ card ดู "ลึกเข้าไป" หน่อย
+     เหมือนเป็น child element ไม่ใช่ top-level */
 .yp-today-item-card.is-subitem {
-  /* No special treatment */
+  border-left-color: var(--accent, var(--yp-indigo-500));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
+}
+
+/* ★ r46: Subtask hover — เน้น accent มากขึ้น */
+.yp-today-item-card.is-subitem:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card-soft));
+  border-left-color: var(--accent, var(--yp-indigo-500));
 }
 
 /* Menu open state */
@@ -2316,14 +2334,80 @@
   min-width: 0;
 }
 
-/* ── Row 1: Top-right (time + menu) ── */
+/* ── ★ r46: Row 1 — Top row container (NEW)
+   บรรจุ subtag/type-tag (ซ้าย) + time + menu (ขวา)
+   ใช้ justify-content: space-between ให้ tag อยู่สุดซ้าย เวลา+menu อยู่สุดขวา
+   ปิดด้วย subtle hairline divider เพื่อแยก "metadata row" กับ "content rows"
+   ให้รู้ว่าส่วนบนเป็นข้อมูลเมตา ส่วนล่างเป็นเนื้อหา */
+.yp-today-item-card__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+  /* ★ r46: เพิ่ม padding-bottom + border-bottom (faint hairline)
+     เพื่อแยก Row 1 (metadata) จาก Row 2 (title) ให้ชัดเจน
+     ก่อนหน้านี้ไม่มี divider ทำให้ 4 บรรทัดดูยืดเดียวกัน */
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
+}
+
+/* ★ r46: Subtask tag ("↳ รายการย่อย") — identifier หลักของ subtask
+   ใช้ CornerDownRight icon เหมือนบอกว่า "ย่อยลงมาจากของใหญ่"
+   สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่ */
+.yp-today-item-card__subtag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-500));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.yp-today-item-card__subtag svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+/* ★ r46: Standalone type tag ("รายการหลัก") — identifier ของ standalone
+   ใช้ Flag icon บอกว่าเป็น "หมุดหลัก" ไม่ใช่ลูกของอะไร
+   สี muted เพื่อไม่แข่งกับ subtask ที่เด่นกว่า */
+.yp-today-item-card__type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.yp-today-item-card__type-tag svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+/* ── ★ r46: Top-right group (time + menu) — ตอนนี้เป็น sub-container ของ __top-row ── */
 .yp-today-item-card__top-right {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
   min-height: 20px;
-  margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 /* ★ r44: Time — subtle, no capsule, no border, no bg
@@ -2400,16 +2484,20 @@
   letter-spacing: -0.005em;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 8px;
+  /* ★ r46: margin-top จาก 2px → 0 (ใช้ margin ของ __top-row แทน —
+     เพราะ __top-row มี border-bottom และ margin-bottom 12px แล้ว) */
+  margin-top: 0;
 }
 
-/* ★ r44: Title icon for sub-items (Layers replaces "รายการย่อย" text) */
+/* ★ r46: Title icon for sub-items — ใหญ่และเด่นขึ้น
+   ขนาด 14px → 16px, opacity 0.6 → 1, color muted → accent
+   ทำให้ Layers icon เป็น "พระเอก" ของ subtask ไม่ใช่ element จางๆ */
 .yp-today-item-card__title-icon {
   flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--yp-text-muted);
-  opacity: 0.6;
+  margin-top: 1px;
+  color: var(--accent, var(--yp-indigo-500));
+  opacity: 1;
 }
 
 .yp-today-item-card.is-done .yp-today-item-card__title {
@@ -2425,8 +2513,9 @@
 .yp-today-item-card__group {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 5px;
+  /* ★ r46: margin-top 4px → 8px ให้หายใจจาก title */
+  margin-top: 8px;
   min-width: 0;
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
@@ -2458,8 +2547,10 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  /* ★ r46: margin-top 8px → 14px ให้ badges หายใจจาก parent group
+     เพราะ badges เป็นข้อมูลแยก (status/priority) ไม่ใช่ต่อจาก parent */
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 /* Individual badge — small pill */
@@ -2545,10 +2636,11 @@
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-item-card__popup {
   position: absolute;
-  /* ★ r44: top adjusted — menu now inside body at top-right
-     card-padding(16) + top-right-margin(2) + menu-height(28) + gap(4) = 50px */
-  top: calc(var(--yp-space-4) + 2px + 28px + 4px);
-  right: var(--yp-space-4);
+  /* ★ r46: top adjusted — เพราะ card padding เปลี่ยน 16→8 และ Row 1 มี
+     subtag/type-tag ที่อาจจะสูงกว่าเดิม
+     card-padding(18) + top-row-min-height(24) + gap(4) = 46px */
+  top: calc(18px + 24px + 4px);
+  right: 18px;
   min-width: 180px;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
