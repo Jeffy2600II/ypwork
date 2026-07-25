@@ -1,27 +1,35 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v3.10.0-r44 — Card UX Refine)
+// YP WORK · Today Dashboard (v3.10.0-r45 — Navigation Fix + Smart Sections)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.10.0 รอบที่ 44: Card UX Refine — ออกแบบการ์ดใหม่ 4 แถว
+// ★ v3.10.0 รอบที่ 45: 3 ปัญหาหลัก
 //
-//   1. ย้ายเวลาขึ้น Row 1 ขวา (ไม่โดดเด่น ไม่มีกรอบแคปซูล)
-//   2. ดันชื่องานขึ้นเป็น Row 2 พระเอก (ใหญ่ เด่น พร้อมไอคอนประเภท)
-//   3. ตัดคำว่า "รายการย่อย" ออก (ไอคอนใน Row 2 บอกแล้ว)
-//   4. ย้าย Tag/Chip สถานะลงไป Row 4 ฐานการ์ด
-//   5. ถอดเส้น Divider ออก — ใช้ Padding/Spacing แทน
+//   FIX 1 — Bottom Sheet Navigation Bug:
+//     ปัญหา: กด Link ใน sheet แล้ว sheet ปิดแต่ไม่ navigate
+//     สาเหตุ: Next.js router.push ทำ spread existing history.state
+//     ทำให้ ypWindow: true ยังอยู่ → cleanup เรียก history.back() ยกเลิก
+//     แก้: window.tsx เก็บ ypUrl ใน state แล้วเช็ค URL ใน cleanup
+//     + today-client ใช้ window.location.href สำรอง (belt & suspenders)
 //
-//   Layout การ์ดใหม่ (TOP → BOTTOM):
+//   FIX 2 — Time Display Logic:
+//     ปัญหา: Carryover items (เริ่มก่อนวันนี้) ไม่แสดงเวลาบนการ์ด
+//     แก้: แสดง "เริ่ม{relativeDay} HH:MM น." สำหรับ carryover items
+//
+//   FIX 3 — Today Section Smart Grouping:
+//     ปัญหา: งานที่เริ่มมาตั้งแต่เมื่อวานถูกจัดใส่ช่วงเช้า/บ่าย
+//     แก้: แยก "ดำเนินการต่อเนื่อง" (carryover) ออกจากกลุ่มเวลา
+//
+//   Layout การ์ด (r44 design ยังคงเดิม):
 //   ┌──────────────────────────────────────────────┐
-//   │  Row 1: [ว่าง]        [🕐 วันนี้ 14:00] [•••] │
+//   │  Row 1: [ว่าง]        [🕐 เวลา] [•••]          │
 //   │  Row 2: 📚 ชื่องาน (Title)                     │
 //   │  Row 3: 👥 จากกลุ่ม: XXXXXX                     │
-//   │  Row 4: [🔴 เลยกำหนด] [🟡 รอเริ่ม] [📍 โรงยิม]  │
+//   │  Row 4: [badges]                                │
 //   └──────────────────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
-import Link from 'next/link';
 import {
   getTimeGreeting,
   getLocalTodayStr,
@@ -354,10 +362,18 @@ function formatCardTimeDisplay(
   if (item.dateContext === 'overdue') return null;
   // No start time → no display
   if (!item.startTime) return null;
-  // Today: "วันนี้ HH:MM น." (only if itemDate is today)
+  // Today section
   if (item.dateContext === 'today') {
-    if (item.itemDate !== todayStr) return null;
-    return `วันนี้ ${item.startTime} น.`;
+    if (item.itemDate === todayStr) {
+      // Started today — show "วันนี้ HH:MM น."
+      return `วันนี้ ${item.startTime} น.`;
+    }
+    // ★ r45 FIX: Carryover (started before today) — show when it started
+    // เช่น "เริ่มเมื่อวาน 10:00 น." หรือ "เริ่ม3 วันที่แล้ว 14:00 น."
+    if (item.itemDate) {
+      return `เริ่ม${relativeDay(item.itemDate)} ${item.startTime} น.`;
+    }
+    return null;
   }
   // Upcoming: "{relativeDay} HH:MM น."
   if (item.dateContext === 'upcoming' && item.itemDate) {
@@ -478,10 +494,30 @@ export function TodayClient({
   const todayTimelineItems = categorizedItems.today;
   const upcomingTimelineItems = categorizedItems.upcoming;
 
+  // ★ r45: แยก today items เป็น 2 กลุ่ม:
+  //   1. carryoverItems — เริ่มก่อนวันนี้ ยังคงดำเนินการอยู่ (itemDate < todayStr)
+  //   2. todayStartItems — เริ่มวันนี้จริงๆ (itemDate === todayStr)
+  //   ถ้า itemDate ไม่มี ให้ถือว่าเป็น todayStart (ไม่ระบุ = ถือว่าวันนี้)
+  const { carryoverItems, todayStartItems } = React.useMemo(() => {
+    const carryover: TimelineItem[] = [];
+    const todayStart: TimelineItem[] = [];
+    for (const item of todayTimelineItems) {
+      if (item.itemDate && item.itemDate < todayStr) {
+        carryover.push(item);
+      } else {
+        todayStart.push(item);
+      }
+    }
+    return { carryoverItems: carryover, todayStartItems: todayStart };
+  }, [todayTimelineItems, todayStr]);
+
+  // ★ r45: buildTimeGroups ใช้เฉพาะ todayStartItems (ไม่รวม carryover)
   const timeGroups = React.useMemo(
-    () => buildTimeGroups(todayTimelineItems),
-    [todayTimelineItems],
+    () => buildTimeGroups(todayStartItems),
+    [todayStartItems],
   );
+
+  const carryoverCount = carryoverItems.length;
 
   const overdueDateClusters = React.useMemo(
     () => buildDateClusters(overdueTimelineItems),
@@ -763,6 +799,15 @@ export function TodayClient({
           </div>
         ) : (
           <>
+            {/* ★ r45: แยก carryover items — งานที่เริ่มก่อนวันนี้ */}
+            {renderTimeSection(
+              'ดำเนินการต่อเนื่อง',
+              'งานที่เริ่มก่อนหน้านี้และยังคงดำเนินการ',
+              <Timer width={16} height={16} strokeWidth={2} />,
+              carryoverItems,
+              'carryover',
+            )}
+            {/* งานที่เริ่มวันนี้จริงๆ — แบ่งตามช่วงเวลา */}
             {renderTimeSection(
               'ช่วงเช้า',
               'เริ่มก่อน 12:00 น.',
@@ -1062,14 +1107,25 @@ export function TodayClient({
                         </span>
                       </div>
                       <div className="yp-card-detail__value">
-                        <Link
+                        {/* ★ r45 FIX: ใช้ <a> + window.location.href แทน Next.js Link
+                            เพื่อหลีกเลี่ยงปัญหา history state conflict
+                            ที่ทำให้กดแล้ว sheet ปิดแต่ไม่ navigate
+                            ใช้ href จริงเพื่อรองรับ right-click → เปิดในแท็บใหม่ */}
+                        <a
                           href={`/events/${di.parentEvent.id}`}
                           className="yp-card-detail__link"
-                          onClick={handleCloseDetailSheet}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleCloseDetailSheet();
+                            // รอให้ React ประมวลผล state แล้วค่อย navigate
+                            setTimeout(() => {
+                              window.location.href = `/events/${di.parentEvent.id}`;
+                            }, 50);
+                          }}
                         >
                           {di.parentEvent.title}
                           <ArrowUpRight width={12} height={12} />
-                        </Link>
+                        </a>
                       </div>
                     </div>
                   ) : null}
@@ -1145,15 +1201,24 @@ export function TodayClient({
                     </div>
                   </div>
 
-                  {/* CTA: open full detail page */}
-                  <Link
+                  {/* CTA: open full detail page
+                      ★ r45 FIX: ใช้ <a> + window.location.href แทน Next.js Link
+                      เพื่อหลีกเลี่ยงปัญหา Next.js spread history state
+                      ทำให้ cleanup ของ window เรียก history.back() ยกเลิก navigation */}
+                  <a
                     href={diDetailHref}
                     className="yp-card-detail__cta"
-                    onClick={handleCloseDetailSheet}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCloseDetailSheet();
+                      setTimeout(() => {
+                        window.location.href = diDetailHref;
+                      }, 50);
+                    }}
                   >
                     ดูหน้าเต็ม
                     <ChevronRight width={14} height={14} />
-                  </Link>
+                  </a>
                 </div>
               );
             })()

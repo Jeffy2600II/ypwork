@@ -287,7 +287,10 @@ export function Window({
     if (typeof window === 'undefined') return;
 
     try {
-      window.history.pushState({ ypWindow: true }, '');
+      // ★ v3.10.0 r45: เก็บ URL ปัจจุบันใน history state เพื่อใช้ตรวจสอบ
+      //   ใน cleanup ว่ามีการ navigate ไปหน้าอื่นหรือไม่
+      const urlSnapshot = window.location.pathname + window.location.search + window.location.hash;
+      window.history.pushState({ ypWindow: true, ypUrl: urlSnapshot }, '');
       historyPushedRef.current = true;
     } catch (_) {
       return;
@@ -311,11 +314,16 @@ export function Window({
         //   ของ Link ปิด sheet ไปด้วย) — effect cleanup นี้เลยทำงานหลังจาก
         //   navigate ไปแล้ว และเรียก history.back() ซึ่งเท่ากับ "ย้อนกลับ"
         //   ไปยัง history entry ของ sheet ทันที ยกเลิกการ navigate ที่เพิ่งเกิด
-        //   แก้ไข: เช็คก่อนว่า window.history.state ยังเป็น entry ที่เราผลัก
-        //   ไว้ ({ ypWindow: true }) หรือไม่ — ถ้าไม่ใช่แล้ว (เพราะมีการ
-        //   navigate ไปหน้าอื่นทับไปแล้ว) ให้ข้ามการเรียก history.back()
+        //
+        // ★ v3.10.0 รอบที่ 45: แก้ซ้ำ — การเช็คเพียง history.state.ypWindow
+        //   ไม่เพียงพอเพราะ Next.js router.push ทำ spread existing state
+        //   ทำให้ ypWindow: true ยังคงอยู่ใน state ใหม่ จึงตรวจสอบ URL
+        //   ด้วย — ถ้า URL เปลี่ยน (navigate ไปแล้ว) → อย่า back
+        const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+        const storedUrl = window.history.state?.ypUrl;
+        const urlChanged = typeof storedUrl === 'string' && currentUrl !== storedUrl;
         const stillAtSheetHistoryEntry =
-          !!window.history.state && window.history.state.ypWindow === true;
+          !!window.history.state && window.history.state.ypWindow === true && !urlChanged;
         if (stillAtSheetHistoryEntry) {
           try {
             window.history.back();
