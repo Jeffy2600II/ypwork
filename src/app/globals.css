@@ -9303,15 +9303,29 @@ textarea {
   }
 }
 
-/* ★ v3.9.2 Programmatic close (body.yp-window-open .fab) — instant, no animation
-   Override previous rules with !important to ensure instant hide */
+/* ★ Bug fix (FAB flash on sheet close): เดิมใช้ transition-duration:0s !important
+   เพื่อ "ซ่อนทันที" — แต่ทำให้เวลา sheet ปิด body.yp-window-open ถูกลบออก
+   → FAB ปรากฏทันที (flash) ก่อนที่ useScrollDirection จะ recompute fabHidden
+
+   วิธีแก้:
+   - pointer-events: none ยังเป็น instant (safety — กัน click-through)
+   - visibility: hidden ยังเป็น instant (safety — กัน layout/AT issues)
+   - แต่ transform/opacity ใช้ transition สั้นๆ (180ms) — พอให้ useScrollDirection
+     มีเวลา commit fabHidden=true ก่อนที่ FAB จะ "โผล่จริง"
+   - ผลลัพธ์: ตอนเปิด sheet FAB "หาย" ทันทีเหมือนเดิม (เพราะ visibility:hidden)
+   - ตอนปิด sheet FAB fade-in 180ms — แต่ useScrollDirection sync ก่อนนั้น
+     → FAB ถูก set is-hidden-by-scroll กลับไป → ไม่มี flash */
 body.yp-window-open .fab,
 body.yp-sheet-open .fab {
   transform: translateY(150%) scale(0.6);
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition-duration: 0s !important;
+  transition:
+    transform 180ms var(--yp-ease-m3-standard),
+    opacity 180ms var(--yp-ease-m3-standard),
+    visibility 0s,
+    box-shadow 180ms var(--yp-ease-m3-standard);
   animation: none !important;
 }
 
@@ -9416,14 +9430,28 @@ body.yp-sheet-open .fab {
   }
 }
 
-/* ★ v3.9.2 Programmatic close (body.yp-window-open .bottom-nav) — instant */
+/* ★ Bug fix (bottom-nav warp/flash on sheet close): เดิมใช้ transition-duration:0s
+   !important เพื่อ "ซ่อนทันที" — แต่ทำให้เวลา sheet ปิด body.yp-window-open
+   ถูกลบออก → bottom-nav ปรากฏทันที (jump) ขณะที่ sheet ยังเลื่อนลงอยู่
+   และเนื่องจาก transform เปลี่ยนจาก translateY(150%) → translateY(0) ทันที
+   → ดูเหมือน "วาร์ป"
+
+   วิธีแก้ (เหมือน FAB):
+   - pointer-events: none ยังเป็น instant
+   - visibility: hidden ยังเป็น instant
+   - แต่ transform/opacity ใช้ transition สั้นๆ (180ms) → bottom-nav ค่อยๆ fade-in
+   - ผลลัพธ์: ตอนเปิด sheet bottom-nav "หาย" ทันที (visibility:hidden)
+   - ตอนปิด sheet bottom-nav ค่อยๆ กลับเข้าที่ — ไม่มี jump/warp */
 body.yp-window-open .bottom-nav,
 body.yp-sheet-open .bottom-nav {
   transform: translateY(150%);
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition-duration: 0s !important;
+  transition:
+    transform 180ms var(--yp-ease-m3-standard),
+    opacity 180ms var(--yp-ease-m3-standard),
+    visibility 0s;
   animation: none !important;
 }
 

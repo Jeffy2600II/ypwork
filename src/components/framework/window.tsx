@@ -28,86 +28,20 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { useWindowStack, generateWindowId, type WindowType } from '@/lib/window-stack';
+// ★ no-warp scroll lock — แยกเป็น module เพื่อ reusability และ testability
+import { lockScroll, unlockScroll } from '@/lib/core/scroll-lock';
 
 // ── Drag-to-dismiss tuning ──
-// ★ v3.5.0: ปรับ tuning ให้ลื่นไหลขึ้น — ลด threshold ให้ fling ทำงานง่ายขึ้น
 const DRAG = {
   ACTIVATION_THRESHOLD: 1,
   EDGE_RESISTANCE: 0.35,
-  DRAG_CLOSE_RATIO: 0.25,   // v3.5: ลดจาก 0.28 → ปิดเร็วขึ้นเมื่อ drag ผ่าน 25%
-  FLING_VELOCITY: 400,      // v3.5: ลดจาก 500 → fling ทำงานง่ายขึ้น
-  FLING_CLOSE_RATIO: 0.08,  // v3.5: ลดจาก 0.10
+  DRAG_CLOSE_RATIO: 0.25,
+  FLING_VELOCITY: 400,
+  FLING_CLOSE_RATIO: 0.08,
 };
 
 // ── Media query: desktop popup mode (sheet → modal) ──
 const POPUP_MODE_MQ = '(min-width: 768px)';
-
-// ═══════════════════════════════════════════════════════════════
-// SCROLL LOCK (count-based — รองรับ nested windows)
-// ═══════════════════════════════════════════════════════════════
-let _lockCount = 0;
-let _savedScrollY = 0;
-let _savedScrollX = 0;
-let _savedHtmlCssText = '';
-let _savedBodyCssText = '';
-
-function lockScroll() {
-  if (typeof window === 'undefined') return;
-  _lockCount++;
-  if (_lockCount !== 1) return;
-
-  const html = document.documentElement;
-  const body = document.body;
-
-  _savedScrollY = window.scrollY || window.pageYOffset || 0;
-  _savedScrollX = window.scrollX || window.pageXOffset || 0;
-  _savedHtmlCssText = html.getAttribute('style') || '';
-  _savedBodyCssText = body.getAttribute('style') || '';
-
-  const scrollbarWidth = window.innerWidth - html.clientWidth;
-
-  html.style.overflow = 'hidden';
-  html.style.overscrollBehavior = 'none';
-  html.style.marginRight = scrollbarWidth > 0 ? scrollbarWidth + 'px' : '';
-
-  body.style.position = 'fixed';
-  body.style.top = '-' + _savedScrollY + 'px';
-  body.style.left = '0';
-  body.style.right = '0';
-  body.style.bottom = '0';
-  body.style.width = '100%';
-  body.style.overflow = 'hidden';
-  body.style.overscrollBehavior = 'none';
-
-  html.style.setProperty('--yp-scroll-locked', '1');
-  html.style.setProperty('--yp-locked-scroll-y', _savedScrollY + 'px');
-}
-
-function unlockScroll() {
-  if (typeof window === 'undefined') return;
-  _lockCount = Math.max(0, _lockCount - 1);
-  if (_lockCount !== 0) return;
-
-  const html = document.documentElement;
-  const body = document.body;
-
-  if (_savedHtmlCssText) {
-    html.setAttribute('style', _savedHtmlCssText);
-  } else {
-    html.removeAttribute('style');
-  }
-  if (_savedBodyCssText) {
-    body.setAttribute('style', _savedBodyCssText);
-  } else {
-    body.removeAttribute('style');
-  }
-
-  html.style.scrollBehavior = 'auto';
-  window.scrollTo(_savedScrollX, _savedScrollY);
-  requestAnimationFrame(() => {
-    html.style.scrollBehavior = '';
-  });
-}
 
 // ═══════════════════════════════════════════════════════════════
 // Window component

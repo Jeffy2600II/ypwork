@@ -168,48 +168,41 @@ export function useScrollDirection(
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // ★ r48 (Bug #1 fix): เมื่อ window ปิดลง ให้ re-sync lastY จากตำแหน่งจริง
-    //   หลัง unlockScroll ทำ window.scrollTo(0, savedY) — เราต้องการ update
-    //   lastYRef เป็นค่าจริง (savedY) โดยไม่ trigger hidden state change
-    //   ไม่งั้น scroll event แรกที่เข้ามาจะคำนวณ dy ผิด (จาก 0 → savedY)
-    //   และอาจตั้ง fabHidden=false ก่อน (เพราะ dy ใหญ่ถูกตีความเป็น "ปัดลงเร็ว")
+    // ★ Bug fix (FAB flash): เมื่อ window ปิดลง ให้ re-sync lastY และ recompute
+    //   hidden state ทันที (ไม่รอ 2 frames) — เพราะเราใช้ no-warp scroll lock
+    //   (overflow:hidden บน html อย่างเดียว, ไม่ย้าย body) → window.scrollY
+    //   ถูกต้องตลอดเวลา ไม่จำเป็นต้องรอ layout settle
     //
-    //   วิธี: subscribe ไปยัง window-open state changes — เมื่อ stack ว่างลง
-    //   (window ปิด) → อัปเดต lastY เป็น window.scrollY ปัจจุบัน (หลัง unlock)
-    //   แล้วค่อย recompute hidden state จากค่า y จริง
+    //   ที่สำคัญ: ต้องคำนวณ *และ* setHidden ภายใน callback เดียวกัน — ไม่งั้น
+    //   React batch แล้ว FAB flash ก่อน state update commit
     const unsubWindowOpen = onWindowOpenChange((isOpen) => {
       if (isOpen) return; // สนใจเฉพาะตอนปิด
-      // รอ 2 frames ให้ unlockScroll + window.scrollTo commit แน่นอน
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (isWindowOpenRightNow()) return; // safety: window กลับมาเปิดอีก
-          const y = window.scrollY || window.pageYOffset || 0;
-          const o = optsRef.current;
-          lastYRef.current = y;
-          lastTimeRef.current = performance.now();
+      // Sync ทันที — no-warp scroll lock ทำให้ scrollY ถูกต้องเสมอ
+      const y = window.scrollY || window.pageYOffset || 0;
+      const o = optsRef.current;
+      lastYRef.current = y;
+      lastTimeRef.current = performance.now();
 
-          // Re-evaluate hidden state จากตำแหน่งจริง
-          let reHidden = hiddenRef.current;
-          if (y < o.showAtTop) {
-            reHidden = false;
-          } else if (y > o.hideThreshold) {
-            reHidden = true;
-          }
-          // (y ระหว่าง showAtTop กับ hideThreshold → ใช้ค่าเดิม)
+      // Re-evaluate hidden state จากตำแหน่งจริง (synchronous)
+      let reHidden = hiddenRef.current;
+      if (y < o.showAtTop) {
+        reHidden = false;
+      } else if (y > o.hideThreshold) {
+        reHidden = true;
+      }
+      // (y ระหว่าง showAtTop กับ hideThreshold → ใช้ค่าเดิม)
 
-          if (reHidden !== hiddenRef.current) {
-            hiddenRef.current = reHidden;
-            setHidden(reHidden);
-          }
+      if (reHidden !== hiddenRef.current) {
+        hiddenRef.current = reHidden;
+        setHidden(reHidden);
+      }
 
-          // Re-evaluate scrolled state
-          const reScrolled = y > o.scrollStateThreshold;
-          if (reScrolled !== scrolledRef.current) {
-            scrolledRef.current = reScrolled;
-            setIsScrolled(reScrolled);
-          }
-        });
-      });
+      // Re-evaluate scrolled state
+      const reScrolled = y > o.scrollStateThreshold;
+      if (reScrolled !== scrolledRef.current) {
+        scrolledRef.current = reScrolled;
+        setIsScrolled(reScrolled);
+      }
     });
 
     return () => {
