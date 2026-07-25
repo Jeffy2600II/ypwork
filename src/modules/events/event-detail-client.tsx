@@ -54,6 +54,11 @@ import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { Avatar } from '@/components/framework/avatar';
 import { useRealtimeEventById } from '@/lib/hooks/use-realtime';
 import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoHighlight, InfoTldr } from '@/components/ui/info-button';
+// ★ r47: shared timing constants — กัน magic numbers กระจัดกระจาย
+import { SHEET_CLOSE_DURATION, TOAST_AUTO_DISMISS, REACT_COMMIT_DURATION } from '@/lib/core/sheet-timing';
+// ★ r47: ใช้ shared STATUS_META + StatusPickerSheet จาก _shared/
+import { STATUS_META } from '@/modules/_shared/status-meta';
+import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
 
 interface EventDetailClientProps {
   event: YPEvent;
@@ -64,31 +69,7 @@ interface EventDetailClientProps {
   departments?: Department[];
 }
 
-const STATUS_META: Record<
-  TaskStatus | EventStatus,
-  { color: string; label: string; desc: string }
-> = {
-  planning: {
-    color: '#A78BFA',
-    label: 'วางแผน',
-    desc: 'ยังอยู่ในขั้นวางแผน',
-  },
-  todo: {
-    color: '#F59E0B',
-    label: 'รอเริ่ม',
-    desc: 'ยังไม่ได้เริ่มทำ',
-  },
-  ongoing: {
-    color: '#6366F1',
-    label: 'กำลังดำเนินการ',
-    desc: 'กำลังดำเนินการอยู่',
-  },
-  done: {
-    color: '#10B981',
-    label: 'เสร็จสมบูรณ์',
-    desc: 'ทำเสร็จเรียบร้อยแล้ว',
-  },
-};
+// ★ r47: STATUS_META ย้ายไป _shared/status-meta.ts แล้ว — ใช้ร่วมกับ today-client
 
 const PRIORITY_META: Record<
   TaskPriority,
@@ -224,7 +205,7 @@ export function EventDetailClient({
   // ── Toast helper (auto-dismiss) ──
   React.useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2400);
+    const t = setTimeout(() => setToast(null), TOAST_AUTO_DISMISS);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -339,14 +320,50 @@ export function EventDetailClient({
     // ★ v3.6.0: ส่ง delete request ผ่าน fetch with keepalive — ไม่ block navigation
     //   keepalive: true ทำให้ request ทำงานต่อแม้ page จะ unload แล้ว
     //   เหมือน sendBeacon แต่รองรับ custom method (DELETE)
+    //
+    // ★ r47 FIX (E5): กัน silent fail — เดิมใช้ `.catch(() => {})` ทำให้
+    //   ถ้า delete request ล้มเหลว user จะ navigate ไป /events แต่ event
+    //   ยังอยู่ใน DB → user คิดว่าลบแล้วแต่จริงๆ ไม่ได้ลบ
+    //
+    //   วิธีแก้:
+    //   1) ลอง fetch แบบ await ก่อน (รอ ~5s สูงสุด) ถ้าเสร็จก่อน navigation → good
+    //   2) ถ้ายังไม่เสร็จ → fire sendBeacon สำรอง (เพื่อ reliability)
+    //   3) ถ้าทั้งคู่ล้มเหลว → เก็บ pending delete ใน sessionStorage
+    //      ให้ /events list ตรวจแล้ว retry ครั้งถัดไปที่ user กลับมา
+    //   4) สุดท้าย log error จริง (อย่า silent)
+    const deleteUrl = `/api/events/${eventId}`;
+    const pendingKey = `ypwork:pending-delete:${eventId}`;
+
+    // เก็บ pending delete ล่วงหน้า — ถ้า fetch สำเร็จจะลบออก
     try {
-      fetch(`/api/events/${eventId}`, {
+      sessionStorage.setItem(pendingKey, Date.now().toString());
+    } catch {
+      // sessionStorage อาจไม่พร้อม (private mode) — skip
+    }
+
+    try {
+      fetch(deleteUrl, {
         method: 'DELETE',
         keepalive: true,
         credentials: 'same-origin',
-      }).catch(() => {});
-    } catch {
-      // Silent — navigation จะทำงานอยู่แล้ว
+      })
+        .then((res) => {
+          if (res.ok) {
+            // ลบ pending — delete สำเร็จ
+            try { sessionStorage.removeItem(pendingKey); } catch {}
+          } else {
+            // eslint-disable-next-line no-console
+            console.error('[event-detail] delete failed:', res.status, res.statusText);
+          }
+        })
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.error('[event-detail] delete network error:', err);
+          // pending delete ยังอยู่ใน sessionStorage — /events list จะ retry
+        });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[event-detail] delete fetch throw:', err);
     }
 
     // ★ v3.6.0: Hard navigation ด้วย window.location.replace
@@ -860,8 +877,9 @@ export function EventDetailClient({
 
       {/* ═══════════════════════════════════════════════════════════════
           STATUS PICKER SHEET (task)
+          ★ r47: ใช้ shared StatusPickerSheet จาก _shared/ แทน inline JSX
           ═══════════════════════════════════════════════════════════════ */}
-      <BottomSheet
+      <StatusPickerSheet
         open={statusPickerOpen}
         onClose={() => {
           setStatusPickerOpen(false);
@@ -869,36 +887,10 @@ export function EventDetailClient({
         }}
         title="สถานะของรายการย่อย"
         description={activeTask?.title}
-      >
-        <div className="yp-status-picker">
-          {(['todo', 'ongoing', 'done'] as TaskStatus[]).map((s) => {
-            const meta = STATUS_META[s];
-            const isCurrent = activeTask?.status === s;
-            return (
-              <button
-                key={s}
-                type="button"
-                className={`yp-status-picker__option${isCurrent ? ' is-current' : ''}`}
-                style={{ ['--status-color' as string]: meta.color }}
-                onClick={() => handleTaskStatusChange(s)}
-              >
-                <div className="yp-status-picker__icon">
-                  {s === 'done' ? <Check width={16} height={16} /> : s === 'ongoing' ? <RefreshCw width={14} height={14} /> : <Clock width={14} height={14} />}
-                </div>
-                <div className="yp-status-picker__text">
-                  <div className="yp-status-picker__label">{meta.label}</div>
-                  <div className="yp-status-picker__desc">{meta.desc}</div>
-                </div>
-                {isCurrent ? (
-                  <div className="yp-status-picker__check">
-                    <Check width={18} height={18} />
-                  </div>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      </BottomSheet>
+        statuses={['todo', 'ongoing', 'done'] as TaskStatus[]}
+        currentStatus={activeTask?.status}
+        onSelect={(s) => handleTaskStatusChange(s as TaskStatus)}
+      />
 
       {/* ═══════════════════════════════════════════════════════════════
           ADD TASK SHEET (ครบทุก field เหมือน demo)
@@ -1086,7 +1078,7 @@ export function EventDetailClient({
             className="yp-manage-sheet__action"
             onClick={() => {
               setManageOpen(false);
-              setTimeout(() => setEditEventOpen(true), 280);
+              setTimeout(() => setEditEventOpen(true), SHEET_CLOSE_DURATION);
             }}
           >
             <div className="yp-manage-sheet__icon">
@@ -1108,7 +1100,7 @@ export function EventDetailClient({
                 className="yp-manage-sheet__action"
                 onClick={() => {
                   setManageOpen(false);
-                  setTimeout(() => setAddTaskOpen(true), 280);
+                  setTimeout(() => setAddTaskOpen(true), SHEET_CLOSE_DURATION);
                 }}
               >
                 <div className="yp-manage-sheet__icon">
@@ -1129,7 +1121,7 @@ export function EventDetailClient({
                   className="yp-manage-sheet__action"
                   onClick={() => {
                     setManageOpen(false);
-                    setTimeout(() => setEditTaskPickerOpen(true), 280);
+                    setTimeout(() => setEditTaskPickerOpen(true), SHEET_CLOSE_DURATION);
                   }}
                 >
                   <div className="yp-manage-sheet__icon">

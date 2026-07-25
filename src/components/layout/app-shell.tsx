@@ -173,6 +173,10 @@ import { Avatar } from '@/components/framework/avatar';
 import { useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
 // ★ v3.9.2: useScrollDirection สำหรับระบบ "แสดง/ซ่อน" (มี animation + velocity-aware)
 import { useScrollDirection } from '@/lib/hooks/use-scroll-direction';
+// ★ r47: FABContext — ให้ลูก (page client) override พฤติกรรมปุ่ม + ได้
+import { useFabAction, FabProvider } from '@/lib/core/fab-context';
+// ★ r47: self-healing — retry pending deletes ที่อาจ fail ระหว่าง navigation
+import { usePendingDeleteRetry } from '@/lib/core/pending-delete-retry';
 
 export type AppShellActiveNav = 'today' | 'calendar' | 'events' | 'profile';
 
@@ -220,7 +224,17 @@ function computeTitleVars(accent?: string): {
   return { from: accent, to: '#7C3AED', accentVar: accent };
 }
 
-export function AppShell({
+export function AppShell(props: AppShellProps) {
+  // ★ r47: ครอบด้วย FabProvider — ลูก (page client) สามารถ register
+  //   FAB action ของตัวเองผ่าน useFabRegister() ได้
+  return (
+    <FabProvider>
+      <AppShellInner {...props} />
+    </FabProvider>
+  );
+}
+
+function AppShellInner({
   user: initialUser,
   children,
   activeNav,
@@ -235,6 +249,9 @@ export function AppShell({
   const { user } = useRealtimeSessionUser(initialUser);
   const router = useRouter();
   const { from, to, accentVar } = computeTitleVars(accent);
+
+  // ★ r47: retry pending deletes ที่อาจ fail ระหว่าง navigation (self-healing)
+  usePendingDeleteRetry();
 
   // v1.4: auto showBack เมื่อซ่อน bottom-nav (เหมือน demo route-meta logic)
   const effectiveShowBack = showBack || !showBottomNav;
@@ -254,8 +271,14 @@ export function AppShell({
   //   เลื่อนขึ้น → แสดง (scale 1 + fade in, spring-like with tiny overshoot)
   //   ใกล้บน 40px → แสดงเสมอ
   //   หมายเหตุ: นี่แยกจาก "ปิด/เปิด" (body.yp-window-open) ที่ไม่มี animation
+  // ★ r47: อ่าน FAB action จาก context — ลูก (page client) สามารถ register
+  //   action ของตัวเองได้ (เช่น day-view ส่ง 'navigate-create-with-date')
+  const fabAction = useFabAction();
+  // ถ้า action เป็น 'hidden' → บังคับซ่อน FAB แม้ showFAB=true
+  const effectiveShowFAB = showFAB && fabAction.kind !== 'hidden';
+
   const { hidden: fabHidden, isScrolled: topBarScrolled } = useScrollDirection({
-    enabled: showFAB,
+    enabled: effectiveShowFAB,
     hideThreshold: 120,
     showAtTop: 40,
     scrollStateThreshold: 8,
@@ -316,16 +339,36 @@ export function AppShell({
       {/* ── FAB ── */}
       {/* ★ v3.9.2: Material 3 Extended FAB — state layer + halo glow + spring press
           .is-hidden-by-scroll → CSS จะ animate scale 0.4 + fade + visibility hidden
-          ส่วน "ปิด/เปิด" (body.yp-window-open) จัดการใน CSS แยก — ไม่มี animation */}
-      {showFAB ? (
-        <Link
-          href="/events/create"
-          prefetch={true}
-          aria-label="สร้างรายการใหม่"
-          className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
-        >
-          <Plus className="size-5" strokeWidth={2.4} />
-        </Link>
+          ส่วน "ปิด/เปิด" (body.yp-window-open) จัดการใน CSS แยก — ไม่มี animation
+          ★ r47: action มาจาก FABContext — ลูกสามารถ override ได้
+            - 'navigate-create' (default) → /events/create
+            - 'navigate-create-with-date' → /events/create?date=YYYY-MM-DD
+            - 'callback' → เรียก fn ที่ลูกส่งมา
+            - 'hidden' → ไม่ render */}
+      {effectiveShowFAB ? (
+        fabAction.kind === 'callback' ? (
+          <button
+            type="button"
+            onClick={fabAction.fn}
+            aria-label="สร้างรายการใหม่"
+            className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
+          >
+            <Plus className="size-5" strokeWidth={2.4} />
+          </button>
+        ) : (
+          <Link
+            href={
+              fabAction.kind === 'navigate-create-with-date'
+                ? `/events/create?date=${encodeURIComponent(fabAction.date)}`
+                : '/events/create'
+            }
+            prefetch={true}
+            aria-label="สร้างรายการใหม่"
+            className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
+          >
+            <Plus className="size-5" strokeWidth={2.4} />
+          </Link>
+        )
       ) : null}
 
       {/* ── BOTTOM NAV / LEFT-RAIL ── */}

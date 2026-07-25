@@ -244,6 +244,41 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
       });
   }, []);
 
+  // ★ r47 CRITICAL FIX (B4): แก้ race condition ระหว่าง optimistic patch
+  //   กับ realtime reload ที่ทำให้ UI "กระพริบ" กลับเป็นของเดิม
+  //
+  //   ปัญหา: กดเปลี่ยน status → patchTask() อัพเดต state ทันที →
+  //   realtime push มา → reload() ดึงข้อมูลใหม่ → แต่ API PATCH ยังไม่เสร็ยบร้อย
+  //   → user เห็น status เดิมกลับมา แล้วค่อยกลายเป็น status ใหม่ (กระพริบ)
+  //
+  //   วิธีแก้: หลัง patchEvent/patchTask ให้ตั้ง "grace period" 300ms
+  //   ระหว่าง grace period ถ้า reload() ถูกเรียก (จาก realtime push)
+  //   ให้ delay ออกไปจนกว่า grace period จะหมด — ป้องกัน state กระพริบ
+  const OPTIMISTIC_GRACE_MS = 300;
+  const optimisticUntilRef = React.useRef(0);
+
+  // wrap reload ใหม่ให้ respect grace period
+  const reloadWithGrace = React.useCallback(() => {
+    const now = Date.now();
+    const remaining = optimisticUntilRef.current - now;
+    if (remaining > 0) {
+      // อยู่ใน grace period — delay reload จนกว่าจะหมด
+      setTimeout(() => {
+        if (Date.now() >= optimisticUntilRef.current) {
+          reload();
+        }
+      }, remaining + 10);
+      return;
+    }
+    reload();
+  }, [reload]);
+
+  // ★ r47: unique channel name ต่อ hook instance — กัน conflict เมื่อ
+  //   Calendar + Events list + Today ทั้งคู่ใช้ useRealtimeEvents พร้อมกัน
+  //   (ปัญหาเดิมคือใช้ชื่อ 'ypwork-events-realtime' ตัวเดียวกัน เวลา
+  //   cleanup อันนึง removeChannel ไปทำลาย subscription ของอีกอัน)
+  const channelName = useUniqueChannelName('ypwork-events-realtime');
+
   // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
   //   ปัญหาเดิม: ถ้า user ไปหน้าอื่นแล้วย้อนกลับมาภายใน 30 วินาที
   //   Next.js จะใช้ cached RSC payload (initialEvents ตัวเก่า) แล้ว
@@ -263,48 +298,46 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
     let channel: any;
     try {
       channel = supabase
-        .channel('ypwork-events-realtime')
+        .channel(channelName)
         // events changes
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_events' },
           () => {
-            // Reload full set on any change — simple and stable.
-            // (We avoid patching individual rows to keep correctness with
-            //  joins like department + assignees; one round-trip is cheap.)
-            reload();
+            // ★ r47: ใช้ reloadWithGrace แทน reload เพื่อกัน optimistic state ถูกทับ
+            reloadWithGrace();
           }
         )
         // tasks changes (affects progress + counts)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_tasks' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // assignees changes
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: event_members changes — คนเข้า/ออกงาน ต้อง reload
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_event_members' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: council_users changes — คนเปลี่ยนชื่อ/สี/ฝ่าย ต้อง reload
         //         (assignees / members display ต้องอัพเดตตาม)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'council_users' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: departments changes — admin เปลี่ยนชื่อ/สี/ไอคอนฝ่าย ต้อง reload
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'departments' },
-          () => reload()
+          () => reloadWithGrace()
         )
         .subscribe();
     } catch (e) {
@@ -320,17 +353,19 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
         // ignore — channel อาจถูก remove ไปแล้ว
       }
     };
-  }, [reload]);
+  }, [reloadWithGrace, channelName]);
 
   // ★ v3.10.0 รอบที่ 27: Optimistic patch helpers — อัพเดต state ทันที
   //   ก่อน realtime push มาถึง ทำให้ UI เปลี่ยนทันทีไม่ต้องรีเซ็ตหน้า
   const patchEvent = React.useCallback((eventId: string, patch: Partial<YPEvent>) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvents((prev) =>
       prev.map((e) => (e.id === eventId ? { ...e, ...patch } : e))
     );
   }, []);
 
   const patchTask = React.useCallback((taskId: string, patch: Partial<Task>) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvents((prev) =>
       prev.map((e) => ({
         ...e,
@@ -414,6 +449,24 @@ export function useRealtimeEventById(
       });
   }, [eventId, CACHE_KEY]);
 
+  // ★ r47 (B4): grace period สำหรับ optimistic patch — เหมือน useRealtimeEvents
+  const OPTIMISTIC_GRACE_MS = 300;
+  const optimisticUntilRef = React.useRef(0);
+
+  const reloadWithGrace = React.useCallback(() => {
+    const now = Date.now();
+    const remaining = optimisticUntilRef.current - now;
+    if (remaining > 0) {
+      setTimeout(() => {
+        if (Date.now() >= optimisticUntilRef.current) {
+          reload();
+        }
+      }, remaining + 10);
+      return;
+    }
+    reload();
+  }, [reload]);
+
   // v1.8.2: Initial mount — reload() once to bypass Next.js RSC cache.
   //   ถ้า user กลับเข้าหน้า detail ภายใน 30 วินาที Next.js จะใช้ cached
   //   payload → initialEvent ตัวเก่า → ต้อง reload เพื่อให้แน่ใจว่าข้อมูลสด
@@ -439,7 +492,7 @@ export function useRealtimeEventById(
             table: 'ypwork_events',
             filter: `id=eq.${eventId}`,
           },
-          () => reload()
+          () => reloadWithGrace()
         )
         // changes on tasks of THIS event (filter by event_id)
         .on(
@@ -450,31 +503,31 @@ export function useRealtimeEventById(
             table: 'ypwork_tasks',
             filter: `event_id=eq.${eventId}`,
           },
-          () => reload()
+          () => reloadWithGrace()
         )
         // assignee changes — reload (no per-row filter possible easily)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_task_assignees' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: event_members changes — คนเข้า/ออกงานนี้
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_event_members' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: council_users changes — assignee/member เปลี่ยนชื่อ/สี/ฝ่าย
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'council_users' },
-          () => reload()
+          () => reloadWithGrace()
         )
         // v1.8.2: departments changes — admin เปลี่ยนฝ่ายของงานนี้
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'departments' },
-          () => reload()
+          () => reloadWithGrace()
         )
         .subscribe();
     } catch (e) {
@@ -490,13 +543,16 @@ export function useRealtimeEventById(
         // ignore
       }
     };
-  }, [eventId, reload]);
+  }, [eventId, reloadWithGrace]);
 
   // local patch helpers — สำหรับ optimistic update
+  // ★ r47 (B4): ตั้ง grace period หลัง patch เพื่อกัน realtime ทับ optimistic state
   const patchEvent = React.useCallback((patch: Partial<YPEvent>) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvent((prev) => (prev ? { ...prev, ...patch } : prev));
   }, []);
   const patchTask = React.useCallback((taskId: string, patch: Partial<Task>) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvent((prev) =>
       prev
         ? {
@@ -509,6 +565,7 @@ export function useRealtimeEventById(
     );
   }, []);
   const removeTask = React.useCallback((taskId: string) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvent((prev) =>
       prev
         ? { ...prev, tasks: (prev.tasks || []).filter((t) => t.id !== taskId) }
@@ -516,6 +573,7 @@ export function useRealtimeEventById(
     );
   }, []);
   const addTask = React.useCallback((task: Task) => {
+    optimisticUntilRef.current = Date.now() + OPTIMISTIC_GRACE_MS;
     setEvent((prev) =>
       prev ? { ...prev, tasks: [...(prev.tasks || []), task] } : prev
     );
@@ -679,6 +737,10 @@ export function useRealtimeDepartments(
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
 
+  // ★ r47: unique channel name ต่อ hook instance — กัน conflict เมื่อ
+  //   register form + profile + today ทั้งคู่ใช้ useRealtimeDepartments พร้อมกัน
+  const channelName = useUniqueChannelName('ypwork-departments-realtime');
+
   const reload = React.useCallback(() => {
     reloadTokenRef.current += 1;
     const myToken = reloadTokenRef.current;
@@ -707,7 +769,7 @@ export function useRealtimeDepartments(
     let channel: any;
     try {
       channel = supabase
-        .channel('ypwork-departments-realtime')
+        .channel(channelName)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'departments' },
@@ -727,7 +789,7 @@ export function useRealtimeDepartments(
         // ignore
       }
     };
-  }, [reload]);
+  }, [reload, channelName]);
 
   return { departments, loading, error, reload };
 }
@@ -922,6 +984,9 @@ export function useRealtimeActivityLog(limit = 50): {
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
 
+  // ★ r47: unique channel name ต่อ hook instance
+  const channelName = useUniqueChannelName('ypwork-activity-log-realtime');
+
   const reload = React.useCallback(() => {
     reloadTokenRef.current += 1;
     const myToken = reloadTokenRef.current;
@@ -951,7 +1016,7 @@ export function useRealtimeActivityLog(limit = 50): {
     let channel: any;
     try {
       channel = supabase
-        .channel('ypwork-activity-log-realtime')
+        .channel(channelName)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_activity_log' },
@@ -971,7 +1036,7 @@ export function useRealtimeActivityLog(limit = 50): {
         // ignore
       }
     };
-  }, [reload]);
+  }, [reload, channelName]);
 
   return { entries, loading, error, reload };
 }
@@ -1023,6 +1088,9 @@ export function useRealtimeYears(
   const [error, setError] = React.useState<string | null>(null);
   const reloadTokenRef = React.useRef(0);
 
+  // ★ r47: unique channel name ต่อ hook instance
+  const channelName = useUniqueChannelName('ypwork-years-realtime');
+
   const reload = React.useCallback(() => {
     reloadTokenRef.current += 1;
     const myToken = reloadTokenRef.current;
@@ -1051,7 +1119,7 @@ export function useRealtimeYears(
     let channel: any;
     try {
       channel = supabase
-        .channel('ypwork-years-realtime')
+        .channel(channelName)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'council_years' },
@@ -1071,7 +1139,7 @@ export function useRealtimeYears(
         // ignore
       }
     };
-  }, [reload]);
+  }, [reload, channelName]);
 
   return { years, loading, error, reload };
 }

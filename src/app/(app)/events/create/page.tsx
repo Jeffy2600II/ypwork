@@ -21,11 +21,11 @@ import { CreateEventForm } from '@/modules/events/create-event-form';
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; date?: string }>;
 }
 
 export default async function CreateEventPage({ searchParams }: PageProps) {
-  const { edit: editId } = await searchParams;
+  const { edit: editId, date: prefillDate } = await searchParams;
   const supabase = await createClient();
   const user = await getSessionUser(supabase);
 
@@ -81,10 +81,13 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
       showBottomNav={false}
     >
       {/* ★ v3.4.0: departments = [] → form จะ fetch เองฝั่ง client */}
+      {/* ★ r47: prefillDate — ส่งต่อให้ form pre-fill date field
+          (มาจาก day-view กด FAB ที่ register 'navigate-create-with-date') */}
       <CreateEventForm
         departments={[]}
         editEvent={editEvent}
         userUid={user.auth_uid}
+        prefillDate={prefillDate}
       />
     </AppShell>
   );

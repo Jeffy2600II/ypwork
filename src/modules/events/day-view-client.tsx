@@ -5,11 +5,17 @@
 // ═══════════════════════════════════════════════════════════════
 // ใช้ useRealtimeEventsForDate เพื่อ subscribe events ของวันที่กำหนด
 // เมื่อมี event ใหม่/ถูกลบ/ถูกแก้ → list อัพเดตทันที ไม่ต้อง refresh
+//
+// ★ r47: register FAB action 'navigate-create-with-date' — ทำให้ปุ่ม +
+//   ในหน้านี้พาไป /events/create?date=YYYY-MM-DD แทนที่จะเป็น /events/create
+//   แก้ปัญหา empty state CTA "กดปุ่ม + เพื่อสร้างรายการใหม่สำหรับวันนี้"
+//   ที่ก่อนหน้านี้โกหก user (FAB ไม่มี, หรือ FAB ไม่ pre-fill date)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
 import { EventCard } from '@/modules/events/event-card';
 import { useRealtimeEventsForDate } from '@/lib/hooks/use-realtime';
+import { useFabRegister } from '@/lib/core/fab-context';
 import type { YPEvent } from '@/lib/types';
 
 export interface DayViewClientProps {
@@ -25,6 +31,9 @@ export function DayViewClient({
   initialEvents,
 }: DayViewClientProps) {
   const { events, loading } = useRealtimeEventsForDate(initialEvents, dateStr);
+
+  // ★ r47: register FAB action — ปุ่ม + ในหน้านี้พาไป create form ที่ pre-fill วันที่
+  useFabRegister({ kind: 'navigate-create-with-date', date: dateStr });
 
   return (
     <div className="yp-page yp-page-enter">

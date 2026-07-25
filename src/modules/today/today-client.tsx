@@ -94,6 +94,11 @@ import {
   useRealtimeDeptMembers,
   useRealtimeSessionUser,
 } from '@/lib/hooks/use-realtime';
+// ★ r47: ใช้ shared STATUS_META + StatusPickerSheet จาก _shared/
+import { STATUS_META } from '@/modules/_shared/status-meta';
+import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
+// ★ r47: shared timing constants — กัน magic numbers กระจัดกระจาย
+import { TOAST_AUTO_DISMISS, REACT_COMMIT_DURATION } from '@/lib/core/sheet-timing';
 
 // ═══════════════════════════════════════════════════════════════
 // MODULE 1: TYPES & CONSTANTS
@@ -107,16 +112,7 @@ export interface TodayClientProps {
   deptStats: { total: number; done: number; ongoing: number; overdue: number };
 }
 
-/** Status metadata — consistent across card & detail sheet */
-const STATUS_META: Record<
-  TaskStatus | EventStatus,
-  { color: string; label: string; desc: string }
-> = {
-  planning: { color: '#A78BFA', label: 'วางแผน', desc: 'ยังอยู่ในขั้นวางแผน' },
-  todo: { color: '#F59E0B', label: 'รอเริ่ม', desc: 'ยังไม่ได้เริ่มทำ' },
-  ongoing: { color: '#6366F1', label: 'กำลังดำเนินการ', desc: 'กำลังดำเนินการอยู่' },
-  done: { color: '#10B981', label: 'เสร็จสมบูรณ์', desc: 'ทำเสร็จเรียบร้อยแล้ว' },
-};
+// ★ r47: STATUS_META ย้ายไป _shared/status-meta.ts แล้ว — ใช้ร่วมกับ event-detail
 
 const PRIORITY_LBL: Record<string, string> = {
   high: 'เร่งด่วน',
@@ -580,7 +576,7 @@ export function TodayClient({
 
   React.useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2400);
+    const t = setTimeout(() => setToast(null), TOAST_AUTO_DISMISS);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -980,7 +976,8 @@ export function TodayClient({
       ) : null}
 
       {/* ── STATUS PICKER SHEET ── */}
-      <BottomSheet
+      {/* ★ r47: ใช้ shared StatusPickerSheet จาก _shared/ แทน inline JSX */}
+      <StatusPickerSheet
         open={statusPickerOpen}
         onClose={() => {
           setStatusPickerOpen(false);
@@ -988,52 +985,16 @@ export function TodayClient({
         }}
         title="สถานะของรายการ"
         description={activeItem?.title}
-      >
-        <div className="yp-status-picker">
-          {activeItem
-            ? (
-                activeItem.task
-                  ? (['todo', 'ongoing', 'done'] as TaskStatus[])
-                  : (['todo', 'ongoing', 'done'] as EventStatus[])
-              ).map((s) => {
-                const meta = STATUS_META[s];
-                const isCurrent = activeItem.status === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    className={`yp-status-picker__option${isCurrent ? ' is-current' : ''}`}
-                    style={{ ['--status-color' as string]: meta.color }}
-                    onClick={() => handleStatusChange(s)}
-                  >
-                    <div className="yp-status-picker__icon">
-                      {s === 'done' ? (
-                        <Check width={16} height={16} />
-                      ) : s === 'ongoing' ? (
-                        <RefreshCw width={14} height={14} />
-                      ) : (
-                        <Clock width={14} height={14} />
-                      )}
-                    </div>
-                    <div className="yp-status-picker__text">
-                      <div className="yp-status-picker__label">
-                        {meta.label}
-                      </div>
-                      <div className="yp-status-picker__desc">
-                        {meta.desc}
-                      </div>
-                    </div>
-                    {isCurrent ? (
-                      <div className="yp-status-picker__check">
-                        <Check width={18} height={18} />
-                      </div>
-                    ) : null}
-                  </button>
-                );
-              })
-            : null}
-        </div>
-      </BottomSheet>
+        statuses={
+          activeItem
+            ? activeItem.task
+              ? (['todo', 'ongoing', 'done'] as TaskStatus[])
+              : (['todo', 'ongoing', 'done'] as EventStatus[])
+            : []
+        }
+        currentStatus={activeItem?.status}
+        onSelect={(s) => handleStatusChange(s as TaskStatus | EventStatus)}
+      />
 
       {/* ── DETAIL SHEET ── */}
       <BottomSheet
@@ -1112,7 +1073,9 @@ export function TodayClient({
                   ) : null}
 
                   {/* From group row (sub-items only) */}
-                  {diIsSubItem && di.parentEvent ? (
+                  {diIsSubItem && di.parentEvent ? (() => {
+                    const parentEvent = di.parentEvent;  // ★ r47: capture เพื่อ narrow type ใน setTimeout closure
+                    return (
                     <div className="yp-card-detail__row">
                       <div className="yp-card-detail__label">
                         <Layers width={14} height={14} />
@@ -1126,23 +1089,25 @@ export function TodayClient({
                             ที่ทำให้กดแล้ว sheet ปิดแต่ไม่ navigate
                             ใช้ href จริงเพื่อรองรับ right-click → เปิดในแท็บใหม่ */}
                         <a
-                          href={`/events/${di.parentEvent.id}`}
+                          href={`/events/${parentEvent.id}`}
                           className="yp-card-detail__link"
                           onClick={(e) => {
                             e.preventDefault();
                             handleCloseDetailSheet();
                             // รอให้ React ประมวลผล state แล้วค่อย navigate
+                            // ★ r47: ใช้ shared constant แทน magic number 50
                             setTimeout(() => {
-                              window.location.href = `/events/${di.parentEvent.id}`;
-                            }, 50);
+                              window.location.href = `/events/${parentEvent.id}`;
+                            }, REACT_COMMIT_DURATION);
                           }}
                         >
-                          {di.parentEvent.title}
+                          {parentEvent.title}
                           <ArrowUpRight width={12} height={12} />
                         </a>
                       </div>
                     </div>
-                  ) : null}
+                    );
+                  })() : null}
 
                   {/* Assignee row */}
                   {di.assigneeName ? (

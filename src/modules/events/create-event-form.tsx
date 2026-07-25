@@ -45,12 +45,15 @@ export interface CreateEventFormProps {
   } | null;
   /** created_by = user.auth_uid */
   userUid: string;
+  /** ★ r47: pre-fill date field (จาก day-view FAB ?date=YYYY-MM-DD) */
+  prefillDate?: string;
 }
 
 export function CreateEventForm({
   departments: initialDepartments,
   editEvent,
   userUid,
+  prefillDate,
 }: CreateEventFormProps) {
   const router = useRouter();
   const isEdit = !!editEvent;
@@ -73,12 +76,10 @@ export function CreateEventForm({
   const [startDate, setStartDate] = React.useState<string>(editEvent?.start_date || '');
   // ★ v3.10.0 รอบที่ 29: เปลี่ยน label ของ `date` จาก "วันที่" → "กำหนดส่ง"
   //   เพื่อสื่อความหมายชัดเจนว่านี่คือ deadline ไม่ใช่วันเริ่มต้น
-  //   ค่า default สำหรับโหมดสร้างใหม่ = วันนี้ (เหมือนเดิม)
+  //   ★ r47: ถ้ามี prefillDate (จาก day-view FAB) → ใช้ prefillDate แทนวันนี้
+  //   ลำดับความสำคัญ: editEvent.date > prefillDate > getLocalTodayStr()
   const [date, setDate] = React.useState(
-    // ★ v3.9.4: ใช้ getLocalTodayStr() แทน new Date().toISOString().slice(0, 10)
-    //   เพราะ toISOString() แปลงเป็น UTC ก่อน slice — ถ้า user อยู่ timezone อื่น
-    //   "วันนี้" อาจกลายเป็นเมื่อวานหรือพรุ่งนี้
-    editEvent?.date || getLocalTodayStr()
+    editEvent?.date || prefillDate || getLocalTodayStr()
   );
   const [time, setTime] = React.useState(editEvent?.time || '');
   const [location, setLocation] = React.useState(editEvent?.location || '');

@@ -96,6 +96,7 @@ export default async function DayViewPage({ params }: PageProps) {
       title={formatDate(dateStr, { long: true })}
       showBack
       showBottomNav={false}
+      showFAB
     >
       <DayViewClient
         dateStr={dateStr}
