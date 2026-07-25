@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Inter } from "next/font/google";
-import "./globals.css";
+import "@/styles/index.css";
 import { Toaster } from "@/components/ui/toaster";
 import { NetworkStatusBanner } from "@/components/framework/network-status-banner";
 

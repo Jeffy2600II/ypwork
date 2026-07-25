@@ -141,8 +141,16 @@ export function useScrollDirection(
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // ★ r50: re-sync เมื่อ SHEET ปิด (เฉพาะ sheet — ไม่ใช่ popup)
+    // ★ r52: re-sync เมื่อ SHEET ปิด (เฉพาะ sheet — ไม่ใช่ popup)
     //   ใช้ onSheetOpenChange แทน onOverlayOpenChange
+    //
+    //   ★ r52 การเปลี่ยนแปลง: ไม่ update hidden state เมื่อ sheet ปิด
+    //     ปัญหาเดิม: เมื่อ sheet ปิด, callback นี้ re-evaluate scroll position
+    //     และอาจ set hidden=true ทำให้ FAB ไม่กลับมาแสดง
+    //
+    //     วิธีใหม่: AppShellFAB มี logic ของตัวเอง (pre-overlay visibility tracking)
+    //     สำหรับ restore FAB เมื่อ sheet ปิด — hook นี้แค่ update isScrolled
+    //     (สำหรับ top-bar shadow) ไม่ยุ่งกับ hidden state
     const unsubSheetOpen = onSheetOpenChange((isOpen) => {
       if (isOpen) return;
       // Sync ทันที — no-warp scroll lock ทำให้ scrollY ถูกต้องเสมอ
@@ -151,18 +159,8 @@ export function useScrollDirection(
       lastYRef.current = y;
       lastTimeRef.current = performance.now();
 
-      let reHidden = hiddenRef.current;
-      if (y < o.showAtTop) {
-        reHidden = false;
-      } else if (y > o.hideThreshold) {
-        reHidden = true;
-      }
-
-      if (reHidden !== hiddenRef.current) {
-        hiddenRef.current = reHidden;
-        setHidden(reHidden);
-      }
-
+      // ★ r52: ไม่ update hidden state ที่นี่ — AppShellFAB จัดการเอง
+      //   แค่ update isScrolled (สำหรับ top-bar shadow)
       const reScrolled = y > o.scrollStateThreshold;
       if (reScrolled !== scrolledRef.current) {
         scrolledRef.current = reScrolled;

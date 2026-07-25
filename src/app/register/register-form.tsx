@@ -66,6 +66,9 @@ import {
   Send,
   Building2,
 } from 'lucide-react';
+// ★ r52: PasswordField สำหรับให้ browser รับรู้ password field
+//   และถาม "บันทึกรหัสผ่าน?" หลัง register สำเร็จ
+import { PasswordField } from '@/components/framework';
 import {
   validateNationalId,
   validateStudentCode,
@@ -456,7 +459,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} noValidate>
+              <form onSubmit={handleSubmit} noValidate autoComplete="on">
                 {/* ── COMMON: full name ── */}
                 <div className={`field${errors.fullName ? ' has-error' : ''}`}>
                   <label className="field__label" htmlFor="full-name">
@@ -484,6 +487,9 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                 {/* ── STUDENT FIELDS ── */}
                 {isStudent ? (
                   <>
+                    {/* ★ r52: autoComplete="username" เพื่อให้ browser จับคู่
+                        กับ student-code (password field) และถามบันทึกรหัสผ่าน
+                        หลัง register สำเร็จ */}
                     <div className={`field${errors.nationalId ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="national-id">
                         เลขบัตรประชาชน (13 หลัก)<span className="yp-required">*</span>
@@ -496,11 +502,12 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                         <input
                           {...nationalIdPulse.inputProps}
                           id="national-id"
+                          name="national-id"
                           type="tel"
                           inputMode="numeric"
                           maxLength={17}
                           placeholder="1-1100-50124-56-2"
-                          autoComplete="off"
+                          autoComplete="username"
                           disabled={submitting}
                         />
                       </div>
@@ -509,6 +516,10 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                       ) : null}
                     </div>
 
+                    {/* ★ r52: ใช้ PasswordField (type="password") + autoComplete="new-password"
+                        เพื่อให้ browser รับรู้ว่าเป็น password field ใหม่
+                        และถาม "บันทึกรหัสผ่าน?" หลัง register สำเร็จ
+                        - show/hide toggle ให้ user ดูรหัส 5 หลักได้ */}
                     <div className={`field${errors.studentCode ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="student-code">
                         รหัสนักเรียน (5 หลัก)<span className="yp-required">*</span>
@@ -518,14 +529,14 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                           <GraduationCap className="size-[18px]" strokeWidth={1.8} />
                         </span>
                         {/* ★ v3.8.1: spread studentCodePulse.inputProps for pulse */}
-                        <input
+                        <PasswordField
                           {...studentCodePulse.inputProps}
                           id="student-code"
-                          type="tel"
+                          name="student-code"
                           inputMode="numeric"
                           maxLength={5}
                           placeholder="12345"
-                          autoComplete="off"
+                          autoComplete="new-password"
                           disabled={submitting}
                         />
                       </div>
@@ -537,6 +548,8 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                 ) : (
                   <>
                     {/* ── TEACHER/OTHER FIELDS ── */}
+                    {/* ★ r52: autoComplete="username" เพื่อให้ browser จับคู่
+                        กับ password field */}
                     <div className={`field${errors.email ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="email">
                         อีเมล<span className="yp-required">*</span>
@@ -549,10 +562,11 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                         <input
                           {...emailPulse.inputProps}
                           id="email"
+                          name="email"
                           type="email"
                           inputMode="email"
                           placeholder="teacher@school.ac.th"
-                          autoComplete="off"
+                          autoComplete="username"
                           disabled={submitting}
                         />
                       </div>
@@ -561,6 +575,8 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                       ) : null}
                     </div>
 
+                    {/* ★ r52: ใช้ PasswordField (type="password") + autoComplete="new-password"
+                        เพื่อให้ browser รับรู้ว่าเป็น password field ใหม่ */}
                     <div className={`field${errors.password ? ' has-error' : ''}`}>
                       <label className="field__label" htmlFor="password">
                         รหัสผ่าน<span className="yp-required">*</span>
@@ -570,10 +586,10 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
                           <Lock className="size-[18px]" strokeWidth={1.8} />
                         </span>
                         {/* ★ v3.8.1: spread passwordPulse.inputProps for pulse */}
-                        <input
+                        <PasswordField
                           {...passwordPulse.inputProps}
                           id="password"
-                          type="password"
+                          name="password"
                           placeholder="อย่างน้อย 6 ตัว"
                           autoComplete="new-password"
                           disabled={submitting}

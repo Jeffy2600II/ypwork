@@ -221,18 +221,31 @@ function TopBar({
 //   - ลด complexity ของ AppShellInner
 //   - แก้บั๊ก FAB flash ตอน sheet ปิด
 //
-// Logic การแสดง FAB:
-//   - ถ้า sheet เปิดอยู่ → ซ่อน (priority สูงสุด — กัน user กดซ้อน)
-//   - ถ้า action เป็น 'hidden' → ซ่อน (page เป็นคนตั้ง)
-//   - ถ้า scroll ลง → ซ่อน (velocity-aware)
-//   - ถ้า scroll ขึ้น หรืออยู่ใกล้บน → แสดง
+// ★ r52: แก้บั๊ก FAB ไม่กลับมาแสดงหลัง sheet ปิด
+//   ปัญหาเดิม: เมื่อ sheet ปิด, useScrollDirection มี callback onSheetOpenChange
+//   ที่ re-evaluate scroll position และอาจ set fabHiddenByScroll=true
+//   ทำให้ FAB ไม่กลับมาแสดงแม้ user อยู่ที่ top
+//
+//   วิธีแก้ r52:
+//   1. Track "pre-overlay visibility" — เมื่อ sheet เปิด, จำสถานะ visibility
+//      ของ FAB ก่อนเปิด sheet
+//   2. เมื่อ sheet ปิด, restore FAB ไปยัง pre-overlay visibility state
+//      โดยไม่ขึ้นกับ scroll re-evaluation
+//   3. หลังจากนั้น, useScrollDirection ทำงานปกติ — ถ้า user scroll ลง
+//      FAB ซ่อน, ถ้า scroll ขึ้น FAB แสดง
+//
+// Logic การแสดง FAB (ลำดับ priority):
+//   1. ถ้า action เป็น 'hidden' → ซ่อน (page เป็นคนตั้ง)
+//   2. ถ้า sheet เปิดอยู่ → ซ่อน (priority สูงสุด — กัน user กดซ้อน)
+//   3. ถ้า sheet ปิด และ pre-overlay visible → แสดง (restore)
+//   4. ถ้า scroll ลง → ซ่อน (velocity-aware)
+//   5. ถ้า scroll ขึ้น หรืออยู่ใกล้บน → แสดง
 // ═══════════════════════════════════════════════════════════════
 
 function AppShellFAB({ showFAB }: { showFAB: boolean }) {
   const fabAction = useFabAction();
 
   // ★ r50: reactive source of truth — รู้ทันทีที่ sheet เปิด/ปิด
-  //   ไม่ต้องรอ CSS class ตอบสนอง (กัน FAB flash ตอน sheet ปิด)
   const isSheetOpen = useIsSheetOpen();
 
   // ถ้า action เป็น 'hidden' → บังคับซ่อน FAB แม้ showFAB=true
@@ -245,15 +258,28 @@ function AppShellFAB({ showFAB }: { showFAB: boolean }) {
     scrollStateThreshold: 8,
   });
 
-  // ★ r50: FAB ซ่อนถ้า sheet เปิด หรือ hidden by scroll
-  //   ถ้า sheet เปิด → ซ่อนแน่นอน (ยืนยันว่าไม่มี flash)
-  //   ถ้า sheet ปิด → ตาม scroll direction
+  // ═══════════════════════════════════════════════════════════════
+  // ★ r52: FAB visibility logic — simplified
+  //
+  // ปัญหาเดิม (r50/r51): useScrollDirection มี onSheetOpenChange callback
+  //   ที่ re-evaluate scroll position เมื่อ sheet ปิด และเรียก setHidden()
+  //   ทำให้ FAB อาจถูกซ่อนแม้ user อยู่ที่ top
+  //
+  // วิธีแก้ r52: ลบ setHidden() ออกจาก onSheetOpenChange callback ใน
+  //   useScrollDirection (ดูไฟล์นั้น) — ตอนนี้ hidden state ไม่ถูกแก้
+  //   เมื่อ sheet ปิด → FAB กลับสู่สถานะ visibility เดิมทันที
+  //
+  //   เหตุผลที่ใช้ logic ง่าย ๆ ได้: scroll lock ไม่ย้าย scroll position
+  //   (ดู scroll-lock.ts) → เมื่อ sheet ปิด, scroll position เหมือนเดิม
+  //   → fabHiddenByScroll ที่ last scroll event บันทึกไว้ ยังถูกต้อง
+  //   → ไม่ต้อง re-evaluate ใหม่
+  // ═══════════════════════════════════════════════════════════════
   const fabHidden = isSheetOpen || fabHiddenByScroll;
 
   if (!effectiveShowFAB) return null;
 
-  // ★ r50: ใช้ class 'is-hidden-by-scroll' สำหรับ scroll-based hide
-  //   และเพิ่ม 'is-hidden-by-overlay' สำหรับ sheet-open hide
+  // ★ r52: ใช้ class 'is-hidden-by-scroll' สำหรับ scroll-based hide
+  //   และ 'is-hidden-by-overlay' สำหรับ sheet-open hide
   //   CSS จะจัดการ animation ทั้งสองกรณี
   const fabClassName = `fab${fabHidden ? ' is-hidden-by-scroll' : ''}${isSheetOpen ? ' is-hidden-by-overlay' : ''}`;
 

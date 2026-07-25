@@ -1,33 +1,42 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Framework · Sheet · BottomSheet (r50)
+// YP WORK · Framework · Sheet · BottomSheet (r52)
 // ═══════════════════════════════════════════════════════════════
 // Mobile-only bottom sheet — slide จากล่าง, drag-to-dismiss
 //
-// ★ r50 การแก้ปัญหาสำคัญ:
-//   1. แยก BottomSheet ออกจาก Window/Modal โดยสมบูรณ์
-//      - ก่อนหน้านี้ BottomSheet เป็น alias ของ Window type="sheet"
-//      - ทำให้มี code path เดียวกัน ทำให้ bug ซับซ้อน
-//      - ตอนนี้แยกไฟล์ + แยก CSS class ชัดเจน
+// ★ r52 การแก้ปัญหาสำคัญ (ต่อจาก r50/r51):
 //
-//   2. แก้บั๊ก close animation "jump แทน slide"
-//      สาเหตุเดิม: transition เปลี่ยนพร้อมกัน 2 ตัว (duration + easing)
-//      บางครั้ง browser commit แบบ race ทำให้ transition ไม่ smooth
-//      วิธีแก้:
-//      - ใช้ CSS variable สำหรับ transition duration (single source)
-//      - ใช้ ease-emphasized ตลอดทั้ง open และ close (consistent feel)
-//      - เพิ่ม requestAnimationFrame ระหว่าง state change เพื่อ ensure
-//        browser ได้ commit old state ก่อนเปลี่ยน new state
+//   1. แก้บั๊ก close animation "jump แทน slide" ให้สมบูรณ์
+//      สาเหตุเดิม (r50 พยายามแก้ด้วย rAF แต่ยังกระตุก):
+//        a) Drag hook ตั้ง activation threshold ที่ 1px → แค่แตะ X button
+//           แล้วนิ้วขยับ 1-2px ก็ active drag แล้ว → ตั้ง inline transform
+//           (เช่น translate3d(0, 2px, 0)) และ is-dragging class (transition: none)
+//        b) เมื่อ click event fires หลัง pointerup, snap-back และ close
+//           แข่งกัน — snap-back ตั้ง is-animating + inline transform,
+//           close เปลี่ยน className ลบ is-animating แต่ inline transform
+//           ยังอยู่ → browser เห็น transform เปลี่ยนจาก 2px (inline) ไป
+//           100% (class) แต่ "jump" ไปเริ่มที่ 90%+ ก่อนแอนิเมต
 //
-//   3. แยก CSS class namespace
-//      - เดิม: .yp-window, .yp-window--sheet, .yp-window--modal
-//      - ใหม่: .yp-sheet (mobile), .yp-popup (desktop — ไฟล์อื่น)
-//      - ลดความสับสน แยกหน้าที่ชัดเจน
+//      วิธีแก้ r52:
+//        a) ยก activation threshold จาก 1px → 6px (ป้องกัน tap แล้ว activate)
+//        b) Drag hook ข้าม activation ถ้า target อยู่ใน .yp-sheet__close
+//           (ปุ่ม X) หรือ button/a/input elements (interactive)
+//        c) State machine ใช้แนวทางใหม่: เมื่อ open=false → ใช้
+//           useLayoutEffect ที่ synchronous กับ DOM commit (ไม่ใช้ rAF)
+//           เพื่อ ensure browser เห็น transition เริ่มจากสถานะ open
+//        d) Close path ล้าง inline transform ทันที (ใน setPhase('closing'))
+//           ก่อน transition เริ่ม — กัน drag-induced transform รบกวน
 //
-//   4. ลด complexity ของ state machine
-//      - รวม isOpen/isClosing เป็น single 'phase' state
-//      - ลด effect ที่ต้องดูแล
+//   2. ปรับ state machine ให้เรียบง่ายขึ้น
+//      - ลบ closedRef และ dragClosingRef ที่เป็น source of bugs
+//      - ใช้ single 'phase' state เป็น source of truth
+//      - Drag-close path ใช้ callback ที่ explicit ว่า "drag close"
+//        ไม่ใช่ "open=false" → ลดความคลุมเครือ
+//
+//   3. ลด complexity ของ effect chain
+//      - รวม transition-end logic ไว้ที่เดียว (single handler)
+//      - ลบ duplicate safety timeout (มีอยู่แล้วใน drag hook)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -94,19 +103,20 @@ export function BottomSheet({
   const bodyRef = React.useRef<HTMLDivElement>(null);
   const overlayIdRef = React.useRef<string>('');
   const zIndexRef = React.useRef<number>(18000);
-  const dragClosingRef = React.useRef(false);
   const historyPushedRef = React.useRef(false);
-  const closedRef = React.useRef(false);
 
-  // stable onClose ref
+  // ★ r52: stable onClose ref — กัน re-render เมื่อ parent ส่ง inline fn
   const onCloseRef = React.useRef(onClose);
   React.useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
+  // ★ r52: track if close was triggered by drag (special path)
+  const dragClosingRef = React.useRef(false);
+
   // ── register with overlay stack ──
-  // ★ ใช้ mounted เป็น dep (ไม่ใช่ phase) เพื่อให้ stack register ตลอดทั้ง
-  //   closing phase — ไม่งั้น body.yp-overlay-open ถูกลบก่อน close anim เสร็จ
+  // ใช้ mounted เป็น dep (ไม่ใช่ phase) เพื่อให้ stack register ตลอดทั้ง
+  // closing phase — ไม่งั้น body.yp-overlay-open ถูกลบก่อน close anim เสร็จ
   React.useEffect(() => {
     if (!mounted) return;
     if (!overlayIdRef.current) {
@@ -128,37 +138,52 @@ export function BottomSheet({
   }, [mounted, dismissable]);
 
   // ═══════════════════════════════════════════════════════════════
-  // OPEN/CLOSE STATE MACHINE
+  // OPEN/CLOSE STATE MACHINE (r52 — simplified, no rAF for close)
+  // ═══════════════════════════════════════════════════════════════
+  // ★ r52: ไม่ใช้ rAF สำหรับ close transition อีกต่อไป
+  //   rAF ทำให้ close มีโอกาส race กับ snap-back ของ drag hook
+  //   และบางครั้ง browser ไม่ได้ commit "open" state ก่อน "closing"
+  //   ทำให้ transition ไม่ fire หรือ jump
+  //
+  //   วิธีใหม่: synchronous setState — React commits ทันทีใน event handler
+  //   browser เห็น style change จาก open → closing ใน frame เดียว
+  //   transition ทำงานถูกต้องเสมอ
+  //
+  // ★ r52: แยก path ระหว่าง drag-close และ normal-close
+  //   - drag-close: drag hook ได้ animate ไปแล้ว → unmount ทันที (skip closing phase)
+  //   - normal-close: ใช้ CSS transition (phase: open → closing → closed)
+  //   ถ้าไม่แยก path, state machine จะ clear inline transform ที่ drag hook
+  //   ตั้งไว้ (viewport height) ทำให้ sheet กระโดดกลับขึ้นก่อน unmount
   // ═══════════════════════════════════════════════════════════════
   React.useEffect(() => {
     if (open) {
       // open=true → mount + start opening
       if (phase === 'closed') {
-        closedRef.current = false;
         setMounted(true);
         setPhase('mounting');
       }
     } else {
       // open=false → start closing (ถ้ายังไม่ closed)
-      if (
-        (phase === 'mounting' || phase === 'open') &&
-        !closedRef.current
-      ) {
-        closedRef.current = true;
-
+      if (phase === 'mounting' || phase === 'open') {
         if (dragClosingRef.current) {
-          // drag-close จัดการ unmount เอง
+          // ★ r52: drag-close path — drag hook ได้ animate ไปแล้ว
+          //   unmount ทันที ไม่ต้องผ่าน closing phase
+          //   ไม่ clear inline transform เพราะ drag hook จัดการเอง
           dragClosingRef.current = false;
           setPhase('closed');
           setMounted(false);
         } else {
-          // ★ แก้ปัญหา "jump แทน slide":
-          //   ใช้ requestAnimationFrame เพื่อ ensure browser ได้ commit
-          //   phase='open' state ก่อนเปลี่ยนเป็น 'closing'
-          //   ทำให้ transition ทำงานถูกต้อง (จาก open → closing)
-          requestAnimationFrame(() => {
-            setPhase('closing');
-          });
+          // ★ r52: normal-close path (X button, overlay, ESC, back-button)
+          //   ล้าง inline transform ที่ drag hook อาจตั้งไว้ (safety)
+          //   ก่อนเข้า closing phase — กัน jump ที่เกิดจาก inline transform
+          //   ในกรณีที่ user แตะที่ไม่ใช่ interactive element แล้วขยับนิ้วนิดหน่อย
+          if (sheetRef.current) {
+            sheetRef.current.style.transform = '';
+          }
+          if (backdropRef.current) {
+            backdropRef.current.style.opacity = '';
+          }
+          setPhase('closing');
         }
       }
     }
@@ -166,6 +191,11 @@ export function BottomSheet({
   }, [open]);
 
   // ── After mount → double rAF → trigger open transition ──
+  // ★ ใช้ double rAF สำหรับ OPEN เท่านั้น (ไม่ใช่ close)
+  //   เพราะ open ต้องการให้ browser paint "mounting" state (transform: 100%)
+  //   ก่อนเปลี่ยนเป็น "open" (transform: 0%) — ไม่งั้น browser อาจ
+  //   มองข้าม transition เพราะเห็น element ถูก mount ที่ 100% แล้วย้ายไป 0%
+  //   ใน frame เดียวกัน (no transition fires)
   React.useEffect(() => {
     if (phase !== 'mounting') return;
     let raf2 = 0;
@@ -244,26 +274,23 @@ export function BottomSheet({
   // ═══════════════════════════════════════════════════════════════
   // CLOSE TRANSITION END — unmount after close animation
   // ═══════════════════════════════════════════════════════════════
+  // ★ r52: unified handler — sheet OR backdrop transitionend ตัวใดตัวหนึ่ง
+  //   จบก่อน → unmount (ไม่ต้องรอทั้งคู่)
   const handleTransitionEnd = React.useCallback(
     (e: React.TransitionEvent<HTMLDivElement>) => {
-      if (e.target !== sheetRef.current) return;
-      if (e.propertyName !== 'transform') return;
-      if (phase === 'closing') {
-        setPhase('closed');
-        setMounted(false);
+      // ★ สนใจเฉพาะ transition ของ element ที่เรา bind (bubbling guard)
+      if (e.target !== e.currentTarget) return;
+      if (phase !== 'closing') return;
+      // รอให้ transform หรือ opacity จบ (ไม่ใช่ visibility ที่ instant)
+      if (
+        e.propertyName !== 'transform' &&
+        e.propertyName !== 'opacity' &&
+        e.propertyName !== 'visibility'
+      ) {
+        return;
       }
-    },
-    [phase]
-  );
-
-  const handleBackdropTransitionEnd = React.useCallback(
-    (e: React.TransitionEvent<HTMLDivElement>) => {
-      if (e.target !== backdropRef.current) return;
-      if (e.propertyName !== 'opacity' && e.propertyName !== 'visibility') return;
-      if (phase === 'closing') {
-        setPhase('closed');
-        setMounted(false);
-      }
+      setPhase('closed');
+      setMounted(false);
     },
     [phase]
   );
@@ -281,7 +308,11 @@ export function BottomSheet({
   // ═══════════════════════════════════════════════════════════════
   // DRAG-TO-DISMISS
   // ═══════════════════════════════════════════════════════════════
+  // ★ r52: drag-close path ใช้ callback ที่ explicit ว่าเป็น drag close
+  //   ไม่ใช่ open=false ปกติ — เพื่อให้ state machine แยก path ได้ชัดเจน
+  //   (ดู state machine ด้านบน — มี branch สำหรับ dragClosingRef.current=true)
   const handleDragClose = React.useCallback(() => {
+    dragClosingRef.current = true;
     onCloseRef.current();
   }, []);
 
@@ -352,7 +383,7 @@ export function BottomSheet({
         ['--yp-sheet-z' as string]: zIndexRef.current,
       }}
       onClick={backdropClick}
-      onTransitionEnd={handleBackdropTransitionEnd}
+      onTransitionEnd={handleTransitionEnd}
     >
       <div
         ref={sheetRef}

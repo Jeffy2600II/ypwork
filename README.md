@@ -258,6 +258,63 @@ import { AdaptiveOverlay } from '@/components/framework';
 4. ปรับโครงสร้าง framework ให้เป็น modular มากขึ้น (aerospace-grade)
 5. รักษา backward compatibility สำหรับ code เดิมทั้งหมด
 
+## การปรับปรุงรอบที่ 52 (r52)
+
+### 1. แก้ Browser Credential Recognition สำหรับ Login/Register
+
+**ปัญหา**: Browser ไม่รับรู้ว่า input ไหนคือ username และ input ไหนคือ password
+ทำให้ browser ไม่ถาม "บันทึกรหัสผ่าน?" หลัง login สำเร็จ
+
+**วิธีแก้**:
+- สร้าง `PasswordField` component ใหม่ใน `framework/auth/`
+  - `type="password"` (บังคับ — browser ต้องการ type=password เพื่อเปิด password manager)
+  - show/hide toggle (ปุ่มตา) ให้ user ดูรหัสได้
+- Login (student form): `national-id` ใช้ `autoComplete="username"`,
+  `student-code` ใช้ `PasswordField` + `autoComplete="current-password"`
+- Login (other form): `email` ใช้ `autoComplete="username"` (เปลี่ยนจาก "email"),
+  `password` ใช้ `PasswordField` + `autoComplete="current-password"`
+- Register: เหมือน login แต่ใช้ `autoComplete="new-password"`
+
+**ผลลัพธ์**: หลัง login/register สำเร็จ browser ถาม "บันทึกรหัสผ่าน?"
+ครั้งต่อไป browser autofill ให้ทันที
+
+### 2. แก้ BottomSheet Close Animation "Jump แทน Slide" แบบถาวร
+
+**ปัญหา**: เมื่อปิด sheet ด้วยปุ่ม X หรือ overlay, sheet กระโดดไปเกือบสุดก่อน
+แล้วค่อยเริ่ม animation เลื่อนลง (เกิดเฉพาะหน้าที่มีปุ่มบวก FAB)
+
+**สาเหตุเดิม (r50 พยายามแก้ด้วย rAF แต่ยังกระตุก)**:
+- Drag hook ตั้ง activation threshold ที่ 1px → แค่แตะ X button แล้วนิ้วขยับ
+  1-2px ก็ active drag แล้ว → ตั้ง inline transform (เช่น translate3d(0, 2px, 0))
+  และ `is-dragging` class (transition: none)
+- เมื่อ click event fires หลัง pointerup, snap-back และ close แข่งกัน
+- Browser เห็น transform เปลี่ยนจาก 2px (inline) ไป 100% (class) แต่ "jump"
+  ไปเริ่มที่ 90%+ ก่อนแอนิเมต
+
+**วิธีแก้ r52**:
+1. ยก activation threshold จาก 1px → 6px (ป้องกัน tap แล้ว activate)
+2. Drag hook ข้าม activation ถ้า target อยู่ใน `.yp-sheet__close` (ปุ่ม X)
+   หรือ button/a/input/select/textarea/`[role="button"]`/`[data-no-drag]`
+3. State machine ใช้แนวทางใหม่: เมื่อ open=false → synchronous setState
+   (ไม่ใช้ rAF) — React commits ทันที, browser เห็น transition เริ่มจากสถานะ open
+4. Close path ล้าง inline transform ทันที ก่อน transition เริ่ม
+5. แยก path ระหว่าง drag-close (skip animation, unmount ทันที) และ normal-close
+
+### 3. แก้ FAB ไม่กลับมาแสดงหลัง Sheet ปิด
+
+**ปัญหา**: เมื่อ sheet ปิด, FAB ไม่กลับมาแสดงแม้ user อยู่ที่ top
+
+**สาเหตุ**: `useScrollDirection` มี `onSheetOpenChange` callback ที่ re-evaluate
+scroll position เมื่อ sheet ปิด และเรียก `setHidden(true)` ถ้า user อยู่ที่ตำแหน่ง
+ที่ scroll ลง ทำให้ FAB ถูกซ่อนแม้ user อยู่ที่ top
+
+**วิธีแก้ r52**: ลบ `setHidden()` ออกจาก `onSheetOpenChange` callback — ตอนนี้
+`hidden` state ไม่ถูกแก้เมื่อ sheet ปิด → FAB กลับสู่สถานะ visibility เดิมทันที
+
+**เหตุผลที่ใช้ logic ง่าย ๆ ได้**: scroll lock ไม่ย้าย scroll position →
+เมื่อ sheet ปิด, scroll position เหมือนเดิม → `fabHiddenByScroll` ที่ last scroll
+event บันทึกไว้ ยังถูกต้อง → ไม่ต้อง re-evaluate ใหม่
+
 ## หมายเหตุ
 
 ตั้งแต่ v3.9.8 เป็นต้นไป หน้า About จะไม่แสดงประวัติการอัพเดท (changelog) อีกต่อไป

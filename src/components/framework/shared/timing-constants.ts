@@ -84,8 +84,14 @@ export const REACT_COMMIT_DURATION = 50;
 
 // ── Drag thresholds ──
 export const DRAG_THRESHOLDS = {
-  /** ระยะ activation (px) — น้อยกว่านี้จะไม่เริ่ม drag */
-  ACTIVATION: 1,
+  /**
+   * ระยะ activation (px) — น้อยกว่านี้จะไม่เริ่ม drag
+   * ★ r52: ยกจาก 1px → 6px
+   *   1px ไวเกินไป — แค่แตะปุ่ม X แล้วนิ้วขยับ 1-2px ก็ activate drag
+   *   ทำให้เกิด inline transform ที่รบกวน close animation
+   *   6px เป็นค่ามาตรฐานที่ user ตั้งใจจะ drag จริง ๆ
+   */
+  ACTIVATION: 6,
   /** Edge resistance เมื่อ drag เกิน sheet height */
   EDGE_RESISTANCE: 0.35,
   /** ถ้า drag เกิน sheet_height * นี้ → ปิด */

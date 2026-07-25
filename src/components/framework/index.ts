@@ -114,6 +114,10 @@ export type {
   UseScrollDirectionOptions,
 } from './fab';
 
+// ── Auth components (r52) ──
+export { PasswordField } from './auth';
+export type { PasswordFieldProps } from './auth';
+
 // ── Standalone components ──
 export { Avatar } from './avatar';
 export { NetworkStatusBanner } from './network-status-banner';

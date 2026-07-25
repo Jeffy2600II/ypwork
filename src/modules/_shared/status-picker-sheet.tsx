@@ -16,7 +16,7 @@
 // หลักการ:
 //   - shared component ที่รับ props ที่จำเป็นเท่านั้น
 //   - ลูกส่ง statuses + currentStatus + onSelect มาเอง
-//   - styling อยู่ใน globals.css ในที่เดียว (.yp-status-picker*)
+//   - styling อยู่ใน src/styles/ (modular CSS) ในที่เดียว (.yp-status-picker*)
 //
 // มุมมองผู้ใช้:
 //   - UX สม่ำเสมอทุกหน้า — กดเปลี่ยนสถานะแล้วเห็นเหมือนกัน

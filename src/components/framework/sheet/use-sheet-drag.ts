@@ -94,10 +94,55 @@ export function useSheetDrag({
       );
     };
 
+    /**
+     * ★ r52: ตรวจสอบว่า target เป็น interactive element ที่ต้องการ
+     * การคลิก ไม่ใช่ drag — ถ้าใช่ ให้ข้าม drag activation
+     *
+     * ปัญหาเดิม: แตะปุ่ม X แล้วนิ้วขยับ 1-2px ก็ activate drag
+     * ทำให้เกิด inline transform รบกวน close animation
+     *
+     * ตัวอย่าง interactive elements:
+     *   - .yp-sheet__close → ปุ่ม X
+     *   - button, a, input, select, textarea → ปุ่ม/ลิงก์/ฟอร์ม
+     *   - [role="button"] → ARIA button
+     *   - [data-no-drag] → custom flag
+     */
+    const isInteractiveTarget = (target: EventTarget | null): boolean => {
+      if (!target || !(target instanceof Element)) return false;
+      // ปุ่มปิด (X) — แม้ SVG ข้างในก็ต้องข้าม
+      const closeBtn = sheet.querySelector('.yp-sheet__close');
+      if (closeBtn && closeBtn.contains(target)) return true;
+      // ตรวจสอบตัว target เองและ ancestor ใกล้ ๆ (3 ระดับ)
+      let el: Element | null = target;
+      for (let i = 0; i < 3 && el; i++) {
+        const tag = el.tagName.toLowerCase();
+        if (
+          tag === 'button' ||
+          tag === 'a' ||
+          tag === 'input' ||
+          tag === 'select' ||
+          tag === 'textarea' ||
+          el.getAttribute('role') === 'button' ||
+          el.hasAttribute('data-no-drag')
+        ) {
+          return true;
+        }
+        el = el.parentElement;
+      }
+      return false;
+    };
+
     const onPointerDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if (sheet.classList.contains('is-closing')) return;
       if (sheet.classList.contains('is-animating')) return;
+
+      // ★ r52: ถ้า target เป็น interactive element (ปุ่ม X, ลิงก์, ฯลฯ)
+      //   ไม่ activate drag — กัน inline transform รบกวน close animation
+      //   แต่ยังอนุญาตให้ drag จาก grip zone ปกติ (handle, header ที่ไม่ใช่ปุ่ม)
+      if (isInteractiveTarget(e.target)) {
+        return;
+      }
 
       const sheetHeight = cachedSheetHeight || sheet.offsetHeight;
       const startScrollTop = bodyEl.scrollTop;
