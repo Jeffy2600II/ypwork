@@ -1,32 +1,43 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Bottom Sheet (v3.1.0 — re-export จาก Window Framework)
+// YP WORK · Framework · Bottom Sheet (r50 — backward compat re-export)
 // ═══════════════════════════════════════════════════════════════
-// v3.1.0: BottomSheet ถูกยกเลิกการเป็น component เดี่ยวๆ และกลายเป็น
-// ส่วนหนึ่งของ Window Framework ที่รองรับ sheet/modal/fullscreen/sidepanel
-// รวมถึง nested popups (เปิดซ้อนกันได้)
+// ★ r50: BottomSheet ถูกแยกเป็น module เดี่ยว (mobile-only)
+//   ไม่ใช่ alias ของ Window อีกต่อไป
 //
-// ไฟล์นี้เป็น barrel re-export เพื่อรักษา backward compatibility
-// สำหรับ code เดิมที่ import จาก '@/components/framework/bottom-sheet'
+//   ไฟล์นี้เป็น barrel re-export เพื่อรักษา backward compatibility
+//   สำหรับ code เดิมที่ import จาก '@/components/framework/bottom-sheet'
 //
-// สำหรับ code ใหม่ → import จาก '@/components/framework/window' แทน
+//   สำหรับ code ใหม่ → import จาก '@/components/framework/sheet'
+//                    หรือ '@/components/framework' (top-level barrel)
 // ═══════════════════════════════════════════════════════════════
 
 export {
   BottomSheet,
   BottomSheetCloseButton,
-  Modal,
-  FullscreenOverlay,
+  useSheetDrag,
+} from './sheet';
+export type { BottomSheetProps, SheetSize } from './sheet';
+
+// Backward compat: export Window/Modal/FullscreenOverlay/SidePanel ด้วย
+// (code เดิมอาจ import จากไฟล์นี้)
+export {
+  Dialog as Modal,
   SidePanel,
-  Window,
+  FullscreenOverlay,
+  AdaptiveOverlay as Window,
+  generateOverlayId,
   generateWindowId,
+  useOverlayStack,
   useWindowStack,
-} from './window';
+} from './index';
 export type {
-  BottomSheetProps,
-  WindowProps,
-  WindowSize,
-  WindowSide,
-  WindowType,
-} from './window';
+  DialogProps,
+  PopupSize,
+  SidePanelProps,
+  SidePanelSide,
+  FullscreenOverlayProps,
+  AdaptiveOverlayProps as WindowProps,
+  OverlayType as WindowType,
+} from './index';

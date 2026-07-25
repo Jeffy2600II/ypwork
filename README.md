@@ -8,7 +8,7 @@
 
 YP Work เป็นแพลตฟอร์มสำหรับช่วยบริหารจัดการรายการและติดตามภารกิจของสภานักเรียน
 พัฒนาขึ้นจากประสบการณ์การทำงานจริงภายในสภานักเรียน เพื่อแก้ไขปัญหาการลืมรายการ
-การติดตามความคืบหน้า และการประสานงานระหว่างสมาชิกให้มีประสิทธิภาพมากขึ่ง
+การติดตามความคืบหน้า และการประสานงานระหว่างสมาชิกให้มีประสิทธิภาพมากขึ้น
 
 โครงการนี้เริ่มต้นจากแนวคิดของ **นายนนทกร นนท์สุราช**
 ซึ่งดำรงตำแหน่งประธานนักเรียน ประจำปีการศึกษา 2569
@@ -32,130 +32,101 @@ npm run build  # build production
 npm start      # รัน production
 ```
 
-## โครงสร้างโปรเจกต์ — Modular Architecture
+## โครงสร้างโปรเจกต์ — Modular Architecture (r50)
+
+โครงสร้างนี้ออกแบบตามหลักการของซอฟต์แวร์อวกาศ (NASA/SpaceX style) เพื่อให้:
+- เพิ่มฟังก์ชันใหม่ได้ง่าย (ปอกกล้วยเข้าปาก)
+- แก้ไข/ดีบั๊กได้รวดเร็ว — รู้ทันทีว่าปัญหาอยู่ที่ module ไหน
+- เสถียร — module หนึ่งล้มเหลว ไม่ทำลายทั้งระบบ
+- แต่ละไฟล์มีขนาดพอเหมาะ ไม่ยาวเกินไป
 
 ```
 src/
-├── app/              # Next.js App Router (routes only — no business logic)
-│   ├── (app)/        # protected routes (today, calendar, events, profile, about)
-│   ├── login/        # หน้า login
-│   ├── register/     # หน้าลงทะเบียน
-│   ├── pending-status/  # หน้าสถานะการลงทะเบียน
-│   └── api/          # API routes
+├── app/                          # Next.js App Router (routes only)
+│   ├── (app)/                    # protected routes
+│   ├── login/ register/ pending-status/
+│   └── api/                      # API routes
 │
 ├── modules/                      # Feature modules (space stations)
-│   ├── _shared/                  # shared UI primitives between modules
-│   │   ├── status-meta.ts        #   STATUS_META + TASK_STATUS_ORDER + EVENT_STATUS_ORDER
-│   │   ├── status-picker-sheet.tsx
-│   │   └── index.ts              #   barrel export (public airlock)
+│   ├── _shared/                  # shared UI primitives
 │   ├── today/                    # Station: Today
-│   │   ├── today-types.ts        #   shared types (TimelineItem, DateCluster, etc.)
-│   │   ├── today-helpers.ts      #   item builders + categorization
-│   │   ├── today-sorting.ts      #   sort functions
-│   │   ├── today-format.ts       #   schedule label + card time formatters
-│   │   ├── today-item-card.tsx   #   TodayItemCard component
-│   │   ├── today-client.tsx      #   main orchestrator
-│   │   └── index.ts              #   barrel export
 │   ├── events/                   # Station: Events
-│   │   ├── event-detail-types.ts #   shared types (TaskPayload, EventPatch, PRIORITY_META, ...)
-│   │   ├── task-row.tsx          #   TaskRow component
-│   │   ├── task-time-group.tsx   #   TaskTimeGroup component
-│   │   ├── add-task-sheet.tsx    #   AddTaskSheet component
-│   │   ├── edit-task-sheet.tsx   #   EditTaskSheet component
-│   │   ├── edit-event-sheet.tsx  #   EditEventSheet component
-│   │   ├── event-detail-client.tsx # main orchestrator
-│   │   ├── create-event-form.tsx
-│   │   ├── event-card.tsx
-│   │   ├── events-list-view.tsx
-│   │   ├── day-view-client.tsx
-│   │   └── index.ts              #   barrel export
 │   ├── calendar/                 # Station: Calendar
-│   │   ├── calendar-view.tsx
-│   │   └── index.ts
 │   └── profile/                  # Station: Profile
-│       ├── profile-view.tsx
-│       └── index.ts
 │
-├── components/                   # Cross-cutting UI components
-│   ├── framework/                # Window/Sheet framework (docking infrastructure)
-│   │   ├── window.tsx            #   main window component (sheet/modal/fullscreen/sidepanel)
-│   │   ├── avatar.tsx
+├── components/
+│   ├── framework/                # ★ r50: Framework แยกตามหน้าที่
+│   │   ├── shared/               # shared utilities (overlay stack, scroll lock, timing)
+│   │   │   ├── overlay-stack.ts          # Zustand store สำหรับ overlay stack
+│   │   │   ├── scroll-lock.ts            # No-warp scroll lock (count-based)
+│   │   │   ├── use-overlay-state.ts      # Reactive overlay state hooks
+│   │   │   ├── timing-constants.ts       # Single source of truth สำหรับ timing
+│   │   │   └── index.ts                  # Public airlock
+│   │   │
+│   │   ├── sheet/                # ★ r50: Mobile bottom sheet (separate system)
+│   │   │   ├── bottom-sheet.tsx          # Mobile-only bottom sheet component
+│   │   │   ├── use-sheet-drag.ts         # Drag-to-dismiss hook
+│   │   │   └── index.ts                  # Public airlock
+│   │   │
+│   │   ├── popup/                # ★ r50: Desktop popup (separate system)
+│   │   │   ├── dialog.tsx                # Desktop centered modal
+│   │   │   ├── side-panel.tsx            # Desktop slide-in side panel
+│   │   │   ├── fullscreen-overlay.tsx    # Full-page overlay
+│   │   │   └── index.ts                  # Public airlock
+│   │   │
+│   │   ├── adaptive/             # ★ r50: Smart wrapper (picks sheet or popup)
+│   │   │   ├── adaptive-overlay.tsx      # AdaptiveOverlay component
+│   │   │   ├── use-viewport.ts           # Viewport size hook
+│   │   │   └── index.ts                  # Public airlock
+│   │   │
+│   │   ├── fab/                  # ★ r50: FAB system (separate module)
+│   │   │   ├── fab-context.tsx           # FAB context provider
+│   │   │   ├── use-scroll-direction.ts   # Scroll-based show/hide
+│   │   │   └── index.ts                  # Public airlock
+│   │   │
+│   │   ├── avatar.tsx            # Avatar component
 │   │   ├── network-status-banner.tsx
-│   │   ├── bottom-sheet.tsx      #   backward compat re-export
-│   │   └── index.ts              #   barrel export
+│   │   ├── bottom-sheet.tsx      # ★ r50: Backward compat re-export
+│   │   ├── window.tsx            # ★ r50: DEPRECATED — re-export from new modules
+│   │   └── index.ts              # Top-level barrel
+│   │
 │   ├── layout/
-│   │   ├── app-shell.tsx
-│   │   └── index.ts
-│   └── ui/                       # shadcn/ui (unchanged)
+│   │   └── app-shell.tsx         # ★ r50: ใช้ระบบ framework ใหม่
+│   └── ui/                       # shadcn/ui
 │
 ├── lib/                          # Cross-cutting infrastructure
-│   ├── core/                     # Central Hub — shared infrastructure
-│   │   ├── sheet-timing.ts       #   timing constants (must match CSS)
-│   │   ├── fab-context.tsx       #   FAB context-aware (let pages override + button)
-│   │   ├── toast-context.tsx     #   inline toast helper
-│   │   ├── pending-delete-retry.ts # self-healing — retry failed deletes
-│   │   ├── window-open-state.ts  #   reactive view of window-open state
-│   │   ├── scroll-lock.ts        #   no-warp scroll lock (overflow:hidden, no body shift)
-│   │   └── index.ts              #   barrel export
+│   ├── core/                     # Central Hub (r50: most files re-export from framework/)
+│   │   ├── sheet-timing.ts       # ← re-export from framework/shared
+│   │   ├── fab-context.tsx       # ← re-export from framework/fab
+│   │   ├── scroll-lock.ts        # ← re-export from framework/shared
+│   │   ├── window-open-state.ts  # ← re-export from framework/shared
+│   │   ├── toast-context.tsx     # inline toast helper
+│   │   ├── pending-delete-retry.ts # self-healing retry
+│   │   └── index.ts
 │   ├── hooks/
-│   │   ├── use-realtime/         # split into focused hook files
-│   │   │   ├── client.ts         #   Supabase client singleton + useUniqueChannelName
-│   │   │   ├── normalize.ts      #   normalizeEvent, normalizeTask, EVENT_FIELDS
-│   │   │   ├── fetch.ts          #   fetchEvents, fetchEventById
-│   │   │   ├── use-realtime-events.ts
-│   │   │   ├── use-realtime-event-by-id.ts
-│   │   │   ├── use-realtime-events-for-date.ts
-│   │   │   ├── use-realtime-departments.ts
-│   │   │   ├── use-realtime-profile-stats.ts
-│   │   │   ├── use-realtime-activity-log.ts
-│   │   │   ├── use-realtime-years.ts
-│   │   │   ├── use-realtime-dept-members.ts
-│   │   │   ├── use-realtime-session-user.ts
-│   │   │   ├── use-realtime-pending-request.ts
-│   │   │   └── index.ts          #   barrel export (public airlock)
-│   │   ├── use-scroll-direction.ts
+│   │   ├── use-scroll-direction.ts # ← r50: re-export from framework/fab
+│   │   ├── use-realtime/
 │   │   ├── use-tutorial.ts
 │   │   └── use-typing-pulse.ts
-│   ├── auth/                     # split by auth flow
-│   │   ├── types.ts              #   LoginStatus, PendingRequestInfo, ServerStatusResult
-│   │   ├── validation.ts         #   synthesizeEmail, validateNationalId, etc.
-│   │   ├── check-status.ts       #   checkStatusViaServerApi (client-side)
-│   │   ├── login-student.ts      #   loginStudent (student auth flow)
-│   │   ├── login-other.ts        #   loginOther (teacher/other auth flow)
-│   │   ├── session.ts            #   getSessionUser, profileToSessionUser, profileToUserProfile
-│   │   ├── user-guard.ts         #   requireUser (server-side route guard)
-│   │   ├── api-guard.ts          #   requireAdmin (server-side admin guard)
-│   │   ├── logout.ts
-│   │   └── index.ts              #   barrel export (client-safe, NO server-only guards)
-│   ├── security/                 # CSRF, rate-limit, audit-log, validation
-│   ├── supabase/                 # supabase client (server + client + middleware)
-│   ├── db/                       # event-loader, pending-requests
-│   ├── api/                      # cache utility
-│   ├── utils/                    # date, id, fetch-retry, user-color, session-cache
-│   ├── types/                    # TypeScript types
-│   ├── window-stack.ts           # Zustand store สำหรับ window stack
+│   ├── auth/ security/ supabase/ db/ api/ utils/ types/
+│   ├── window-stack.ts           # ← r50: re-export from framework/shared
 │   └── pending-session.ts
 │
 └── middleware.ts
 ```
 
-## สถาปัตยกรรม — NASA/SpaceX Modular Pattern
-
-โครงสร้างนี้ออกแบบตามหลักการของซอฟต์แวร์อวกาศ เพื่อให้:
-- เพิ่มฟังก์ชันใหม่ได้ง่าย (ปอกกล้วยเข้าปาก)
-- แก้ไข/ดีบั๊กได้รวดเร็ว — รู้ทันทีว่าปัญหาอยู่ที่ module ไหน
-- เสถียร — module หนึ่งล้มเหลว ไม่ทำลายทั้งระบบ
-- แต่ละไฟล์มีขนาดพอเหมาะ ไม่ยาวเกินไป
+## สถาปัตยกรรม — NASA/SpaceX Modular Pattern (r50)
 
 ### หลักการออกแบบ (Design Principles)
 
 1. **Single Responsibility Principle** — แต่ละไฟล์ทำงานอย่างเดียวให้ดีที่สุด
 2. **Clear Interfaces (Airlock Pattern)** — แต่ละ module มี `index.ts` เป็น public interface
 3. **Fault Isolation** — module ล้มเหลวไม่ทำลายทั้งระบบ (defensive coding)
-4. **Single Source of Truth** — constants รวมศูนย์ที่ `lib/core/`
+4. **Single Source of Truth** — constants รวมศูนย์ที่ `framework/shared/`
 5. **No Magic Numbers** — ทุกตัวเลข timing ผูกกับ CSS ต้องประกาศที่ central core
 6. **Backward Compatibility** — barrel exports รักษา import paths เดิม
 7. **Server/Client Boundary Clarity** — server-only modules ไม่ถูก re-export ผ่าน client-safe barrel
+8. **Strict Module Separation** — sheet (mobile) และ popup (desktop) เป็นคนละระบบ
 
 ### "Public Airlock" Pattern
 
@@ -163,39 +134,112 @@ src/
 
 ```ts
 // Correct — import ผ่าน barrel
+import { BottomSheet, Dialog, useScrollDirection } from '@/components/framework';
 import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
 import { TodayClient } from '@/modules/today';
-import { getSessionUser } from '@/lib/auth';
 
-// Wrong — import internal file directly (except server-only guards)
-import { useRealtimeEvents } from '@/lib/hooks/use-realtime/use-realtime-events';
+// Wrong — import internal file directly
+import { BottomSheet } from '@/components/framework/sheet/bottom-sheet';
 ```
 
-**ข้อยกเว้น:** Server-only modules (`user-guard`, `api-guard`) ไม่ถูก re-export ผ่าน barrel เพื่อกัน client bundle ได้ `next/headers` และทำให้ build พัง ให้ import ตรง:
-```ts
-// Server-side consumer (API route, server page):
-import { requireUser } from '@/lib/auth/user-guard';
-import { requireAdmin } from '@/lib/auth/api-guard';
+### Overlay System — แยก Sheet (mobile) และ Popup (desktop) ★ r50
+
+การปรับปรุงครั้งสำคัญใน r50: แยก BottomSheet (mobile) และ Dialog (desktop) ออกจากกัน
+อย่างชัดเจน เพื่อลดความซับซ้อนและความเข้าใจผิดในการพัฒนา
+
+#### โครงสร้างใหม่
+
 ```
+framework/
+├── shared/         → utilities ร่วม (overlay stack, scroll lock, timing)
+├── sheet/          → mobile bottom sheet (slide + drag-to-dismiss)
+├── popup/          → desktop centered dialog + side panel + fullscreen
+├── adaptive/       → smart wrapper เลือก sheet หรือ popup ตาม viewport
+└── fab/            → floating action button system
+```
+
+#### วิธีใช้
+
+```tsx
+// 1. Mobile-only bottom sheet (drag-to-dismiss)
+import { BottomSheet } from '@/components/framework';
+<BottomSheet open={open} onClose={close} title="Title">
+  ...
+</BottomSheet>
+
+// 2. Desktop-only centered dialog
+import { Dialog } from '@/components/framework';
+<Dialog open={open} onClose={close} title="Title">
+  ...
+</Dialog>
+
+// 3. Adaptive (auto-pick ตาม viewport) — แนะนำสำหรับ general use
+import { AdaptiveOverlay } from '@/components/framework';
+<AdaptiveOverlay open={open} onClose={close} title="Title">
+  ...
+</AdaptiveOverlay>
+```
+
+#### Bug Fixes ใน r50
+
+1. **แก้บั๊ก bottom sheet close "jump แทน slide"**
+   - สาเหตุ: CSS transition ใช้ `accelerate` easing ทำให้ motion ส่วนใหญ่เกิดท้าย duration
+   - วิธีแก้: ใช้ `emphasized` easing ตลอดทั้ง open/close (consistent feel)
+   - เพิ่ม `requestAnimationFrame` ระหว่าง state change เพื่อ ensure browser commit
+
+2. **แก้บั๊ก FAB ไม่ซ่อนตอนเปิด sheet**
+   - สาเหตุ: CSS `body.yp-window-open .fab` ตอบสนองช้า
+   - วิธีแก้: ใช้ `useIsSheetOpen()` hook เป็น reactive source of truth
+   - AppShell ส่ง class `is-hidden-by-overlay` ให้ FAB ทันทีที่ sheet เปิด
+
+3. **แก้บั๊ก FAB flash ตอน sheet ปิด**
+   - สาเหตุ: CSS class ถูกลบก่อนที่ useScrollDirection จะ re-evaluate
+   - วิธีแก้: ใช้ reactive state แทน CSS class — ไม่มี timing gap
+
+4. **แยก CSS namespace**
+   - `.yp-sheet-*` (mobile bottom sheet) แยกจาก `.yp-popup-*` (desktop dialog)
+   - ลดความสับสนในการ debug
+
+### Overlay Stack — Single Source of Truth
+
+`framework/shared/overlay-stack.ts` เป็น Zustand store ที่จัดการ stack ของ overlay ทั้งหมด:
+- รองรับ nested overlays (sheet เปิดซ้อน sheet ได้ไม่จำกัด)
+- Auto z-index — ไม่ต้องจัดการเอง
+- Top-only events — ESC ส่งเฉพาะ overlay บนสุด
+- Body class sync — `yp-overlay-open`, `yp-overlay-open--sheet`, `yp-overlay-open--popup`
+
+### Reactive Overlay State — Hooks
+
+`framework/shared/use-overlay-state.ts`:
+- `useIsOverlayOpen()` — มี overlay เปิดอยู่ไหม (ทุกประเภท)
+- `useIsSheetOpen()` — มี sheet/fullscreen เปิดอยู่ไหม (ซ่อน FAB + nav)
+- `useIsPopupOpen()` — มี popup/sidepanel เปิดอยู่ไหม (ซ่อน FAB เท่านั้น)
+- `isSheetOpenRightNow()` — sync function สำหรับ event handlers
+- `onSheetOpenChange(callback)` — subscribe สำหรับ non-React modules
 
 ### Scroll Lock — No-Warp Pattern
 
-`lib/core/scroll-lock.ts` ใช้วิธี `overflow:hidden` บน `<html>` เท่านั้น ไม่ย้าย `body` ไป `position:fixed`
-ทำให้ตอน sheet ปิด scroll position ค้างที่เดิม — ไม่มี "วาร์ป" ที่มองเห็น
-รองรับ nested windows ผ่าน count-based lock
+`framework/shared/scroll-lock.ts` ใช้วิธี `overflow:hidden` บน `<html>` เท่านั้น
+ไม่ย้าย `body` ไป `position:fixed` ทำให้ตอน overlay ปิด scroll position ค้างที่เดิม
+ไม่มี "วาร์ป" ที่มองเห็น รองรับ nested overlays ผ่าน count-based lock
 
-### Window Open State — Reactive View
+### Timing Constants — Single Source of Truth
 
-`lib/core/window-open-state.ts` เป็น reactive view ของ window stack:
-- `useIsWindowOpen()` — reactive hook สำหรับ React components
-- `isWindowOpenRightNow()` — sync function สำหรับ event handlers
-- `onWindowOpenChange(callback)` — subscribe สำหรับ non-React modules
-
-ใช้ป้องกัน FAB flash ตอน sheet ปิด — `useScrollDirection` sync `fabHidden` ทันทีที่ window stack ว่าง
+`framework/shared/timing-constants.ts`:
+- ทุก magic number ต้องประกาศที่นี่
+- ทุกไฟล์ต้อง import จากที่นี่ ห้าม hardcoded ตัวเลข
+- ค่าต้องตรงกับ CSS เป๊ะ
+- แยกหมวดตามหน้าที่: `SHEET_TIMING`, `POPUP_TIMING`, `FAB_TIMING`, `NAV_TIMING`, etc.
 
 ### Module Boundaries (Barrel Exports)
 
-ทุก module มี `index.ts` เป็น barrel export บังคับใช้ "public airlock" pattern:
+ทุก module มี `index.ts` เป็น barrel export:
+- `src/components/framework/index.ts` (top-level)
+- `src/components/framework/shared/index.ts`
+- `src/components/framework/sheet/index.ts`
+- `src/components/framework/popup/index.ts`
+- `src/components/framework/adaptive/index.ts`
+- `src/components/framework/fab/index.ts`
 - `src/modules/_shared/index.ts`
 - `src/modules/today/index.ts`
 - `src/modules/events/index.ts`
@@ -204,8 +248,15 @@ import { requireAdmin } from '@/lib/auth/api-guard';
 - `src/lib/core/index.ts`
 - `src/lib/hooks/use-realtime/index.ts`
 - `src/lib/auth/index.ts` (client-safe — ไม่ re-export server-only guards)
-- `src/components/framework/index.ts`
-- `src/components/layout/index.ts`
+
+## การปรับปรุงรอบที่ 50 (r50)
+
+การปรับปรุงครั้งนี้เป็นการปรับปรุงใหญ่ที่:
+1. แยกระบบ BottomSheet (mobile) และ Popup (desktop) ออกจากกัน
+2. แก้บั๊ก close animation ที่ "jump แทน slide"
+3. แก้บั๊ก FAB ไม่ซ่อนตอนเปิด sheet และ flash ตอนปิด
+4. ปรับโครงสร้าง framework ให้เป็น modular มากขึ้น (aerospace-grade)
+5. รักษา backward compatibility สำหรับ code เดิมทั้งหมด
 
 ## หมายเหตุ
 

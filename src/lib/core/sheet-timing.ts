@@ -1,58 +1,35 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * YP WORK · Central Core · Sheet Timing Constants
+ * YP WORK · Core · Sheet Timing Constants (r50 — DEPRECATED, backward compat re-export)
  * ═══════════════════════════════════════════════════════════════
- * "docking port" มาตรฐานสำหรับ sheet/window animation timing
+ * ★ r50: Timing constants ถูกรวมไว้ที่
+ *   src/components/framework/shared/timing-constants.ts
  *
- * ปัญหาที่แก้ (รอบ 47):
- *   ก่อนหน้านี้ magic numbers 280ms / 50ms / 2400ms กระจัดกระจาย
- *   ใน event-detail-client.tsx (4 จุด) และ today-client.tsx
- *   หาก CSS transition duration เปลี่ยน → bug ทันที เพราะไม่มี source of truth
+ *   ไฟล์นี้เป็น re-export เพื่อรักษา backward compatibility
+ *   สำหรับ code เดิมที่ import จาก '@/lib/core/sheet-timing'
  *
- * หลักการ:
- *   - ทุกค่า timing ที่ผูกกับ CSS ต้องประกาศที่นี่เป็น single source of truth
- *   - เลียนแบบแนวคิด "space station" — ทุก module มาต่อที่ docking port เดียวกัน
- *   - ห้าม hardcode ตัวเลข timing ใน component — ต้อง import จากที่นี่เสมอ
+ *   ค่าที่ export ที่นี่เป็น alias ของค่าจริงใน timing-constants.ts
+ *   เพื่อรักษา interface เดิมไว้
  * ═══════════════════════════════════════════════════════════════
  */
 
-/**
- * Duration ที่ BottomSheet/Window ใช้สำหรับ close animation
- * ต้องตรงกับค่าใน CSS (transition-duration ของ .yp-sheet, .yp-window)
- *
- * ใช้เมื่อ: เปิด sheet ใหม่หลังจากปิด sheet เดิม — ต้องรอให้ animation
- * ปิดเสร็จก่อน ไม่งั้นจะเห็น 2 sheets ซ้อนกัน
- *
- * Pattern: `setTimeout(() => setOpen(true), SHEET_CLOSE_DURATION)`
- */
-export const SHEET_CLOSE_DURATION = 280 as const;
+import {
+  SHEET_TIMING,
+  REACT_COMMIT_DURATION as _REACT_COMMIT,
+  TOAST_TIMING,
+} from '@/components/framework/shared/timing-constants';
 
-/**
- * Duration สำหรับ React state ไปออกมาที่ DOM ก่อน navigation
- *
- * ใช้เมื่อ: ต้องการให้ React commit state ก่อนแล้วค่อย navigate
- * (เช่น optimistic update ก่อนไป /events ใหม่)
- *
- * Pattern: `setTimeout(() => window.location.href = '...', REACT_COMMIT_DURATION)`
- */
-export const REACT_COMMIT_DURATION = 50 as const;
+/** @deprecated ใช้ SHEET_TIMING.CLOSE_DURATION จาก '@/components/framework/shared' แทน */
+export const SHEET_CLOSE_DURATION = SHEET_TIMING.CLOSE_DURATION;
 
-/**
- * Auto-dismiss duration สำหรับ inline toast (แบบ setToast + setTimeout)
- *
- * ใช้เมื่อ: today-client / event-detail-client แสดง toast แล้ว auto-dismiss
- *
- * Pattern: `setTimeout(() => setToast(null), TOAST_AUTO_DISMISS)`
- */
-export const TOAST_AUTO_DISMISS = 2400 as const;
+/** @deprecated ใช้ REACT_COMMIT_DURATION จาก '@/components/framework/shared' แทน */
+export const REACT_COMMIT_DURATION = _REACT_COMMIT;
 
-/**
- * Scroll velocity threshold (px) ที่ใช้ใน useScrollDirection
- * หาก scroll ลงมากกว่านี้ภายใน 1 frame จะซ่อน FAB
- */
-export const SCROLL_HIDE_THRESHOLD = 120 as const;
+/** @deprecated ใช้ TOAST_TIMING.AUTO_DISMISS จาก '@/components/framework/shared' แทน */
+export const TOAST_AUTO_DISMISS = TOAST_TIMING.AUTO_DISMISS;
 
-/**
- * FAB show/hide transition duration (ต้องตรงกับ CSS)
- */
-export const FAB_TRANSITION_DURATION = 200 as const;
+/** @deprecated ใช้ DRAG_THRESHOLDS จาก '@/components/framework/shared' แทน */
+export const SCROLL_HIDE_THRESHOLD = 120;
+
+/** @deprecated ใช้ FAB_TIMING จาก '@/components/framework/shared' แทน */
+export const FAB_TRANSITION_DURATION = 200;

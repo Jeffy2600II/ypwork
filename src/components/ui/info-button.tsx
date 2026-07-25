@@ -1,28 +1,28 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · InfoButton (v3.1.0 — ใช้ Window Framework)
+// YP WORK · InfoButton (r50 — ใช้ BottomSheet โดยตรง)
 // ═══════════════════════════════════════════════════════════════
-// ปุ่มข้อมูล (i) แบบ mobile-app — คลิกแล้วเปิด "docs sheet" ขึ้นมา
+// ปุ่มขมูล (i) แบบ mobile-app — คลิกแล้วเปิด "docs sheet" ขึ้นมา
 //
-// v3.1.0 — ใช้ Window Framework (type="sheet") แทน CSS แยก:
-//   ✓ รองรับ nested popups (เปิด sheet แล้วเปิด sheet ละเอียดในได้)
-//   ✓ ปิด bottom-nav/FAB อัตโนมัติ (ผ่าน body.yp-window-open)
+// r50 — ใช้ BottomSheet จาก framework ใหม่ (modular):
+//   ✓ รองรับ nested popups (เปด sheet แล้วเปด sheet ละเอียดในได้)
+//   ✓ ปด bottom-nav/FAB อัตโนมัติ (ผ่าน useIsSheetOpen reactive)
 //   ✓ Drag-to-dismiss smooth (ตามนิ้ว 1:1)
-//   ✓ Backdrop close animation ครบถ้วน
+//   ✓ Backdrop close animation ครบถ้วน (emphasized easing ลื่นไหล)
 //   ✓ Stack manager จัดการ z-index + ESC + back-button
 //
 // หลักการออกแบบ (mobile-first, app-style):
 // - ใช้ bottom sheet ที่ slide ขึ้นจากล่าง — เหมือน native app
 // - รองรับเนื้อหายาว — มี scroll, มี grip handle, มี header sticky
-// - รองรับรูป, list, section, code — ผ่าน ReactNode content
-// - ปิดได้ 4 ทาง: tap backdrop / กดปุ่ม X / กด Escape / swipe down
+// - รองรับรูป, list, section, code — ผาน ReactNode content
+// - ปดได้ 4 ทาง: tap backdrop / กดปุ่ม X / กด Escape / swipe down
 // - ไม่บล็อก parent onClick ของ card ที่ห่ออยู่
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
 import { Info } from 'lucide-react';
-import { Window } from '@/components/framework/window';
+import { BottomSheet } from '@/components/framework/sheet';
 
 export interface InfoButtonProps {
   /**
@@ -70,8 +70,7 @@ export function InfoButton({
         <Info size={iconSize} strokeWidth={2.2} />
       </button>
 
-      <Window
-        type="sheet"
+      <BottomSheet
         open={open}
         onClose={() => setOpen(false)}
         size="tall"
@@ -79,7 +78,7 @@ export function InfoButton({
         hideCloseButton={false}
       >
         <div className="yp-info-sheet__inner">{content}</div>
-      </Window>
+      </BottomSheet>
     </>
   );
 }

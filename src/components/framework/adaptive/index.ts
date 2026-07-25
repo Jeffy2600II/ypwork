@@ -1,21 +1,14 @@
-'use client';
-
 /**
  * ═══════════════════════════════════════════════════════════════
- * YP WORK · Core · Scroll Lock (r50 — DEPRECATED, backward compat re-export)
+ * YP WORK · Framework · Adaptive · Public Airlock (r50)
  * ═══════════════════════════════════════════════════════════════
- * ★ r50: Scroll lock ถูกย้ายไปอยู่ที่
- *   src/components/framework/shared/scroll-lock.ts
+ * Barrel export สำหรับ adaptive overlay system
  *
- *   ไฟล์นี้เป็น re-export เพื่อรักษา backward compatibility
- *   สำหรับ code เดิมที่ import จาก '@/lib/core/scroll-lock'
+ * AdaptiveOverlay = smart wrapper ที่เลือก Sheet หรือ Popup ตาม viewport
  * ═══════════════════════════════════════════════════════════════
  */
 
-export {
-  lockScroll,
-  unlockScroll,
-  getSavedScrollY,
-  isScrollLocked,
-  getScrollLockCount,
-} from '@/components/framework/shared/scroll-lock';
+export { AdaptiveOverlay } from './adaptive-overlay';
+export type { AdaptiveOverlayProps } from './adaptive-overlay';
+export { useViewport, useIsDesktop } from './use-viewport';
+export type { ViewportState } from './use-viewport';
