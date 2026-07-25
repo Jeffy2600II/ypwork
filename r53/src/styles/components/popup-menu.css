@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Popup Menu (3-Dot Menu Button) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   Popup menu (3-dot actions)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-today-item-card__popup {
+  position: absolute;
+  /* ★ r46: top adjusted — เพราะ card padding เปลี่ยน 16→8 และ Row 1 มี
+     subtag/type-tag ที่อาจจะสูงกว่าเดิม
+     card-padding(18) + top-row-min-height(24) + gap(4) = 46px */
+  top: calc(18px + 24px + 4px);
+  right: 18px;
+  min-width: 180px;
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  box-shadow: 0 4px 16px rgba(30, 27, 70, 0.12), 0 1px 3px rgba(30, 27, 70, 0.08);
+  padding: 4px;
+  z-index: 4;
+  transform-origin: top right;
+  animation: yp-today-popup-enter 150ms var(--yp-ease-m3-decelerate);
+}
+
+@keyframes yp-today-popup-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.yp-today-item-card__popup-item {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--yp-radius-sm);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-body);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 100ms var(--yp-ease-m3-standard), color 100ms var(--yp-ease-m3-standard);
+}
+
+.yp-today-item-card__popup-item:hover {
+  background: var(--yp-bg-card-soft);
+  color: var(--yp-text-heading);
+}
+
+.yp-today-item-card__popup-item:focus-visible {
+  outline: 2px solid var(--yp-indigo-500);
+  outline-offset: -2px;
+}
+
+.yp-today-item-card__popup-item svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+  color: var(--yp-text-muted);
+  flex-shrink: 0;
+}
+
+.yp-today-item-card__popup-item:hover svg {
+  color: var(--yp-indigo-600);
+}
+
+/* Popup overlay — catches clicks outside popup */
+.yp-today-item-card__popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 2;
+  cursor: default;
+}

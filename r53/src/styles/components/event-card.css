@@ -1,0 +1,83 @@
+@layer components {
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+  /* ── Event card hover/active effects (v8.2 — accent tint + border + shadow)
+     ★ v3.9.3: Premium card — accent-tinted with subtle pattern overlay ── */
+  .yp-event-card {
+    display: block;
+    /* ★ v3.9.3: Layered background — soft accent wash + base card color
+       ทำให้การ์ดมี "characteristic" ที่สัมพันธ์กับ accent ของงาน */
+    background:
+      radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent) 0%, transparent 50%),
+      var(--yp-bg-card);
+    border: 1px solid var(--yp-border-subtle);
+    border-radius: var(--yp-radius-lg);     /* v3.9.3: md → lg สำหรับการ์ดที่โค้งมนกว่า */
+    padding: var(--yp-space-6) var(--yp-space-5);
+    cursor: pointer;
+    transition:
+      background-color var(--yp-t-fast),
+      border-color var(--yp-t-fast),
+      box-shadow var(--yp-t-fast),
+      transform 180ms var(--yp-ease-standard);
+    position: relative;
+    overflow: hidden;
+    /* ★ v3.9.3: Subtle base shadow for depth */
+    box-shadow:
+      0 1px 2px rgba(30, 27, 70, 0.04),
+      0 2px 8px rgba(30, 27, 70, 0.03);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .yp-event-card::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent, #4F46E5) 0%, transparent 70%);
+    opacity: 0.05;
+    pointer-events: none;
+    transition: opacity var(--yp-t-fast);
+  }
+
+  .yp-event-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 22px; bottom: 22px;
+    width: 3px;
+    background: var(--accent, var(--yp-gradient-brand-flat));
+    border-radius: 0 3px 3px 0;
+    transition: top var(--yp-t-fast), bottom var(--yp-t-fast);
+  }
+
+  .yp-event-card:hover {
+    background: color-mix(in srgb, var(--accent, #4F46E5) 4%, var(--yp-bg-card));
+    border-color: color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .yp-event-card:hover::after {
+    opacity: 0.10;
+  }
+
+  .yp-event-card:hover::before {
+    top: 0;
+    bottom: 0;
+  }
+
+  .yp-event-card:active {
+    background: color-mix(in srgb, var(--accent, #4F46E5) 8%, var(--yp-bg-card));
+    border-color: color-mix(in srgb, var(--accent, #4F46E5) 40%, transparent);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent);
+    transform: scale(0.985);
+  }
+}

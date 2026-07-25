@@ -1,0 +1,272 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SHARED: STAT GRID + STAT CARD + EMPTY + LIST ITEM + CARD + PROGRESS
+   ★ v3.7.10: Redesigned stat cards — "chubby/cute" centered, proportional
+   ═══════════════════════════════════════════════════════════════ */
+.yp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--yp-space-3);
+  margin-bottom: var(--yp-space-4);
+}
+@media (min-width: 640px) {
+  .yp-stat-grid { grid-template-columns: repeat(4, 1fr); gap: var(--yp-space-4); }
+}
+
+.yp-stat::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent, var(--yp-indigo-500)) 0%, transparent 70%);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+/* ★ v3.7.10: Chubby icon — bigger, more rounded, centered
+   ★ v3.9.3: More rounded (var instead of 12px fixed) */
+.yp-stat__icon {
+  width: 42px; height: 42px;
+  border-radius: var(--yp-radius-xs);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 14%, var(--yp-bg-card)) 0%,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, rgba(124, 58, 237, 0.12)) 100%);
+  color: var(--accent, var(--yp-indigo-600));
+  display: grid;
+  place-items: center;
+  font-size: var(--yp-text-sm);
+  margin-bottom: 2px;
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 24%, transparent);
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 2px 6px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 14%, transparent);
+}
+
+/* ★ v3.7.10: Stat body — centered, not stretched */
+.yp-stat__body {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.yp-stat__value {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-text-strong);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* ★ v3.7.10: stat value variant สำหรับ text (ไม่ใช่ตัวเลข) — smaller, centered */
+.yp-stat__value--text {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  line-height: 1.2;
+  margin-top: 2px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.yp-stat__label {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ★ v3.7.10: Stat icon text — centered */
+.yp-stat__icon-text {
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+}
+
+.yp-empty {
+  text-align: center;
+  padding: var(--yp-space-12) var(--yp-space-6);
+  color: var(--yp-text-muted);
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  max-width: 480px;
+  margin-inline: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.yp-empty::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 1.5px 1.5px, var(--yp-border-subtle) 1px, transparent 0);
+  background-size: 22px 22px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.yp-empty__icon {
+  width: 72px; height: 72px;
+  margin: 0 auto var(--yp-space-5);
+  border-radius: var(--yp-radius-sm);
+  background: linear-gradient(135deg, var(--yp-bg-indigo-soft) 0%, rgba(124, 58, 237, 0.10) 100%);
+  border: 1px solid var(--yp-border-indigo);
+  display: grid;
+  place-items: center;
+  font-size: var(--yp-text-2xl);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.10);
+}
+
+.yp-empty__title {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: var(--yp-space-3);
+  letter-spacing: 0.005em;
+  position: relative;
+  z-index: 1;
+}
+
+.yp-empty__desc {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  line-height: 1.65;
+  letter-spacing: 0.005em;
+  position: relative;
+  z-index: 1;
+}
+
+.yp-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yp-space-4);
+  padding: 0.9375rem 1.125rem;
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-sm);
+  cursor: pointer;
+  transition: transform var(--yp-t-fast), background var(--yp-t-fast), border-color var(--yp-t-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.yp-list-item:hover {
+  transform: translateY(-1px);
+  background: var(--yp-bg-card-soft);
+}
+
+.yp-list-item:active {
+  transform: scale(0.99);
+}
+
+.yp-list-item + .yp-list-item { margin-top: var(--yp-stack-gap); }
+
+.yp-list-item__icon {
+  flex: 0 0 40px;
+  width: 40px; height: 40px;
+  border-radius: var(--yp-radius-sm);
+  background: rgba(99, 102, 241, 0.10);
+  color: var(--yp-indigo-600);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: var(--yp-text-lg);
+  border: none;
+}
+
+.yp-list-item__icon svg { width: 18px; height: 18px; }
+
+.yp-list-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.yp-list-item__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-list-item__subtitle {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-secondary);
+  line-height: 1.45;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-list-item__chip {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* ★ v3.7.9: Hover state — subtle lift + shadow expand + border glow */
+@media (hover: hover) and (pointer: fine) {
+  .yp-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 12px rgba(30, 27, 70, 0.08),
+      0 8px 24px rgba(30, 27, 70, 0.06);
+    border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  }
+}
+
+.yp-progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(99, 102, 241, 0.10);
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+}
+.yp-progress__fill {
+  height: 100%;
+  background: var(--yp-gradient-brand-flat);
+  border-radius: var(--yp-radius-pill);
+  transition: width var(--yp-t-slow);
+}
+
+.yp-avatar-group {
+  display: flex;
+  align-items: center;
+}
+.yp-avatar-group .yp-avatar + .yp-avatar {
+  margin-left: -10px;

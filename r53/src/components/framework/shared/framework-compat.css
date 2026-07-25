@@ -1,0 +1,86 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Backward Compat (yp-window-open ↔ yp-overlay-open) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 6: BACKWARD COMPAT — body class hooks
+   ═══════════════════════════════════════════════════════════════
+   ★ r50: รองรับทั้งชื่อ class เก่า (yp-window-open) และใหม่ (yp-overlay-open)
+   เพื่อไม่ให้ code เดิมที่อ้างถึงชื่อเก่าพัง
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Old: body.yp-window-open .fab → ใช้ได้เหมือนเดิม */
+body.yp-window-open .fab,
+body.yp-sheet-open .fab {
+  transform: translateY(150%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 180ms var(--yp-ease-m3-emphasized),
+    opacity 160ms var(--yp-ease-m3-emphasized),
+    visibility 0s,
+    box-shadow 180ms var(--yp-ease-m3-standard);
+  animation: none !important;
+}
+
+body.yp-window-open .bottom-nav,
+body.yp-sheet-open .bottom-nav {
+  transform: translateY(150%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 220ms var(--yp-ease-m3-emphasized),
+    opacity 180ms var(--yp-ease-m3-emphasized),
+    visibility 0s;
+  animation: none !important;
+}
+
+/* New: body.yp-overlay-open--sheet (mobile sheet เปิด → ซ่อน FAB + nav) */
+body.yp-overlay-open--sheet .fab {
+  transform: translateY(150%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 180ms var(--yp-ease-m3-emphasized),
+    opacity 160ms var(--yp-ease-m3-emphasized),
+    visibility 0s,
+    box-shadow 180ms var(--yp-ease-m3-standard);
+  animation: none !important;
+}
+
+body.yp-overlay-open--sheet .bottom-nav {
+  transform: translateY(150%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 220ms var(--yp-ease-m3-emphasized),
+    opacity 180ms var(--yp-ease-m3-emphasized),
+    visibility 0s;
+  animation: none !important;
+}
+
+/* New: body.yp-overlay-open--popup (desktop popup เปิด → ซ่อน FAB เท่านั้น) */
+body.yp-overlay-open--popup .fab {
+  transform: translateY(150%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 180ms var(--yp-ease-m3-emphasized),
+    opacity 160ms var(--yp-ease-m3-emphasized),
+    visibility 0s;
+  animation: none !important;
+}
+
+/* Note: popup บน desktop ไม่ซ่อน bottom-nav (เพราะเป็น left-rail) */
+

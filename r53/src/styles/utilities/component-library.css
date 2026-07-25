@@ -1,0 +1,330 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Component Library Utilities (Info Row, Section Title, Typography, Flex) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.3 — Unified component library (reuse ให้มากที่สุด)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ v3.7.3: .yp-info-row — reusable row สำหรับแสดง label + value
+   ใช้ใน About page, Profile page, และอื่นๆ ที่ต้องการแสดงข้อมูลแบบ row */
+.yp-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--yp-space-3);
+  font-size: var(--yp-text-sm);
+}
+
+.yp-info-row__label {
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  flex-shrink: 0;
+}
+
+.yp-info-row__value {
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  text-align: right;
+}
+
+.yp-info-row__value--accent {
+  color: var(--yp-indigo-600);
+}
+
+/* ★ v3.7.3: .yp-info-list — container สำหรับ multiple .yp-info-row */
+.yp-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+  font-size: var(--yp-text-sm);
+}
+
+/* ★ v3.7.3: .yp-section-title — reusable section title ใน card */
+.yp-section-title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin: 0 0 var(--yp-space-3);
+  letter-spacing: 0.01em;
+}
+
+.yp-section-title--muted {
+  color: var(--yp-text-muted);
+}
+
+.yp-text-body p {
+  margin: 0 0 var(--yp-space-3);
+}
+
+.yp-text-body p:last-child {
+  margin-bottom: 0;
+}
+
+.yp-text-body strong {
+  color: var(--yp-text-heading);
+  font-weight: var(--yp-fw-bold);
+}
+
+/* ★ v3.7.3: .yp-feature-list — reusable feature list (มี bullet) */
+.yp-feature-list {
+  margin: 0;
+  padding-left: var(--yp-space-5);
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-body);
+  line-height: 2;
+}
+
+.yp-feature-list--muted {
+  color: var(--yp-text-secondary);
+}
+
+.yp-feature-list strong {
+  color: var(--yp-indigo-600);
+  font-weight: var(--yp-fw-bold);
+}
+
+.yp-feature-list--muted strong {
+  color: var(--yp-text-heading);
+}
+
+/* ★ v3.7.3: .yp-tech-grid — reusable grid สำหรับ tech badges */
+.yp-tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--yp-space-2);
+  font-size: var(--yp-text-sm);
+}
+
+.yp-tech-badge {
+  padding: 8px 12px;
+  background: var(--yp-bg-card-soft);
+  border-radius: var(--yp-radius-sm);
+  color: var(--yp-text-body);
+  font-weight: var(--yp-fw-medium);
+  font-size: var(--yp-text-xs);
+  text-align: center;
+  border: 1px solid var(--yp-border-subtle);
+}
+
+/* ★ v3.7.3: .yp-loading-text — reusable loading indicator text */
+.yp-loading-text {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-normal);
+  margin-left: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.4 — Pattern-based utility classes (แก้ปัญหา "UI คนละยุค")
+   ═══════════════════════════════════════════════════════════════
+   ★ ปัญหา: แต่ละหน้าเอา design tokens มา "บวกเพิ่ม" ด้วย inline styles
+     ทำให้ความรู้สึกไม่เหมือนกัน (เหมือนคนละคนออกแบบ)
+
+   ★ วิธีแก้: สร้าง utility classes ที่ครอบคลุม pattern ที่ใช้บ่อย
+     แทนที่จะใช้ inline styles กระจัดกระจาย
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── ERROR BANNER ── */
+/* ใช้แสดงข้อความ error ด้านบนฟอร์ม — reuse แทน inline style ทั้งก้อน */
+.yp-error-banner {
+  background: rgba(244, 63, 94, 0.08);
+  color: #BE123C;
+  border: 1px solid rgba(244, 63, 94, 0.20);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  border-radius: var(--yp-radius-sm);
+  margin-bottom: var(--yp-space-4);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  line-height: 1.5;
+}
+
+/* ── SUCCESS BANNER ── */
+.yp-success-banner {
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  border-radius: var(--yp-radius-sm);
+  margin-bottom: var(--yp-space-4);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  line-height: 1.5;
+}
+
+/* ── INFO BANNER ── */
+.yp-info-banner {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--yp-indigo-700);
+  border: 1px solid rgba(99, 102, 241, 0.20);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  border-radius: var(--yp-radius-sm);
+  margin-bottom: var(--yp-space-4);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  line-height: 1.5;
+}
+
+/* ── INLINE ICON ── */
+/* สำหรับ icon ที่อยู่ใน text — ป้องกัน inline style display/margin */
+.yp-icon-inline {
+  display: inline;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.yp-icon-inline--lg {
+  width: 14px;
+  height: 14px;
+  strokeWidth: 2.4;
+}
+
+/* ── SECTION TITLE WITH INFO BUTTON ── */
+/* สำหรับ section title ที่มี InfoButton ข้างใน */
+.yp-form-modal__section-title--with-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── STAT GRID ── v3.7.10: merged into single definition above (chubby centered design) */
+/* ── STAT CARD ── v3.7.10: merged into single definition above */
+/* ── STAT ICON SIZE VARIANTS ── v3.7.10: merged into single definition above */
+
+/* ── ACCENT-DRIVEN COMPONENTS ── */
+/* สำหรับ components ที่ต้องการ accent color แบบ dynamic (event color, department color) */
+.yp-accented {
+  --accent: var(--yp-indigo-600);
+}
+
+/* ★ v3.7.4: button text ที่มี icon ข้างหน้า — ป้องกัน inline marginLeft */
+.yp-btn__text-with-icon {
+  margin-left: 6px;
+}
+
+/* v3.6.0/v3.7.4 spacing merged into single .yp-page-header definition (v3.7.5) */
+
+/* ── CARD SECTION ── */
+/* สำหรับ section ใน card ที่ต้องการ spacing สม่ำเสมอ */
+.yp-card-section + .yp-card-section {
+  margin-top: var(--yp-space-4);
+}
+
+/* ── STACKED PAGE CARDS ── */
+/* ★ v3.7.5: แทนที่ inline style={{ marginBottom: 'var(--yp-space-4)' }} ที่ซ้ำ
+   กันทุกจุดใน about/page.tsx และหน้าอื่น — ให้ระยะห่างระหว่าง .yp-card
+   ที่วางต่อกันในหน้าเดียวกันมาจาก token เดียว ที่เดียว แทนการเพิ่ม inline
+   ทีละจุด */
+.yp-page > .yp-card + .yp-card {
+  margin-top: var(--yp-space-4);
+}
+
+/* ── INLINE FLEX UTILITIES ── */
+/* ป้องกัน inline style สำหรับ flex layouts ที่ใช้บ่อย */
+.yp-flex-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+}
+
+.yp-flex-inline--center {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yp-space-2);
+}
+
+.yp-flex-row {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+}
+
+.yp-flex-row--between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-2);
+}
+
+.yp-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+}
+
+/* ── TEXT ALIGNMENT UTILITIES ── */
+.yp-text-center { text-align: center; }
+.yp-text-right { text-align: right; }
+.yp-text-left { text-align: left; }
+
+/* ── FONT SIZE UTILITIES (token-based, ไม่ใช่ inline) ── */
+.yp-text-xs { font-size: var(--yp-text-xs); }
+.yp-text-sm { font-size: var(--yp-text-sm); }
+.yp-text-base { font-size: var(--yp-text-base); }
+.yp-text-lg { font-size: var(--yp-text-lg); }
+.yp-text-xl { font-size: var(--yp-text-xl); }
+.yp-text-2xl { font-size: var(--yp-text-2xl); }
+
+/* ── FONT WEIGHT UTILITIES ── */
+.yp-fw-normal { font-weight: var(--yp-fw-normal); }
+.yp-fw-medium { font-weight: var(--yp-fw-medium); }
+.yp-fw-semibold { font-weight: var(--yp-fw-semibold); }
+.yp-fw-bold { font-weight: var(--yp-fw-bold); }
+
+/* ── COLOR UTILITIES ── */
+.yp-text-muted { color: var(--yp-text-muted); }
+.yp-text-secondary { color: var(--yp-text-secondary); }
+
+.yp-text-body {
+  font-size: var(--yp-text-sm);
+  line-height: 1.8;
+  color: var(--yp-text-body);
+}
+
+.yp-text-heading { color: var(--yp-text-heading); }
+.yp-text-strong { color: var(--yp-text-strong); }
+.yp-text-accent { color: var(--yp-indigo-600); }
+.yp-text-danger { color: #BE123C; }
+.yp-text-success { color: #047857; }
+
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.4 — Additional pattern utilities (แก้ pattern ที่ซ้ำซ้อน)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ Pattern: faint text + medium weight (เห็นใน hint text หลายจุด) */
+.yp-text-faint-medium {
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+}
+
+/* ★ Pattern: faint text + medium + no transform (เห็นใน tag examples) */
+.yp-text-faint-normal {
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ★ Pattern: indigo accent + semibold (เห็นใน tag chips) */
+.yp-text-tag {
+  color: var(--yp-indigo-600);
+  font-weight: var(--yp-fw-semibold);
+}
+
+/* ★ Pattern: button text with left margin (icon + text) */
+.yp-text-with-icon-left {
+  margin-left: 6px;
+}
+
+/* ★ Pattern: cursor pointer */
+.yp-cursor-pointer {
+  cursor: pointer;
+}
+

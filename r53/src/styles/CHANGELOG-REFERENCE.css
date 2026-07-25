@@ -1,0 +1,325 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Design Changelog Reference (v3.10.0-r26→r44)
+   ═══════════════════════════════════════════════════════════════
+   This file is a REFERENCE ONLY — it documents design decisions
+   but is NOT imported by index.css. Keep for historical reference.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Global CSS v3.10.0-r44 (Indigo Trust theme)
+   ═══════════════════════════════════════════════════════════════
+   Senior CSS Architect Refactor — Round 26 → 44
+   ─────────────────────────────────────────────────────────────
+   ★ v3.10.0 รอบที่ 44: Card UX Refine — 4-Row Layout Redesign
+   ปัญหา: การ์ดในหน้า Today ยังมีจุดที่ทำให้ผู้ใช้สับสนและดูไม่สมดุล
+   1. การ์ดรายการย่อยมี status dot ที่มุมซ้ายบน ทำให้ดูไม่สมดุล —
+      badge "รายการย่อย" ก็บอกอยู่แล้ว ไม่จำเป็นต้องมี indicator ซ้ำ
+   2. chevron arrow ที่มุมขวาบนเป็นแค่ "go to detail" ไม่มี space
+      สำหรับ action อื่นๆ — ไม่ได้เป็นมาตรฐานสากล (ปัจจุบันทุกแพลตฟอร์ม
+      ใช้ 3-dot menu สำหรับ actions menu)
+   3. "จากกลุ่ม" เป็น Link ที่คลิกได้ — ทำให้สับสนเรื่อง click target
+      (ผู้ใช้ไม่แน่ใจว่าคลิกแล้วจะไปไหน)
+   4. เวลาที่มุมขวาบนเป็นแค่ตัวเลข "14:00" ไม่มี context — ผู้ใช้สับสน
+      ว่าเป็นเวลาอะไร (เริ่ม? จบ? ของวันไหน?)
+   5. รายการเลยกำหนดแสดงเวลาเดิมที่เลยไปแล้ว — ทำให้สับสนว่าเป็นเวลา
+      ใหม่หรือเวลาเดิม
+
+   งานวิจัยที่ใช้ (award-winning UX research, ปรับให้เข้ากับแพลตฟอร์มเรา):
+   - Apple HIG: 3-dot menu (More) เป็นมาตรฐานสำหรับ secondary actions
+     บน iOS — ทุกแอปยักษ์ใหญ่ (Mail, Notes, Reminders) ใช้
+   - Material Design 3: "More vert" icon เป็นมาตรฐานสำหรับ card actions
+   - Linear: card menu ใต้ปุ่ม 3-dot พร้อม overlay จับ click นอกเพื่อปิด
+   - Things 3: schedule label ที่ชัดเจน "Today 14:00" ไม่ใช่แค่ตัวเลข
+   - Notion: footer row สำหรับ metadata ที่ "สาระ" แยกจาก main content
+   - Todoist: "กำหนดการ" prefix สำหรับ due date/time เพื่อ clarity
+   - iOS Reminders: subtle divider ระหว่าง primary content กับ metadata
+
+   การแก้ (ปรับ CSS + เพิ่ม class ใหม่สำหรับ component ใหม่):
+
+   1. .yp-today-item-card.is-subitem — ไม่มี status dot:
+      • JSX ไม่ render status dot สำหรับ sub-item (ลบออกจาก DOM)
+      • CSS ปรับ gap ของ .is-subitem ให้ body เริ่มที่ขอบซ้าย (ไม่มี
+        space สำหรับ dot ที่หายไป)
+      เหตุผล: badge "รายการย่อย" ก็บอกอยู่แล้ว ไม่ต้องมี indicator ซ้ำ
+      และ status dot ทำให้การ์ดรายการย่อยดูไม่สมดุล
+
+   2. .yp-today-item-card__menu (NEW) — 3-dot menu button:
+      • แทนที่ .yp-today-item-card__link (chevron) เดิม
+      • ใช้ MoreHorizontal icon จาก lucide-react
+      • ขนาด 28x28px เหมือนเดิม เพื่อรักษา tap target
+      • aria-haspopup="menu" + aria-expanded สำหรับ accessibility
+      เหตุผล: 3-dot menu เป็นมาตรฐานสากล ทุกแพลตฟอร์มใหญ่ๆ ใช้
+
+   3. .yp-today-item-card__popup (NEW) — popup menu:
+      • position: absolute ใต้ปุ่ม 3-dot
+      • มีเส้น border บางๆ + shadow อ่อน
+      • มี animation เปิดแบบ scale + fade (subtle, 150ms)
+      • มี .yp-today-item-card__popup-overlay สำหรับจับ click นอก popup
+      เหตุผล: popup ที่ position ติดกับปุ่มทำให้ผู้ใช้เข้าใจว่าเป็น
+      "action menu ของการ์ดนี้" ไม่ใช่ global menu
+
+   4. .yp-today-item-card__footer (NEW) — footer row:
+      • แยกจาก meta row ด้วยเส้นบางๆ (border-top, 50% opacity)
+      • ใช้ flex + justify-content: space-between
+      • Left: "จากกลุ่ม: XXX" (เฉพาะ sub-item, เป็น text ไม่ใช่ link)
+      • Right: schedule label (today/upcoming ที่มีเวลา)
+      เหตุผล: separation ระหว่าง "primary content" (title + status)
+      กับ "metadata" (จากกลุ่ม, กำหนดการ) ทำให้ visual hierarchy ชัดเจน
+
+   5. .yp-today-item-card__source (NEW) — จากกลุ่ม text (non-clickable):
+      • ใช้แทน .yp-today-item-card__subtag-group (Link) เดิม
+      • เป็น text ธรรมดา ไม่ใช่ Link ไม่มี hover state
+      • color: text-muted (ไม่เด่น)
+      เหตุผล: ลด confusion ของ click target — ผู้ใช้คลิก card body
+      เพื่อเปลี่ยนสถานะ, คลิก 3-dot เพื่อดู action, คลิก "ดูเพิ่มเติม"
+      เพื่อเปิด bottom sheet ที่มีลิงก์ไปกลุ่มอยู่แล้ว
+
+   6. .yp-today-item-card__schedule (NEW) — schedule label:
+      • แสดง "กำหนดการ วันนี้ HH:MM น." หรือ "กำหนดการ {relativeDay} HH:MM น."
+      • ไม่แสดงสำหรับ overdue (เวลาเลยไปแล้วทำให้สับสน)
+      • ใช้ Clock icon + text, color: text-heading (เด่นกว่า meta)
+      • อยู่ฝั่งขวาของ footer (margin-left: auto)
+      เหตุผล: "กำหนดการ" prefix + relative day ทำให้ชัดเจนว่าเป็นเวลาอะไร
+      ของวันไหน — แก้ปัญหา "14:00 แปลว่าอะไร"
+
+   7. .yp-today-item-card__chip--time — REMOVE (ไม่ใช้แล้ว):
+      • ย้ายไปเป็น .yp-today-item-card__schedule ใน footer แทน
+      • ลบ absolute positioning ที่มุมขวาบน
+
+   8. .yp-today-item-card__link — REMOVE (ไม่ใช้แล้ว):
+      • แทนที่ด้วย .yp-today-item-card__menu (3-dot button)
+
+   9. .yp-today-item-card__body — ลด padding-right:
+      • ลบ padding-right: calc(var(--has-time) * 72px) (ไม่จำเป็นแล้ว
+        เพราะ time chip ไม่ได้อยู่ที่มุมขวาบนแล้ว)
+      • ใช้ padding-right ตามปกติของ card padding (16px) — เพียงพอ
+        สำหรับไม่ให้ title ทับกับ 3-dot menu button
+
+   10. .yp-today-item-card__subtag-group, __subtag-arrow — REMOVE:
+       • ไม่ใช้แล้วเพราะ "จากกลุ่ม" ย้ายไป footer เป็น text ธรรมดา
+
+   11. .yp-card-detail (NEW) — detail bottom sheet content:
+       • layout: list of rows (label + value)
+       • มี CTA button "ดูหน้าเต็ม" ที่ลิงก์ไปหน้ารายละเอียดแบบเต็ม
+       • ใช้สไตล์เดียวกับ yp-status-picker (consistent BottomSheet UX)
+
+   หลังปรับ: การ์ดใน 3 section ของหน้า Today มี visual hierarchy
+   ที่ชัดเจน (top: badge + title + status | bottom: จากกลุ่ม + กำหนดการ)
+   ลดความสับสนของ click target (3-dot menu สำหรับ actions, card body
+   สำหรับ status) และ schedule label ที่ชัดเจน (ไม่ใช่แค่ตัวเลข)
+
+   ★ v3.10.0 รอบที่ 40 (สืบทอดมา): Pure white card background, ลด
+   decoration ทุกชนิด, ใช้ typography มาตรฐาน --yp-text-xs (12px) ทุกที่
+
+   ★ v3.10.0 รอบที่ 39: Card Redesign + Chip Cleanup (World-Class Polish)
+   ปัญหา: การ์ดใน 3 section ของหน้า Today ดูรก ไม่เป็นมืออาชีพ
+   1. "ขอบด้านซ้ายของการ์ดรายการย่อย" — ใช้ border-left 3px solid accent
+      ทึบ ๆ หนา ๆ เวลาซ้อนกันในกลุ่มจะรวมเป็นแถบสียาว ๆ ขัดตามาก
+   2. ชิปเยอะเกินไป (6-7 ชิปต่อการ์ด) แต่ละชิปมี label "เวลาเริ่ม/ใช้เวลา/
+      กำหนด" ซ้ำกับ icon — รกและดูไม่เป็นมืออาชีพ
+   3. Subtag "รายการย่อย" badge ใหญ่และเด่นเกินไป แย่งความสนใจจาก title
+
+   งานวิจัยที่ใช้เป็นแรงบันดาลใจ:
+   - Linear: thin indent guide line (1-2px) สำหรับ nested issues,
+     ไม่ใช้ขอบหนา ๆ; chips เล็ก ๆ กระชับ; สี muted สำหรับ metadata
+   - Notion: ghost chips (no background) สำหรับ metadata สาระ;
+     pill สีจริง ๆ แค่ status/priority; เน้น title เป็นหลัก
+   - Things 3: subtle background tint สำหรับ nesting ไม่มีขอบหนา;
+     metadata เป็น muted text ไม่ใช่ pill
+   - Todoist: ลด chip labels; icon = label; compact rows
+   - Apple Reminders: สะอาด น้อยชิป เน้น title + checkbox
+   - Asana: thin vertical accent line (1px) สำหรับ nested rows
+   - Material Design 3: density variants, subtle elevation, restrained color
+
+   การแก้ (CSS เท่านั้น ไม่เปลี่ยน class):
+
+   1. .yp-today-item-card.is-subitem — Redesign ขอบซ้าย:
+      • ลบ border-left 3px solid accent (ขอบหนาขัดตา)
+      • เพิ่ม background tint สี accent อ่อนมาก (1.5% alpha) เพื่อ
+        บอก nesting แบบนุ่น ๆ ไม่ใช้ขอบ
+      • เพิ่ม ::before accent guide line บาง ๆ (2px, 35% opacity)
+        สั้นกว่าความสูงการ์ด (top/bottom 12px) คล้าย Linear/Notion
+        "tab marker" ไม่ใช่ "ขอบเต็ม"
+      • Hover: เส้นนำขยายเต็มความสูง + เข้มขึ้น slightly (60% opacity)
+      • Hover background ปรับให้ยังคง tint accent อยู่ (ไม่ override
+        เป็น flat color)
+
+   2. .yp-today-item-card__chip — Chip cleanup:
+      • ซ่อน label ในชิป time/est/due (icon ก็บอกอยู่แล้ว)
+      • ลด padding จาก 4px 10px → 3px 8px (กระชับ)
+      • ลด font-size จาก text-xs (12px) → 11px (เล็กลง)
+      • ลด meta gap จาก 8px → 6px, margin-top 8px → 6px
+      • ชิป secondary (assignee, location, est, from) → ghost style
+        (no background, no border) — เป็นแค่ text + icon สี muted
+      • ชิป primary (status, priority, due-overdue) → ยังเป็น pill solid
+        เพื่อให้ดูเด่นเป็นสถานะหลัก
+
+   3. .yp-today-item-card__subtag-badge — ลด visual weight:
+      • background opacity 10% → 5%
+      • border opacity 18% → 10%
+      • font-weight bold → semibold
+      • padding 1px 8px → 1px 7px
+      • color blend กับ text-muted (ไม่เด่นเกินไป)
+
+   4. .yp-today-item-card — ปรับรายละเอียดเล็ก ๆ:
+      • Title เพิ่ม letter-spacing -0.005em (subtle refinement)
+      • ลด ::before opacity ของ non-subitem จาก 0.75 → 0.6
+      • ลด ::after blob opacity จาก 0.05 → 0.04
+      • ลด subtag margin-bottom จาก 8px → 4px
+
+   หลังปรับ: การ์ดใน 3 section ของหน้า Today ดูสะอาด ละมุน เป็น
+   มืออาชีพระดับโลก — ลด noise ลด chunky ลด visual weight ที่ไม่จำเป็น
+   แต่ยังรักษาเอกลักษณ์การออกแบบเดิม (accent system, layered wash,
+   indigo→violet cohesion กับ hero)
+
+   ★ v3.10.0 รอบที่ 38: Sub-header Redesign (Anti-Confusion)
+   ปัญหา: sub-header ของ "ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา" ใน section
+   วันนี้ และ date cluster sub-header ใน section เลยกำหนด/กำลังจะถึง
+   ถูกออกแบบให้โดดเด่นเกินไป — มี icon box ใหญ่ มี count chip มี
+   label ตัวหนาสีเข้ม ทำให้ผู้ใช้เข้าใจผิดว่าเป็น "หัวข้อใหม่" หรือ
+   "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น" คั่นการ์ดภายใน section
+   เดียวกัน (ผู้พัฒนาเองยังเข้าใจผิด → ผู้ใช้ทั่วไปยิ่งเข้าใจผิดมาก)
+
+   แก้: ปรับ CSS ของ yp-today-time-section__head และ yp-task-time-group__head
+   (ไม่เปลี่ยน class) ให้ดูเป็น "divider" ที่บอกแค่ "ตั้งแต่การ์ดนี้ไป
+   เป็นของช่วงเช้า/วันที่ X" ไม่ใช่ "หัวข้อใหม่":
+   1. ลบ icon box — เหลือแค่ icon เล็กๆ inline (16px, ไม่มี background)
+   2. ลดขนาด label จาก --yp-text-sm bold heading → --yp-text-xs semibold
+      muted (เล็กและจางลงมาก ไม่แข่งกับ section title)
+   3. ลดขนาด caption ให้เล็กมาก (11px) และจาง (text-faint)
+   4. ลบ count chip — ให้เป็นตัวเลขเล็กๆ inline สีจาง ไม่มี background
+   5. เปลี่ยน border-bottom จากเส้นทึบ indigo-tinted → เส้นประบางๆ
+      สีจาง (dashed, 50% opacity) — เห็นเป็น "เส้นคั่น" ไม่ใช่ "ขอบหัวข้อ"
+   6. ลด margin/padding รอบๆ head ให้กระชับขึ้น — ไม่ดูเป็นบล็อกใหญ่
+
+   หลังปรับ: sub-header ดูเป็น "ป้ายเล็กๆ เหนือเส้นคั่น" ไม่ใช่
+   "หัวข้อใหญ่ของ section ใหม่" — ผู้ใช้รู้สึกว่า "อ๋อ มันแค่คั่นการ์ดเฉยๆ"
+
+   ★ v3.10.0 รอบที่ 37: Today Page Cohesive Design
+   1. ลดความแปลกแยกของการ์ดงาน (yp-today-item-card) โดยเพิ่ม layered
+      accent wash + accent bar + accent blob เหมือน .yp-event-card
+      ทำให้การ์ดเข้ากับ hero ที่เป็น indigo→violet มากขึ้น
+   2. ปรับ yp-today-section__title ให้มี accent bar (gradient indigo→violet)
+      เหมือน hero — เชื่อมโยง section กับ hero ผ่าน visual language
+   3. ปรับ yp-today-section__count, yp-today-time-section__icon,
+      yp-today-time-section__count ให้ใช้ indigo-tinted background
+      แทน plain white — กลมกลืนกับระบบออกแบบ
+   4. เพิ่มระยะห่างระหว่าง section จาก --yp-space-6 → --yp-space-10
+      ทุก section ใช้ระยะเดียวกัน เห็นชัดว่า section ไหนจบที่ไหน
+   5. Hover ของ yp-today-item-card ใช้ accent-tinted background +
+      shadow + lift (เหมือน .yp-event-card) ทำให้การ์ดดู interactive
+      และสอดคล้องกับระบบเดียวกัน
+
+   Fixes applied (r24) — ปรับปรุง desktop left-rail + cross-device padding:
+   1. Desktop (≥900px) left-rail: เพิ่ม flex column + center ให้
+      .bottom-nav__item เหมือนมือถือ (ก่อนหน้านี้ใช้ค่า default
+      ที่ไม่ stack icon กับ label ในแนวตั้ง)
+   2. Desktop active state: เปลี่ยนจาก solid color border เป็น
+      gradient indigo→violet + indigo-soft background + pill icon bg
+      (premium Material 3 Navigation Rail look)
+   3. Desktop responsive: ปรับ icon/label/border ให้ใหญ่ขึ้นตาม
+      breakpoint ที่ 1280px (icon 48, label 13px) และ 1536px
+      (icon 52, label 14px) — รองรับจอใหญ่ที่ผู้ใช้นั่งไกลขึ้น
+   4. Cross-device padding: ปรับ .yp-page / .yp-profile-page padding-bottom
+      แยกตามขนาดหน้าจอ — มือถือใช้ --yp-page-bottom-pad (96px+margin)
+      desktop ใช้ --yp-space-8 (32px) ที่พอเหมาะเพราะไม่มี bottom-nav
+
+   Fixes applied (r23):
+   1. ฟื้น base rule ของ .bottom-nav__item / __icon / __label บนมือถือ
+      ตามสเปก r10 (icon 56×42, label 11.5px, gap 3px)
+   2. แก้เนื้อหาถูกบังโดยแถบนำทางบนมือถือ — .yp-page ใช้
+      --yp-page-bottom-pad แทนค่าคงที่
+
+   Fixes applied (r22): ลดขนาดข้อความ + จัดกึ่งกลาง (แต่เล็กเกินไป → แก้ใน r23)
+
+   Fixes applied (r21):
+   1. prefers-reduced-motion: WCAG 2.2 — transition/animation 0.01ms
+   2. Backdrop-filter: ลบ contain/translateZ(0)/backface-visibility
+   3. Consolidate: ยุบรวมคลาซ้ำซ้อน
+   4. Hover/Active: คืนค่า micro-interactions
+
+   ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Global CSS v3.9.9 (Indigo Trust theme — Premium Polish)
+   ═══════════════════════════════════════════════════════════════
+   ★ DESIGN SYSTEM — ศูนย์กลางการออกแบบ (v3.9.9)
+
+   v3.9.9 — Today Dashboard + Session Cache
+   • "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
+     - event ที่ date = วันนี้ (เหมือนเดิม)
+     - task ย่อยที่ due_date = วันนี้ แต่ parent event อยู่ในวันอื่น
+     - แสดงผ่าน TodayTaskCard component ใหม่ (มี badge "จาก: <event>")
+   • เพิ่ม sessionStorage cache (client-side, per-session)
+     - cache ข้อมูล events + event detail ไว้ที่ฝั่งผู้ใช้
+     - กลับเข้าหน้าเดิม → instant render จาก cache แทนรอ fetch ใหม่
+     - cache TTL 5 นาที, หมดอายุอัตโนมัติ
+     - ล้าง cache ตอน logout (clearAllYPWorkCache)
+     - realtime subscription ยังคงทำงานปกติ — cache แค่ช่วย initial state
+   • เพิ่ม CSS สำหรับ .yp-today-task-card (badge "จาก:" ของ task ย่อย)
+
+   ไฟล์นี้เป็น "ศูนย์กลาง" ของการออกแบบทั้งหมด — แก้ที่นี่ที่เดียว
+   เปลี่ยนทั่วทั้งเว็บ ไม่ต้องไปแก้ทุกหน้า
+
+   ★ คลาสศูนย์กลางที่ใช้บ่อย (REUSE — ห้ามสร้างใหม่):
+   ── Form fields ──
+   .yp-input, .yp-textarea, .yp-select  → ช่องกรอกข้อมูลทุกชนิด
+   .yp-input--lg                         → ช่องกรอกขนาดใหญ่ (task title)
+   .input-group, .input-group__addon     → input พร้อม icon ด้านซ้าย
+   .field, .field__label, .field__hint, .field__error → wrapper + label + hint
+   .field__label-hint                    → hint ใน label (เช่น "· กำลังโหลด...")
+   .yp-required                          → เครื่องหมาย * สำหรับ required
+
+   ── Buttons ──
+   .yp-btn, .yp-btn--primary, .yp-btn--ghost, .yp-btn--danger
+   .yp-btn--block, .yp-btn__text-with-icon
+
+   ── Banners ──
+   .yp-error-banner, .yp-success-banner, .yp-info-banner
+
+   ── Cards ──
+   .yp-card, .yp-card-section
+
+   ── Typography ──
+   .yp-text-xs/sm/base/lg/xl/2xl         → font size
+   .yp-fw-normal/medium/semibold/bold    → font weight
+   .yp-text-muted/secondary/body/heading/strong/accent/danger/success
+   .yp-section-title, .yp-section-title--muted
+   .yp-text-body, .yp-feature-list
+
+   ── Layout ──
+   .yp-flex-inline, .yp-flex-row, .yp-flex-row--between, .yp-flex-col
+   .yp-info-row, .yp-info-row__label, .yp-info-row__value, .yp-info-list
+   .yp-page, .yp-page-header, .yp-page-enter
+
+   ── Stats ──
+   .yp-stat-grid, .yp-stat, .yp-stat__icon, .yp-stat__body,
+   .yp-stat__value, .yp-stat__value--text, .yp-stat__label, .yp-stat__icon-text
+
+   ── Toast ──
+   .yp-toast, .yp-toast--success/error/info
+
+   ── Pattern utilities ──
+   .yp-icon-inline, .yp-text-faint-medium, .yp-text-faint-normal, .yp-text-tag
+   .yp-text-with-icon-left, .yp-cursor-pointer, .yp-accented
+
+   ★ Design tokens (variables ใน :root):
+   --yp-input-min-height, --yp-input-padding-y/x, --yp-input-font-size
+   --yp-field-gap, --yp-field-label-gap, --yp-field-hint-gap
+   --yp-radius-control, --yp-radius-card, --yp-radius-sm/md/lg/xl/2xl/pill
+   --yp-text-xs ถึง 4xl, --yp-fw-normal ถึง black
+   --yp-space-1 ถึง 8, --yp-shadow-xs ถึง lg
+
+   ═══════════════════════════════════════════════════════════════
+   v3.7.5: Consolidated duplicate/conflicting component rules that had
+     accumulated across v3.4.0–v3.7.4 (.yp-page-header, .yp-card,
+     .yp-skeleton, .yp-select, .yp-btn, .is-selected states). Each
+     component now has ONE canonical rule using ONE token instead of
+     two rules stacking two different tokens on top of each other.
+     Selected-state pickers (.yp-type-option, .yp-color-option,
+     .yp-priority-option) simplified to a single plain outer
+     border/ring — no more background tint + box-shadow + scale +
+     pseudo-element stacked together.
+   ═══════════════════════════════════════════════════════════════ */
+

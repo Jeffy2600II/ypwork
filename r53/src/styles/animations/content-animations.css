@@ -1,0 +1,212 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Content Change Animations (Nav/Bar/Card Transitions) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.10 — Google-style content change animations
+   ═══════════════════════════════════════════════════════════════
+   ★ Google Material Design 3 inspired:
+   - Content enters with scale (not blur — saves GPU)
+   - Items removed shrink + fade
+   - Filter changes animate smoothly
+   - 33ms stagger = snappy, not sluggish
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ v3.7.10: Content enter — Google-style scale-in (no blur) */
+.yp-content-enter {
+  animation: yp-content-in 220ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes yp-content-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ★ v3.7.10: Content exit — shrink + fade */
+.yp-content-exit {
+  animation: yp-content-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes yp-content-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+.yp-events-filter__btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-secondary);
+  font-size: var(--yp-text-sm);
+  font-family: inherit;
+  font-weight: var(--yp-fw-semibold);
+  letter-spacing: 0.005em;
+  box-shadow: var(--yp-shadow-xs);
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.yp-events-filter__btn.is-active {
+  background: var(--yp-gradient-brand-flat);
+  border-color: transparent;
+  color: white;
+  box-shadow: var(--yp-shadow-indigo);
+  font-weight: var(--yp-fw-bold);
+  animation: yp-filter-pop 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+
+@keyframes yp-filter-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes yp-event-card-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.yp-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-5) var(--yp-space-4);
+  cursor: pointer;
+  transition:
+    background 160ms var(--yp-ease-m3-decelerate),
+    border-color var(--yp-t-fast),
+    box-shadow var(--yp-t-fast),
+    transform 160ms var(--yp-ease-m3-decelerate);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  background: var(--yp-bg-card);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03);
+  animation: yp-task-row-in 200ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+
+@keyframes yp-task-row-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ★ v3.7.10: Stagger for task rows */
+.yp-task-row:nth-child(1) { animation-delay: 0ms; }
+.yp-task-row:nth-child(2) { animation-delay: 30ms; }
+.yp-task-row:nth-child(3) { animation-delay: 60ms; }
+.yp-task-row:nth-child(4) { animation-delay: 90ms; }
+.yp-task-row:nth-child(5) { animation-delay: 120ms; }
+.yp-task-row:nth-child(6) { animation-delay: 150ms; }
+.yp-task-row:nth-child(7) { animation-delay: 180ms; }
+.yp-task-row:nth-child(8) { animation-delay: 210ms; }
+
+/* ★ v3.7.10: List item transition for filter changes */
+.yp-events-filter__btn,
+.yp-type-option,
+.yp-color-option,
+.yp-priority-option {
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.yp-btn--lg {
+  padding: 1.2em 2em;
+  font-size: var(--yp-text-base);
+  min-height: 58px;
+}
+
+
+.yp-btn--danger:active:not(:disabled) {
+  transform: scale(0.95);
+  box-shadow:
+    0 2px 6px rgba(244, 63, 94, 0.16),
+    0 1px 2px rgba(244, 63, 94, 0.08);
+}
+
+.yp-btn--ghost:active:not(:disabled) {
+  transform: scale(0.95);
+  background: rgba(30, 27, 70, 0.06);
+}
+
+/* ★ v3.7.10: Chubbier type option active */
+.yp-type-option:active {
+  transform: scale(0.96);
+}
+
+/* r19: ลบ old v3.7.10 FAB active squishy — ถูก v3.9.3 calmer FAB press (line ~10636) ทับแล้ว */
+
+
+/* ★ v3.7.10: Bottom nav item active — squishy */
+.bottom-nav__item:active {
+  transform: scale(0.92);
+}
+
+.yp-window__close:active {
+  transform: scale(0.88);
+}
+
+
+/* ★ v3.7.10: Filter button active — squishy */
+.yp-events-filter__btn:active {
+  transform: scale(0.94);
+}
+
+/* ★ v3.7.10: Priority option active — squishy */
+.yp-priority-option:active {
+  transform: scale(0.96);
+}
+
+.yp-info-sheet__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+
+/* ★ v3.7.10: Smooth scroll for all scrollable areas */
+.app-main,
+.yp-window__body,
+.yp-page {
+  scroll-behavior: smooth;
+}
+

@@ -1,0 +1,49 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Events List (Filter, Group) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   EVENTS LIST (filters + group by month)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-events-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--yp-space-6);
+  overflow-x: auto;
+  padding: 4px 0 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+.yp-events-filter::-webkit-scrollbar { display: none; }
+.yp-events-filter__btn:hover {
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-indigo);
+  color: var(--yp-indigo-600);
+}
+
+.yp-events-group {
+  margin-bottom: var(--yp-space-7);
+}
+
+.yp-events-group__label {
+  position: sticky;
+  top: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
+  background: var(--yp-bg-page);
+  padding: var(--yp-space-3) 0;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-extrabold);
+  text-transform: uppercase;
+  color: var(--yp-text-secondary);
+  margin-bottom: var(--yp-space-4);
+  z-index: 1;
+  letter-spacing: 0.09em;
+}
+
+/* ═══════════════════════════════════════════════════════════════

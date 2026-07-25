@@ -1,0 +1,25 @@
+@layer components {
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Accent Gradient Title (.yp-top-title) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+  /* ── Accent-driven top bar title ── */
+  .yp-top-title {
+    background: linear-gradient(135deg,
+      var(--yp-top-from, #4F46E5) 0%,
+      var(--yp-top-to, #7C3AED) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition:
+      --yp-top-from var(--yp-top-transition, 420ms var(--yp-ease-emphasized)),
+      --yp-top-to var(--yp-top-transition, 420ms var(--yp-ease-emphasized));
+  }
+}
+}

@@ -1,0 +1,330 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Design Polish v3.5.0 (Top Bar, FAB Hover, Nav Loading) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.5.0 — Additional Design Polish (Mobile + Desktop)
+   ═══════════════════════════════════════════════════════════════
+   - Improved top bar on desktop
+   - FAB hover state on desktop
+   - Better page header typography on large screens
+   - Smoother card hover transitions
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ v3.5.0: Desktop — FAB hover state */
+@media (hover: hover) and (pointer: fine) {
+  .fab {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+      0 8px 24px rgba(79, 70, 229, 0.32),
+      0 2px 8px rgba(15, 23, 42, 0.16);
+  }
+
+  .fab:hover {
+    transform: scale(1.06) translateY(-2px);
+    box-shadow:
+      0 12px 32px rgba(79, 70, 229, 0.40),
+      0 4px 12px rgba(15, 23, 42, 0.20);
+  }
+
+  .fab:active {
+    transform: scale(0.96) translateY(0);
+  }
+}
+
+/* ★ v3.5.0: Desktop — Card hover effect (subtle lift) */
+@media (hover: hover) and (pointer: fine) {
+  .yp-card {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 220ms ease;
+  }
+
+  .yp-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px rgba(30, 27, 70, 0.10),
+      0 2px 6px rgba(30, 27, 70, 0.06);
+    border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  }
+
+  .yp-card:active {
+    transform: translateY(0) scale(0.99);
+  }
+}
+
+/* ★ v3.5.0: Desktop — Top bar improvements
+   ★ v3.10.0 รอบที่ 19: ลบ backdrop-filter/background/box-shadow ที่เคยตั้งไว้
+   ในบล็อกนี้ออก (เดิม blur(12px) + opacity 0.85) — เป็นค่าเก่าจาก v3.5.0
+   ที่มาก่อนระบบกระจกฝ้าจริงจัง (v3.9.2+) และแอบชนกับค่าล่าสุดที่ .top-bar
+   หลักด้านล่างของไฟล์ (เดิม cascade ยังทำงานถูกเพราะ block นั้นมาทีหลัง
+   แต่ทิ้งไว้แบบนี้เสี่ยงสับสน/แก้ผิดจุดอีกในอนาคต) — จุดเดียวที่ควรแก้เรื่อง
+   ความเบลอ/โปร่งใสของ top-bar ตอนนี้คือ .top-bar กับ .top-bar.is-scrolled
+   ที่มี comment "รอบที่ 19" กำกับไว้เท่านั้น */
+@media (min-width: 900px) {
+  .top-bar__title {
+    font-weight: var(--yp-fw-bold);
+    letter-spacing: -0.01em;
+  }
+
+  .top-bar__avatar {
+    transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .top-bar__avatar:hover {
+    transform: scale(1.06);
+  }
+
+  .top-bar__avatar:active {
+    transform: scale(0.96);
+  }
+}
+
+/* ★ v3.5.0: Large desktop — Page header typography */
+@media (min-width: 1280px) {
+  .yp-page-header__title {
+    font-size: calc(var(--yp-text-2xl, 28px) * 1.1);
+    letter-spacing: -0.02em;
+  }
+
+  .yp-page-header__subtitle {
+    font-size: calc(var(--yp-text-base, 15px) * 1.05);
+  }
+
+  .yp-page-header__eyebrow {
+    letter-spacing: 0.08em;
+  }
+}
+
+.yp-window__handle::before {
+  content: '';
+  display: block;
+  width: 38px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--yp-border-strong, #cbd5e1);
+  opacity: 0.32;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 220ms ease,
+              width 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 220ms ease;
+  transform-origin: center;
+}
+
+
+.yp-window__handle:active::before {
+  transform: scaleX(0.88);
+  opacity: 0.6;
+  background: var(--yp-indigo-400, #818CF8);
+}
+
+
+/* ★ v3.5.0: Sheet — subtle top gradient overlay for depth */
+.yp-window--sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.yp-window-root--modal {
+  background: rgba(15, 10, 40, 0.55);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  align-items: center;
+  padding: var(--yp-space-6, 24px);
+}
+
+
+/* ★ v3.5.0: Sheet backdrop — slightly less dark for better content visibility */
+.yp-window-root--sheet:not(.is-popup-mode) {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* ★ v3.5.0: Confirm dialog — improved desktop styling */
+@media (min-width: 768px) {
+  .yp-confirm-overlay {
+    background: rgba(15, 10, 40, 0.55);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
+  }
+
+  .yp-confirm-dialog {
+    max-width: 400px;
+    box-shadow:
+      0 32px 80px rgba(15, 23, 42, 0.28),
+      0 12px 24px rgba(15, 23, 42, 0.12),
+      0 0 0 1px rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+}
+
+.yp-btn--primary:hover {
+  background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
+  box-shadow:
+    0 6px 16px rgba(79, 70, 229, 0.32),
+    0 2px 4px rgba(79, 70, 229, 0.16);
+  transform: translateY(-1px);
+}
+
+.yp-btn--primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 2px 6px rgba(79, 70, 229, 0.20),
+    0 1px 2px rgba(79, 70, 229, 0.10);
+}
+
+.yp-btn--ghost:hover {
+  background: var(--yp-bg-elevated);
+  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  color: var(--yp-indigo-600);
+}
+
+.yp-btn--ghost:active {
+  transform: scale(0.98);
+  background: var(--yp-bg-card-soft);
+}
+
+.yp-btn--danger {
+  background: linear-gradient(135deg, #E11D48 0%, #F43F5E 100%);
+  color: white;
+  border: 1px solid #BE123C;
+  box-shadow:
+    0 4px 12px rgba(244, 63, 94, 0.24),
+    0 1px 2px rgba(244, 63, 94, 0.12);
+}
+
+
+.yp-btn--danger:hover {
+  background: linear-gradient(135deg, #BE123C 0%, #E11D48 100%);
+  box-shadow:
+    0 6px 16px rgba(244, 63, 94, 0.32),
+    0 2px 4px rgba(244, 63, 94, 0.16);
+  transform: translateY(-1px);
+}
+
+
+.yp-btn--danger:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.yp-color-option {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--yp-radius-pill);
+  border: 2px solid white;
+  box-shadow: 0 0 0 1.5px var(--yp-border-subtle);
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.yp-type-option {
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-md);
+  padding: var(--yp-space-4);
+  cursor: pointer;
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  background: var(--yp-bg-card);
+  box-shadow: var(--yp-shadow-xs);
+  font-family: inherit;
+}
+
+
+.yp-type-option:hover {
+  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  background: var(--yp-bg-indigo-soft);
+}
+
+
+.yp-page-header__eyebrow {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--yp-indigo-600);
+  margin-bottom: var(--yp-space-2);
+}
+
+
+.yp-page-header__title {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     page header ไม่ใช่ hero — ไม่ต้องใหญ่เท่า */
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin: 0 0 var(--yp-space-2);
+}
+
+
+.yp-page-header__subtitle {
+  margin-top: 6px;
+  color: var(--yp-text-secondary);
+  font-size: var(--yp-text-base);
+  line-height: 1.5;
+  margin: 0;
+}
+
+
+.yp-nav-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(245, 244, 251, 0.92);
+  background-size: 200% 100%;
+  animation: yp-nav-loading-fade-in 180ms ease-out both;
+  z-index: 99999;
+  pointer-events: none;
+  inset: 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+@keyframes yp-nav-loading-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ★ v3.6.0: Spinner */
+.yp-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #4F46E5;
+  animation: yp-spinner-rotate 700ms linear infinite;
+}
+
+@keyframes yp-spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+

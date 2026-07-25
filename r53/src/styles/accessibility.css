@@ -1,0 +1,80 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Accessibility — prefers-reduced-motion (WCAG 2.2) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [7] ACCESSIBILITY — @media prefers-reduced-motion
+   ═══════════════════════════════════════════════════════════════
+   ★ r21 Fix: ใช้ transition-duration/animation-duration: 0.01ms !important
+   แทน transform:none/transition:none — ให้ hover/active ยังแสดงสเตตัสได้
+   แต่ไม่มีจังหวะเด้งช้าๆ (เป็นมาตรฐาน WCAG 2.2 Success Criterion 2.3.3)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Global: reduce ALL animation/transition durations to near-zero ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Skeleton: show static bg instead of shimmer */
+  .yp-skeleton {
+    animation: none;
+    background: var(--yp-bg-card-soft, #F1F5F9);
+  }
+
+  /* Sheet/Window backdrops: instant appear/disappear */
+  .sheet-backdrop,
+  .yp-window-root,
+  .yp-info-sheet,
+  .yp-info-sheet-backdrop,
+  .yp-info-sheet.is-leaving {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v3.10.0 รอบที่ 23 — Bottom Nav Quality Restoration + Content Padding Fix
+   ═══════════════════════════════════════════════════════════════
+   ปัญหาที่รอบ 22 แก้ไม่ตรงจุด:
+   - ลดขนาดตัวอักษร + icon มากเกินไป (10.5px / 48×30) ทำให้แถบนำทาง
+     เล็กจนดูไม่สมดุลกับเนื้อหา และคุณภาพสู้เวอร์ชันเก่า (เช่น r10) ไม่ได้
+   - ยังไม่ได้แก้ปัญหา "เนื้อหาถูกแถบนำทางบัง" บนบางหน้าที่ใช้
+     .yp-page หรือ .yp-profile-page ที่กำหนด padding-bottom เป็นค่าคงที่
+     (เช่น var(--yp-space-6) หรือ var(--yp-space-8)) แทนที่จะใช้
+     --yp-page-bottom-pad ที่คำนวณตามความสูงของแถบนำทาง
+
+   การแก้ไขรอบ 23 (แยกเป็น 2 ส่วน):
+
+   ── ส่วนที่ 1: คืนคุณภาพระดับ r10 ของ base rule บนมือถือ ──
+   ก่อนหน้านี้ใน r10 มี base rule ที่ดีแต่ถูกลบออกในรอบหลังๆ ทำให้
+   .bottom-nav__item / .bottom-nav__label สืบทอดขนาด default จาก body
+   (1rem = 16px) ทำให้ตัวอักษรใหญ่เกินไปและไม่กึ่งกลาง
+   คืนค่าตามสเปก r10 (ที่พิสูจน์แล้วว่าดูดี):
+   • .bottom-nav__item: flex column + center + gap 3px + min-width 56px
+   • .bottom-nav__icon: 56×42px (พื้นที่สัมผัสเหมาะมือถือ, pill radius)
+   • .bottom-nav__label: 11.5px (ใกล้ iOS tab bar 11–12px), letter-spacing 0.01em
+   • Active: indigo-600, semibold, letter-spacing 0.02em
+
+   ── ส่วนที่ 2: แก้เนื้อหาถูกบังโดยแถบนำทาง ──
+   ทุกหน้าที่ใช้ .yp-page / .yp-profile-page ต้องมี padding-bottom ที่
+   คำนวณจาก --yp-page-bottom-pad (ไม่ใช่ค่าคงที่) เพื่อให้เนื้อหาไม่ทับซ้อน
+   กับ .bottom-nav ที่เป็น position:fixed
+   • .yp-page: padding-bottom var(--yp-space-6) → var(--yp-page-bottom-pad)
+   • .yp-profile-page: padding-bottom var(--yp-space-8) → var(--yp-page-bottom-pad)
+   • เพิ่ม scroll-padding-bottom บน html เพื่อให้ anchor scroll ไม่ไปซ่อน
+     ใต้แถบนำทาง
+   • เพิ่ม safety net: ให้ .yp-page ที่ไม่ได้อยู่ในหน้าที่ซ่อน bottom-nav
+     (เช่น today/calendar/events/profile/about) มี padding-bottom เพิ่มขึ้น
+     จากค่า default ของ .yp-page ใหม่ที่เรากำหนด

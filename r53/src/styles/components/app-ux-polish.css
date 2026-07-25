@@ -1,0 +1,175 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · App-like UX + Skeleton v2 Polish — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════ */
+/* v3.0.0 — App-like UX improvements                                   */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Skeleton loader — ใช้แทน spinner สำหรับ loading state ที่ยาว (canonical rule merged into single .yp-skeleton definition, v3.7.5) */
+
+.yp-skeleton--text {
+  height: 1em;
+  margin: 4px 0;
+}
+
+.yp-skeleton--title {
+  height: 1.5em;
+  width: 60%;
+  margin: 8px 0;
+}
+
+.yp-skeleton--avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.yp-skeleton--card {
+  height: 80px;
+  margin: 8px 0;
+  border-radius: var(--yp-radius-lg, 16px);
+}
+
+@keyframes yp-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Smooth press feedback for all interactive elements */
+.yp-btn,
+.yp-status-quick__btn,
+.yp-type-option,
+.yp-add-task-btn,
+.yp-event-card,
+.yp-cal-day,
+.yp-mode-toggle button,
+.yp-auth__mode-btn,
+button[class*='yp-'] {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease,
+              box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+/* Active state for buttons — app-like press feedback */
+.yp-btn:active:not(:disabled),
+.yp-status-quick__btn:active,
+.yp-type-option:active,
+.yp-add-task-btn:active {
+  transform: scale(0.97);
+}
+
+/* Smooth focus ring (instead of default outline) */
+.yp-btn:focus-visible,
+.yp-status-quick__btn:focus-visible,
+.yp-type-option:focus-visible,
+.yp-input:focus-visible,
+.yp-select:focus-visible,
+button[class*='yp-']:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+/* Network status banner — shown when offline */
+.yp-network-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #BE123C;
+  color: white;
+  font-size: 0.85rem;
+  text-align: center;
+  font-weight: 500;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+  padding-top: calc(8px + env(safe-area-inset-top, 0));
+}
+
+.yp-network-banner.is-visible {
+  transform: translateY(0);
+}
+
+.yp-network-banner--warning {
+  background: #B45309;
+}
+
+/* Card hover/active feedback for clickable cards (desktop only) */
+@media (hover: hover) {
+  .yp-event-card {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .yp-event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 27, 70, 0.08);
+  }
+}
+
+/* Page transition — smoother fade + slight slide */
+@keyframes yp-page-fade-in-v3 {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast — slide in from bottom on mobile (app-like) */
+@keyframes yp-toast-slide-up {
+  from { transform: translateY(120%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes yp-toast-slide-down {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(120%); opacity: 0; }
+}
+
+/* Loading bar at top of page (app-like) */
+.yp-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(to right, #4F46E5, #7C3AED, #4F46E5);
+  background-size: 200% 100%;
+  z-index: 10000;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  animation: yp-loading-bar-shimmer 1.4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes yp-loading-bar-shimmer {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Optimize touch scrolling — momentum on iOS */
+.yp-info-sheet__scroll,
+.yp-page,
+.yp-shell__content,
+[data-yp-scroll] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduce layout shift — reserve space for images */
+img,
+.yp-avatar,
+.yp-info-sheet__header-icon {
+  contain: layout style paint;
+}
+
+/* Reduce motion preference — respect user setting */
+

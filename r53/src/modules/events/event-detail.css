@@ -1,0 +1,723 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   EVENT DETAIL — group + single
+   ★ v3.9.3: Premium theme per work page — accent-driven layered surface
+   ═══════════════════════════════════════════════════════════════ */
+.yp-detail-hero {
+  /* ★ v3.10.0 รอบที่ 31: ออกแบบใหม่ — เน้นความสะอาดตา สีขาวเด่นกว่าสีเน้น
+     เปลี่ยนจากพื้นหลังเข้มแบบเก่า (ที่มี accent 65-80%) เป็นพื้นหลังสว่าง
+     แบบใหม่ (accent 8-16% บนพื้นขาว) เหมือน single-hero ที่ user ชอบ
+
+     หลักการ:
+     - พื้นหลังหลัก = ขาว + accent tint อ่อนๆ (ไม่ใช่ accent เข้ม)
+     - ตัวอักษร = สีเข้ม (text-strong) ไม่ใช่สีขาว → อ่านง่าย ไม่กลืน
+     - accent ยังคงชัดเจนผ่าน icon, type pill, meta item accent
+     - ผสมสีขาวเข้าไปให้ดูสะอาด สบายตา ตามที่ user ต้องการ */
+  background:
+    /* layer 1: accent-tinted mesh gradient — 4 radial lights (อ่อนกว่าเดิม) */
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 14%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 8%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent) 0%, transparent 46%),
+    /* layer 2: white base + subtle accent tint (สว่าง สะอาด) */
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent, #4F46E5) 4%, white) 0%,
+      color-mix(in srgb, var(--accent, #4F46E5) 10%, white) 50%,
+      color-mix(in srgb, var(--accent, #4F46E5) 16%, white) 100%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  color: var(--yp-text-strong);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent);
+  border-radius: var(--yp-radius-hero);
+  padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
+  margin-bottom: var(--yp-space-6);
+  position: relative;
+  overflow: hidden;
+  /* ★ v3.10.0 รอบที่ 31: shadow อ่อนลง — accent tint 12% แทน 30% */
+  box-shadow:
+    0 10px 32px color-mix(in srgb, var(--accent, #4F46E5) 14%, rgba(30, 27, 70, 0.08)),
+    0 3px 10px color-mix(in srgb, var(--accent, #4F46E5) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  animation: yp-hero-enter var(--yp-hero-enter) both;
+  isolation: isolate;
+}
+
+/* ★ v3.10.0 รอบที่ 31: Pattern layers — อ่อนลงมาก (opacity 0.5)
+   เพราะพื้นหลังสว่างแล้ว pattern เก่าจะเด่นเกินไป */
+.yp-detail-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--yp-hero-pattern-dots-accent);
+  background-size: 64px 64px;
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.yp-detail-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--yp-hero-pattern-plus-accent);
+  background-size: 80px 80px;
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.yp-detail-hero__type {
+  /* ★ v3.10.0 รอบที่ 31: ปรับ frosted glass pill สำหรับพื้นหลังสว่าง
+     เปลี่ยนจาก white/18% → accent/12% บน white */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 10px;
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--accent, #4F46E5) 12%, white);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 26%, transparent);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-600));
+  margin-bottom: var(--yp-space-4);
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 2px 8px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
+}
+.yp-detail-hero__type svg { width: 14px; height: 14px; }
+
+.yp-detail-hero__title {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น
+     text-3xl (30px) ใหญ่เกินไปสำหรับ mobile, text-2xl (24px) พอดี
+     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว */
+  font-size: var(--yp-text-2xl);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-text-strong);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--yp-space-4);
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+  /* ★ v3.10.0 รอบที่ 31: ลบ text-shadow เพราะพื้นหลังสว่างแล้ว ไม่ต้องเพิ่ม */
+}
+
+.yp-detail-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2) var(--yp-space-3);
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-body);
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.yp-detail-hero__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.005em;
+}
+.yp-detail-hero__meta-item svg { width: 14px; height: 14px; opacity: 0.85; color: var(--accent, var(--yp-indigo-600)); }
+.yp-detail-hero__meta-item + .yp-detail-hero__meta-item::before {
+  content: '·';
+  margin-right: 2px;
+  opacity: 0.4;
+  font-weight: bold;
+  color: var(--yp-text-muted);
+}
+
+/* ★ v3.8.0: Muted meta item — สำหรับ "ยังไม่ได้เลือกเวลา" */
+.yp-detail-hero__meta-item--muted {
+  opacity: 0.6;
+  font-style: italic;
+  font-weight: var(--yp-fw-normal);
+  color: var(--yp-text-muted);
+}
+.yp-detail-hero__meta-item--muted svg { opacity: 0.55; color: var(--yp-text-muted); }
+
+/* ★ v3.10.0 รอบที่ 29: Accent meta item — สำหรับ "เริ่ม ..." ที่เป็นจุดเริ่มต้นของงาน
+   ดูเด่นกว่า meta ปกติเพราะเป็นข้อมูลสำคัญที่ระบบอ้างอิงเป็นหลัก
+   ★ v3.10.0 รอบที่ 31: ปรับสำหรับพื้นหลังสว่าง — ใช้ accent color เข้มขึ้น */
+.yp-detail-hero__meta-item--accent {
+  color: var(--accent, var(--yp-indigo-600));
+  font-weight: var(--yp-fw-bold);
+}
+.yp-detail-hero__meta-item--accent svg {
+  color: var(--accent, var(--yp-indigo-600));
+  opacity: 1;
+}
+
+.yp-detail-section {
+  margin-bottom: var(--yp-space-8);
+  animation: yp-hero-enter var(--yp-card-enter) var(--yp-ease-emphasized-decel) both;
+}
+
+.yp-detail-section__count {
+  /* ★ v3.9.3: Frosted count pill — accent-driven */
+  font-size: var(--yp-text-xs);
+  color: var(--accent, var(--yp-indigo-600));
+  font-weight: var(--yp-fw-bold);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card));
+  padding: 5px 14px;
+  border-radius: var(--yp-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 26%, transparent);
+  letter-spacing: 0.02em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 2px 6px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
+}
+
+.yp-detail-desc {
+  /* ★ v3.9.3: Premium description card — accent-tinted with pattern overlay */
+  background:
+    /* accent-tinted mesh — 2 radial accents */
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card)) 0%,
+      var(--yp-bg-card) 60%,
+      var(--yp-bg-card-soft) 100%);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 18%, var(--yp-border-subtle));
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-space-6);
+  color: var(--yp-text-body);
+  line-height: 1.75;
+  font-size: var(--yp-text-sm);
+  white-space: pre-wrap;
+  box-shadow:
+    0 2px 10px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, rgba(30, 27, 70, 0.04)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  letter-spacing: 0.005em;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Single event hero — ★ v3.9.3: Premium light theme with accent mesh
+   สำหรับงานเดี่ยว — ใช้ light theme ที่มี accent เป็นตัวกำหนด vibe
+   แทน plain wash gradient ใช้ mesh gradient + pattern overlays */
+.yp-single-hero {
+  /* ★ v3.9.3: Light mesh gradient — 4 radial accents บนพื้นขาว
+     ทำให้ hero ดู "ลอย" และมีพลัง ไม่แบน */
+  background:
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--accent, #4F46E5) 14%, transparent) 0%, transparent 38%),
+    radial-gradient(circle at 78% 88%, color-mix(in srgb, var(--accent, #4F46E5) 32%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 18% 82%, color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent) 0%, transparent 42%),
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--accent, #4F46E5) 6%, white) 0%,
+      color-mix(in srgb, var(--accent, #4F46E5) 14%, white) 50%,
+      color-mix(in srgb, var(--accent, #4F46E5) 22%, white) 100%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
+  border-radius: var(--yp-radius-hero);
+  padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
+  margin-bottom: var(--yp-space-6);
+  position: relative;
+  overflow: hidden;
+  /* ★ v3.9.3: Layered shadow — accent tinted */
+  box-shadow:
+    0 14px 44px color-mix(in srgb, var(--accent, #4F46E5) 18%, rgba(30, 27, 70, 0.10)),
+    0 4px 14px color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  animation: yp-hero-enter var(--yp-hero-enter) both;
+  isolation: isolate;
+}
+
+/* ★ v3.9.3: Pattern layer 1 — accent dot grid */
+.yp-single-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--yp-hero-pattern-dots-accent);
+  background-size: 64px 64px; /* v3.9.4: relaxed (was 32px) */
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+}
+
+/* ★ v3.9.3: Pattern layer 2 — accent plus signs */
+.yp-single-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--yp-hero-pattern-plus-accent);
+  background-size: 80px 80px; /* v3.9.4: relaxed (was 40px) */
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.yp-single-hero__top {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  margin-bottom: var(--yp-space-5);
+  position: relative;
+  z-index: 1;
+}
+
+.yp-single-hero__icon {
+  /* ★ v3.9.3: Frosted glass icon tile — Apple visionOS style */
+  width: 48px; height: 48px;
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--accent, #4F46E5) 16%, white);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  color: var(--accent, var(--yp-indigo-600));
+  display: grid;
+  place-items: center;
+  border: 1.5px solid color-mix(in srgb, var(--accent, #4F46E5) 38%, transparent);
+  box-shadow:
+    0 6px 18px color-mix(in srgb, var(--accent, #4F46E5) 26%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80),
+    inset 0 -1px 0 color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent);
+  position: relative;
+  z-index: 1;
+}
+.yp-single-hero__icon svg { width: 22px; height: 22px; }
+
+.yp-single-hero__label {
+  /* ★ v3.9.3: Frosted glass pill */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--accent, #4F46E5) 18%, white);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 32%, transparent);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-600));
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 2px 8px color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent);
+}
+
+.yp-single-hero__title {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-2xl);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-text-strong);
+  letter-spacing: -0.012em;
+  margin-bottom: var(--yp-space-4);
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+}
+
+.yp-single-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-secondary);
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.yp-single-hero__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 10px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  font-weight: var(--yp-fw-semibold);
+  letter-spacing: 0.005em;
+  box-shadow: var(--yp-shadow-xs);
+}
+.yp-single-hero__meta-item svg { width: 14px; height: 14px; color: var(--accent, var(--yp-indigo-600)); opacity: 0.85; }
+
+/* ★ v3.8.0: Muted meta item — สำหรับ "ยังไม่ได้เลือกเวลา" */
+.yp-single-hero__meta-item--muted {
+  opacity: 0.65;
+  font-style: italic;
+  font-weight: var(--yp-fw-normal);
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+.yp-single-hero__meta-item--muted svg { opacity: 0.55; }
+
+/* ★ v3.10.0 รอบที่ 29: Accent meta item — สำหรับ "เริ่ม ..." ที่เป็นจุดเริ่มต้นของงาน */
+.yp-single-hero__meta-item--accent {
+  color: var(--accent, var(--yp-indigo-600));
+  font-weight: var(--yp-fw-bold);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 8%, white);
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 25%, transparent);
+}
+.yp-single-hero__meta-item--accent svg {
+  color: var(--accent, var(--yp-indigo-600));
+  opacity: 1;
+}
+
+.yp-single-dept {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yp-space-4);
+  padding: var(--yp-space-5) var(--yp-space-6);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-single-dept__icon {
+  width: 42px; height: 42px;
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--dept-color, #4F46E5) 12%, white);
+  color: var(--dept-color, var(--yp-indigo-600));
+  display: grid;
+  place-items: center;
+  font-size: var(--yp-text-lg);
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--dept-color, #4F46E5) 22%, transparent);
+}
+
+.yp-single-dept__body { flex: 1; min-width: 0; }
+.yp-single-dept__name {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: 6px;
+  letter-spacing: 0.005em;
+}
+.yp-single-dept__desc {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  line-height: 1.6;
+}
+
+/* Task list card (ใช้เฉพาะตอนยังไม่มีรายการย่อย — empty state) */
+.yp-card--tasklist {
+  padding: 10px var(--yp-space-5) 14px;
+  border-color: color-mix(in srgb, var(--accent, var(--yp-border-subtle)) 14%, var(--yp-border-subtle));
+}
+
+/* ★ v3.10.0: yp-task-list — คอนเทนเนอร์ของรายการย่อย (มีรายการแล้ว)
+   จัดวางแบบเดียวกับรายการวันนี้/กำลังจะถึงในหน้าโฮม คือแต่ละรายการ
+   เป็นการ์ดของตัวเอง เว้นระยะห่างระหว่างการ์ด แทนที่จะรวมกันอยู่ใน
+   การ์ดเดียวคั่นด้วยเส้นแบ่ง — ตัวการ์ดของรายการย่อย (.yp-task-row)
+   ยังคงโครงสร้างและเนื้อหาเดิมทุกอย่าง เปลี่ยนแค่การจัดวาง container */
+.yp-task-list {
+  display: flex;
+  flex-direction: column;
+}
+.yp-task-list .yp-add-task-btn--standalone {
+  margin-top: var(--yp-space-4);
+}
+
+/* ★ v3.10.0 รอบที่ 11: หัวข้อกลุ่มช่วงเวลาของรายการย่อย (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา)
+   ★ v3.10.0 รอบที่ 38: Redesign ใหม่ทั้งหมด — ปรับเป็น "subtle divider"
+   ก่อนหน้านี้ (รอบที่ 11-37): มี icon chip ใหญ่ + label ตัวหนา heading +
+   caption + count chip ทำให้ดูเป็น "หัวข้อใหม่" เหมือน section title
+   ผู้ใช้เข้าใจผิดว่าเป็น "section ใหม่" ทั้งที่จริงแล้วเป็นแค่ "จุดขั้น"
+   คั่นรายการย่อยภายในกลุ่มเดียวกัน
+
+   รอบที่ 38: ปรับ CSS (ไม่เปลี่ยน class) ให้ดูเป็น "divider" ไม่ใช่ "header"
+   - ลบ icon chip ใหญ่ (28×28 + gradient background) → icon เล็ก inline 12px
+   - ลด label จาก text-sm bold heading → text-xs semibold muted
+   - ลด caption จาก text-xs → 11px faint
+   - ลบ count chip → ตัวเลขเล็ก inline
+   - ลด margin ระหว่าง group จาก --yp-space-6 → --yp-space-4
+   - ใช้ dashed border-bottom แทน (ไม่มี border เดิม) */
+.yp-task-time-group + .yp-task-time-group {
+  /* ★ v3.10.0 รอบที่ 38: ลดจาก --yp-space-6 → --yp-space-4
+     ทำให้กลุ่มช่วงเวลาอยู่ใกล้กัน ไม่ดูเป็น "section คนละบล็อก" */
+  margin-top: var(--yp-space-4);
+}
+.yp-task-time-group__head {
+  display: flex;
+  align-items: center;
+  /* ★ v3.10.0 รอบที่ 38: ลด gap จาก 10px → 6px */
+  gap: 6px;
+  padding: 0 var(--yp-space-1);
+  /* ★ v3.10.0 รอบที่ 38: ลด margin-bottom จาก --yp-space-3 → 6px */
+  margin-bottom: 6px;
+  /* ★ v3.10.0 รอบที่ 38: เพิ่ม padding-bottom 4px + เส้นประ สีจาง
+     ทำให้ head มี "เส้นคั่น" ใต้บรรทัด ไม่ใช่แค่ label ลอย */
+  padding-bottom: 4px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
+}
+.yp-task-time-group__icon {
+  /* ★ v3.10.0 รอบที่ 38: ลบ icon chip ใหญ่ออกทั้งหมด
+     (28×28, gradient bg, pill radius) → icon เล็ก inline auto-size */
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--yp-text-faint);
+}
+/* ★ v3.10.0 รอบที่ 38: บังคับให้ SVG ใน icon เล็กลง (12px) แม้ JSX
+   จะตั้ง width=14 height=14 ไว้ — เพื่อให้ icon ดูเป็น "bullet" เล็กๆ */
+.yp-task-time-group__icon svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2;
+}
+.yp-task-time-group__text {
+  flex: 1;
+  min-width: 0;
+  /* ★ v3.10.0 รอบที่ 38: จัด baseline ให้ label กับ caption อยู่ในบรรทัด
+     เดียวกัน (inline) เพื่อให้ดูเป็น "caption เล็กๆ" ไม่ใช่ "title + subtitle" */
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.yp-task-time-group__label {
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก text-sm bold heading →
+     text-xs semibold muted (เล็กและจาง ไม่แข่งกับหัวข้อใหญ่) */
+  display: inline;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+.yp-task-time-group__caption {
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint) */
+  font-size: 11px;
+  color: var(--yp-text-faint);
+  margin-top: 0;
+  line-height: 1.3;
+  font-weight: var(--yp-fw-normal);
+}
+.yp-task-time-group__count {
+  /* ★ v3.10.0 รอบที่ 38: ลบ count chip (background, border, padding,
+     border-radius) → ตัวเลขเล็ก inline สีจาง */
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-faint);
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.yp-task-time-group__body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Muted variant — "ไม่ระบุเวลา" กลุ่ม ดูเบากว่ากลุ่มที่มีเวลาจริง
+   ★ v3.10.0 รอบที่ 38: ปรับให้ icon ใช้ transparent bg (ตาม base ใหม่)
+   และ label ใช้ text-faint (จางกว่าปกติ) */
+.yp-task-time-group.is-muted .yp-task-time-group__icon {
+  background: transparent;
+  color: var(--yp-text-faint);
+}
+.yp-task-time-group.is-muted .yp-task-time-group__label {
+  color: var(--yp-text-faint);
+}
+
+.yp-task-empty {
+  text-align: center;
+  padding: var(--yp-space-6) var(--yp-space-4) var(--yp-space-5);
+  color: var(--yp-text-muted);
+}
+.yp-task-empty__icon {
+  width: 46px; height: 46px;
+  margin: 0 auto var(--yp-space-3);
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card));
+  color: var(--accent, var(--yp-indigo-600));
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 20%, transparent);
+}
+.yp-task-empty__icon svg { width: 20px; height: 20px; }
+.yp-task-empty__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: 4px;
+}
+.yp-task-empty__desc {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  line-height: 1.5;
+}
+
+.yp-add-task-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 20px;
+  margin-top: var(--yp-space-3);
+  border: 1.5px dashed var(--yp-border-indigo);
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  font-family: inherit;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  cursor: pointer;
+  transition: background var(--yp-t-fast), border-color var(--yp-t-fast), color var(--yp-t-fast);
+  letter-spacing: 0.01em;
+}
+.yp-add-task-btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--yp-indigo-500);
+  color: var(--yp-indigo-700);
+}
+.yp-add-task-btn:active { transform: scale(0.99); }
+.yp-add-task-btn svg { width: 14px; height: 14px; }
+
+/* Status quick picker (single event) */
+.yp-status-quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--yp-space-3);
+}
+
+.yp-status-quick__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: var(--yp-space-5) var(--yp-space-3);
+  background: var(--yp-bg-card);
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-md);
+  cursor: pointer;
+  transition: border-color var(--yp-t-fast), background var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  font-family: inherit;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-secondary);
+  box-shadow: var(--yp-shadow-xs);
+  letter-spacing: 0.005em;
+}
+.yp-status-quick__btn:hover {
+  border-color: color-mix(in srgb, var(--accent, var(--yp-border-indigo)) 22%, var(--yp-border-default));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
+}
+.yp-status-quick__btn.is-active { border-width: 2px; }
+.yp-status-quick__btn.is-active.is-todo {
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.08);
+  color: #B45309;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14);
+}
+.yp-status-quick__btn.is-active.is-ongoing {
+  border-color: #6366F1;
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--yp-indigo-700);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+.yp-status-quick__btn.is-active.is-done {
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+}
+
+.yp-status-quick__dot {
+  width: 14px; height: 14px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-border-strong);
+}
+.yp-status-quick__dot.is-todo { background: #F59E0B; }
+.yp-status-quick__dot.is-ongoing { background: #6366F1; }
+.yp-status-quick__dot.is-done { background: #10B981; }
+
+/* Status picker (task sheet) */
+.yp-status-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yp-status-picker__option {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-4) var(--yp-space-5);
+  background: var(--yp-bg-card);
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-sm);
+  cursor: pointer;
+  transition: border-color var(--yp-t-fast), background var(--yp-t-fast);
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--yp-shadow-xs);
+}
+.yp-status-picker__option:hover {
+  border-color: var(--yp-border-indigo);
+  background: var(--yp-bg-card-soft);
+}
+.yp-status-picker__option.is-current {
+  border-color: var(--status-color, var(--yp-indigo-500));
+  background: color-mix(in srgb, var(--status-color, #6366F1) 8%, white);
+}
+
+.yp-status-picker__icon {
+  width: 38px; height: 38px;
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--status-color, #6366F1) 14%, white);
+  color: var(--status-color, var(--yp-indigo-600));
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  font-weight: var(--yp-fw-bold);
+  border: 1px solid color-mix(in srgb, var(--status-color, #6366F1) 22%, transparent);
+}
+
+.yp-status-picker__text { flex: 1; min-width: 0; }
+.yp-status-picker__label {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: 2px;
+}
+.yp-status-picker__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+}
+
+.yp-status-picker__check {
+  color: var(--status-color, var(--yp-indigo-600));
+  flex-shrink: 0;
+}
+.yp-status-picker__check svg { width: 18px; height: 18px; stroke-width: 2.5; }
+

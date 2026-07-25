@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Hover States (pointer:fine) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+@media (hover: hover) and (pointer: fine) {
+  .fab:hover {
+    transform: translate3d(0, -2px, 0) scale(1.04);
+    box-shadow: var(--yp-fab-shadow-hover-v39);
+    border-color: rgba(255, 255, 255, 0.20);
+  }
+  .fab:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ★ v3.9.2 Stable show/hide — velocity-aware + visibility-hidden when collapsed
+   - When hidden: scale 0.4 + opacity 0 + visibility hidden (after 250ms)
+   - When shown: scale 1 + opacity 1 + visibility visible (immediate)
+   - Spring-like entrance with tiny overshoot (1.04 → 1.0)
+   - Pointer-events disabled when hidden (prevents ghost clicks) */
+.fab.is-hidden-by-scroll {
+  transform: translate3d(0, 8px, 0) scale(0.4);
+  opacity: 0;
+  pointer-events: none;
+  /* Delay visibility:hidden until after transform completes —
+     prevents layout shift while animating */
+  visibility: hidden;
+  transition:
+    transform 220ms var(--yp-ease-m3-accelerate),
+    opacity 180ms var(--yp-ease-m3-accelerate),
+    visibility 0s linear 220ms,
+    box-shadow 180ms var(--yp-ease-m3-standard);
+}
+
+/* When showing again (class removed) — visibility immediate */
+.fab:not(.is-hidden-by-scroll) {
+  visibility: visible;
+  transition:
+    transform 280ms var(--yp-ease-m3-emphasized),
+    opacity 220ms var(--yp-ease-m3-emphasized),
+    visibility 0s,
+    box-shadow 220ms var(--yp-ease-m3-standard);
+}
+
+/* FAB icon — slightly thicker stroke for visual weight balance */
+.fab svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.10));
+}
+
+/* Material 3 FAB entrance — calmer (no rotate) */

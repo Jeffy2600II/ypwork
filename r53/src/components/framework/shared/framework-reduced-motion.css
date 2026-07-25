@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Reduced Motion — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 8: REDUCED MOTION — Accessibility
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .yp-sheet,
+  .yp-sheet-root,
+  .yp-sheet.is-closing,
+  .yp-sheet.is-animating,
+  .yp-popup,
+  .yp-popup-root,
+  .yp-popup.is-closing,
+  .yp-sidepanel,
+  .yp-sidepanel-root,
+  .yp-sidepanel.is-closing,
+  .yp-fullscreen,
+  .yp-fullscreen-root,
+  .yp-fullscreen.is-closing {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   END OF FRAMEWORK r50 CSS
+   ═══════════════════════════════════════════════════════════════ */

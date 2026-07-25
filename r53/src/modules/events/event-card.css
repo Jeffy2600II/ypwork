@@ -1,0 +1,238 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Event Card + Page Container + Date Badge — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · TASK 2 STYLES (port จาก demo v8.2 — Today/Calendar/Events/Profile)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Page container + page header (shared) ── */
+.yp-page {
+  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-4));
+  padding-left: var(--yp-page-pad-x);
+  padding-right: var(--yp-page-pad-x);
+  max-width: var(--yp-container-max);
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: var(--yp-space-6);
+}
+
+.yp-page-header {
+  margin-bottom: var(--yp-space-6);
+}
+
+/* ── Event card sub-parts (uses .yp-event-card from above) ── */
+.yp-event-card + .yp-event-card { margin-top: var(--yp-space-4); }
+
+/* ★ v3.9.9: TodayTaskCard — ใช้ .yp-event-card เป็น base แล้วเพิ่ม badge "จาก:" */
+.yp-today-task-card {
+  /* ลด opacity เล็กน้อย เพื่อให้ event ของวันนี้โดดเด่นกว่า task ย่อย */
+  /* (แต่ยังอ่านง่าย) */
+}
+
+.yp-today-task-card__parent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+
+.yp-today-task-card__parent svg {
+  color: var(--accent, var(--yp-indigo-500));
+  opacity: 0.7;
+}
+
+.yp-event-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+}
+
+/* ★ v3.7.4: ใช้ --accent จาก parent (.yp-event-card) แทน inline style */
+.yp-event-card__icon {
+  flex-shrink: 0;
+  width: 42px; height: 42px;
+  border-radius: var(--yp-radius-sm);
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 12%, transparent);
+  color: var(--accent, var(--yp-indigo-600));
+}
+.yp-event-card__icon svg { width: 20px; height: 20px; stroke-width: 2; }
+
+.yp-event-card__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: var(--yp-space-2);
+}
+
+.yp-event-card__title {
+  font-size: 0.9375rem;
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-event-card__meta {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+/* ★ v3.10.0 รอบที่ 29: meta บรรทัดรอง — สำหรับแสดง "กำหนดส่ง ..." ใต้บรรทัด
+   "เริ่ม ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุดของงานพร้อมกัน
+   ดูจางกว่า meta หลัก เพราะเป็นข้อมูลเสริม ไม่ใช่ข้อมูลหลัก */
+.yp-event-card__meta--secondary {
+  color: var(--yp-text-faint);
+  font-size: 11px;
+  font-weight: var(--yp-fw-medium);
+  opacity: 0.85;
+}
+
+.yp-event-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: var(--yp-space-3);
+  padding-left: 58px;
+}
+/* ★ v3.10.0 รอบที่ 30: progress bar — ใช้ accent tint แทน indigo flat
+   ทำให้ bar กลมกลืนกับ accent ของงาน ไม่ใช่สีเดียวกันทุกการ์ด */
+.yp-event-card__progress-bar {
+  flex: 1;
+  height: 5px;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, var(--yp-bg-card-soft));
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+}
+.yp-event-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 80%, transparent),
+    var(--accent, var(--yp-indigo-500))
+  );
+  border-radius: var(--yp-radius-pill);
+  transition: width var(--yp-t-slow);
+}
+.yp-event-card__progress-text {
+  font-weight: var(--yp-fw-bold);
+  color: var(--accent, var(--yp-indigo-600));
+  font-size: var(--yp-text-xs);
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ── Chip dot (small dot before chip label) ── */
+.yp-chip-dot {
+  width: 6px; height: 6px;
+  border-radius: var(--yp-radius-pill);
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 26: EventCard — Date Badge + Subtask Preview
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Date Badge (วันนี้ / พรุ่งนี้ / เลยกำหนด) */
+.yp-event-card__date-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  padding: 2px 8px;
+  border-radius: var(--yp-radius-pill);
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.yp-event-card__date-badge--today {
+  background: color-mix(in srgb, var(--yp-success-500, #10B981) 14%, transparent);
+  color: var(--yp-success-500, #10B981);
+  border: 1px solid color-mix(in srgb, var(--yp-success-500, #10B981) 20%, transparent);
+}
+
+.yp-event-card__date-badge--tomorrow {
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 14%, transparent);
+  color: var(--yp-indigo-500, #6366F1);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500, #6366F1) 20%, transparent);
+}
+
+.yp-event-card__date-badge--overdue {
+  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 14%, transparent);
+  color: var(--yp-danger-500, #F43F5E);
+  border: 1px solid color-mix(in srgb, var(--yp-danger-500, #F43F5E) 20%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.10.0 รอบที่ 32: Status Breakdown (แทน Subtask Preview เดิม)
+   ═══════════════════════════════════════════════════════════════
+   ทำไมเปลี่ยน: การ preview รายการย่อยทีละแถว (รอบที่ 26-30) มีปัญหาว่า
+   ผู้ใช้ (โดยเฉพาะคนที่ไม่คุ้นระบบ) มองว่าเป็น "การ์ดในการ์ด" แล้วสับสน
+   ว่ากดตรงไหนได้ ทั้งที่ทั้งใบเป็น Link เดียวไปหน้ารายละเอียด
+   → เปลี่ยนเป็นสรุปบรรทัดเดียว (ไม่มี border/background เป็นกล่องย่อยอีก)
+   เพื่อให้ "อ่านสรุปได้" โดยไม่ทำให้ดูเหมือนกดได้ทีละแถว */
+.yp-event-card__breakdown {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--yp-space-2);
+  margin-top: var(--yp-space-3);
+  padding-left: 58px; /* ★ เยื้องตามแนวเดียวกับ progress bar ด้านล่าง */
+}
+
+.yp-event-card__breakdown-label {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  flex-shrink: 0;
+}
+
+.yp-event-card__breakdown-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ★ chip ขนาดเล็ก — ใช้ต่อยอดจาก .yp-chip เดิม (สีต่อสถานะใช้ของเดิมทั้งหมด
+   ไม่สร้างสีซ้ำ เพื่อให้ทุกหน้าที่มี status chip ใช้โทนสีเดียวกันเป๊ะๆ) */
+.yp-chip--sm {
+  padding: 2px 8px;
+  font-size: 10px;
+  gap: 4px;
+}
+
+/* ★ v3.10.0 รอบที่ 32: ลูกศรบอกว่าการ์ดกดเข้าไปดูรายละเอียดได้ */
+.yp-event-card__chevron {
+  flex-shrink: 0;
+  color: var(--yp-text-faint);
+  opacity: 0.6;
+  transition: opacity var(--yp-t-fast), transform var(--yp-t-fast);
+}
+
+.yp-event-card:hover .yp-event-card__chevron {
+  opacity: 1;
+  transform: translateX(2px);
+  color: var(--accent, var(--yp-indigo-500));
+}

@@ -1,0 +1,27 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ── Desktop relaxation ── */
+@media (min-width: 768px) {
+  :root {
+    --yp-page-pad-x:   1.75rem;    /* v3.9.3: +0.25rem จาก 1.5rem */
+    --yp-card-pad:     1.25rem;
+    --yp-card-pad-lg:  1.75rem;
+    --yp-section-gap:  1.75rem;
+    --yp-stack-gap:    0.8125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --yp-page-pad-x: 2rem;          /* v3.9.3: +0.25rem จาก 1.75rem */
+    --yp-section-gap: 2rem;
+  }
+}

@@ -1,0 +1,54 @@
+@layer components {
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Status Chips (Planning/Todo/Ongoing/Done/Overdue) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+  /* ── Chips ── */
+  .yp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--yp-radius-pill);
+    font-size: var(--yp-text-xs);
+    font-weight: var(--yp-fw-bold);
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+  }
+
+  .yp-chip--planning {
+    background: rgba(167, 139, 250, 0.12);
+    color: #6D28D9;
+    border-color: rgba(167, 139, 250, 0.30);
+  }
+
+  .yp-chip--todo {
+    background: rgba(245, 158, 11, 0.12);
+    color: #B45309;
+    border-color: rgba(245, 158, 11, 0.30);
+  }
+
+  .yp-chip--ongoing {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--yp-indigo-600);
+    border-color: rgba(99, 102, 241, 0.30);
+  }
+
+  .yp-chip--done {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+    border-color: rgba(16, 185, 129, 0.30);
+  }
+
+  .yp-chip--overdue {
+    background: rgba(244, 63, 94, 0.12);
+    color: #BE123C;
+    border-color: rgba(244, 63, 94, 0.30);
+  }
+}

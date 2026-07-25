@@ -1,0 +1,330 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ── BRAND COLORS — Indigo Trust ── */
+  --yp-indigo-50:  #EEF2FF;
+  --yp-indigo-100: #E0E7FF;
+  --yp-indigo-200: #C7D2FE;
+  --yp-indigo-300: #A5B4FC;
+  --yp-indigo-400: #818CF8;
+  --yp-indigo-500: #6366F1;
+  --yp-indigo-600: #4F46E5;
+  --yp-indigo-700: #4338CA;
+  --yp-indigo-800: #3730A3;
+  --yp-indigo-900: #312E81;
+  --yp-indigo-950: #1E1B4B;
+  --yp-violet-400: #A78BFA;
+  --yp-violet-500: #8B5CF6;
+  --yp-violet-600: #7C3AED;
+  --yp-violet-700: #6D28D9;
+  --yp-amber-400: #FBBF24;
+  --yp-amber-500: #F59E0B;
+  --yp-emerald-400: #34D399;
+  --yp-emerald-500: #10B981;
+  --yp-rose-400: #FB7185;
+  --yp-rose-500: #F43F5E;
+  /* Status colors */
+  --yp-todo:        var(--yp-amber-500);
+  --yp-ongoing:     var(--yp-indigo-500);
+  --yp-done:        var(--yp-emerald-500);
+  --yp-overdue:     var(--yp-rose-500);
+  /* ── TEXT ── */
+  --yp-text-strong:    #1A1740;
+  --yp-text-heading:   #23204A;
+  --yp-text-body:      #3F3C5E;
+  --yp-text-secondary: #57546F;
+  --yp-text-muted:     #6E6B8C;
+  --yp-text-faint:     #9794B0;
+  --yp-text-inverse:   #FFFFFF;
+  /* ── SURFACE ──
+     ★ v3.10.0 รอบที่ 13: เพิ่มความต่างระหว่างพื้นหลังหน้ากับพื้นผิวการ์ด
+     (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
+     พื้นผิวคนละชั้น) ปรับพื้นหลังหน้าให้เข้มขึ้นเล็กน้อยเพื่อให้การ์ดขาว
+     ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
+  --yp-bg-page:        #EFEDF9;
+  --yp-bg-card:        #FFFFFF;
+  --yp-bg-card-soft:   #FAF9FE;
+  --yp-bg-elevated:    #FFFFFF;
+  --yp-bg-indigo-soft: #EEF2FF;
+  --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
+  --yp-bg-cream:       #FAF9F6;
+  /* ── BORDER ──
+     ★ v3.10.0 รอบที่ 13: ลดความเข้มของเส้นขอบลงเล็กน้อย ให้ shadow เป็นตัว
+     สร้างมิติหลักแทน — เส้นขอบที่เบาลงทำให้ผิวหน้าดูสะอาดตา ไม่รก
+     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง */
+  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
+  --yp-border-default:  rgba(79, 70, 229, 0.08);
+  --yp-border-strong:   rgba(30, 27, 70, 0.14);
+  --yp-border-indigo:   rgba(79, 70, 229, 0.22);
+  --yp-border-indigo-strong: rgba(99, 102, 241, 0.45);
+  --yp-focus-ring:      rgba(79, 70, 229, 0.16);
+  /* ── GRADIENTS ── */
+  --yp-gradient-brand:
+    radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.55) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(79, 70, 229, 0.65) 0%, transparent 60%),
+    linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --yp-gradient-brand-flat: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --yp-gradient-brand-soft: linear-gradient(135deg, rgba(79,70,229,0.10) 0%, rgba(124,58,237,0.08) 100%);
+  --yp-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #FBFAFE 100%);
+  --yp-gradient-hero:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.20) 0%, transparent 55%),
+    linear-gradient(135deg, #312E81 0%, #4F46E5 50%, #7C3AED 100%);
+  --yp-gradient-btn: linear-gradient(to right, #6366F1 0%, #7C3AED 100%);
+  /* ═══════════════════════════════════════════════════════════════
+     v3.9.3 — PREMIUM HERO PATTERN SYSTEM (SVG data-URIs)
+     (inspired by Telegram chat backgrounds, Linear, Vercel, Stripe)
+     ★ v3.9.4: RELAXED — ลดความหนาแน่น (pattern ใหญ่ขึ้น + opacity ลดลง)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Pattern 1: Dot grid (white on dark hero) — Telegram-style
+     ★ v3.9.4: tile 32px → 64px (spacious), opacity 10%/8% → 5%/4% */
+  --yp-hero-pattern-dots-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.6' fill='white' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='0' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='64' r='1.2' fill='white' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 2: Plus signs grid (white on dark hero) — Linear-style
+     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
+  --yp-hero-pattern-plus-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 3: Topographic curves (white on dark hero) — Stripe-style
+     ★ v3.9.4: tile 80px → 140px, opacity 5% → 3% */
+  --yp-hero-pattern-topo-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.03' stroke-width='1'%3E%3Cpath d='M0 70 Q35 35 70 70 T140 70'/%3E%3Cpath d='M0 105 Q35 70 70 105 T140 105'/%3E%3Cpath d='M0 35 Q35 0 70 35 T140 35'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 4: Sparkles/stars (white on dark hero) — premium accent
+     ★ v3.9.4: tile 60px → 120px, opacity 10%/8%/7% → 5%/4%/3% */
+  --yp-hero-pattern-sparkle-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M60 36 L63 54 L80 57 L63 60 L60 78 L57 60 L40 57 L57 54 Z' fill='white' fill-opacity='0.05'/%3E%3Cpath d='M100 16 L101.4 23 L108 24.4 L101.4 25.8 L100 32.8 L98.6 25.8 L92 24.4 L98.6 23 Z' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M20 96 L21.2 101.2 L26 102.4 L21.2 103.6 L20 108.8 L18.8 103.6 L14 102.4 L18.8 101.2 Z' fill='white' fill-opacity='0.035'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 5: Dot grid (accent on light hero) — for single-hero
+     ★ v3.9.4: tile 32px → 64px, opacity 10%/8% → 5%/4% */
+  --yp-hero-pattern-dots-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='32' cy='32' r='1.5' fill='%234F46E5' fill-opacity='0.05'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3Ccircle cx='64' cy='0' r='1.2' fill='%237C3AED' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+  /* Pattern 6: Plus signs (accent on light hero)
+     ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
+  --yp-hero-pattern-plus-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%234F46E5' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%237C3AED' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
+  /* ── SPACING ──
+     ★ v3.10.0 รอบที่ 13: ขยายจังหวะระยะห่างขึ้นเล็กน้อยทั่วทั้งระบบ
+     ให้เนื้อหามีที่หายใจมากขึ้น รู้สึกสงบ นิ่ง ไม่อึดอัด — ปรับที่ระดับ 4
+     ขึ้นไปเท่านั้น (ระดับเล็ก 1-3 คงเดิม กันของชิ้นเล็กในฟอร์ม/ชิป ห่างเกินไป) */
+  --yp-space-1:  0.25rem;
+  --yp-space-2:  0.5rem;
+  --yp-space-3:  0.75rem;
+  --yp-space-4:  1.0625rem;
+  --yp-space-5:  1.375rem;
+  --yp-space-6:  1.625rem;
+  --yp-space-7:  1.875rem;
+  --yp-space-8:  2.25rem;
+  --yp-space-10: 2.75rem;
+  --yp-space-12: 3.25rem;
+  --yp-space-16: 4.25rem;
+  --yp-space-20: 5.25rem;
+  /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
+     (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
+     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
+  --yp-radius-xs:   26px;
+  /* v3.9.3: +2 จาก 24 — small chips, dots */
+  --yp-radius-sm:   34px;
+  /* v3.9.3: +2 จาก 32 — small icon containers */
+  --yp-radius-md:   44px;
+  /* v3.9.3: +4 จาก 40 — controls, buttons, FAB */
+  --yp-radius-lg:   54px;
+  /* v3.9.3: +6 จาก 48 — cards, panels */
+  --yp-radius-xl:   68px;
+  /* v3.9.3: +8 จาก 60 — hero blocks */
+  --yp-radius-2xl:  84px;
+  /* v3.9.3: +12 จาก 72 — feature panels */
+  --yp-radius-pill: 999px;
+  --yp-radius-control: var(--yp-radius-md);
+  --yp-radius-card:    var(--yp-radius-lg);
+  --yp-radius-panel:   var(--yp-radius-md);
+  --yp-radius-hero:    var(--yp-radius-xl);
+  /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
+  --yp-input-min-height: 52px;
+  --yp-input-padding-y: 1em;
+  --yp-input-padding-x: 1.1em;
+  --yp-input-font-size: var(--yp-text-sm);
+  --yp-input-border-width: 1px;
+  --yp-field-gap: var(--yp-space-5);
+  --yp-field-label-gap: var(--yp-space-2);
+  --yp-field-hint-gap: 6px;
+  /* ── TYPOGRAPHY ── */
+  --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
+  --yp-text-xs:   0.75rem;
+  --yp-text-sm:   0.875rem;
+  --yp-text-base: 1rem;
+  --yp-text-lg:   1.125rem;
+  --yp-text-xl:   1.25rem;
+  --yp-text-2xl:  1.5rem;
+  --yp-text-3xl:  1.875rem;
+  --yp-text-4xl:  2.25rem;
+  --yp-leading-tight:   1.25;
+  --yp-leading-normal:  1.6;
+  --yp-leading-relaxed: 1.75;
+  --yp-fw-normal:   400;
+  --yp-fw-medium:   500;
+  --yp-fw-semibold: 600;
+  --yp-fw-bold:     700;
+  --yp-fw-extrabold: 800;
+  --yp-fw-black:    900;
+  /* ── SHADOWS ──
+     ★ v3.10.0 รอบที่ 13: เปลี่ยนจาก shadow ชั้นเดียวเป็นสองชั้น
+     (เงาสัมผัสแคบชัด + เงากระจายกว้างเบา) — ให้ความรู้สึกว่าการ์ด "วางอยู่"
+     บนพื้นผิวจริง มีน้ำหนัก มั่นคง แทนที่จะเป็นฮาโล่บางๆ ลอยอยู่เฉยๆ
+     (เทคนิคเดียวกับที่ Stripe/Linear ใช้กับการ์ดระดับ elevation ต่างๆ) */
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.05), 0 1px 5px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.06), 0 3px 10px rgba(30, 27, 70, 0.07);
+  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.06), 0 8px 20px rgba(30, 27, 70, 0.09);
+  --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
+  --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
+  --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
+  /* ★ v3.10.0 รอบที่ 25: ลบ --yp-glass-grain ออก — เคยใช้ทำลาย noise texture
+     สำหรับผิวกระจกฝ้า (frosted glass) ของ .top-bar / .bottom-nav เท่านั้น
+     ตอนนี้เปลี่ยนไปใช้พื้นหลังทึบแสงแล้ว ไม่มีจุดไหนอ้างอิงตัวแปรนี้อีก */
+  /* ── TRANSITIONS ── */
+  --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
+  --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
+  --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --yp-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --yp-t-fast:   150ms var(--yp-ease-standard);
+  --yp-t-normal: 260ms var(--yp-ease);
+  --yp-t-slow:   400ms var(--yp-ease);
+  --yp-hero-enter:    600ms var(--yp-ease-decel);
+  --yp-hero-stagger:  80ms;
+  --yp-card-enter:    380ms var(--yp-ease-decel);
+  --yp-page-enter: 420ms var(--yp-ease-emphasized-decel);
+  /* ── LAYOUT ── */
+  --yp-container-max:  1110px;
+  --yp-container-md:   860px;
+  --yp-container-sm:   600px;
+  --yp-nav-bottom-h:   96px;
+  --yp-nav-top-h:      52px;
+  --yp-page-pad-x:     1.125rem;
+  /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
+  --yp-fab-size:       56px;
+  /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
+     ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
+     ก่อนหน้านี้ .app-main ไม่ได้เว้นที่ → เนื้อหาทับซ้อนกับ left-rail
+     ★ v3.10.0 รอบที่ 25: ย้าย default (0px) ไปไว้บนสุดของไฟล์แทน — ค่าที่
+     ตั้งไว้ตรงนี้ (ท้ายไฟล์) ชนะค่า @media(min-width:900px) ทุกตัวเสมอ
+     เพราะมาทีหลังใน source order ทำให้ desktop ได้ 0px ตลอด (บั๊กที่ทำให้
+     left-rail ทับเนื้อหา) — ดู comment เต็มที่บนสุดของไฟล์ */
+  --yp-bottom-nav-margin: var(--yp-space-3);
+  --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
+  --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
+  --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
+  --yp-card-pad:    1.25rem;
+  --yp-card-pad-lg: 1.625rem;
+  --yp-section-gap: 1.75rem;
+  --yp-content-gap: 1.125rem;
+  --yp-stack-gap:   0.75rem;
+  /* ── Z-INDEX ── */
+  --yp-z-sticky:  100;
+  --yp-z-fab:     200;
+  --yp-z-nav:     16000;
+  --yp-z-overlay: 17000;
+  --yp-z-modal:   18000;
+  --yp-z-toast:   19000;
+  /* ── SAFE AREA ── */
+  --yp-safe-top:    env(safe-area-inset-top, 0px);
+  --yp-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --yp-safe-left:   env(safe-area-inset-left, 0px);
+  --yp-safe-right:  env(safe-area-inset-right, 0px);
+  /* ── HEADLINE SCALE ── */
+  --yp-h1-size: clamp(1.30rem, 1.15rem + 0.6vw, 1.60rem);
+  --yp-h2-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.32rem);
+  --yp-h3-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.17rem);
+  --yp-lead-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+  /* shadcn compat */
+  --radius: 0.625rem;
+  --background: var(--yp-bg-page);
+  --foreground: var(--yp-text-body);
+  --card: var(--yp-bg-card);
+  --card-foreground: var(--yp-text-heading);
+  --popover: var(--yp-bg-elevated);
+  --popover-foreground: var(--yp-text-heading);
+  --primary: var(--yp-indigo-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--yp-bg-card-soft);
+  --secondary-foreground: var(--yp-text-heading);
+  --muted: var(--yp-bg-card-soft);
+  --muted-foreground: var(--yp-text-muted);
+  --accent: var(--yp-bg-indigo-soft);
+  --accent-foreground: var(--yp-indigo-600);
+  --destructive: #BE123C;
+  --destructive-foreground: #ffffff;
+  --border: var(--yp-border-default);
+  --input: var(--yp-border-default);
+  --ring: var(--yp-focus-ring);
+  --sidebar: var(--yp-bg-card);
+  --sidebar-foreground: var(--yp-text-heading);
+  --sidebar-primary: var(--yp-indigo-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--yp-bg-indigo-soft);
+  --sidebar-accent-foreground: var(--yp-indigo-600);
+  --sidebar-border: var(--yp-border-default);
+  --sidebar-ring: var(--yp-focus-ring);
+  --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
+  --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
+  /* Calmer shadows — opacity reduced 25% from v3.8.x */
+  --yp-shadow-xs-v39: 0 1px 3px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm-v39: 0 1px 4px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
+  --yp-shadow-md-v39: 0 2px 8px rgba(30, 27, 70, 0.07), 0 1px 3px rgba(30, 27, 70, 0.04);
+  --yp-shadow-lg-v39: 0 4px 14px rgba(30, 27, 70, 0.09), 0 2px 4px rgba(30, 27, 70, 0.04);
+  --yp-shadow-xl-v39: 0 8px 24px rgba(30, 27, 70, 0.11), 0 4px 8px rgba(30, 27, 70, 0.05);
+  /* FAB shadow — Material 3 tonal elevation (3-layer) */
+  --yp-fab-shadow-v39:
+    0 4px 12px rgba(79, 70, 229, 0.18),
+    0 2px 4px rgba(79, 70, 229, 0.10),
+    0 1px 2px rgba(15, 23, 42, 0.06);
+  --yp-fab-shadow-hover-v39:
+    0 8px 20px rgba(79, 70, 229, 0.24),
+    0 4px 8px rgba(79, 70, 229, 0.12),
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 0 0 8px rgba(99, 102, 241, 0.10);
+  --yp-fab-shadow-press-v39:
+    0 2px 6px rgba(79, 70, 229, 0.12),
+    0 1px 2px rgba(79, 70, 229, 0.08),
+    0 1px 1px rgba(15, 23, 42, 0.04);
+  /* Material 3 motion tokens */
+  --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
+  --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --yp-ease-m3-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --yp-ease-m3-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  /* Standardized durations */
+  --yp-dur-v39-xs: 100ms;
+  --yp-dur-v39-sm: 150ms;
+  --yp-dur-v39-md: 220ms;
+  --yp-dur-v39-lg: 300ms;
+  /* State layer opacities (Material 3 spec) */
+  --yp-state-hover: 0.08;
+  --yp-state-focus: 0.10;
+  --yp-state-press: 0.12;
+  --yp-state-press-strong: 0.16;
+  /* Calmer border tokens */
+  --yp-border-v39-subtle:  rgba(30, 27, 70, 0.05);
+  --yp-border-v39-default: rgba(30, 27, 70, 0.08);
+  --yp-border-v39-strong:  rgba(30, 27, 70, 0.14);
+  /* FAB size — slightly larger for better touch target (Material 3 spec) */
+  --yp-fab-size-v39: 58px;
+  /* Calmer surface tints for hover states (Gemini-style) */
+  --yp-tint-v392-hover:      rgba(30, 27, 70, 0.045);
+  --yp-tint-v392-hover-strong: rgba(30, 27, 70, 0.07);
+  --yp-tint-v392-indigo:     rgba(99, 102, 241, 0.08);
+  --yp-tint-v392-indigo-strong: rgba(99, 102, 241, 0.14);
+  --yp-tint-v392-press:      rgba(30, 27, 70, 0.08);
+  /* Calmer info button palette */
+  --yp-info-btn-v392-bg:      rgba(99, 102, 241, 0.06);
+  --yp-info-btn-v392-border:  rgba(99, 102, 241, 0.18);
+  --yp-info-btn-v392-hover:   rgba(99, 102, 241, 0.12);
+  --yp-info-btn-v392-active:  rgba(99, 102, 241, 0.18);
+  /* Info sheet — calmer palette */
+  --yp-info-sheet-v392-bg:    #FAFAFC;
+  --yp-info-sheet-v392-card:  #FFFFFF;
+  --yp-info-sheet-v392-border: rgba(30, 27, 70, 0.06);
+}
+

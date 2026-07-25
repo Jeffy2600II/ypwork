@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+.yp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.yp-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(to right, #5450E8 0%, #8B5CF6 100%);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.28);
+}
+
+.yp-btn--ghost:hover:not(:disabled) {
+  background: rgba(30, 27, 70, 0.04);
+  color: var(--yp-text-strong);
+}
+
+.yp-btn--block {
+  width: 100%;
+  display: flex;
+}
+
+.yp-btn svg {
+  width: 16px; height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+

@@ -1,0 +1,434 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Profile Page (Stats, Settings) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   PROFILE PAGE
+   ═══════════════════════════════════════════════════════════════ */
+.yp-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-5);
+  padding-bottom: var(--yp-space-8);
+}
+
+.yp-profile-hero {
+  position: relative;
+  background: var(--yp-gradient-brand);
+  background-size: 180% 180%, 180% 180%, 100% 100%;
+  color: white;
+  border-radius: var(--yp-radius-hero);
+  padding: var(--yp-space-8) var(--yp-space-6) var(--yp-space-6);
+  text-align: center;
+  overflow: hidden;
+  box-shadow: var(--yp-shadow-indigo);
+  isolation: isolate;
+  animation: yp-hero-enter var(--yp-hero-enter) both;
+}
+
+.yp-profile-hero__glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.10) 1px, transparent 0),
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1.5px, transparent 0),
+    radial-gradient(circle at 3px 3px, rgba(255,255,255,0.05) 0.7px, transparent 0),
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(167, 139, 250, 0.07) 0%, transparent 42%);
+  background-size: auto, 37px 31px, 23px 43px, 17px 19px, 60% 55%, 45% 42%;
+  background-position: 0% 0%, 0px 0px, 0px 0px, 0px 0px, 20% 25%, 45% 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.yp-profile-hero__avatar {
+  width: 104px;
+  height: 104px;
+  margin: 0 auto var(--yp-space-5);
+  border-radius: var(--yp-radius-pill);
+  background: rgba(255, 255, 255, 0.22);
+  border: 3px solid rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.20),
+              0 0 0 6px rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+.yp-profile-hero__name {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  color: white;
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-extrabold);
+  letter-spacing: 0.005em;
+  margin: 0 0 6px;
+  line-height: var(--yp-leading-tight);
+  word-break: break-word;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
+}
+
+.yp-profile-hero__role {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--yp-text-sm);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--yp-space-4);
+  line-height: 1.4;
+  position: relative;
+  z-index: 1;
+  /* v2.1.0: ป้องกัน overflow บนจอแคบ — ตัดด้วย ellipsis ถ้ายาวเกิน */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.yp-profile-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--yp-radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: white;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  /* v2.1.0: จำกัดความกว้าง — ถ้าชื่อฝ่ายยาวให้ตัด */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yp-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--yp-space-3);
+}
+
+@media (min-width: 480px) {
+  .yp-profile-stats { grid-template-columns: repeat(4, 1fr); }
+}
+
+.yp-profile-stat {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  padding: var(--yp-space-4) var(--yp-space-3);
+  text-align: center;
+  box-shadow: var(--yp-shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color var(--yp-t-fast), background var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  animation: yp-hero-enter var(--yp-card-enter) both;
+}
+
+.yp-profile-stat__value {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-text-strong);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.yp-profile-stat__label {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.yp-profile-stat--success .yp-profile-stat__value { color: var(--yp-emerald-500); }
+.yp-profile-stat--warning .yp-profile-stat__value { color: var(--yp-amber-500); }
+
+.yp-profile-progress {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-md);
+  padding: var(--yp-space-4) var(--yp-space-5);
+  box-shadow: var(--yp-shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.yp-profile-progress__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--yp-space-3);
+}
+
+.yp-profile-progress__label {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+}
+
+.yp-profile-progress__pct {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-indigo-600);
+  letter-spacing: -0.01em;
+}
+
+.yp-profile-section {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  box-shadow: var(--yp-shadow-xs);
+  overflow: hidden;
+}
+
+.yp-profile-section__head {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-4) var(--yp-space-5);
+  background: var(--yp-bg-card-soft);
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-profile-section__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--yp-border-indigo);
+}
+.yp-profile-section__icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yp-profile-section__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.yp-profile-section__body {
+  padding: var(--yp-space-2) var(--yp-space-5);
+}
+
+.yp-profile-info {
+  margin: 0;
+  padding: 0;
+}
+
+.yp-profile-info__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--yp-space-4);
+  padding: var(--yp-space-3) 0;
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+.yp-profile-info__row:last-child { border-bottom: 0; }
+
+.yp-profile-info__label {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.yp-profile-info__value {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  text-align: right;
+  word-break: break-word;
+  margin: 0;
+  min-width: 0;
+}
+
+.yp-profile-id {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  justify-content: flex-end;
+}
+
+.yp-profile-id__value {
+  font-family: var(--yp-font-mono);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  letter-spacing: 0.1em;
+  min-width: 110px;
+  text-align: right;
+}
+
+.yp-profile-id__reveal {
+  /* v2.1.0: tap target ≥40px ตาม mobile UX guideline */
+  width: 40px;
+  height: 40px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-muted);
+  padding: 0;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--yp-t-fast), color var(--yp-t-fast), border-color var(--yp-t-fast);
+}
+.yp-profile-id__reveal:hover,
+.yp-profile-id__reveal:focus {
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  border-color: var(--yp-border-indigo);
+}
+.yp-profile-id__reveal svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yp-profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--yp-space-2) var(--yp-space-3);
+}
+
+.yp-profile-action {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  width: 100%;
+  padding: var(--yp-space-3) var(--yp-space-2);
+  background: transparent;
+  border: 0;
+  border-radius: var(--yp-radius-sm);
+  color: var(--yp-text-body);
+  font-family: inherit;
+  font-size: var(--yp-text-sm);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--yp-t-fast);
+}
+.yp-profile-action:hover,
+.yp-profile-action:focus {
+  background: var(--yp-bg-card-soft);
+}
+.yp-profile-action:active {
+  background: var(--yp-bg-indigo-soft);
+}
+
+.yp-profile-action__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--yp-border-indigo);
+}
+
+.yp-profile-action--danger .yp-profile-action__icon {
+  background: rgba(244, 63, 94, 0.08);
+  color: #BE123C;
+  border-color: rgba(244, 63, 94, 0.22);
+}
+
+.yp-profile-action__icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yp-profile-action__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.yp-profile-action__text strong {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-strong);
+  letter-spacing: 0.005em;
+}
+
+.yp-profile-action--danger .yp-profile-action__text strong {
+  color: #BE123C;
+}
+
+.yp-profile-action__text small {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-normal);
+  letter-spacing: 0.01em;
+}
+
+.yp-profile-action__chevron {
+  color: var(--yp-text-faint);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.yp-profile-action__chevron svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yp-profile-footer {
+  text-align: center;
+  color: var(--yp-text-faint);
+  font-size: var(--yp-text-xs);
+  line-height: 1.6;
+  padding: var(--yp-space-4) 0 var(--yp-space-2);
+  margin-top: var(--yp-space-2);
+}
+.yp-profile-footer p { margin: 0; }
+

@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · FORM CONTROLS (v3.7.3 — unified design system)
+   ═══════════════════════════════════════════════════════════════
+   ★ v3.7.3: Reuse design tokens ทุกที่ — input, label, hint, error
+   ใช้เดียวกันทุกหน้า (login, register, create-event, edit-event, task)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── FIELD WRAPPER ── */
+.field { display: block; }
+
+/* ★ v3.7.3: label variant ที่มี inline hint (เช่น "· กำลังโหลด...") */
+.field__label-hint {
+  margin-left: 8px;
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-normal);
+}
+
+/* ── HINT (ใต้ input) ── */
+.field__hint {
+  margin-top: var(--yp-field-hint-gap);
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.4;
+  font-weight: var(--yp-fw-medium);
+}
+
+/* ── ERROR ── */
+.field__error {
+  font-size: var(--yp-text-xs);
+  color: #BE123C;
+  margin-top: var(--yp-field-hint-gap);
+  display: none;
+  font-weight: var(--yp-fw-medium);
+}
+
+.field.has-error .field__error { display: block; }
+
+/* ── INPUT / TEXTAREA / SELECT — unified ── */
+.yp-input, .yp-textarea, .yp-select {
+  width: 100%;
+  padding: var(--yp-input-padding-y) var(--yp-input-padding-x);
+  border: var(--yp-input-border-width) solid var(--yp-border-default);
+  border-radius: var(--yp-radius-control);
+  background: var(--yp-bg-card);
+  font-family: inherit;
+  font-size: var(--yp-input-font-size);
+  line-height: var(--yp-leading-normal);
+  color: var(--yp-text-strong);
+  letter-spacing: 0.1px;
+  min-height: var(--yp-input-min-height);
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.yp-input::placeholder, .yp-textarea::placeholder {
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-normal);
+}
+
+/* ★ Focus ring แบบเดียวกับ login — indigo border + soft glow */
+.yp-input:focus, .yp-textarea:focus, .yp-select:focus {
+  outline: none;
+  border-color: var(--yp-indigo-500);
+  background: white;
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.14),
+    0 1px 2px rgba(99, 102, 241, 0.06);
+}
+
+/* ★ Hover state — subtle indigo tint */
+.yp-input:hover:not(:focus), .yp-textarea:hover:not(:focus), .yp-select:hover:not(:focus) {
+  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+}
+
+.field.has-error .yp-input,
+.field.has-error .yp-textarea,
+.field.has-error .yp-select {
+  border-color: rgba(244, 63, 94, 0.5);
+  background: rgba(244, 63, 94, 0.04);
+}
+
+
+.field.has-error .yp-input:focus,
+.field.has-error .yp-textarea:focus,
+.field.has-error .yp-select:focus {
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.14);
+}
+
+/* ★ Disabled state */
+.yp-input:disabled, .yp-textarea:disabled, .yp-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--yp-bg-card-soft);
+}
+
+/* v1.5: large input variant (สำหรับ task title ใน add/edit task sheet) */
+.yp-input--lg {
+  padding: 1em 1.2em;
+  font-size: var(--yp-text-base);
+  min-height: 56px;
+  font-weight: var(--yp-fw-medium);
+}
+.yp-input--lg::placeholder {
+  font-weight: var(--yp-fw-normal);
+}
+
+.yp-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 1.25rem;
+  padding-right: 44px;
+  cursor: pointer;
+  display: block;
+  line-height: 1.4;
+}
+
+/* ★ v3.6.0: Hover state สำหรับ input-group */
+.input-group:hover:not(:focus-within) {
+  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+}
+
+.input-group__addon {
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  color: var(--yp-text-muted);
+  background: var(--yp-bg-card-soft);
+  font-size: var(--yp-text-sm);
+  border-right: 1px solid var(--yp-border-subtle);
+}
+
+.input-group .yp-input {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 48px;
+}
+
+.field.has-error .input-group {
+  border-color: rgba(244, 63, 94, 0.5);
+}
+
+.field.has-error .input-group .yp-input {
+  background: rgba(244, 63, 94, 0.04);
+}
+

@@ -1,0 +1,23 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Page/Shell/Card Animations v3.9 — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+@media (hover: hover) and (pointer: fine) {
+  .yp-stat:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--yp-shadow-sm-v39);
+    border-color: var(--yp-border-v39-default);
+  }
+}
+
+.yp-page-enter {
+  animation: yp-page-in-v39 320ms var(--yp-ease-m3-emphasized) both;
+}
+
+

@@ -1,0 +1,633 @@
+  border: 2px solid white;
+  position: relative;
+}
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Calendar Module (Grid View, List View) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   CALENDAR VIEW (v3.9.4 — complete redesign, professional proportions)
+   ═══════════════════════════════════════════════════════════════
+   ★ v3.9.4: Research-based redesign — Apple Calendar / Google Calendar / Notion
+   - Container ยังคงความโค้งมน (เป็นเอกลักษณ์ของ YP Work)
+   - แต่ cells ภายในใช้ความมนที่น้อยลง (8-10px) ตามมาตรฐาน calendar
+   - สัดส่วนที่สมดุล การจัดวางที่สบายตา
+   - Today cell ที่โดดเด่นชัดเจน (Apple Calendar style — solid bg + white text)
+   - Weekday headers ที่มี hierarchy ชัดเจน
+   - List view ที่มี rhythm และ breathing room
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── HEADER ROW (title + view toggle) ── */
+.yp-cal-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+}
+
+.yp-cal-header-row__title {
+  min-width: 0;
+  flex: 1;
+}
+
+/* ── VIEW TOGGLE ── */
+.yp-cal-view-toggle {
+  display: inline-flex;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-pill);
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.yp-cal-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  border-radius: var(--yp-radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--yp-text-muted);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.yp-cal-view-btn.is-active {
+  background: var(--yp-bg-card);
+  color: var(--yp-indigo-600);
+  box-shadow:
+    0 1px 3px rgba(30, 27, 70, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.yp-cal-view-btn:active { transform: scale(0.92); }
+
+/* ── NAV BAR ── */
+.yp-cal-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  margin-top: var(--yp-space-3);
+}
+
+.yp-cal-nav-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--yp-radius-xs);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-default);
+  color: var(--yp-text-body);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-cal-nav-btn:hover {
+  border-color: var(--yp-indigo-400);
+  color: var(--yp-indigo-600);
+  background: var(--yp-bg-indigo-soft);
+}
+
+.yp-cal-nav-btn:active { transform: scale(0.92); }
+
+.yp-cal-today-btn {
+  padding: 8px 16px;
+  border-radius: var(--yp-radius-xs);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-default);
+  color: var(--yp-text-body);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-cal-today-btn:hover {
+  border-color: var(--yp-indigo-400);
+  color: var(--yp-indigo-600);
+  background: var(--yp-bg-indigo-soft);
+}
+
+.yp-cal-today-btn:active { transform: scale(0.95); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CALENDAR GRID v3.9.4 — Apple Calendar inspired, professional proportions
+   - Container โค้งมน (YP Work identity)
+   - Cells ภายในใช้รัศมีน้อย (8px) ตามมาตรฐาน calendar
+   - สัดส่วนที่สมดุล ไม่แน่นเกินไป
+   ═══════════════════════════════════════════════════════════════ */
+.yp-cal-grid-v2 {
+  background:
+    linear-gradient(180deg, var(--yp-bg-card) 0%, var(--yp-bg-card-soft) 100%);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  /* ★ v3.9.5: ลด horizontal padding บนมือถือ (0.75rem → 0.5rem)
+     เพื่อให้ cells มีพื้นที่มากขึ้น และลดโอกาส overflow */
+  padding: var(--yp-space-4) var(--yp-space-2) var(--yp-space-3);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 10px rgba(30, 27, 70, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  /* ★ v3.9.5: ป้องกัน grid overflow บนมือถือ
+     - max-width: 100% กัน container กว้างเกิน parent
+     - overflow: hidden เป็น safety net (clip ถ้ามี content ล้น)
+     - box-sizing: border-box รวม padding + border ใน width */
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .yp-cal-grid-v2 {
+    padding: var(--yp-space-4) var(--yp-space-3) var(--yp-space-3);
+  }
+}
+
+.yp-cal-weekdays-v2 {
+  display: grid;
+  /* ★ v3.9.5: minmax(0, 1fr) แทน 1fr — ป้องกัน grid overflow บนมือถือ
+     1fr เดิม = minmax(auto, 1fr) ซึ่งทำให้คอลัมน์ขยายตามเนื้อหา
+     minmax(0, 1fr) = อนุญาตให้คอลัมน์แคบลงต่ำกว่า min-content ของเนื้อหา */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin-bottom: var(--yp-space-2);
+  padding-bottom: var(--yp-space-2);
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-cal-weekday-v2 {
+  /* ★ v3.9.5: min-width: 0 + overflow hidden กัน content ผลัก grid ให้กว้างเกิน */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--yp-space-2) 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.yp-cal-weekday-v2.is-weekend { color: var(--yp-rose-400); }
+
+.yp-cal-days-v2 {
+  display: grid;
+  /* ★ v3.9.5: minmax(0, 1fr) แทน 1fr — ป้องกัน grid overflow บนมือถือ */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+/* ★ v3.9.4: Day cell — สัดส่วนที่ดีขึ้น, aspect-ratio 1:1 สำหรับสมดุล
+   ใช้รัศมี 10px ที่น้อยกว่า container เพราะ calendar cells
+   ไม่จำเป็นต้องโค้งมนมาก — มาตรฐาน Apple/Google ใช้ 8-12px
+   ★ v3.9.5: min-width: 0 + overflow hidden — กัน cell content ผลัก grid overflow */
+.yp-cal-day-v2 {
+  aspect-ratio: 1 / 1;
+  min-height: 44px;
+  min-width: 0;           /* ★ v3.9.5: อนุญาตให้แคบลงต่ำกว่า min-content */
+  padding: 5px 3px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  cursor: default;
+  transition: background 150ms, transform 120ms;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  overflow: hidden;       /* ★ v3.9.5: clip content ที่อาจล้น */
+  box-sizing: border-box; /* ★ v3.9.5: defensive — รวม padding ใน width */
+}
+
+@media (min-width: 640px) {
+  .yp-cal-day-v2 {
+    min-height: 60px;
+    padding: 8px 6px;
+    gap: 4px;
+  }
+}
+
+.yp-cal-day-v2:hover { background: var(--yp-bg-card-soft); }
+.yp-cal-day-v2.is-other { opacity: 0.35; }
+.yp-cal-day-v2.is-other:hover { background: transparent; }
+.yp-cal-day-v2.is-weekend .yp-cal-day-v2__num { color: var(--yp-rose-400); }
+
+/* ★ v3.9.4: Today cell — Apple Calendar style
+   solid indigo bg + white text ที่โดดเด่นชัดเจน
+   ใช้ gradient เล็กน้อยเพื่อ depth */
+.yp-cal-day-v2.is-today {
+  background: linear-gradient(135deg, var(--yp-indigo-600) 0%, var(--yp-violet-600) 100%);
+  box-shadow:
+    0 4px 12px rgba(79, 70, 229, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+.yp-cal-day-v2.is-today .yp-cal-day-v2__num {
+  color: white;
+  font-weight: var(--yp-fw-extrabold);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.yp-cal-day-v2.is-today:hover {
+  background: linear-gradient(135deg, var(--yp-indigo-700) 0%, var(--yp-violet-700) 100%);
+  /* ★ v3.9.5: ลด scale จาก 1.02 เป็น 1.01 — กัน visual overflow บนมือถือ
+     ที่ cell แคบ ๆ scale 1.02 ทำให้ขอบเลยกรอบ */
+  transform: scale(1.01);
+}
+
+.yp-cal-day-v2__num {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-body);
+  line-height: 1;
+  /* ★ v3.9.5: ป้องกันเลขยาวผลัก cell */
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .yp-cal-day-v2__num {
+    font-size: var(--yp-text-base);
+  }
+}
+
+.yp-cal-day-v2__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  /* ★ v3.9.5: จำกัดความกว้าง + clip กัน dots ล้น cell บนมือถือ */
+  max-width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* ★ v3.9.4: Event dots — ใหญ่ขึ้นเล็กน้อยเพื่อให้มองเห็นชัด
+   ★ v3.9.5: เล็กลงบนมือถือ (5px) เพื่อประหยัดพื้นที่ */
+.yp-cal-day-v2__dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .yp-cal-day-v2__dot {
+    width: 6px; height: 6px;
+  }
+}
+
+.yp-cal-day-v2__more {
+  font-size: 9px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ── Today dot color override ── */
+.yp-cal-day-v2.is-today .yp-cal-day-v2__dot {
+  background: white;
+  opacity: 0.9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+}
+
+.yp-cal-day-v2.is-today .yp-cal-day-v2__more {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ★ v3.9.4: Legend — อธิบายสีให้ชัดเจน */
+.yp-cal-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yp-space-5);
+  margin-top: var(--yp-space-4);
+  padding-top: var(--yp-space-3);
+  border-top: 1px solid var(--yp-border-subtle);
+  flex-wrap: wrap;
+}
+
+.yp-cal-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+
+.yp-cal-legend__swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--yp-border-default);
+}
+
+.yp-cal-legend__swatch--today {
+  background: linear-gradient(135deg, var(--yp-indigo-600) 0%, var(--yp-violet-600) 100%);
+  border: none;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+}
+
+.yp-cal-legend__swatch--weekend {
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-rose-400);
+}
+
+.yp-cal-legend__swatch--dot {
+  background: var(--yp-bg-card-soft);
+  position: relative;
+}
+.yp-cal-legend__swatch--dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--yp-indigo-500);
+}
+/* ═══════════════════════════════════════════════════════════════
+   LIST VIEW v3.9.4 — Notion Calendar / Linear inspired
+   - มี rhythm และ breathing room
+   - Day header ที่มี hierarchy ชัดเจน
+   - Event items ที่อ่านง่าย สบายตา
+   ═══════════════════════════════════════════════════════════════ */
+.yp-cal-list-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-4);
+}
+
+/* ★ v3.9.4: Month summary — แสดงจำนวนงานทั้งเดือน */
+.yp-cal-list-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-4) var(--yp-space-5);
+  background:
+    linear-gradient(180deg, var(--yp-bg-card) 0%, var(--yp-bg-card-soft) 100%);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-lg);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 2px 8px rgba(30, 27, 70, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+}
+
+.yp-cal-list-summary__label {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-semibold);
+  letter-spacing: 0.02em;
+}
+
+.yp-cal-list-summary__count {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
+  color: var(--yp-indigo-600);
+  font-weight: var(--yp-fw-extrabold);
+  letter-spacing: -0.01em;
+}
+
+.yp-cal-list-v2__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-12) var(--yp-space-6);
+  color: var(--yp-text-muted);
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-medium);
+  background: var(--yp-bg-card);
+  border: 1px dashed var(--yp-border-default);
+  border-radius: var(--yp-radius-lg);
+}
+
+.yp-cal-list-v2__empty svg {
+  color: var(--yp-text-faint);
+}
+
+/* ── DAY GROUP ── */
+.yp-cal-list-day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-2);
+}
+
+/* ★ v3.9.4: Day header — มี hierarchy และ breathing room ที่ดีขึ้น */
+.yp-cal-list-day__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: var(--yp-bg-card-soft);
+  border-radius: var(--yp-radius-xs);
+  border: 1px solid var(--yp-border-subtle);
+}
+
+.yp-cal-list-day__header.is-today {
+  background: var(--yp-bg-indigo-soft);
+  border-color: var(--yp-indigo-400);
+}
+
+.yp-cal-list-day__header.is-past {
+  opacity: 0.6;
+}
+
+.yp-cal-list-day__date {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+}
+
+.yp-cal-list-day__num {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-text-strong);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  min-width: 28px;
+}
+
+.yp-cal-list-day__header.is-today .yp-cal-list-day__num {
+  color: var(--yp-indigo-600);
+}
+
+.yp-cal-list-day__date-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.yp-cal-list-day__name {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-body);
+  font-weight: var(--yp-fw-semibold);
+  line-height: 1.2;
+}
+
+.yp-cal-list-day__weekday-short {
+  font-size: 11px;
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.yp-cal-list-day__weekday-short.is-weekend {
+  color: var(--yp-rose-400);
+}
+
+.yp-cal-list-day__today-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-indigo-600);
+  color: white;
+  font-size: 10px;
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-left: var(--yp-space-2);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.30);
+}
+
+.yp-cal-list-day__count {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-bold);
+  background: var(--yp-bg-card);
+  padding: 4px 10px;
+  border-radius: var(--yp-radius-pill);
+  border: 1px solid var(--yp-border-subtle);
+  letter-spacing: 0.02em;
+}
+
+.yp-cal-list-day__header.is-today .yp-cal-list-day__count {
+  background: white;
+  color: var(--yp-indigo-600);
+  border-color: var(--yp-indigo-400);
+}
+
+/* ── EVENT ITEM — ★ v3.9.4: card-like layout, more breathing room ── */
+.yp-cal-list-day__items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.yp-cal-list-event {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  text-decoration: none;
+  color: inherit;
+  transition: background 150ms, transform 120ms, box-shadow 150ms;
+  border-radius: var(--yp-radius-xs);
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-subtle);
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.03);
+}
+
+.yp-cal-list-event:hover {
+  background: color-mix(in srgb, var(--ev-color, #4F46E5) 4%, var(--yp-bg-card));
+  border-color: color-mix(in srgb, var(--ev-color, #4F46E5) 26%, transparent);
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--ev-color, #4F46E5) 10%, rgba(30, 27, 70, 0.05));
+}
+
+.yp-cal-list-event:active {
+  background: color-mix(in srgb, var(--ev-color, #4F46E5) 8%, var(--yp-bg-card));
+  transform: scale(0.99);
+}
+
+/* Color bar — ★ v3.9.4: เห็นชัดขึ้น */
+.yp-cal-list-event__bar {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 4px;
+  background: var(--ev-color, #4F46E5);
+  flex-shrink: 0;
+  min-height: 36px;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--ev-color, #4F46E5) 30%, transparent);
+}
+
+/* Content */
+.yp-cal-list-event__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-cal-list-event__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+
+.yp-cal-list-event__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.yp-cal-list-event__time,
+.yp-cal-list-event__loc,
+.yp-cal-list-event__dept {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+/* ★ v3.9.4: status dot — visual scanning aid */
+.yp-cal-list-event__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ev-color, #4F46E5);
+  flex-shrink: 0;
+  opacity: 0.4;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ev-color, #4F46E5) 12%, transparent);
+}
+

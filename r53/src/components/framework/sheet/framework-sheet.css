@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Bottom Sheet (.yp-sheet-*) — v3.10.0-r53 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   ═══════════════════════════════════════════════════════════════
+   YP WORK · FRAMEWORK r50 — NEW MODULAR CSS
+   ═══════════════════════════════════════════════════════════════
+   ═══════════════════════════════════════════════════════════════
+
+   ★ r50: โครงสร้างใหม่แยกตามหน้าที่ชัดเจน
+
+   หลักการ:
+   1. แยก CSS namespace ของ sheet/popup/sidepanel/fullscreen
+      - .yp-sheet-*        → mobile bottom sheet (slide + drag-to-dismiss)
+      - .yp-popup-*        → desktop centered dialog (scale + fade)
+      - .yp-sidepanel-*    → desktop slide-in side panel
+      - .yp-fullscreen-*   → full-page overlay (ทุกขนาดจอ)
+   2. Body class ใหม่:
+      - .yp-overlay-open         → มี overlay เปิดอยู่ (ทุกประเภท)
+      - .yp-overlay-open--sheet  → มี sheet หรือ fullscreen เปิดอยู่
+      - .yp-overlay-open--popup  → มี popup หรือ sidepanel เปิดอยู่
+   3. FAB / Bottom Nav ใช้ class ใหม่:
+      - .is-hidden-by-overlay → ซ่อนเพราะมี overlay เปิด (reactive จาก React)
+      - .is-hidden-by-scroll  → ซ่อนเพราะ scroll ลง (เดิม)
+   4. แก้บั๊ก close animation "jump แทน slide":
+      - ใช้ ease-emphasized ตลอดทั้ง open และ close (consistent feel)
+      - ลด duration เล็กน้อยให้ responsive ขึ้น
+      - ใช้ CSS variable --yp-sheet-duration เพื่อ sync ระหว่าง open/close
+
+   ═══════════════════════════════════════════════════════════════
+   SECTION 1: MOBILE BOTTOM SHEET (.yp-sheet-*)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Sheet Root (backdrop + flex container) ── */
+.yp-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yp-sheet-z, 18000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overscroll-behavior: contain;
+  /* ★ r50: ใช้ ease-emphasized ตลอดทั้ง open/close (consistent feel) */
+  transition:
+    opacity 320ms var(--yp-ease-m3-emphasized),
+    visibility 320ms;
+  /* NOTE: ไม่ใส่ contain: paint เพราะทำให้ drag กระตุก */
+}
+
+.yp-sheet-root.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Sheet (ตัวการ์ดจริง ๆ) ── */
+.yp-sheet {
+  position: relative;
+  background: var(--yp-bg-card, #fff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  contain: layout style;
+  overscroll-behavior: contain;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  width: 100%;
+  max-width: 560px;
+  max-height: 92dvh;
+  border-radius: var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0 0;
+  /* ★ r50: default transform — อยู่ล่าง viewport */
+  transform: translate3d(0, 100%, 0);
+  /* ★ r50: ใช้ ease-emphasized ตลอด — ลื่นไหลเหมือนกันทั้ง open/close */
+  transition: transform 320ms var(--yp-ease-m3-emphasized);
+  /* Layered shadow ที่ดูมีมิติ */
+  box-shadow:
+    0 -8px 32px rgba(15, 23, 42, 0.18),
+    0 -16px 48px rgba(15, 23, 42, 0.08),
+    0 -1px 0 rgba(255, 255, 255, 0.6) inset;
+  padding: 16px var(--yp-space-5, 20px)
+           calc(24px + var(--yp-safe-bottom, 0px));
+}
+
+.yp-sheet.has-footer {
+  padding-bottom: 0;
+}
+
+/* ── OPEN STATE — sheet อยู่ตำแหน่งปกติ ── */
+.yp-sheet.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* ── CLOSING STATE — sheet เลื่อนลง ── */
+/* ★ r50 แก้บั๊ก "jump แทน slide":
+   - ใช้ ease-emphasized (เดียวกับ open) ไม่ใช่ accelerate
+   - accelerate ทำให้ motion ส่วนใหญ่เกิดท้าย duration → ดูเหมือน jump
+   - emphasized กระจาย motion พอดี → ดูเป็น slide ลื่นไหล */
+.yp-sheet.is-closing {
+  will-change: transform;
+  transition: transform 320ms var(--yp-ease-m3-emphasized);
+}
+
+/* ── DRAG STATE — transition:none + touch-action:none ── */
+.yp-sheet.is-dragging {
+  transition: none;
+  touch-action: none;
+  will-change: transform;
+}
+
+/* ── SNAP-BACK SPRING (หลัง drag แล้วปล่อยไม่ถึง threshold) ── */
+.yp-sheet.is-animating {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+/* ── Sheet variants (size) ── */
+.yp-sheet--auto { /* default */ }
+.yp-sheet--sm { max-width: 360px; }
+.yp-sheet--md { max-width: 480px; }
+.yp-sheet--tall { max-height: 88dvh; }
+.yp-sheet--full { max-height: 96dvh; }
+
+/* ── Sheet handle (grip bar) ── */
+.yp-sheet__handle {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  background: rgba(30, 27, 70, 0.18);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.yp-sheet__handle::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.yp-sheet__handle:active::before {
+  background: rgba(30, 27, 70, 0.04);
+}
+
+/* ── Sheet header ── */
+.yp-sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yp-space-3, 12px);
+  margin-bottom: var(--yp-space-4, 16px);
+  position: relative;
+}
+
+.yp-sheet__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-sheet__title {
+  font-size: 1.05rem;
+  font-weight: var(--yp-fw-bold, 700);
+  color: var(--yp-text-body, #1f2937);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.yp-sheet__desc {
+  font-size: 0.85rem;
+  color: var(--yp-text-secondary, #6b7280);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* ── Sheet close button ── */
+.yp-sheet__close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--yp-radius-md, 12px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--yp-text-muted, #6b7280);
+  transition: background 160ms var(--yp-ease-m3-standard, ease),
+              color 160ms var(--yp-ease-m3-standard, ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.yp-sheet__close:hover {
+  background: rgba(30, 27, 70, 0.06);
+  color: var(--yp-text-body, #1f2937);
+}
+
+.yp-sheet__close:active {
+  background: rgba(30, 27, 70, 0.10);
+}
+
+.yp-sheet__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Sheet body (scrollable content) ── */
+.yp-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+.yp-sheet__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.yp-sheet__body::-webkit-scrollbar-thumb {
+  background: rgba(30, 27, 70, 0.14);
+  border-radius: 999px;
+}
+
+.yp-sheet.is-scroll-locked .yp-sheet__body {
+  overflow: hidden;
+}
+
+/* ── Sheet footer ── */
+.yp-sheet__footer {
+  flex-shrink: 0;
+  padding: var(--yp-space-3, 12px) 0
+            calc(var(--yp-space-4, 16px) + var(--yp-safe-bottom, 0px));
+  border-top: 1px solid var(--yp-border-subtle, rgba(30, 27, 70, 0.06));
+  background: var(--yp-bg-card, #fff);
+}
+
