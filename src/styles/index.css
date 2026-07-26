@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Library Manifest — v3.10.0-r56
+   YP WORK · Design Library Manifest — v3.10.0-r57
    ═══════════════════════════════════════════════════════════════
    
    This is the central manifest that imports ALL modular CSS files
@@ -8,7 +8,7 @@
    
    ★ CASCADE ORDER MATTERS — do NOT reorder imports!
    
-   Architecture (Round 56 — Modular CSS Refactor):
+   Architecture (Round 57 — Modular CSS Refactor):
    ┌─────────────────────────────────────────────────────────┐
    │ src/styles/           ← Central Design Library          │
    │   ├── index.css       ← THIS manifest file              │

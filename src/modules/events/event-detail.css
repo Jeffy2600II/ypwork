@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r57 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -107,13 +107,15 @@
 .yp-detail-hero__title {
   /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น
      text-3xl (30px) ใหญ่เกินไปสำหรับ mobile, text-2xl (24px) พอดี
-     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว */
+     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว
+     ★ r57: text-2xl ตอนนี้เป็น 26px (was 24px) — ใหญ่ขึ้นเล็กน้อยพอดี
+     ทำให้ title ดูสมดุลกับ hero block ที่ใหญ่ขึ้น */
   font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   letter-spacing: -0.005em;
   margin-bottom: var(--yp-space-4);
-  line-height: 1.2;
+  line-height: 1.25;
   position: relative;
   z-index: 1;
   /* ★ v3.10.0 รอบที่ 31: ลบ text-shadow เพราะพื้นหลังสว่างแล้ว ไม่ต้องเพิ่ม */
@@ -325,13 +327,14 @@
 }
 
 .yp-single-hero__title {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น */
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น
+     ★ r57: line-height 1.2 → 1.25 — slightly looser for Thai descenders */
   font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   letter-spacing: -0.012em;
   margin-bottom: var(--yp-space-4);
-  line-height: 1.2;
+  line-height: 1.25;
   position: relative;
   z-index: 1;
 }
