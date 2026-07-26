@@ -1,20 +1,29 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r58
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r59
    ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
    ★ r57: ปรับ type scale, spacing scale, border-radius scale ให้สมดุลมากขึ้น
-   ★ r58: คืนค่าความโค้งมนที่เป็นเอกลักษณ์ (น้อยกว่า r56 นิดหน่อย)
-     - border-radius: cards 28px, hero 36px (กลางระหว่าง r56 กับ r57)
-     - ขยาย padding การ์ดและ hero ให้หายใจมากขึ้น
-     - ขยายระยะห่างระหว่าง section และระหว่าง elements
-     - ปรับ line-height สำหรับ Thai (1.55 สำหรับ title)
+   ★ r59 (carried from r58): คืนค่าความโค้งมนที่เป็นเอกลักษณ์ (น้อยกว่า r56 นิดหน่อย)
+   ★ r59: NATIVE APP STANDARD — คืนค่า curvature สูงระดับ r56 พร้อมขยาย breathing room
+     - คืนค่า border-radius ที่ r58 ลดไป ให้โค้งมนสูงอีกครั้ง (xs:24, sm:32, md:42, lg:52, xl:66, 2xl:82)
+     - ขยายระยะห่างทั่วทั้ง module ให้โล่งสบายตาแบบ native app (Apple HIG / Material 3)
+     - Hero padding ขยายจาก space-8/7 → space-10/8 ให้เนื้อหา hero หายใจมากขึ้น
+     - Section gap ขยายจาก space-12 → space-16 ให้แต่ละ section ห่างกันชัดเจน
+     - Card padding ขยายจาก space-6 → space-7 ให้การ์ดไม่อัดชิดขอบ
+     - Item-card top-row ขยาย padding-bottom/margin-bottom จาก space-4 → space-5
+     - Card list gap ขยายจาก space-4 → space-5 ให้การ์ดแต่ละใบห่างกัน
+     - Time-section margin ขยายจาก space-5 → space-6
+     - ลด visual noise: ลด border และ shadow บางส่วน ให้ดูสะอาด นิ่ง น่าใช้
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-placeholder {
-  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-4));
+  /* ★ r59: ขยาย padding-top จาก space-4 → space-5 ให้ hero ห่างจาก top bar */
+  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-5));
   padding-left: var(--yp-page-pad-x);
   padding-right: var(--yp-page-pad-x);
+  /* ★ r59: เพิ่ม padding-bottom จาก space-5 → space-7 ให้ส่วนท้ายหน้าโล่ง */
+  padding-bottom: var(--yp-space-7);
   max-width: var(--yp-container-max);
   margin: 0 auto;
   width: 100%;
@@ -25,7 +34,9 @@
   background-size: 180% 180%, 180% 180%, 100% 100%;
   color: white;
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-8) var(--yp-space-6);
+  /* ★ r59: ขยาย padding จาก space-8/space-6 → space-10/space-8
+     ทำให้ hero หายใจมากขึ้น เนื้อหาไม่อัดชิดขอบ สบายตาแบบ native app */
+  padding: var(--yp-space-10) var(--yp-space-8);
   /* ★ r56: shadow ลดลง ~50% ให้ hero ดูนิ่งขึ้น ไม่ฟุ้ง */
   box-shadow: var(--yp-shadow-indigo);
   position: relative;
@@ -113,14 +124,15 @@
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   color: white;
   border-radius: var(--yp-radius-hero);
-  /* ★ r57: เพิ่ม padding ให้ hero หายใจมากขึ้น — จาก space-7/6 → space-8/7
-     ทำให้เนื้อหา hero ไม่อัดชิดขอบ ดูสมดุลกับขนาดที่ใหญ่ขึ้น */
-  padding: var(--yp-space-8) var(--yp-space-7);
+  /* ★ r59: ขยาย padding จาก space-8/space-7 → space-10/space-8
+     ทำให้ hero หายใจมากขึ้น เนื้อหาไม่อัดชิดขอบ สบายตาแบบ native app
+     อ้างอิง Apple HIG — ใช้ generous padding สำหรับ hero blocks */
+  padding: var(--yp-space-10) var(--yp-space-8);
   /* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างจาก hero ไป section แรก
-     จาก --yp-space-6 (26px) เป็น --yp-space-8 (36px) — ให้ hero
-     "หายใจ" มากขึ้น และเห็นชัดว่า hero จบที่ไหน section ถัดไปเริ่มที่ไหน
-     ★ r57: จาก space-8 (32px) → space-10 (40px) ให้ห่างขึ้นอีก */
-  margin-bottom: var(--yp-space-10);
+     ★ r57: จาก space-8 (32px) → space-10 (40px) ให้ห่างขึ้นอีก
+     ★ r59: ขยายจาก space-10 → space-12 (56px) ให้ hero "หายใจ" มากขึ้น
+     ชัดเจนว่า hero จบที่ไหน section ถัดไปเริ่มที่ไหน */
+  margin-bottom: var(--yp-space-12);
   /* ★ r56: ลด shadow ลง ~45% — ใช้ shadow เดียวชั้นเบา แทน 3 ชั้นหนา
      hero ยังดูมีมิติ แต่ไม่ฟุ้ง ไม่หนัก ดูนิ่งขึ้น */
   box-shadow:
@@ -209,8 +221,9 @@
 .yp-today-hero__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  /* ★ r57: เพิ่ม gap จาก space-2 (8px) → space-3 (12px) ให้แต่ละ stat ไม่อัดกัน */
-  gap: var(--yp-space-3);
+  /* ★ r57: เพิ่ม gap จาก space-2 (8px) → space-3 (12px) ให้แต่ละ stat ไม่อัดกัน
+     ★ r59: ขยาย gap จาก space-3 → space-4 (18px) ให้แต่ละ tile หายใจ */
+  gap: var(--yp-space-4);
 }
 
 .yp-today-hero__stat {
@@ -223,8 +236,9 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--yp-radius-md);
   /* ★ r57: ขยาย padding จาก space-3/space-2 → space-4/space-3
-     ทำให้ stat tile หายใจมากขึ้น ตัวเลขไม่อัดชิดขอบ */
-  padding: var(--yp-space-4) var(--yp-space-3);
+     ★ r59: ขยาย padding จาก space-4/space-3 → space-5/space-4
+     ทำให้ stat tile หายใจมากขึ้น ตัวเลขไม่อัดชิดขอบ สบายตาแบบ native app */
+  padding: var(--yp-space-5) var(--yp-space-4);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -233,8 +247,9 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 1px 2px rgba(49, 46, 129, 0.06);
-  /* ★ r57: ขยาย min-height จาก 76px → 88px ให้สมดุลกับ padding ใหม่ */
-  min-height: 88px;
+  /* ★ r57: ขยาย min-height จาก 76px → 88px ให้สมดุลกับ padding ใหม่
+     ★ r59: ขยาย min-height จาก 88px → 100px ให้สมดุลกับ padding ที่ใหญ่ขึ้น */
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -275,13 +290,13 @@
 }
 
 /* Today sections */
-/* ★ r58: เพิ่มระยะระหว่าง section จาก space-10 (40px) → space-12 (48px)
-   ให้แต่ละ section มีที่หายใจมากขึ้น ดูโล่งสบายตา เพราะตอนนี้ radius
-   กลับมาโค้งมนอีกครั้ง การเว้นระยะมากขึ้นช่วยให้ดูไม่อัดกัน */
-.yp-today-section + .yp-today-section { margin-top: var(--yp-space-12); }
+/* ★ r59 (carried from r58): เพิ่มระยะระหว่าง section จาก space-10 (40px) → space-12 (48px)
+   ★ r59: ขยายจาก space-12 → space-16 (72px) ให้แต่ละ section มีที่หายใจมากขึ้น
+   ดูโล่งสบายตา สมดุลกับ radius ที่กลับมาโค้งมนสูงอีกครั้ง */
+.yp-today-section + .yp-today-section { margin-top: var(--yp-space-16); }
 
 .yp-today-section--panel + .yp-today-section--panel {
-  margin-top: var(--yp-space-12);
+  margin-top: var(--yp-space-16);
 }
 
 .yp-today-section__head {
@@ -289,9 +304,10 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  /* ★ r58: ขยายจาก space-5 → space-6 (24px) ให้ head กับ content ห่างขึ้น
-     ทำให้ดูสบายตา มีลำดับชั้นชัดเจนขึ้น */
-  margin-bottom: var(--yp-space-6);
+  /* ★ r59 (carried from r58): ขยายจาก space-5 → space-6 (24px) ให้ head กับ content ห่างขึ้น
+     ★ r59: ขยายจาก space-6 → space-7 (32px) ให้ห่างจาก content มากขึ้น
+     ทำให้ดูสบายตา มีลำดับชั้นชัดเจนขึ้น สมดุลกับ radius ที่โค้งมน */
+  margin-bottom: var(--yp-space-7);
 }
 
 .yp-today-section__title {
@@ -306,7 +322,7 @@
   padding-left: var(--yp-space-3);
 }
 
-/* ★ r58: Accent bar — ปรับให้สมดุลกับ radius ที่กลับมาโค้งมน
+/* ★ r59 (carried from r58): Accent bar — ปรับให้สมดุลกับ radius ที่กลับมาโค้งมน
    บางลงเล็กน้อย (3px → 4px) แต่ยังเข้ากับ typography ใหญ่ขึ้น */
 .yp-today-section__title::before {
   content: '';
@@ -364,20 +380,21 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Time Section ──
-   ★ r58: ปรับให้ time-section head มีระยะหายใจที่สมดุลกับ scale
-     ขยาย margin และ gap ให้ดูโล่งขึ้น */
+   ★ r59 (carried from r58): ปรับให้ time-section head มีระยะหายใจที่สมดุลกับ scale
+   ★ r59: ขยาย margin-bottom จาก space-5 → space-6 ให้ time-section ห่างจากตัวถัดไป
+     และขยาย gap ใน head จาก space-3 → space-4 ให้ icon กับ label ห่างขึ้น */
 .yp-today-time-section {
-  /* ★ r58: ขยายจาก space-4 → space-5 (20px) ให้ time-section ห่างจากตัวถัดไป */
-  margin-bottom: var(--yp-space-5);
+  /* ★ r59: ขยายจาก space-5 → space-6 (24px) ให้ time-section ห่างจากตัวถัดไป */
+  margin-bottom: var(--yp-space-6);
 }
 
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  /* ★ r58: ขยาย gap จาก space-2 → space-3 ให้ icon กับ label ห่างขึ้น */
-  gap: var(--yp-space-3);
-  /* ★ r58: ขยาย margin-bottom จาก space-2 → space-3 ให้ head ห่างจากการ์ด */
-  margin-bottom: var(--yp-space-3);
+  /* ★ r59: ขยาย gap จาก space-3 → space-4 ให้ icon กับ label ห่างขึ้น */
+  gap: var(--yp-space-4);
+  /* ★ r59: ขยาย margin-bottom จาก space-3 → space-4 ให้ head ห่างจากการ์ด */
+  margin-bottom: var(--yp-space-4);
   padding-bottom: 0;
 }
 
@@ -445,12 +462,13 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Card list container ──
-   ★ r57: ขยาย gap จาก space-3 (12px) → space-4 (16px) ให้การ์ด
-   แต่ละใบห่างกันพอ ไม่อัด อ่านง่ายขึ้น */
+   ★ r57: ขยาย gap จาก space-3 (12px) → space-4 (16px)
+   ★ r59: ขยาย gap จาก space-4 → space-5 (24px) ให้การ์ดแต่ละใบห่างกัน
+   ไม่อัด อ่านง่ายขึ้น สบายตาแบบ native app */
 .yp-today-card-list {
   display: flex;
   flex-direction: column;
-  gap: var(--yp-space-4);
+  gap: var(--yp-space-5);
 }
 
 /* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
@@ -468,13 +486,14 @@
 /* ★ v3.10.0 รอบที่ 30: banner — top corners full radius (lg)
    bottom corners 0 (ต่อเนื่องกับ progress / cards)
    ใช้ accent tint อ่อนๆ แทนสีเข้ม
-   ★ r57: ขยาย padding จาก space-3/space-4 → space-4/space-5 ให้ banner
-   หายใจมากขึ้น title ไม่อัดชิดขอบ */
+   ★ r57: ขยาย padding จาก space-3/space-4 → space-4/space-5
+   ★ r59: ขยาย padding จาก space-4/space-5 → space-5/space-6
+   ให้ banner หายใจมากขึ้น title ไม่อัดชิดขอบ */
 .yp-today-group__banner {
   display: flex;
   align-items: center;
   gap: var(--yp-space-2);
-  padding: var(--yp-space-4) var(--yp-space-5);
+  padding: var(--yp-space-5) var(--yp-space-6);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, var(--yp-bg-card));
   border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-border-subtle));
   margin-bottom: 0;
@@ -644,18 +663,19 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (v3.10.0-r58 — Refined & Spacious) ──
-   ★ r58: ปรับให้ดูสบายตาและสมดุลยิ่งขึ้น
-     - padding เพิ่มจาก space-5 (20px) → space-6 (24px) — เพิ่มที่ว่างรอบๆ
-     - Title line-height 1.5 → 1.55 — อ่านง่ายขึ้นสำหรับ Thai
-     - Top-row gap เพิ่มจาก space-2 → space-3 — ไม่อัด
-     - Border-left (accent) 4px → 5px — ขยายนิดหน่อยให้สมดุลกับ padding
-     - Badge padding เพิ่มเล็กน้อย 4px/11px → 5px/12px */
+/* ── Today Item Card (v3.10.0-r59 — Native App Standard & Spacious) ──
+   ★ r59 (carried from r58): ปรับให้ดูสบายตาและสมดุลยิ่งขึ้น
+   ★ r59: ปรับให้เป็น native app standard — โล่ง สะอาด น่าใช้
+     - padding เพิ่มจาก space-6 (24px) → space-7 (32px) — เพิ่มที่ว่างรอบๆ
+     - Title line-height 1.55 → 1.6 — อ่านง่ายขึ้นสำหรับ Thai
+     - Top-row padding-bottom/margin-bottom จาก space-4 → space-5
+     - Border-left (accent) 5px → 6px — ขยายนิดหน่อยให้สมดุลกับ padding
+     - Badge padding จาก 5px/12px → 6px/14px */
 .yp-today-item-card {
   position: relative;
-  /* ★ r58: ขยาย padding จาก space-5 → space-6 ให้การ์ดมีที่หายใจ
-     สมดุลกับ radius ที่กลับมาโค้งมน */
-  padding: var(--yp-space-6);
+  /* ★ r59: ขยาย padding จาก space-6 → space-7 ให้การ์ดมีที่หายใจ
+     สมดุลกับ radius ที่กลับมาโค้งมนสูง สบายตาแบบ native app */
+  padding: var(--yp-space-7);
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
@@ -664,8 +684,8 @@
     background 160ms var(--yp-ease-m3-decelerate),
     border-color var(--yp-t-fast);
   box-shadow: none;
-  /* ★ r58: ขยาย accent bar จาก 4px → 5px สมดุลกับ padding ที่ใหญ่ขึ้น */
-  border-left: 5px solid transparent;
+  /* ★ r59: ขยาย accent bar จาก 5px → 6px สมดุลกับ padding ที่ใหญ่ขึ้น */
+  border-left: 6px solid transparent;
 }
 
 /* ★ r46: Subtask Clarity — left accent bar + tinted background
@@ -709,18 +729,18 @@
   min-width: 0;
 }
 
-/* ── ★ r58: Row 1 — Top row container
+/* ── ★ r59: Row 1 — Top row container
    บรรจุ subtag/type-tag (ซ้าย) + time + menu (ขวา)
-   ★ r58: เพิ่ม gap จาก space-2 → space-3, ขยาย padding-bottom/margin-bottom
-     จาก space-3 → space-4 ให้ห่างจาก title มากขึ้น */
+   ★ r59: ขยาย padding-bottom/margin-bottom จาก space-4 → space-5
+     ให้ห่างจาก title มากขึ้น สบายตาแบบ native app */
 .yp-today-item-card__top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
   min-height: 24px;
-  padding-bottom: var(--yp-space-4);
-  margin-bottom: var(--yp-space-4);
+  padding-bottom: var(--yp-space-5);
+  margin-bottom: var(--yp-space-5);
   border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
 }
 
@@ -844,13 +864,13 @@
 
 /* ── Row 2: Title (hero) ──
    ★ r57: ขยาย font-weight จาก semibold → bold เพื่อ hierarchy ที่ชัดเจนขึ้น
-   ★ r58: line-height 1.5 → 1.55 — เพิ่มนิดหน่อยให้อ่านง่ายขึ้นสำหรับ Thai
-     ขยาย gap จาก space-2 → space-3 ให้ icon กับ title ห่างกัน */
+   ★ r59 (carried from r58): line-height 1.5 → 1.55 — เพิ่มนิดหน่อยให้อ่านง่ายขึ้นสำหรับ Thai
+   ★ r59: line-height 1.55 → 1.6 — อ่านง่ายขึ้นสำหรับ Thai สบายตาแบบ native app */
 .yp-today-item-card__title {
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-heading);
-  line-height: 1.55;
+  line-height: 1.6;
   word-break: break-word;
   letter-spacing: -0.005em;
   display: flex;
@@ -879,12 +899,13 @@
 }
 
 /* ── Row 3: From group (sub-items only) ──
-   ★ r58: margin-top เพิ่มจาก space-2 → space-3 ให้ห่างจาก title มากขึ้น */
+   ★ r59 (carried from r58): margin-top เพิ่มจาก space-2 → space-3
+   ★ r59: margin-top เพิ่มจาก space-3 → space-4 ให้ห่างจาก title มากขึ้น */
 .yp-today-item-card__group {
   display: flex;
   align-items: center;
   gap: var(--yp-space-1);
-  margin-top: var(--yp-space-3);
+  margin-top: var(--yp-space-4);
   min-width: 0;
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
@@ -912,19 +933,21 @@
 }
 
 /* ── Row 4: Badges ──
-   ★ r58: margin-top คงไว้ที่ space-4, gap จาก space-2 → space-3 ให้ห่างกัน
-     ทำให้ badges ดูสะอาดตาขึ้น */
+   ★ r59 (carried from r58): margin-top คงไว้ที่ space-4, gap จาก space-2 → space-3
+   ★ r59: margin-top จาก space-4 → space-5, gap คงที่ space-3
+     ทำให้ badges ดูสะอาดตาขึ้น สบายตาแบบ native app */
 .yp-today-item-card__badges {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--yp-space-3);
-  margin-top: var(--yp-space-4);
+  margin-top: var(--yp-space-5);
 }
 
 /* Individual badge — small pill
-   ★ r58: padding 4px/11px → 5px/12px ให้ดูสบายขึ้น สมดุลกับ text-xs (12px)
-     border-radius ใช้ pill แต่ padding ใหญ่ขึ้น */
+   ★ r59 (carried from r58): padding 4px/11px → 5px/12px
+   ★ r59: padding 5px/12px → 6px/14px ให้ดูสบายขึ้น สมดุลกับ text-xs (12px)
+     border-radius ใช้ pill แต่ padding ใหญ่ขึ้น สบายตาแบบ native app */
 .yp-today-item-card__badge {
   display: inline-flex;
   align-items: center;
@@ -932,7 +955,7 @@
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
-  padding: 5px 12px;
+  padding: 6px 14px;
   background: var(--yp-bg-card-soft);
   border: 1px solid transparent;
   border-radius: var(--yp-radius-pill);
@@ -1018,7 +1041,9 @@
   display: flex;
   align-items: center;
   gap: var(--yp-space-3);
-  padding: var(--yp-space-3) var(--yp-space-4);
+  /* ★ r59: ขยาย padding จาก space-3/space-4 → space-4/space-5
+     ให้ compact item หายใจมากขึ้น สบายตาแบบ native app */
+  padding: var(--yp-space-4) var(--yp-space-5);
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--yp-border-subtle);
