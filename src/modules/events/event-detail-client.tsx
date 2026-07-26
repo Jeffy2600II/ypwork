@@ -104,6 +104,22 @@ export function EventDetailClient({
   const [activeTaskId, setActiveTaskId] = React.useState<string | null>(null);
   const [manageOpen, setManageOpen] = React.useState(false);
   const [addTaskOpen, setAddTaskOpen] = React.useState(false);
+  // ★ v3.10.0 รอบที่ 55: แก้บั๊ก close animation "jump" ของ AddTaskSheet
+  //   สาเหตุเดิม: key={`add-task-${addTaskOpen ? 'open' : 'closed'}`} เปลี่ยนค่า
+  //   ทั้งตอนเปิด "และ" ตอนปิด → React unmount/remount ทั้ง component ทันทีที่ปิด
+  //   ทำให้ BottomSheet ไม่ได้ผ่าน closing-phase state machine ของตัวเองเลย
+  //   (jump แทน slide ตอนปิดด้วย overlay/ปุ่มกากบาท และ FAB ไม่กลับมาแสดง
+  //   เพราะ overlay-stack unregister/re-register ผิดจังหวะไปกับ remount)
+  //
+  //   วิธีแก้: แยก "reset form" ออกจาก "close animation" —
+  //   ใช้ generation counter ที่ increment เฉพาะตอน "เปิด" เท่านั้น
+  //   ตอนปิด ไม่เปลี่ยน key → component เดิมยังอยู่ → closing phase
+  //   ทำงานได้ตามปกติ ส่วนฟอร์มยัง reset ทุกครั้งที่เปิดใหม่เหมือนเดิม
+  const [addTaskGen, setAddTaskGen] = React.useState(0);
+  const openAddTaskSheet = React.useCallback(() => {
+    setAddTaskGen((g) => g + 1);
+    setAddTaskOpen(true);
+  }, []);
   const [editTaskPickerOpen, setEditTaskPickerOpen] = React.useState(false);
   const [editTaskOpen, setEditTaskOpen] = React.useState(false);
   const [editTaskId, setEditTaskId] = React.useState<string | null>(null);
@@ -727,7 +743,7 @@ export function EventDetailClient({
               <button
                 type="button"
                 className="yp-add-task-btn"
-                onClick={() => setAddTaskOpen(true)}
+                onClick={openAddTaskSheet}
               >
                 <Plus />
                 <span>เพิ่มรายการย่อย</span>
@@ -816,7 +832,7 @@ export function EventDetailClient({
               <button
                 type="button"
                 className="yp-add-task-btn yp-add-task-btn--standalone"
-                onClick={() => setAddTaskOpen(true)}
+                onClick={openAddTaskSheet}
               >
                 <Plus />
                 <span>เพิ่มรายการย่อย</span>
@@ -861,7 +877,7 @@ export function EventDetailClient({
           ADD TASK SHEET (ครบทุก field เหมือน demo)
           ═══════════════════════════════════════════════════════════════ */}
       <AddTaskSheet
-        key={`add-task-${addTaskOpen ? 'open' : 'closed'}`}
+        key={`add-task-${addTaskGen}`}
         open={addTaskOpen}
         onClose={() => setAddTaskOpen(false)}
         event={event}
@@ -1069,7 +1085,7 @@ export function EventDetailClient({
                 className="yp-manage-sheet__action"
                 onClick={() => {
                   setManageOpen(false);
-                  setTimeout(() => setAddTaskOpen(true), SHEET_CLOSE_DURATION);
+                  setTimeout(openAddTaskSheet, SHEET_CLOSE_DURATION);
                 }}
               >
                 <div className="yp-manage-sheet__icon">
