@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r59 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r60 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -104,34 +104,40 @@
      ★ v3.9.4: tile 40px → 80px, opacity 6%/4% → 3%/2% */
   --yp-hero-pattern-plus-accent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%234F46E5' fill-opacity='0.03' transform='translate(0 8)'/%3E%3Cpath d='M36 12h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='%237C3AED' fill-opacity='0.02' transform='translate(40 48)'/%3E%3C/g%3E%3C/svg%3E");
   /* ── SPACING ──
-     ★ v3.10.0 รอบที่ 59: ขยายจังหวะระยะห่างทั่วทั้งระบบให้โล่งขึ้นกว่า r58
-     ตามแนวทาง native app (Apple HIG, Material 3) ที่เน้น breathing room
-     ระดับ 4 ขึ้นไปขยายเพิ่มจาก r58 ~12-20% ให้สบายตา ไม่อึดอัด
-     ระดับเล็ก 1-3 คงเดิมเพื่อรักษาความกะทัดรัดของชิ้นเล็กในฟอร์ม/ชิป */
-  --yp-space-1:  0.25rem;   /* 4px  */
-  --yp-space-2:  0.5rem;    /* 8px  */
-  --yp-space-3:  0.75rem;   /* 12px */
-  --yp-space-4:  1.125rem;  /* 18px — r58:16 → r59:18 (โล่งขึ้นเล็กน้อย) */
-  --yp-space-5:  1.5rem;    /* 24px — r58:20 → r59:24 */
-  --yp-space-6:  1.75rem;   /* 28px — r58:24 → r59:28 */
-  --yp-space-7:  2rem;      /* 32px — r58:28 → r59:32 */
-  --yp-space-8:  2.375rem;  /* 38px — r58:32 → r59:38 (สัดส่วนทอง) */
-  --yp-space-10: 3rem;      /* 48px — r58:40 → r59:48 */
-  --yp-space-12: 3.5rem;    /* 56px — r58:48 → r59:56 */
-  --yp-space-16: 4.5rem;    /* 72px — r58:64 → r59:72 */
-  --yp-space-20: 5.5rem;    /* 88px — r58:80 → r59:88 */
-  /* ── BORDER RADIUS ──
-     ★ v3.10.0 รอบที่ 59: คืนค่าความโค้งมนสูงระดับ r56 ตามที่ผู้ใช้ชอบ
-     r58 ลดโค้งลงเหลือ 14-44px ทำให้ดูแข็งทื่อเกินไป
-     r59 คืนค่าใกล้เคียง r56 (26-84px) พร้อมปรับแต่งนิดหน่อยเพื่อความสมดุล
-     อ้างอิง: Linear, Vercel, Apple Vision Pro, Telegram — soft squircle
-     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill */
-  --yp-radius-xs:   24px;    /* small chips, dots — r56:26 → r58:14 → r59:24 (คืนใกล้ r56) */
-  --yp-radius-sm:   32px;    /* small icon containers — r56:34 → r58:18 → r59:32 */
-  --yp-radius-md:   42px;    /* controls, buttons, FAB — r56:44 → r58:22 → r59:42 */
-  --yp-radius-lg:   52px;    /* cards, panels — r56:54 → r58:28 → r59:52 */
-  --yp-radius-xl:   66px;    /* hero blocks — r56:68 → r58:36 → r59:66 */
-  --yp-radius-2xl:  82px;    /* feature panels — r56:84 → r58:44 → r59:82 */
+     ★ v3.10.0 รอบที่ 13: ขยายจังหวะระยะห่างขึ้นเล็กน้อยทั่วทั้งระบบ
+     ให้เนื้อหามีที่หายใจมากขึ้น รู้สึกสงบ นิ่ง ไม่อึดอัด — ปรับที่ระดับ 4
+     ขึ้นไปเท่านั้น (ระดับเล็ก 1-3 คงเดิม กันของชิ้นเล็กในฟอร์ม/ชิป ห่างเกินไป)
+     ★ v3.10.0 รอบที่ 60: ขยายเพิ่มอีกขั้นเฉพาะระดับ 8 ขึ้นไป (ระยะระหว่าง
+     section/กลุ่มเนื้อหาใหญ่) เพื่อให้หน้าที่มีหลายบล็อก (โดยเฉพาะ Today)
+     รู้สึกโล่งขึ้น สมดุลขึ้น ไม่อัดกันเป็นแถบเดียว — ระดับ 4-7 (ในการ์ด/ฟอร์ม)
+     คงเดิม ไม่แตะ เพื่อไม่ให้ component เล็กบวมจนดูหลวม */
+  --yp-space-1:  0.25rem;
+  --yp-space-2:  0.5rem;
+  --yp-space-3:  0.75rem;
+  --yp-space-4:  1.0625rem;
+  --yp-space-5:  1.375rem;
+  --yp-space-6:  1.625rem;
+  --yp-space-7:  1.875rem;
+  --yp-space-8:  2.5rem;
+  --yp-space-10: 3rem;
+  --yp-space-12: 3.5rem;
+  --yp-space-16: 4.25rem;
+  --yp-space-20: 5.25rem;
+  /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
+     (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
+     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
+  --yp-radius-xs:   26px;
+  /* v3.9.3: +2 จาก 24 — small chips, dots */
+  --yp-radius-sm:   34px;
+  /* v3.9.3: +2 จาก 32 — small icon containers */
+  --yp-radius-md:   44px;
+  /* v3.9.3: +4 จาก 40 — controls, buttons, FAB */
+  --yp-radius-lg:   54px;
+  /* v3.9.3: +6 จาก 48 — cards, panels */
+  --yp-radius-xl:   68px;
+  /* v3.9.3: +8 จาก 60 — hero blocks */
+  --yp-radius-2xl:  84px;
+  /* v3.9.3: +12 จาก 72 — feature panels */
   --yp-radius-pill: 999px;
   --yp-radius-control: var(--yp-radius-md);
   --yp-radius-card:    var(--yp-radius-lg);
@@ -146,22 +152,18 @@
   --yp-field-gap: var(--yp-space-5);
   --yp-field-label-gap: var(--yp-space-2);
   --yp-field-hint-gap: 6px;
-  /* ── TYPOGRAPHY ──
-     ★ v3.10.0 รอบที่ 57: ปรับ type scale ให้เป็น modular (ratio ~1.15)
-     แต่ละขั้นมี ratio สม่ำเสมอ ทำให้ hierarchy ชัดเจนขึ้น
-     อ่านง่ายขึ้น สมดุลกับอุปกรณ์ทุกขนาด */
+  /* ── TYPOGRAPHY ── */
   --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
-  --yp-text-xs:   0.75rem;   /* 12px */
-  --yp-text-sm:   0.875rem;  /* 14px */
-  --yp-text-base: 1rem;     /* 16px */
-  --yp-text-lg:   1.125rem;  /* 18px */
-  --yp-text-xl:   1.375rem;  /* 22px — was 20px, +2px for better hierarchy */
-  --yp-text-2xl:  1.625rem;  /* 26px — was 24px */
-  --yp-text-3xl:  2rem;      /* 32px — was 30px */
-  --yp-text-4xl:  2.5rem;    /* 40px — was 36px */
-  --yp-leading-tight:   1.3;  /* was 1.25 — slightly looser for Thai readability */
-  --yp-leading-snug:     1.4;  /* NEW — for headings with descenders */
+  --yp-text-xs:   0.75rem;
+  --yp-text-sm:   0.875rem;
+  --yp-text-base: 1rem;
+  --yp-text-lg:   1.125rem;
+  --yp-text-xl:   1.25rem;
+  --yp-text-2xl:  1.5rem;
+  --yp-text-3xl:  1.875rem;
+  --yp-text-4xl:  2.25rem;
+  --yp-leading-tight:   1.25;
   --yp-leading-normal:  1.6;
   --yp-leading-relaxed: 1.75;
   --yp-fw-normal:   400;
@@ -205,9 +207,8 @@
   --yp-container-sm:   600px;
   --yp-nav-bottom-h:   96px;
   --yp-nav-top-h:      52px;
-  --yp-page-pad-x:     1.25rem;
-  /* ★ r59: 1.125 → 1.25rem — ขยายระยะขอบซ้าย-ขวา ให้หน้าจอดูโล่งขึ้น
-     ตามแนวทาง native app ที่เน้น breathing room รอบเนื้อหา */
+  --yp-page-pad-x:     1.125rem;
+  /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
   --yp-fab-size:       56px;
   /* ★ v3.9.7: Left-rail width — 0 on mobile (no rail), 96-120px on desktop
      ใช้โดย .app-main (padding-left) และ .top-bar (left) เพื่อเว้นที่ให้ left-rail
@@ -220,11 +221,11 @@
   --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
   --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
   --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
-  --yp-card-pad:    1.5rem;     /* r59: 1.25 → 1.5 — การ์ดหายใจมากขึ้น */
-  --yp-card-pad-lg: 1.875rem;   /* r59: 1.625 → 1.875 — การ์ดใหญ่สบายตา */
-  --yp-section-gap: 2rem;       /* r59: 1.75 → 2 — section ห่างขึ้น */
-  --yp-content-gap: 1.25rem;    /* r59: 1.125 → 1.25 — content หายใจ */
-  --yp-stack-gap:   0.875rem;   /* r59: 0.75 → 0.875 — stack พอเหมาะ */
+  --yp-card-pad:    1.25rem;
+  --yp-card-pad-lg: 1.625rem;
+  --yp-section-gap: 1.75rem;
+  --yp-content-gap: 1.125rem;
+  --yp-stack-gap:   0.75rem;
   /* ── Z-INDEX ── */
   --yp-z-sticky:  100;
   --yp-z-fab:     200;
@@ -237,14 +238,11 @@
   --yp-safe-bottom: env(safe-area-inset-bottom, 0px);
   --yp-safe-left:   env(safe-area-inset-left, 0px);
   --yp-safe-right:  env(safe-area-inset-right, 0px);
-  /* ── HEADLINE SCALE ──
-     ★ v3.10.0 รอบที่ 57: ขยายช่วงระหว่าง h1/h2/h3 ให้ห่างขึ้น
-     ก่อนหน้านี้ h1/h2/h3 ต่างกันแค่ 2-3px ทำให้ hierarchy ไม่ชัด
-     ตอนนี้แต่ละระดับห่างกัน ~4-5px ทำให้เห็นชัดว่าหัวข้อไหนใหญ่กว่ากัน */
-  --yp-h1-size: clamp(1.40rem, 1.20rem + 0.7vw, 1.75rem);  /* 22.4 → 28px — was 21 → 26 */
-  --yp-h2-size: clamp(1.20rem, 1.10rem + 0.5vw, 1.45rem);  /* 19.2 → 23.2px — was 18 → 21 */
-  --yp-h3-size: clamp(1.06rem, 1.00rem + 0.3vw, 1.20rem);  /* 17 → 19.2px — was 16 → 19 */
-  --yp-lead-size: clamp(1rem, 0.97rem + 0.15vw, 1.10rem);  /* 16 → 17.6px — was 15 → 17 */
+  /* ── HEADLINE SCALE ── */
+  --yp-h1-size: clamp(1.30rem, 1.15rem + 0.6vw, 1.60rem);
+  --yp-h2-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.32rem);
+  --yp-h3-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.17rem);
+  --yp-lead-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
   /* shadcn compat */
   --radius: 0.625rem;
   --background: var(--yp-bg-page);

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Base Styles (@layer base) — v3.10.0-r59 (Modular CSS Refactor)
+   YP WORK · Base Styles (@layer base) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -48,15 +48,8 @@
   h1, h2, h3, h4, h5, h6 {
     color: var(--yp-text-heading);
     font-weight: var(--yp-fw-bold);
-    /* ★ r57: ใช้ leading-snug แทน leading-tight — Thai descenders
-       ต้องการพื้นที่มากกว่า Latin ทำให้อ่านง่ายขึ้น ไม่อัดกัน */
-    line-height: var(--yp-leading-snug);
-    letter-spacing: -0.005em;
+    line-height: var(--yp-leading-tight);
   }
-
-  /* ★ r57: ปรับ paragraph rhythm ให้สมดุล — เว้นระยะหายใจระหว่าง paragraphs */
-  p { margin: 0 0 0.75em 0; }
-  p:last-child { margin-bottom: 0; }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {

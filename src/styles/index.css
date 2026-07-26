@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Library Manifest — v3.10.0-r59
+   YP WORK · Design Library Manifest — v3.10.0-r56
    ═══════════════════════════════════════════════════════════════
    
    This is the central manifest that imports ALL modular CSS files
@@ -8,7 +8,7 @@
    
    ★ CASCADE ORDER MATTERS — do NOT reorder imports!
    
-   Architecture (Round 58 — Modular CSS Refactor):
+   Architecture (Round 56 — Modular CSS Refactor):
    ┌─────────────────────────────────────────────────────────┐
    │ src/styles/           ← Central Design Library          │
    │   ├── index.css       ← THIS manifest file              │
@@ -238,13 +238,8 @@
 /* ── PHASE 56: Framework r50 — Responsive ── */
 @import "../components/framework/shared/framework-responsive.css";
 
-/* ── PHASE 57: Native App Polish (r59 NEW) ──
-   ★ r59: Native app standard polish — smooth scrolling, focus ring,
-   touch targets, scrollbar styling, reduced visual noise */
-@import "./interactions/native-app-polish-r59.css";
-
-/* ── PHASE 58: Accessibility (prefers-reduced-motion — MUST be last) ── */
+/* ── PHASE 57: Accessibility (prefers-reduced-motion — MUST be last) ── */
 @import "./accessibility.css";
 
-/* ── PHASE 59: Framework r50 — Reduced Motion (MUST be very last) ── */
+/* ── PHASE 58: Framework r50 — Reduced Motion (MUST be very last) ── */
 @import "../components/framework/shared/framework-reduced-motion.css";
