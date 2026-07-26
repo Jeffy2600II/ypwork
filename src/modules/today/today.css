@@ -1,18 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r60
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r61
    ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
      (Linear, Vercel, Stripe) — เงา "เห็นประปราย" ไม่ฟุ้ง ไม่หนัก
      โครงสร้าง 3 sections (Overdue/Today/Upcoming) ปรับให้นิ่ง มั่นคง สะอาดตา
      ใช้ border + background tint เป็นตัวสร้าง hierarchy แทน shadow หนา
-   ★ r60: หน้านี้เป็นจุดโฟกัสหลักของรอบนี้ — ปรับสมดุลรอบใหม่:
-     - Hero: ลดเลเยอร์ pattern ซ้อนจาก 2 ชั้นเหลือ 1 ชั้น (ตัด sparkle ออก)
-       ให้พื้นผิว "เรียบ" มากขึ้นตามที่ขอ ไม่ใช่ลดความโค้งมน — ความมนของ
-       --yp-radius-hero ยังคงเดิมทั้งหมด — และลดชั้นเงาจาก 3 เหลือ 2
-     - เพิ่ม padding ภายใน hero + gap ของ stat tiles ให้หายใจสะดวกขึ้น
-     - เพิ่ม padding การ์ดรายการ (item card) จาก 18px → 20px และเพิ่มระยะ
-       ระหว่างแถวภายในการ์ด (top-row/group/badges) ให้สมดุล ไม่อัดกัน
-     - ใช้ --yp-space-8/10/12 ที่ขยายใน tokens.css รอบนี้ ทำให้ระยะห่าง
-       ระหว่าง section ทั่วทั้งหน้าโล่งขึ้นโดยอัตโนมัติ
+   ★ r60: ลดเลเยอร์ pattern ซ้อนใน hero จาก 2 ชั้นเหลือ 1 ชั้น + ลดชั้นเงา
+     และเคยขยาย padding/gap ต่างๆ แบบ global (ทุกขนาดจอ) เพื่อความโปร่ง
+   ★ r61: ทดสอบจริงบนมือถือแล้วพบว่าค่าที่ขยายในรอบ 60 ใช้กับทุกขนาดจอ
+     ทำให้มือถือ (พื้นที่จำกัด) รู้สึกอึดอัดกว่าเดิม ไม่สมดุลกับตัวอักษร —
+     แก้โดยคง padding/gap บนมือถือกลับไปที่ค่ารอบ 56 (18px card, 12px
+     list gap, space-2 stat gap ฯลฯ) แล้วย้ายค่าที่โปร่งขึ้นของรอบ 60 ไป
+     ใช้เฉพาะ @media (min-width: 768px) ขึ้นไปแทน — เดสก์ท็อป/แท็บเล็ต
+     ยังโล่งขึ้นตามต้องการ ส่วนมือถือกลับไปกระชับ สมดุลกับขนาดตัวอักษร
+     เหมือนก่อนหน้า ส่วนการลดเลเยอร์ pattern/เงาของ hero (r60) ยังคงไว้
+     เพราะเป็นเรื่องความสะอาดตา ไม่เกี่ยวกับพื้นที่แสดงผล
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
@@ -201,10 +202,19 @@
 .yp-today-hero__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  /* ★ r60: ขยาย gap จาก space-2 (8px) → space-3 (12px) ให้ tile
-     แต่ละช่องแยกจากกันชัดขึ้น ไม่รู้สึกเบียดติดกัน */
-  gap: var(--yp-space-3);
+  /* ★ r60: เคยขยาย gap เป็น space-3 แบบ global
+     ★ r61: กลับมาใช้ space-2 (8px) บนมือถือ — จอเล็กมี 3 tile เรียงแถว
+     เดียวกัน ถ้า gap กว้างเกินไปจะเบียดความกว้างของแต่ละ tile จนตัวเลข/
+     label ดูอัดแทน ค่าที่กว้างขึ้นย้ายไปอยู่ใน media query ด้านล่าง
+     สำหรับจอ ≥768px ที่มีที่ว่างมากพอ */
+  gap: var(--yp-space-2);
   margin-top: var(--yp-space-1);
+}
+
+@media (min-width: 768px) {
+  .yp-today-hero__stats {
+    gap: var(--yp-space-3);
+  }
 }
 
 .yp-today-hero__stat {
@@ -216,9 +226,11 @@
   -webkit-backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--yp-radius-md);
-  /* ★ r60: เพิ่ม padding แนวตั้งเล็กน้อย (space-3→space-4) ให้ตัวเลข/label
-     ไม่ชิดขอบ tile จนเกินไป รู้สึกโปร่งขึ้น */
-  padding: var(--yp-space-4) var(--yp-space-2);
+  /* ★ r60: เคยขยาย padding แนวตั้งเป็น space-4 แบบ global
+     ★ r61: กลับมาใช้ space-3 บนมือถือ — tile สูงขึ้นบนจอแคบทำให้ hero
+     ทั้งก้อนสูงขึ้นตามไปด้วย กินพื้นที่จอเล็กที่มีจำกัดอยู่แล้ว
+     ค่าที่สูงขึ้นย้ายไปอยู่ใน media query ด้านล่างสำหรับจอ ≥768px */
+  padding: var(--yp-space-3) var(--yp-space-2);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -227,7 +239,7 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 1px 2px rgba(49, 46, 129, 0.06);
-  min-height: 80px;
+  min-height: 76px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,6 +274,15 @@
   letter-spacing: 0.02em;
   word-break: keep-all;
   line-height: 1.3;
+}
+
+/* ★ r61: จอ ≥768px มีพื้นที่พอ ให้ tile สูงขึ้น/หายใจมากขึ้นได้จริง
+   โดยไม่กระทบความกระชับของมือถือ (ดู base rule ด้านบน) */
+@media (min-width: 768px) {
+  .yp-today-hero__stat {
+    padding: var(--yp-space-4) var(--yp-space-2);
+    min-height: 80px;
+  }
 }
 
 /* Today sections */
@@ -436,9 +457,16 @@
 .yp-today-card-list {
   display: flex;
   flex-direction: column;
-  /* ★ r60: gap space-3 (12px) → space-4 (17px) ให้แต่ละกลุ่ม/การ์ด
-     แยกจากกันชัดขึ้น ลดความรู้สึกว่ารายการอัดติดกันเป็นพืด */
-  gap: var(--yp-space-4);
+  /* ★ r60: เคยขยาย gap เป็น space-4 แบบ global
+     ★ r61: กลับมาใช้ space-3 (12px) บนมือถือ — จอเล็กควรเห็นรายการได้
+     มากกว่าต่อการเลื่อน 1 หน้าจอ ค่าที่กว้างขึ้นย้ายไป media query ด้านล่าง */
+  gap: var(--yp-space-3);
+}
+
+@media (min-width: 768px) {
+  .yp-today-card-list {
+    gap: var(--yp-space-4);
+  }
 }
 
 /* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
@@ -636,11 +664,13 @@
      - hover state: shift to border-default + bg-card-soft (no shadow)
      - menu-open state: border indigo-tinted + tiny shadow (just enough to feel "active")
    - คง layout 4-row และ subtask accent bar เหมือนเดิม
-   - ★ r60: ขยาย padding 18px → 20px ให้เนื้อหาภายในการ์ดหายใจสะดวกขึ้น
-     ตามเป้าหมายรอบนี้ที่ต้องการลดความรู้สึกอึดอัด */
+   - ★ r60: เคยขยาย padding 18px → 20px แบบ global
+   - ★ r61: กลับมาใช้ 18px บนมือถือ — พื้นที่จอแคบ padding ที่มากขึ้นทำให้
+     เนื้อหาข้างในต้องบีบตัวลง (โดยเฉพาะ title ยาวๆ) ความรู้สึกเลยกลาย
+     เป็น "อึดอัด" แทนที่จะโปร่งขึ้น ค่า 20px ย้ายไปใช้เฉพาะจอ ≥768px */
 .yp-today-item-card {
   position: relative;
-  padding: 20px;
+  padding: 18px;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
@@ -711,9 +741,9 @@
   /* ★ r46: เพิ่ม padding-bottom + border-bottom (faint hairline)
      เพื่อแยก Row 1 (metadata) จาก Row 2 (title) ให้ชัดเจน
      ก่อนหน้านี้ไม่มี divider ทำให้ 4 บรรทัดดูยืดเดียวกัน */
-  /* ★ r60: margin-bottom 12px → 14px ให้สอดคล้องกับ card padding ที่ขยายขึ้น */
+  /* ★ r61: margin-bottom กลับเป็น 12px บนมือถือ (คู่กับ card padding 18px) */
   padding-bottom: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
 }
 
@@ -879,8 +909,8 @@
   align-items: center;
   gap: 5px;
   /* ★ r46: margin-top 4px → 8px ให้หายใจจาก title
-     ★ r60: 8px → 10px เพื่อให้สมดุลกับ badges ด้านล่างที่ขยายเช่นกัน */
-  margin-top: 10px;
+     ★ r61: กลับมา 8px บนมือถือ (r60 เคยขยับเป็น 10px แบบ global) */
+  margin-top: 8px;
   min-width: 0;
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
@@ -914,9 +944,9 @@
   flex-wrap: wrap;
   /* ★ r46: margin-top 8px → 14px ให้ badges หายใจจาก parent group
      เพราะ badges เป็นข้อมูลแยก (status/priority) ไม่ใช่ต่อจาก parent
-     ★ r60: 14px → 16px ให้สมดุลกับ padding การ์ดที่ขยายเป็น 20px */
+     ★ r61: กลับมา 14px บนมือถือ (r60 เคยขยับเป็น 16px แบบ global) */
   gap: 6px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 /* Individual badge — small pill */
@@ -940,6 +970,24 @@
   height: 11px;
   stroke-width: 2;
   flex-shrink: 0;
+}
+
+/* ★ r61: จอ ≥768px มีพื้นที่พอ ให้การ์ดรายการหายใจมากขึ้นได้จริง
+   (ค่าเดียวกับที่เคยลองใช้ global ในรอบ 60) โดยไม่กระทบความกระชับ
+   ของมือถือ ซึ่งกลับไปใช้ค่ารอบ 56 แล้ว (ดู base rules ด้านบน) */
+@media (min-width: 768px) {
+  .yp-today-item-card {
+    padding: 20px;
+  }
+  .yp-today-item-card__top-row {
+    margin-bottom: 14px;
+  }
+  .yp-today-item-card__group {
+    margin-top: 10px;
+  }
+  .yp-today-item-card__badges {
+    margin-top: 16px;
+  }
 }
 
 /* Status badge variants */

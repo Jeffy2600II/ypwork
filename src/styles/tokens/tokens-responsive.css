@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r61 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -16,6 +16,13 @@
     --yp-card-pad-lg:  1.75rem;
     --yp-section-gap:  1.75rem;
     --yp-stack-gap:    0.8125rem;
+    /* ★ v3.10.0 รอบที่ 61: ค่าระยะห่างระดับ section ที่เคยขยาย global
+       ในรอบ 60 (ซึ่งทำให้มือถือรู้สึกอึดอัด) ย้ายมาไว้ตรงนี้แทน — ใช้
+       เฉพาะจอ ≥768px (แท็บเล็ต/เดสก์ท็อป) ที่มีพื้นที่พอให้ "หายใจ" มากขึ้น
+       จริง ส่วนมือถือ (base ใน tokens.css) กลับไปใช้ค่าเดิมของรอบ 56 */
+    --yp-space-8:  2.5rem;
+    --yp-space-10: 3rem;
+    --yp-space-12: 3.5rem;
   }
 }
 
