@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Framework r50 — Desktop Popup (.yp-popup-*) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Framework r50 — Desktop Popup (.yp-popup-*) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -60,10 +60,11 @@
   transition:
     transform 340ms var(--yp-ease-m3-emphasized),
     opacity 260ms var(--yp-ease-m3-emphasized);
+  /* ★ r56: ลด popup shadow ลง ~50% — ใช้ border เป็นหลัก ไม่ฟุ้ง */
   box-shadow:
-    0 24px 64px rgba(15, 23, 42, 0.28),
-    0 8px 24px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(99, 102, 241, 0.06);
+    0 12px 32px rgba(15, 23, 42, 0.14),
+    0 4px 12px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(99, 102, 241, 0.04);
   padding: 20px var(--yp-space-5, 20px)
            calc(20px + var(--yp-safe-bottom, 0px));
 }

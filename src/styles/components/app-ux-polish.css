@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App-like UX + Skeleton v2 Polish — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · App-like UX + Skeleton v2 Polish — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -66,7 +66,8 @@ button[class*='yp-'] {
   transform: scale(0.97);
 }
 
-/* Smooth focus ring (instead of default outline) */
+/* Smooth focus ring (instead of default outline)
+   ★ r56: ลด focus ring shadow opacity ลง ~30% */
 .yp-btn:focus-visible,
 .yp-status-quick__btn:focus-visible,
 .yp-type-option:focus-visible,
@@ -74,7 +75,7 @@ button[class*='yp-'] {
 .yp-select:focus-visible,
 button[class*='yp-']:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
 }
 
 /* Network status banner — shown when offline */
@@ -103,14 +104,15 @@ button[class*='yp-']:focus-visible {
   background: #B45309;
 }
 
-/* Card hover/active feedback for clickable cards (desktop only) */
+/* Card hover/active feedback for clickable cards (desktop only)
+   ★ r56: ลด card hover shadow ลง ~50% */
 @media (hover: hover) {
   .yp-event-card {
     transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
   .yp-event-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 27, 70, 0.08);
+    box-shadow: 0 2px 8px rgba(30, 27, 70, 0.04);
   }
 }
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -76,9 +76,10 @@
   outline: none;
   border-color: var(--yp-indigo-500);
   background: white;
+  /* ★ r56: ลด focus shadow ลง ~30% ให้ดูสะอาดขึ้น */
   box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.14),
-    0 1px 2px rgba(99, 102, 241, 0.06);
+    0 0 0 3px rgba(99, 102, 241, 0.10),
+    0 1px 1px rgba(99, 102, 241, 0.04);
 }
 
 /* ★ Hover state — subtle indigo tint */

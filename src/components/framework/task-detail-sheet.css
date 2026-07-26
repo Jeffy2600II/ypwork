@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Task Detail Sheet (Form Fields, Subtask, Assignee) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Task Detail Sheet (Form Fields, Subtask, Assignee) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -301,7 +301,8 @@
 .yp-info-compare__col.is-accent {
   background: rgba(99, 102, 241, 0.06);
   border-color: rgba(99, 102, 241, 0.35);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  /* ★ r56: ลด task detail focus shadow ลง ~50% */
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.05);
 }
 
 .yp-info-compare__title {

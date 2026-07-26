@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Auth/Login/Register Page Styles — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Auth/Login/Register Page Styles — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -128,7 +128,8 @@
   background: white;
   border-radius: var(--yp-radius-lg);
   padding: var(--yp-space-6);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* ★ r56: ลด auth card shadow ลง ~55% ทำให้ดูเบา ไม่ฟุ้ง */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .yp-auth__card-title {

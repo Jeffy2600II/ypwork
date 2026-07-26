@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Profile Page (Stats, Settings) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Profile Page (Stats, Settings) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -58,8 +58,9 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.20),
-              0 0 0 6px rgba(255, 255, 255, 0.08);
+  /* ★ r56: ลด avatar shadow ลง ~50% ให้ avatar ดูเบา ไม่ฟุ้ง */
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10),
+              0 0 0 4px rgba(255, 255, 255, 0.06);
   position: relative;
   z-index: 1;
 }

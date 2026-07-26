@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Premium Component Polish v3.9 — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Premium Component Polish v3.9 — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -136,9 +136,10 @@ body.yp-sheet-open .bottom-nav {
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.10);
   font-weight: var(--yp-fw-extrabold);
+  /* ★ r56: ลด primary button shadow ลง ~50% */
   box-shadow:
-    0 2px 6px rgba(79, 70, 229, 0.18),
-    0 1px 2px rgba(79, 70, 229, 0.10);
+    0 1px 3px rgba(79, 70, 229, 0.10),
+    0 1px 1px rgba(79, 70, 229, 0.06);
   position: relative;
   overflow: hidden;
 }

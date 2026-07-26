@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Bottom Sheet (Legacy + Desktop Modal Conversion) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Bottom Sheet (Legacy + Desktop Modal Conversion) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -55,7 +55,8 @@
   transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.18);
+  /* ★ r56: ลด sheet shadow ลง ~45% ให้ sheet ดูเบา ไม่ฟุ้ง */
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.10);
   padding: 16px var(--yp-space-5, 20px)
            calc(24px + var(--yp-safe-bottom, 0px));
   overflow: hidden;
@@ -404,13 +405,15 @@
   transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
   padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
            calc(16px + var(--yp-safe-bottom, 0px));
-  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.18);
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: -4px 0 18px rgba(15, 23, 42, 0.10);
 }
 
 .yp-window-root--sidepanel.is-side-left .yp-window--sidepanel {
   border-radius: 0 var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0;
   transform: translate3d(-100%, 0, 0);
-  box-shadow: 8px 0 32px rgba(15, 23, 42, 0.18);
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.10);
 }
 
 .yp-window--sidepanel.is-open {
@@ -583,10 +586,11 @@
     border-radius: var(--yp-radius-lg, 28px);
     transform: translate3d(0, 24px, 0) scale(0.96);
     max-width: 560px;
+    /* ★ r56: ลด popup shadow ลง ~45% */
     box-shadow:
-      0 24px 64px rgba(15, 23, 42, 0.20),
-      0 8px 16px rgba(15, 23, 42, 0.08),
-      0 0 0 1px rgba(99, 102, 241, 0.06);
+      0 12px 32px rgba(15, 23, 42, 0.10),
+      0 4px 8px rgba(15, 23, 42, 0.04),
+      0 0 0 1px rgba(99, 102, 241, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.6);
   }
 
@@ -617,26 +621,28 @@
     padding-bottom: var(--yp-space-4, 16px);
   }
 
-  /* modal ใหญ่ขึ้นบน desktop */
+  /* modal ใหญ่ขึ้นบน desktop
+     ★ r56: ลด modal shadow ลง ~45% */
   .yp-window--modal {
     max-width: 600px;
     box-shadow:
-      0 32px 80px rgba(15, 23, 42, 0.24),
-      0 12px 24px rgba(15, 23, 42, 0.10),
-      0 0 0 1px rgba(99, 102, 241, 0.08);
+      0 16px 40px rgba(15, 23, 42, 0.12),
+      0 6px 12px rgba(15, 23, 42, 0.05),
+      0 0 0 1px rgba(99, 102, 241, 0.05);
   }
 
   /* sidepanel ใหญ่ขึ้น + มี border-radius ที่สวยขึ้น */
   .yp-window--sidepanel {
     max-width: 480px;
+    /* ★ r56: ลด side panel shadow ลง ~45% */
     box-shadow:
-      -16px 0 48px rgba(15, 23, 42, 0.16),
+      -8px 0 24px rgba(15, 23, 42, 0.08),
       0 0 0 1px rgba(255, 255, 255, 0.4);
   }
 
   .yp-window-root--sidepanel.is-side-left .yp-window--sidepanel {
     box-shadow:
-      16px 0 48px rgba(15, 23, 42, 0.16),
+      8px 0 24px rgba(15, 23, 42, 0.08),
       0 0 0 1px rgba(255, 255, 255, 0.4);
   }
 

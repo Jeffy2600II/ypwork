@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Framework r50 — Bottom Sheet (.yp-sheet-*) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Framework r50 — Bottom Sheet (.yp-sheet-*) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -87,10 +87,10 @@
   transform: translate3d(0, 100%, 0);
   /* ★ r50: ใช้ ease-emphasized ตลอด — ลื่นไหลเหมือนกันทั้ง open/close */
   transition: transform 320ms var(--yp-ease-m3-emphasized);
-  /* Layered shadow ที่ดูมีมิติ */
+  /* ★ r56: ลด sheet shadow ลง ~50% ทำให้ sheet ดูเบา ไม่ฟุ้ง */
   box-shadow:
-    0 -8px 32px rgba(15, 23, 42, 0.18),
-    0 -16px 48px rgba(15, 23, 42, 0.08),
+    0 -4px 18px rgba(15, 23, 42, 0.10),
+    0 -8px 24px rgba(15, 23, 42, 0.04),
     0 -1px 0 rgba(255, 255, 255, 0.6) inset;
   padding: 16px var(--yp-space-5, 20px)
            calc(24px + var(--yp-safe-bottom, 0px));

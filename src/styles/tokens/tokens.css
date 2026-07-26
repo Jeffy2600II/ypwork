@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -169,15 +169,16 @@
   --yp-fw-extrabold: 800;
   --yp-fw-black:    900;
   /* ── SHADOWS ──
-     ★ v3.10.0 รอบที่ 13: เปลี่ยนจาก shadow ชั้นเดียวเป็นสองชั้น
-     (เงาสัมผัสแคบชัด + เงากระจายกว้างเบา) — ให้ความรู้สึกว่าการ์ด "วางอยู่"
-     บนพื้นผิวจริง มีน้ำหนัก มั่นคง แทนที่จะเป็นฮาโล่บางๆ ลอยอยู่เฉยๆ
-     (เทคนิคเดียวกับที่ Stripe/Linear ใช้กับการ์ดระดับ elevation ต่างๆ) */
-  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.05), 0 1px 5px rgba(30, 27, 70, 0.05);
-  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.06), 0 3px 10px rgba(30, 27, 70, 0.07);
-  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.06), 0 8px 20px rgba(30, 27, 70, 0.09);
-  --yp-shadow-lg: 0 4px 8px rgba(30, 27, 70, 0.07), 0 16px 36px rgba(30, 27, 70, 0.12);
-  --yp-shadow-indigo: 0 2px 6px rgba(79, 70, 229, 0.10), 0 8px 22px rgba(79, 70, 229, 0.14);
+     ★ v3.10.0 รอบที่ 56: ลดน้ำหนักเงาอย่างมีนัยสำคัญ
+     เอฟเฟคเงา "เห็นประปราย" ตามแนวทางแพลตฟอร์มขนาดใหญ่
+     (Linear, Vercel, Stripe, Apple HIG) ที่เลือกใช้เงาน้อยและเบา
+     ทำให้ดวามูดูสบายตา ไม่หนักหน่วง ขณะที่ยังรักษา hierarchy
+     ผ่าน border + background tint เป็นหลัก แทนเงาหนา */
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.03);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.03), 0 1px 3px rgba(30, 27, 70, 0.04);
+  --yp-shadow-md: 0 1px 3px rgba(30, 27, 70, 0.04), 0 2px 6px rgba(30, 27, 70, 0.05);
+  --yp-shadow-lg: 0 2px 4px rgba(30, 27, 70, 0.05), 0 4px 12px rgba(30, 27, 70, 0.06);
+  --yp-shadow-indigo: 0 1px 3px rgba(79, 70, 229, 0.05), 0 2px 8px rgba(79, 70, 229, 0.07);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
   /* ★ v3.10.0 รอบที่ 25: ลบ --yp-glass-grain ออก — เคยใช้ทำลาย noise texture
      สำหรับผิวกระจกฝ้า (frosted glass) ของ .top-bar / .bottom-nav เท่านั้น
@@ -270,26 +271,29 @@
   --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
   --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
   --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
-  /* Calmer shadows — opacity reduced 25% from v3.8.x */
-  --yp-shadow-xs-v39: 0 1px 3px rgba(30, 27, 70, 0.05);
-  --yp-shadow-sm-v39: 0 1px 4px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
-  --yp-shadow-md-v39: 0 2px 8px rgba(30, 27, 70, 0.07), 0 1px 3px rgba(30, 27, 70, 0.04);
-  --yp-shadow-lg-v39: 0 4px 14px rgba(30, 27, 70, 0.09), 0 2px 4px rgba(30, 27, 70, 0.04);
-  --yp-shadow-xl-v39: 0 8px 24px rgba(30, 27, 70, 0.11), 0 4px 8px rgba(30, 27, 70, 0.05);
-  /* FAB shadow — Material 3 tonal elevation (3-layer) */
+  /* Calmer shadows — opacity reduced 25% from v3.8.x
+     ★ v3.10.0 รอบที่ 56: ลดลงอีก เพื่อให้ดูเบาสบายตา
+     เห็นเงานิดหน่อยพอให้รู้สึกว่ามี layer แต่ไม่ฟุ้ง */
+  --yp-shadow-xs-v39: 0 1px 2px rgba(30, 27, 70, 0.03);
+  --yp-shadow-sm-v39: 0 1px 2px rgba(30, 27, 70, 0.03), 0 1px 2px rgba(30, 27, 70, 0.02);
+  --yp-shadow-md-v39: 0 1px 4px rgba(30, 27, 70, 0.04), 0 1px 2px rgba(30, 27, 70, 0.02);
+  --yp-shadow-lg-v39: 0 2px 6px rgba(30, 27, 70, 0.05), 0 1px 2px rgba(30, 27, 70, 0.03);
+  --yp-shadow-xl-v39: 0 4px 10px rgba(30, 27, 70, 0.06), 0 2px 4px rgba(30, 27, 70, 0.03);
+  /* FAB shadow — Material 3 tonal elevation (3-layer)
+     ★ v3.10.0 รอบที่ 56: ลด opacity ทุกชั้นลง ~40% */
   --yp-fab-shadow-v39:
-    0 4px 12px rgba(79, 70, 229, 0.18),
-    0 2px 4px rgba(79, 70, 229, 0.10),
-    0 1px 2px rgba(15, 23, 42, 0.06);
-  --yp-fab-shadow-hover-v39:
-    0 8px 20px rgba(79, 70, 229, 0.24),
-    0 4px 8px rgba(79, 70, 229, 0.12),
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 0 0 8px rgba(99, 102, 241, 0.10);
-  --yp-fab-shadow-press-v39:
-    0 2px 6px rgba(79, 70, 229, 0.12),
-    0 1px 2px rgba(79, 70, 229, 0.08),
+    0 2px 6px rgba(79, 70, 229, 0.10),
+    0 1px 3px rgba(79, 70, 229, 0.06),
     0 1px 1px rgba(15, 23, 42, 0.04);
+  --yp-fab-shadow-hover-v39:
+    0 4px 12px rgba(79, 70, 229, 0.14),
+    0 2px 4px rgba(79, 70, 229, 0.07),
+    0 1px 1px rgba(15, 23, 42, 0.04),
+    0 0 0 6px rgba(99, 102, 241, 0.08);
+  --yp-fab-shadow-press-v39:
+    0 1px 4px rgba(79, 70, 229, 0.08),
+    0 1px 1px rgba(79, 70, 229, 0.05),
+    0 1px 1px rgba(15, 23, 42, 0.03);
   /* Material 3 motion tokens */
   --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
   --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover Refinements v3.9.x (Cards, Buttons, Nav) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Hover Refinements v3.9.x (Cards, Buttons, Nav) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -11,9 +11,10 @@
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--primary:hover:not(:disabled) {
     background: linear-gradient(135deg, #635AF5 0%, #8B5CF6 100%);
+    /* ★ r56: ลด hover shadow ลง ~50% */
     box-shadow:
-      0 4px 12px rgba(79, 70, 229, 0.24),
-      0 2px 4px rgba(79, 70, 229, 0.12);
+      0 2px 6px rgba(79, 70, 229, 0.12),
+      0 1px 2px rgba(79, 70, 229, 0.06);
     transform: translateY(-1px);
   }
   .yp-btn--primary:hover::after {
@@ -23,9 +24,10 @@
 
 .yp-btn--primary:active:not(:disabled) {
   transform: scale(0.97) translateY(0);
+  /* ★ r56: ลด active shadow ลง ~50% */
   box-shadow:
-    0 1px 4px rgba(79, 70, 229, 0.14),
-    0 1px 1px rgba(79, 70, 229, 0.08);
+    0 1px 2px rgba(79, 70, 229, 0.08),
+    0 1px 1px rgba(79, 70, 229, 0.04);
   transition: transform 100ms var(--yp-ease-m3-standard);
 }
 
@@ -55,7 +57,8 @@
   }
 }
 
-/* ── v3.9.2 INPUTS — calmer focus ring (Material 3) ── */
+/* ── v3.9.2 INPUTS — calmer focus ring (Material 3)
+   ★ r56: focus ring เบาลง ~30% ให้ดูสะอาดขึ้น */
 .yp-input:focus,
 .yp-textarea:focus,
 .yp-select:focus,
@@ -64,8 +67,8 @@
   border-color: var(--yp-indigo-500);
   background: white;
   box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.12),
-    0 1px 2px rgba(99, 102, 241, 0.04);
+    0 0 0 3px rgba(99, 102, 241, 0.10),
+    0 1px 1px rgba(99, 102, 241, 0.03);
 }
 
 .yp-btn:focus-visible,
@@ -147,12 +150,12 @@
 }
 
 
-/* ── v3.9.2 AVATAR — refined hover ── */
+/* ── v3.9.2 AVATAR — refined hover
+   ★ r56: ลด avatar hover shadow ลง ~50% ให้ดูสะอาด */
 @media (hover: hover) and (pointer: fine) {
   .top-bar__avatar:hover {
     transform: scale(1.05);
     box-shadow:
-      0 2px 8px rgba(30, 27, 70, 0.10),
       0 0 0 3px rgba(99, 102, 241, 0.10);
   }
 }

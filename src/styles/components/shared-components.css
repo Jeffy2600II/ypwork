@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -49,9 +49,10 @@
   border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 24%, transparent);
   position: relative;
   z-index: 1;
+  /* ★ r56: ลด pill shadow ลง ~50% */
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.60),
-    0 2px 6px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 14%, transparent);
+    0 1px 3px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 7%, transparent);
 }
 
 /* ★ v3.7.10: Stat body — centered, not stretched */
@@ -139,7 +140,8 @@
   font-size: var(--yp-text-2xl);
   position: relative;
   z-index: 1;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.10);
+  /* ★ r56: ลด icon box shadow ลง ~50% */
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.05);
 }
 
 .yp-empty__title {
@@ -239,13 +241,14 @@
   flex-shrink: 0;
 }
 
-/* ★ v3.7.9: Hover state — subtle lift + shadow expand + border glow */
+/* ★ v3.7.9: Hover state — subtle lift + shadow expand + border glow
+   ★ r56: ลด hover shadow ลง ~50% */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 4px 12px rgba(30, 27, 70, 0.08),
-      0 8px 24px rgba(30, 27, 70, 0.06);
+      0 2px 6px rgba(30, 27, 70, 0.04),
+      0 4px 12px rgba(30, 27, 70, 0.03);
     border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
   }
 }

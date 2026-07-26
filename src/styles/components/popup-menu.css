@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Popup Menu (3-Dot Menu Button) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Popup Menu (3-Dot Menu Button) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -22,7 +22,8 @@
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-md);
-  box-shadow: 0 4px 16px rgba(30, 27, 70, 0.12), 0 1px 3px rgba(30, 27, 70, 0.08);
+  /* ★ r56: ลด popup menu shadow ลง ~50% */
+  box-shadow: 0 2px 8px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
   padding: 4px;
   z-index: 4;
   transform-origin: top right;

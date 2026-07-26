@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Confirm Dialog — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Confirm Dialog — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -29,7 +29,8 @@
   background: var(--yp-bg-card);
   border-radius: var(--yp-radius-xl);
   border: 1px solid var(--yp-border-subtle);
-  box-shadow: 0 24px 48px rgba(30, 27, 70, 0.18);
+  /* ★ r56: ลด confirm dialog shadow ลง ~50% */
+  box-shadow: 0 12px 24px rgba(30, 27, 70, 0.09);
   padding: var(--yp-space-6);
   max-width: 340px;
   width: 100%;

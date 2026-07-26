@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Framework r50 — Side Panel (.yp-sidepanel-*) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Framework r50 — Side Panel (.yp-sidepanel-*) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -59,14 +59,16 @@
   border-radius: 0;
   transform: translate3d(100%, 0, 0);
   transition: transform 320ms var(--yp-ease-m3-emphasized);
-  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.18);
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: -4px 0 18px rgba(15, 23, 42, 0.10);
   padding: 20px var(--yp-space-5, 20px)
            calc(20px + var(--yp-safe-bottom, 0px));
 }
 
 .yp-sidepanel--left {
   transform: translate3d(-100%, 0, 0);
-  box-shadow: 8px 0 32px rgba(15, 23, 42, 0.18);
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.10);
 }
 
 .yp-sidepanel.is-open {

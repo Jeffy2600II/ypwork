@@ -1,12 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r54 (Modular CSS Refactor)
-   ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
-   for easier development, faster navigation, and better maintainability.
-   
-   ★ This file is part of the YP Work Design Library system.
-   ★ To modify: edit this file directly — changes apply globally.
-   ★ Cascade order: managed by src/styles/index.css manifest.
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r56
+   ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
+     (Linear, Vercel, Stripe) — เงา "เห็นประปราย" ไม่ฟุ้ง ไม่หนัก
+     โครงสร้าง 3 sections (Overdue/Today/Upcoming) ปรับให้นิ่ง มั่นคง สะอาดตา
+     ใช้ border + background tint เป็นตัวสร้าง hierarchy แทน shadow หนา
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
@@ -26,6 +23,7 @@
   color: white;
   border-radius: var(--yp-radius-hero);
   padding: var(--yp-space-8) var(--yp-space-6);
+  /* ★ r56: shadow ลดลง ~50% ให้ hero ดูนิ่งขึ้น ไม่ฟุ้ง */
   box-shadow: var(--yp-shadow-indigo);
   position: relative;
   overflow: hidden;
@@ -117,10 +115,11 @@
      จาก --yp-space-6 (26px) เป็น --yp-space-8 (36px) — ให้ hero
      "หายใจ" มากขึ้น และเห็นชัดว่า hero จบที่ไหน section ถัดไปเริ่มที่ไหน */
   margin-bottom: var(--yp-space-8);
-  /* ★ v3.10.0 รอบที่ 31: shadow อ่อนลง — ดูเบากว่า ไม่หนัา */
+  /* ★ r56: ลด shadow ลง ~45% — ใช้ shadow เดียวชั้นเบา แทน 3 ชั้นหนา
+     hero ยังดูมีมิติ แต่ไม่ฟุ้ง ไม่หนัก ดูนิ่งขึ้น */
   box-shadow:
-    0 8px 28px rgba(49, 46, 129, 0.20),
-    0 3px 12px rgba(79, 70, 229, 0.12),
+    0 4px 14px rgba(49, 46, 129, 0.12),
+    0 1px 3px rgba(79, 70, 229, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
   position: relative;
   overflow: hidden;
@@ -215,10 +214,11 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  /* ★ r56: ลด shadow ลง ~60% — ใช้แค่ inset highlight + เงาบางมาก
+     เพื่อให้ tile ดูสะอาด ไม่ฟุ้ง เหมือน frosted glass จริง */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
-    0 2px 8px rgba(49, 46, 129, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 1px 2px rgba(49, 46, 129, 0.06);
   min-height: 76px;
   display: flex;
   flex-direction: column;
@@ -257,28 +257,25 @@
 }
 
 /* Today sections */
-/* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างระหว่าง section ให้เห็นชัดเจนว่า
-   section ไหนจบที่ไหน — จาก --yp-space-6 (26px) เป็น --yp-space-10
-   (44px) ทุก section ใช้ระยะเดียวกัน กลมกลืนกันทั้งหน้า */
-.yp-today-section + .yp-today-section { margin-top: var(--yp-space-10); }
+/* ★ r56: เพิ่มระยะห่างระหว่าง section ให้เห็นชัดว่าแต่ละ section
+   เป็นก้อนเนื้อหาแยก ให้รู้สึกนิ่ง มั่นคง — จาก --yp-space-10 (44px)
+   เป็น --yp-space-12 (52px) ทุก section ใช้ระยะเดียวกัน */
+.yp-today-section + .yp-today-section { margin-top: var(--yp-space-12); }
 
-/* ★ v3.10.0 รอบที่ 36: ย้อนกลับพื้นหลัง/มุมโค้ง/เต็มขอบจอของรอบที่ 35
-   ทั้งหมด กลับไปเหมือนรอบที่ 33 — คงไว้แค่ระยะห่างระหว่าง 3 section
-   (เลยกำหนด/วันนี้/กำลังจะถึง) ที่เพิ่มขึ้น
-   ★ v3.10.0 รอบที่ 37: ปรับให้เท่ากับ section + section ปกติ
-   เพื่อความสม่ำเสมอ — ทุก transition ระหว่าง section ใช้ระยะเดียวกัน */
+/* ★ r56: ย้ายไปใช้ระยะเดียวกับ section + section ปกติ */
 .yp-today-section--panel + .yp-today-section--panel {
-  margin-top: var(--yp-space-10);
+  margin-top: var(--yp-space-12);
 }
 
 .yp-today-section__head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  /* ★ v3.10.0 รอบที่ 37: เพิ่มจาก --yp-space-4 → --yp-space-5
-     ให้มีระยะหายใจระหว่างหัวข้อ section กับเนื้อหาด้านล่างมากขึ้น */
-  margin-bottom: var(--yp-space-5);
+  /* ★ r56: เพิ่มจาก --yp-space-5 → --yp-space-6
+     ให้มีระยะหายใจระหว่างหัวข้อ section กับเนื้อหาด้านล่างมากขึ้น
+     ทำให้ section ดูเป็นระเบียบ นิ่ง ไม่อัดกัน */
+  margin-bottom: var(--yp-space-6);
 }
 
 .yp-today-section__title {
@@ -287,15 +284,13 @@
   color: var(--yp-text-heading);
   letter-spacing: 0.005em;
   line-height: 1.3;
-  /* ★ v3.10.0 รอบที่ 37: เพิ่ม accent bar ข้างหน้า title ให้เชื่อมโยงกับ
-     hero ที่เป็น indigo→violet gradient — ทำให้ section ดูเป็นส่วนหนึ่งของ
-     ระบบเดียวกัน ไม่แปลกแยก */
   position: relative;
   padding-left: 14px;
 }
 
-/* ★ v3.10.0 รอบที่ 37: Accent bar ข้างหน้า section title
-   ใช้ gradient เดียวกับ hero (indigo→violet) เพื่อให้เชื่อมโยงกัน */
+/* ★ r56: Accent bar ข้างหน้า section title — ลด shadow จาก 0 1px 3px rgba(...,0.25)
+   ไปเป็นค่าว่าง (no shadow) เพื่อให้บาร์ดู flat สะอาดตา ไม่ฟุ้ง
+   ใช้สี gradient เดียวกัน เพื่อรักษา identity */
 .yp-today-section__title::before {
   content: '';
   position: absolute;
@@ -306,14 +301,12 @@
   height: 18px;
   background: linear-gradient(135deg, var(--yp-indigo-500) 0%, var(--yp-violet-500) 100%);
   border-radius: var(--yp-radius-pill);
-  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
 }
 
-/* ★ v3.10.0 รอบที่ 37: Overdue variant ใช้ rose color แทน indigo→violet
-   เพื่อรักษา semantic ของสีที่บอกว่า "เลยกำหนด" */
+/* ★ r56: Overdue variant ใช้ rose color แทน indigo→violet
+   ลบ shadow ออก เพื่อความสะอาดตา */
 .yp-today-section__title--overdue::before {
   background: linear-gradient(135deg, var(--yp-rose-500) 0%, #BE123C 100%);
-  box-shadow: 0 1px 3px rgba(244, 63, 94, 0.25);
 }
 
 .yp-today-section__count {
@@ -351,36 +344,26 @@
    - มีปุ่มลิงก์เข้าหน้ารายละเอียด
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Time Section ── */
-/* ★ v3.10.0 รอบที่ 38: ปรับให้เป็น "subtle divider" ไม่ใช่ "section header"
-   ก่อนหน้านี้ margin-bottom เยอะ + มีเส้นทึบ + icon box ใหญ่ ทำให้ดูเป็น
-   "หัวข้อใหม่" เหมือน section title — ผู้ใช้เข้าใจผิดว่าเป็น section ใหม่
-   ตอนนี้ลด margin ลง + ใช้เส้นประ ทำให้รู้สึกเป็น "จุดขั้น" คั่นการ์ดเฉยๆ */
+/* ── Time Section ──
+   ★ r56: ปรับให้เป็น inline label ที่สะอาดตา — ไม่มีเส้นประ
+   ใช้ icon เล็กๆ + label + caption ในบรรทัดเดียว คั่นด้วยจุด (•)
+   ทำให้รู้สึากเป็น "section divider" ที่เบา ไม่ใช่ header block */
 .yp-today-time-section {
-  margin-bottom: var(--yp-space-4);
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  /* ★ v3.10.0 รอบที่ 38: ลด gap จาก --yp-space-3 (12px) → 6px
-     ทำให้ icon กับ label ชิดกันเหมือน "inline label" ไม่ใช่ "icon + title" */
-  gap: 6px;
-  /* ★ v3.10.0 รอบที่ 38: ลด margin-bottom จาก --yp-space-3 → 6px
-     ทำให้ head ใกล้กับการ์ดด้านล่าง ไม่ดูเป็น "บล็อกใหญ่คั่น" */
-  margin-bottom: 6px;
-  /* ★ v3.10.0 รอบที่ 38: ลด padding-bottom จาก --yp-space-2 → 4px */
-  padding-bottom: 4px;
-  /* ★ v3.10.0 รอบที่ 38: เปลี่ยนจากเส้นทึบ indigo-tinted (โดดเด่น)
-     เป็นเส้นประ (dashed) สีจาง — ให้รู้สึกเป็น "เส้นคั่นการ์ด"
-     ไม่ใช่ "ขอบหัวข้อใหญ่" */
-  border-bottom: 1px dashed color-mix(in srgb, var(--yp-border-subtle) 70%, transparent);
+  gap: 8px;
+  margin-bottom: var(--yp-space-3);
+  /* ★ r56: ลบเส้นประ (dashed border) ออก ทำให้ดูสะอาดขึ้น
+     ใช้แค่ padding-bottom และ margin-bottom สร้างระยะห่าง
+     ทำให้ head ดูเป็น inline label ไม่ใช่ header block หนา */
+  padding-bottom: 0;
 }
 
 .yp-today-time-section__icon {
-  /* ★ v3.10.0 รอบที่ 38: ลบ icon box ออกทั้งหมด (background, border,
-     border-radius, ขนาด 28×28) — เหลือแค่ icon เล็กๆ inline
-     ขนาด 14×14 สีจาง เหมือน "bullet" นำหน้า label */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -390,59 +373,50 @@
   flex-shrink: 0;
 }
 
-/* ★ v3.10.0 รอบที่ 38: บังคับให้ SVG ใน icon เล็กลง (12px) แม้ JSX
-   จะตั้ง width=16 height=16 ไว้ — เพื่อให้ icon ดูเป็น "bullet" เล็กๆ
-   ไม่ใช่ "icon ใหญ่" ที่ดึงความสนใจ */
 .yp-today-time-section__icon svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   stroke-width: 2;
 }
 
 .yp-today-time-section__text {
   flex: 1;
   min-width: 0;
-  /* ★ v3.10.0 รอบที่ 38: จัด baseline ให้ label กับ caption อยู่ในบรรทัด
-     เดียวกัน (inline) เพื่อให้ดูเป็น "caption เล็กๆ" ไม่ใช่ "title + subtitle" */
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .yp-today-time-section__label {
-  /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก --yp-text-sm bold heading →
-     --yp-text-xs semibold muted (เล็กและจาง ไม่แข่งกับ section title) */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-muted);
-  letter-spacing: 0.02em;
+  color: var(--yp-text-heading);
+  letter-spacing: 0.01em;
   line-height: 1.3;
 }
 
 .yp-today-time-section__caption {
-  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และใช้ text-faint (จางมาก)
-     ทำให้ caption ดูเป็น "คำอธิบายเล็กๆ" ไม่ใช่ "subtitle" */
-  font-size: 11px;
-  color: var(--yp-text-faint);
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
   margin-top: 0;
   line-height: 1.3;
 }
 
 .yp-today-time-section__count {
-  /* ★ v3.10.0 รอบที่ 38: ลบ count chip ออกทั้งหมด (background, border,
-     border-radius, padding) — เหลือแค่ตัวเลขเล็กๆ inline สีจาง
-     ไม่ดึงความสนใจ เห็นเป็น "ข้อมูลเสริม" ไม่ใช่ "badge" */
-  font-size: 11px;
-  color: var(--yp-text-faint);
-  font-weight: var(--yp-fw-medium);
-  background: transparent;
-  border: none;
-  padding: 0;
-  border-radius: 0;
+  /* ★ r56: ใช้ count chip แบบ subtle ที่สะอาดตา — ใช้ background tint
+     + border แทน shadow หนา */
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-semibold);
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  padding: 2px 9px;
+  border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
-  line-height: 1.3;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 /* ═══════════════════════════════════════════════════════════════
    ★ v3.10.0 รอบที่ 28: Today Group + Item Card — ออกแบบใหม่ให้กว้างสมดุลมั่นคง
@@ -460,16 +434,13 @@
 /* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
 .yp-today-group {
   margin-bottom: 0;
-  /* ★ v3.10.0 รอบที่ 30: container รวมเป็น single unit — ใช้ border เดียวครอบทั้ง
-     banner + cards + progress ทำให้ group ดูเป็น "ก้อน" เดียวกัน มั่นคง
-     ไม่ใช่หลายการ์ดแยกกันลอยอยู่ */
+  /* ★ r56: ใช้ border + background เป็นตัวสร้าง hierarchy แทน shadow หนา
+     เงาแค่ 1px บางๆ พอให้เห็นว่ากลุ่มนี้เป็นก้อนเดียว ไม่ฟุ้ง */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.04),
-    0 2px 8px rgba(30, 27, 70, 0.03);
+  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.03);
 }
 
 /* ★ v3.10.0 รอบที่ 30: banner — top corners full radius (lg)
@@ -649,19 +620,15 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (v3.10.0-r46 — 4-Row Layout + Subtask Clarity + Row Breathing) ──
-   ★ r46: Card UX Refine (ปรับปรุงจากมุมมองผู้ใช้)
-   - 4-row layout เหมือนเดิม แต่เพิ่มระยะหายใจระหว่างบรรทัด
-   - Subtask Clarity: left accent bar + tinted bg + "↳ รายการย่อย" label +
-     prominent Layers icon (16px, accent color) + "จากกลุ่ม: NAME" row
-   - Standalone: clean white card + "รายการหลัก" label + Flag icon
-   - เพิ่ม subtle hairline divider ระหว่าง Row 1 (metadata) กับ Row 2 (title)
-   - ขยาย card padding 16px → 18px ให้ขอบเตียนขึ้น */
+/* ── Today Item Card (v3.10.0-r56 — Cleaner / Stable / Lighter) ──
+   ★ r56: ลด shadow ทั้งหมดออก ใช้ border เป็นตัวสร้าง hierarchy
+     - default state: no shadow, only border subtle
+     - hover state: shift to border-default + bg-card-soft (no shadow)
+     - menu-open state: border indigo-tinted + tiny shadow (just enough to feel "active")
+   - คง layout 4-row และ subtask accent bar เหมือนเดิม
+   - คง padding 18px เหมือนเดิม ไม่ขยายเพราะเพิ่งขยายในรอบ 46 */
 .yp-today-item-card {
   position: relative;
-  /* ★ r46: เพิ่ม padding จาก --yp-space-4 (16px) → 18px ให้ขอบเตียนขึ้น
-     ใช้ค่าเฉพาะเพราะ --yp-space-4 = 16px และ --yp-space-5 = 20px
-     18px อยู่ระหว่างกลาง — ไม่ใหญ่เกิน, ไม่แคบเกิน */
   padding: 18px;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
@@ -669,9 +636,10 @@
   cursor: pointer;
   transition:
     background 160ms var(--yp-ease-m3-decelerate),
-    border-color var(--yp-t-fast),
-    box-shadow var(--yp-t-fast);
-  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
+    border-color var(--yp-t-fast);
+  /* ★ r56: ลบ shadow ออกจาก default state — ใช้ border เป็นตัวหลัก
+     ทำให้รายการดูสะอาด ไม่ฟุ้ง ไม่หนัก */
+  box-shadow: none;
   /* ★ r46: Reserve space for left accent bar (subtask เท่านั้น)
      ใช้ border-left transparent 4px เพื่อไม่ให้กระโดดเวลาเปลี่ยนประเภท */
   border-left: 4px solid transparent;
@@ -694,16 +662,19 @@
   border-left-color: var(--accent, var(--yp-indigo-500));
 }
 
-/* Menu open state */
+/* Menu open state — ใช้ border indigo + เงาบางมาก พอให้รู้สึกว่าการ์ด active
+   ★ r56: ลด shadow จาก 0 1px 3px rgba(0.08) เป็น 0 1px 2px rgba(0.05) */
 .yp-today-item-card.is-menu-open {
-  border-color: var(--yp-border-default);
-  box-shadow: 0 1px 3px rgba(30, 27, 70, 0.08);
+  border-color: var(--yp-border-indigo);
+  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.05);
 }
 
+/* ★ r56: Hover state — ไม่ใช้ shadow ใช้แค่ background tint + border
+   ทำให้รายการเบาสบายตา ไม่ฟุ้ง */
 .yp-today-item-card:hover {
   background: var(--yp-bg-card-soft);
   border-color: var(--yp-border-default);
-  box-shadow: 0 1px 3px rgba(30, 27, 70, 0.06);
+  box-shadow: none;
 }
 
 .yp-today-item-card.is-done {
@@ -1063,9 +1034,9 @@
   cursor: pointer;
   background: transparent;
   padding: 0;
-  /* ★ v3.10.0 รอบที่ 32: ring แบบ static เหมือนกับ .yp-today-item-card__dot
-     ด้านบน — ให้ดูเป็น "ปุ่ม" ที่กดได้ชัดเจน แม้บนหน้าจอสัมผัสที่ไม่มี hover */
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.10);
+  /* ★ r56: ลด ring shadow ลง ~50% ทำให้ dot ดูเบา ไม่ฟุ้ง
+     ring ยังช่วยให้รู้สึกว่าเป็นปุ่มกดได้ แต่ไม่หนัก */
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.06);
   transition: transform 150ms var(--yp-ease-m3-standard), box-shadow var(--yp-t-fast);
 }
 

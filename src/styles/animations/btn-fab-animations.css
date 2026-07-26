@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Premium Button + FAB Animations — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Premium Button + FAB Animations — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -12,63 +12,66 @@
    v3.7.9 — Premium button + FAB animations
    ═══════════════════════════════════════════════════════════════ */
 
-/* ★ v3.7.9: Premium primary button — gradient + glow on hover */
+/* ★ v3.7.9: Premium primary button — gradient + glow on hover
+   ★ r56: ลด glow shadow ลง ~50% ให้ปุ่มดูเบา ไม่ฟุ้ง */
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--primary:hover {
     transform: translateY(-1px);
     box-shadow:
-      0 6px 16px rgba(79, 70, 229, 0.32),
-      0 2px 4px rgba(79, 70, 229, 0.16),
-      0 0 0 3px rgba(99, 102, 241, 0.08);
+      0 3px 8px rgba(79, 70, 229, 0.16),
+      0 1px 2px rgba(79, 70, 229, 0.08),
+      0 0 0 3px rgba(99, 102, 241, 0.06);
   }
 
   .yp-btn--danger:hover {
     transform: translateY(-1px);
     box-shadow:
-      0 6px 16px rgba(244, 63, 94, 0.32),
-      0 2px 4px rgba(244, 63, 94, 0.16),
-      0 0 0 3px rgba(244, 63, 94, 0.08);
+      0 3px 8px rgba(244, 63, 94, 0.16),
+      0 1px 2px rgba(244, 63, 94, 0.08),
+      0 0 0 3px rgba(244, 63, 94, 0.06);
   }
 
   .yp-btn--ghost:hover {
     transform: translateY(-1px);
     box-shadow:
-      0 2px 8px rgba(30, 27, 70, 0.06);
+      0 1px 4px rgba(30, 27, 70, 0.03);
   }
 }
 
-/* r19: ลบ old v3.7.9 Premium FAB — ถูก v3.9.2 FAB (line ~9244) ทับแล้ว */
-
+/* r19: ลบ old v3.7.9 Premium FAB — ถูก v3.9.2 FAB (line ~9244) ทับแล้ว
+   ★ r56: ลด FAB hover shadow ลง ~50% ให้ดูเบาขึ้น */
 @media (hover: hover) and (pointer: fine) {
   .fab:hover {
     transform: scale(1.08) translateY(-2px);
     box-shadow:
-      0 12px 32px rgba(79, 70, 229, 0.40),
-      0 4px 12px rgba(15, 23, 42, 0.20),
-      0 0 0 4px rgba(99, 102, 241, 0.12),
+      0 6px 18px rgba(79, 70, 229, 0.20),
+      0 2px 6px rgba(15, 23, 42, 0.10),
+      0 0 0 4px rgba(99, 102, 241, 0.08),
       0 0 0 1px rgba(255, 255, 255, 0.1) inset;
   }
 }
 
-/* ★ v3.7.9: Premium type-option — lift + glow on hover */
+/* ★ v3.7.9: Premium type-option — lift + glow on hover
+   ★ r56: ลด shadow ลง ~50% */
 @media (hover: hover) and (pointer: fine) {
   .yp-type-option:hover {
     transform: translateY(-3px);
     box-shadow:
-      0 6px 16px rgba(99, 102, 241, 0.12),
-      0 2px 4px rgba(99, 102, 241, 0.06);
+      0 3px 8px rgba(99, 102, 241, 0.06),
+      0 1px 2px rgba(99, 102, 241, 0.03);
   }
 
   .yp-type-option.is-selected {
     transform: translateY(-1px);
     box-shadow:
       0 0 0 2px var(--yp-indigo-500),
-      0 6px 16px rgba(99, 102, 241, 0.18),
-      0 2px 4px rgba(99, 102, 241, 0.08);
+      0 3px 8px rgba(99, 102, 241, 0.10),
+      0 1px 2px rgba(99, 102, 241, 0.05);
   }
 }
 
-/* ★ v3.7.9: Premium color-option — spring scale on hover */
+/* ★ v3.7.9: Premium color-option — spring scale on hover
+   ★ r56: ลด selected shadow ลง ~50% */
 @media (hover: hover) and (pointer: fine) {
   .yp-color-option:hover {
     transform: scale(1.15) rotate(8deg);
@@ -79,28 +82,30 @@
     box-shadow:
       0 0 0 3px white,
       0 0 0 5px currentColor,
-      0 6px 16px rgba(0, 0, 0, 0.15);
+      0 2px 6px rgba(0, 0, 0, 0.08);
   }
 }
 
-/* ★ v3.7.9: Premium stat card — subtle lift on hover */
+/* ★ v3.7.9: Premium stat card — subtle lift on hover
+   ★ r56: ลด shadow ลง ~50% */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
     transform: translateY(-1px);
     box-shadow:
-      0 4px 12px rgba(30, 27, 70, 0.06),
-      0 1px 2px rgba(30, 27, 70, 0.04);
+      0 2px 6px rgba(30, 27, 70, 0.03),
+      0 1px 1px rgba(30, 27, 70, 0.02);
     border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
   }
 }
 
-/* ★ v3.7.9: Premium event-card — lift + glow on hover */
+/* ★ v3.7.9: Premium event-card — lift + glow on hover
+   ★ r56: ลด shadow ลง ~50% — ใช้ border accent เป็นหลัก */
 @media (hover: hover) and (pointer: fine) {
   .yp-event-card:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 8px 24px rgba(30, 27, 70, 0.10),
-      0 2px 6px rgba(30, 27, 70, 0.06);
+      0 4px 12px rgba(30, 27, 70, 0.05),
+      0 1px 3px rgba(30, 27, 70, 0.03);
     border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
   }
 }

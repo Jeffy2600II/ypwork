@@ -1,6 +1,6 @@
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -29,10 +29,9 @@
       transform 180ms var(--yp-ease-standard);
     position: relative;
     overflow: hidden;
-    /* ★ v3.9.3: Subtle base shadow for depth */
+    /* ★ r56: ลด base shadow ลง ~50% ให้การ์ดดูสะอาด ไม่ฟุ้ง */
     box-shadow:
-      0 1px 2px rgba(30, 27, 70, 0.04),
-      0 2px 8px rgba(30, 27, 70, 0.03);
+      0 1px 2px rgba(30, 27, 70, 0.03);
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -61,7 +60,8 @@
   .yp-event-card:hover {
     background: color-mix(in srgb, var(--accent, #4F46E5) 4%, var(--yp-bg-card));
     border-color: color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent);
+    /* ★ r56: ลด hover shadow ลง ~50% — ใช้ border accent เป็นหลัก */
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 5%, transparent);
     transform: translateY(-1px);
   }
 
@@ -77,7 +77,8 @@
   .yp-event-card:active {
     background: color-mix(in srgb, var(--accent, #4F46E5) 8%, var(--yp-bg-card));
     border-color: color-mix(in srgb, var(--accent, #4F46E5) 40%, transparent);
-    box-shadow: 0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent);
+    /* ★ r56: ลด active shadow ลง ~50% */
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--accent, #4F46E5) 6%, transparent);
     transform: scale(0.985);
   }
 }

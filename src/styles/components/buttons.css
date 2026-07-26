@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -12,7 +12,8 @@
 
 .yp-btn--primary:hover:not(:disabled) {
   background: linear-gradient(to right, #5450E8 0%, #8B5CF6 100%);
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.28);
+  /* ★ r56: ลด primary button hover shadow ลง ~55% */
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.14);
 }
 
 .yp-btn--ghost:hover:not(:disabled) {

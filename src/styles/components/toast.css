@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Toast Component (Slide Animations) — v3.10.0-r54 (Modular CSS Refactor)
+   YP WORK · Toast Component (Slide Animations) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -23,7 +23,8 @@
   border-radius: var(--yp-radius-pill);
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  /* ★ r56: ลด toast shadow ลง ~50% */
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10);
   max-width: calc(100vw - 32px);
   text-align: center;
   line-height: 1.4;
