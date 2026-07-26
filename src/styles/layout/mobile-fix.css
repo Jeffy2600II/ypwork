@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r62 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -36,16 +36,19 @@ html {
 /* ── ส่วนที่ 1 (mobile only): คืนคุณภาพระดับ r10 ของ base rule ── */
 @media (max-width: 899px) {
   /* ★ .bottom-nav__item — base rule ที่หายไป (เคยมีใน r10)
-     เดิมใน r10: padding 4px 6px, flex column, gap 3px, min-width 56px */
+     เดิมใน r10: padding 4px 6px, flex column, gap 3px, min-width 56px
+     ★ r62: padding-block 4px→3px, gap 3px→2px — ลดความสูงรวมของแถบลง
+     อีกเล็กน้อย พื้นที่กดจริง (item ทั้งก้อน) ยังกว้าง ~56px แนวตั้ง
+     สูงกว่าเกณฑ์ tap target ขั้นต่ำ 44px ของ WCAG/Material อยู่มาก */
   .bottom-nav__item {
     background: none;
     border: 0;
-    padding: 4px 6px;
+    padding: 3px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     flex: 1 1 0;
     min-width: 0;
     border-radius: var(--yp-radius-md, 14px);
@@ -58,11 +61,14 @@ html {
   }
 
   /* ★ .bottom-nav__icon — คืนขนาด 56×42 จาก r10
-     เดิมใน r10: 56×42px, pill radius, grid place-items center */
+     เดิมใน r10: 56×42px, pill radius, grid place-items center
+     ★ r62: 56×42px → 54×36px — ผู้ใช้ระบุว่าแถบนำทางใหญ่เกินไปบนมือถือ
+     ลดความสูงของ icon container ลง 6px โดยไอคอนข้างในยังคมชัด อ่านง่าย
+     (ตัว SVG ไอคอนเองไม่ได้ปรับ ขนาดยังเท่าเดิม แค่กรอบรอบๆ เล็กลง) */
   .bottom-nav__icon {
     position: relative;
-    width: 56px;
-    height: 42px;
+    width: 54px;
+    height: 36px;
     border-radius: var(--yp-radius-pill, 999px);
     overflow: hidden;
     display: grid;

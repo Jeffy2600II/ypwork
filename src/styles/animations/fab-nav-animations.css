@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · FAB + Bottom Nav Animations v3.9 — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · FAB + Bottom Nav Animations v3.9 — v3.10.0-r62 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -51,7 +51,10 @@ body.yp-sheet-open .fab {
 
 /* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) — ใช้พื้นหลังทึบแสงปกติ
    สีขาวล้วนแทน rgba โปร่งแสง + เงานุ่มขึ้นเล็กน้อยให้ยังดูลอยเหนือเนื้อหา
-   ทั้งที่ทึบแสงแล้ว (ไม่ต้องพึ่งการมองทะลุเพื่อบอกว่าเป็น floating bar) */
+   ทั้งที่ทึบแสงแล้ว (ไม่ต้องพึ่งการมองทะลุเพื่อบอกว่าเป็น floating bar)
+   ★ v3.10.0 รอบที่ 62: ลด padding แนวตั้ง 10px→8px (บน) และ 8px→6px (ล่าง
+   ก่อนรวม safe-area) ให้แถบบางลงเล็กน้อย — ยังเหลือพื้นที่พอสำหรับปุ่มกด
+   (ดู .bottom-nav__item ใน mobile-fix.css ที่ลดขนาด icon ลงคู่กัน) */
 .bottom-nav {
   position: fixed;
   inset: auto var(--yp-space-3) calc(var(--yp-safe-bottom) + var(--yp-space-3)) var(--yp-space-3);
@@ -60,7 +63,7 @@ body.yp-sheet-open .fab {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  padding: 8px 8px calc(env(safe-area-inset-bottom, 0px) + 6px);
   background: #FFFFFF;
   box-shadow: 0 -2px 20px rgba(30, 27, 70, 0.10), 0 0 0 1px rgba(30, 27, 70, 0.04);
   border-radius: var(--yp-radius-lg);

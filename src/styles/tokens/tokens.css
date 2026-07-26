@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r61 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r62 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -210,8 +210,17 @@
   --yp-container-max:  1110px;
   --yp-container-md:   860px;
   --yp-container-sm:   600px;
-  --yp-nav-bottom-h:   96px;
-  --yp-nav-top-h:      52px;
+  /* ★ v3.10.0 รอบที่ 62: ผู้ใช้ชี้จุดจริงว่าปัญหา "รู้สึกพื้นที่แสดงผลน้อยลง"
+     บนมือถือมาจากแถบนำทางบน/ล่างที่ "ออกแบบใหญ่เกินไป" — ตรวจสอบแล้วพบ 2 จุด:
+     1) --yp-nav-bottom-h เดิม 96px สูงกว่าเนื้อหาจริงของแถบ (icon 56×42 +
+        label + padding ≈ 77px) อยู่มาก ทำให้พื้นที่ที่ "กันไว้" ท้ายหน้า
+        (--yp-page-bottom-pad) เกินความจำเป็นไปเกือบ 20px โดยไม่มีประโยชน์
+     2) ตัวแถบเองก็ปรับให้กระชับขึ้นได้อีก (ดู mobile-fix.css /
+        fab-nav-animations.css) โดยยังคง tap target ≥44px ตามมาตรฐาน
+     ปรับ token ทั้งสองตัวให้ตรงกับขนาดจริงที่ลดลง — ผลรวม: มือถือเห็น
+     เนื้อหาเพิ่มขึ้นจริง ~35-40px โดยไม่ลดความกว้างของพื้นที่กดปุ่ม */
+  --yp-nav-bottom-h:   74px;
+  --yp-nav-top-h:      48px;
   --yp-page-pad-x:     1.125rem;
   /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
   --yp-fab-size:       56px;
