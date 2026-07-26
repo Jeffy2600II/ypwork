@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Desktop Left-Rail Override (End-of-File Cascade Fix — r25) — v3.10.0-r53 (Modular CSS Refactor)
+   YP WORK · Desktop Left-Rail Override (End-of-File Cascade Fix — r25) — v3.10.0-r54 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -8,6 +8,7 @@
    ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
+.yp-window-root {
   background: rgba(30, 27, 70, 0.55);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);

@@ -1,6 +1,6 @@
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Accent Gradient Title (.yp-top-title) — v3.10.0-r53 (Modular CSS Refactor)
+   YP WORK · Accent Gradient Title (.yp-top-title) — v3.10.0-r54 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -21,5 +21,4 @@
       --yp-top-from var(--yp-top-transition, 420ms var(--yp-ease-emphasized)),
       --yp-top-to var(--yp-top-transition, 420ms var(--yp-ease-emphasized));
   }
-}
 }

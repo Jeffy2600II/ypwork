@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card Animations v3.9 (Stagger, List) — v3.10.0-r53 (Modular CSS Refactor)
+   YP WORK · Event Card Animations v3.9 (Stagger, List) — v3.10.0-r54 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -194,3 +194,4 @@
   z-index: var(--yp-window-z, 18000);
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
+}
