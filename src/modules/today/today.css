@@ -1,13 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r57
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r58
    ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
-     (Linear, Vercel, Stripe) — เงา "เห็นประปราย" ไม่ฟุ้ง ไม่หนัก
    ★ r57: ปรับ type scale, spacing scale, border-radius scale ให้สมดุลมากขึ้น
-     - type scale เป็น modular ratio (~1.15) ทุกขั้นห่างกันสม่ำเสมอ
-     - spacing scale เป็นจำนวนเต็มของ 4px ทุกค่า ไม่มีค่าแปลกๆ
-     - border-radius ลดลงมาก (cards 54px → 20px) ให้ดูมั่นคง ไม่ bubbly
-     - ขยาย padding hero, item card ให้หายใจมากขึ้น
-     - ปรับ title font-weight semibold → bold ให้ hierarchy ชัดขึ้น
+   ★ r58: คืนค่าความโค้งมนที่เป็นเอกลักษณ์ (น้อยกว่า r56 นิดหน่อย)
+     - border-radius: cards 28px, hero 36px (กลางระหว่าง r56 กับ r57)
+     - ขยาย padding การ์ดและ hero ให้หายใจมากขึ้น
+     - ขยายระยะห่างระหว่าง section และระหว่าง elements
+     - ปรับ line-height สำหรับ Thai (1.55 สำหรับ title)
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
@@ -276,13 +275,13 @@
 }
 
 /* Today sections */
-/* ★ r57: ใช้ space-10 (40px) ระหว่าง section — สมดุลกับ hero margin
-   เดิม space-12 (52px) หลังปรับ scale ใหม่ 52px กลายเป็น 48px ที่รู้สึก
-   น้อยเกินไป เลยใช้ space-10 (40px) ที่สมดุลกับทั้ง hero และ content gap */
-.yp-today-section + .yp-today-section { margin-top: var(--yp-space-10); }
+/* ★ r58: เพิ่มระยะระหว่าง section จาก space-10 (40px) → space-12 (48px)
+   ให้แต่ละ section มีที่หายใจมากขึ้น ดูโล่งสบายตา เพราะตอนนี้ radius
+   กลับมาโค้งมนอีกครั้ง การเว้นระยะมากขึ้นช่วยให้ดูไม่อัดกัน */
+.yp-today-section + .yp-today-section { margin-top: var(--yp-space-12); }
 
 .yp-today-section--panel + .yp-today-section--panel {
-  margin-top: var(--yp-space-10);
+  margin-top: var(--yp-space-12);
 }
 
 .yp-today-section__head {
@@ -290,8 +289,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  /* ★ r57: ใช้ space-5 (20px) — สมดุลกับ scale ใหม่ ไม่อัดไม่ห่างเกิน */
-  margin-bottom: var(--yp-space-5);
+  /* ★ r58: ขยายจาก space-5 → space-6 (24px) ให้ head กับ content ห่างขึ้น
+     ทำให้ดูสบายตา มีลำดับชั้นชัดเจนขึ้น */
+  margin-bottom: var(--yp-space-6);
 }
 
 .yp-today-section__title {
@@ -306,16 +306,16 @@
   padding-left: var(--yp-space-3);
 }
 
-/* ★ r57: Accent bar — ทำให้บางลง (3px) แต่สูงขึ้น (22px) ดูเป็นบาร์ที่
-   สมดุลกับขนาดตัวอักษรที่ใหญ่ขึ้น ไม่ดูเล็กจ๋าเหมือนเดิม */
+/* ★ r58: Accent bar — ปรับให้สมดุลกับ radius ที่กลับมาโค้งมน
+   บางลงเล็กน้อย (3px → 4px) แต่ยังเข้ากับ typography ใหญ่ขึ้น */
 .yp-today-section__title::before {
   content: '';
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 22px;
+  width: 4px;
+  height: 24px;
   background: linear-gradient(135deg, var(--yp-indigo-500) 0%, var(--yp-violet-500) 100%);
   border-radius: var(--yp-radius-pill);
 }
@@ -364,21 +364,20 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Time Section ──
-   ★ r57: ทำให้เป็น "caption row" ที่สะอาดตา ขนาดเล็กกว่า section title
-   ใช้ icon เล็ก + label + caption inline ไม่ใช่ header block */
+   ★ r58: ปรับให้ time-section head มีระยะหายใจที่สมดุลกับ scale
+     ขยาย margin และ gap ให้ดูโล่งขึ้น */
 .yp-today-time-section {
-  /* ★ r57: ใช้ space-4 (16px) — สมดุลกับ scale ใหม่ */
-  margin-bottom: var(--yp-space-4);
+  /* ★ r58: ขยายจาก space-4 → space-5 (20px) ให้ time-section ห่างจากตัวถัดไป */
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  /* ★ r57: ขยาย gap จาก 8px → space-2 (8px) token + ขยายเป็น space-3
-     ให้ icon กับ label ห่างกันพอให้รู้สึากเป็น "inline label" ไม่อัด */
-  gap: var(--yp-space-2);
-  /* ★ r57: ใช้ space-2 (8px) — ดูเหมือนเส้นคั่นเล็กๆ ไม่ใช่ section header */
-  margin-bottom: var(--yp-space-2);
+  /* ★ r58: ขยาย gap จาก space-2 → space-3 ให้ icon กับ label ห่างขึ้น */
+  gap: var(--yp-space-3);
+  /* ★ r58: ขยาย margin-bottom จาก space-2 → space-3 ให้ head ห่างจากการ์ด */
+  margin-bottom: var(--yp-space-3);
   padding-bottom: 0;
 }
 
@@ -645,18 +644,18 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (v3.10.0-r57 — Balanced & Breathable) ──
-   ★ r57: ปรับ spacing ทุก row ให้สมดุลยิ่งขึ้น
-     - padding 18px → space-5 (20px) — เพิ่มที่ว่างรอบๆ
-     - Row 1→Row 2 margin 12px → space-3 (12px) + padding-bottom 10px → 12px (สม่ำเสมอ)
-     - Title font-weight semibold → bold (เด่นขึ้น)
-     - Row 3→Row 4 margin 14px → space-4 (16px) — สมดุลกับ scale
-     - Badge padding 3px/10px → 4px/11px (เบากว่าเดิม) */
+/* ── Today Item Card (v3.10.0-r58 — Refined & Spacious) ──
+   ★ r58: ปรับให้ดูสบายตาและสมดุลยิ่งขึ้น
+     - padding เพิ่มจาก space-5 (20px) → space-6 (24px) — เพิ่มที่ว่างรอบๆ
+     - Title line-height 1.5 → 1.55 — อ่านง่ายขึ้นสำหรับ Thai
+     - Top-row gap เพิ่มจาก space-2 → space-3 — ไม่อัด
+     - Border-left (accent) 4px → 5px — ขยายนิดหน่อยให้สมดุลกับ padding
+     - Badge padding เพิ่มเล็กน้อย 4px/11px → 5px/12px */
 .yp-today-item-card {
   position: relative;
-  /* ★ r57: ขยาย padding จาก 18px → var(--yp-space-5) (20px)
-     ให้รายการมีที่หายใจ ไม่อัด อ่านง่ายขึ้น */
-  padding: var(--yp-space-5);
+  /* ★ r58: ขยาย padding จาก space-5 → space-6 ให้การ์ดมีที่หายใจ
+     สมดุลกับ radius ที่กลับมาโค้งมน */
+  padding: var(--yp-space-6);
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
@@ -665,8 +664,8 @@
     background 160ms var(--yp-ease-m3-decelerate),
     border-color var(--yp-t-fast);
   box-shadow: none;
-  /* ★ r46: Reserve space for left accent bar (subtask เท่านั้น) */
-  border-left: 4px solid transparent;
+  /* ★ r58: ขยาย accent bar จาก 4px → 5px สมดุลกับ padding ที่ใหญ่ขึ้น */
+  border-left: 5px solid transparent;
 }
 
 /* ★ r46: Subtask Clarity — left accent bar + tinted background
@@ -710,18 +709,18 @@
   min-width: 0;
 }
 
-/* ── ★ r57: Row 1 — Top row container
+/* ── ★ r58: Row 1 — Top row container
    บรรจุ subtag/type-tag (ซ้าย) + time + menu (ขวา)
-   ★ r57: ปรับ padding-bottom 10px → space-3 (12px) และ margin-bottom 12px → space-3 (12px)
-     ให้สม่ำเสมอกับ scale ใหม่ และ hairline divider ดูสมดุลขึ้น */
+   ★ r58: เพิ่ม gap จาก space-2 → space-3, ขยาย padding-bottom/margin-bottom
+     จาก space-3 → space-4 ให้ห่างจาก title มากขึ้น */
 .yp-today-item-card__top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--yp-space-2);
+  gap: var(--yp-space-3);
   min-height: 24px;
-  padding-bottom: var(--yp-space-3);
-  margin-bottom: var(--yp-space-3);
+  padding-bottom: var(--yp-space-4);
+  margin-bottom: var(--yp-space-4);
   border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
 }
 
@@ -845,17 +844,18 @@
 
 /* ── Row 2: Title (hero) ──
    ★ r57: ขยาย font-weight จาก semibold → bold เพื่อ hierarchy ที่ชัดเจนขึ้น
-     เพราะตอนนี้ขนาดเท่าเดิม (text-sm) แต่เน้นน้ำหนักให้เด่นกว่า metadata */
+   ★ r58: line-height 1.5 → 1.55 — เพิ่มนิดหน่อยให้อ่านง่ายขึ้นสำหรับ Thai
+     ขยาย gap จาก space-2 → space-3 ให้ icon กับ title ห่างกัน */
 .yp-today-item-card__title {
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-heading);
-  line-height: 1.5;
+  line-height: 1.55;
   word-break: break-word;
   letter-spacing: -0.005em;
   display: flex;
   align-items: flex-start;
-  gap: var(--yp-space-2);
+  gap: var(--yp-space-3);
   margin-top: 0;
 }
 
@@ -879,12 +879,12 @@
 }
 
 /* ── Row 3: From group (sub-items only) ──
-   ★ r57: margin-top 8px → space-2 (8px) token, gap 5px → space-1 (4px) token */
+   ★ r58: margin-top เพิ่มจาก space-2 → space-3 ให้ห่างจาก title มากขึ้น */
 .yp-today-item-card__group {
   display: flex;
   align-items: center;
   gap: var(--yp-space-1);
-  margin-top: var(--yp-space-2);
+  margin-top: var(--yp-space-3);
   min-width: 0;
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
@@ -912,19 +912,19 @@
 }
 
 /* ── Row 4: Badges ──
-   ★ r57: margin-top 14px → space-4 (16px) token, gap 6px → space-2 (8px) token
-     ทำให้ badges มีจังหวะหายใจที่สม่ำเสมอ */
+   ★ r58: margin-top คงไว้ที่ space-4, gap จาก space-2 → space-3 ให้ห่างกัน
+     ทำให้ badges ดูสะอาดตาขึ้น */
 .yp-today-item-card__badges {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--yp-space-2);
+  gap: var(--yp-space-3);
   margin-top: var(--yp-space-4);
 }
 
 /* Individual badge — small pill
-   ★ r57: padding 3px/10px → 4px/11px ให้สมดุลกับ text-xs (12px)
-     gap 5px → space-1 (4px) token */
+   ★ r58: padding 4px/11px → 5px/12px ให้ดูสบายขึ้น สมดุลกับ text-xs (12px)
+     border-radius ใช้ pill แต่ padding ใหญ่ขึ้น */
 .yp-today-item-card__badge {
   display: inline-flex;
   align-items: center;
@@ -932,7 +932,7 @@
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
-  padding: 4px 11px;
+  padding: 5px 12px;
   background: var(--yp-bg-card-soft);
   border: 1px solid transparent;
   border-radius: var(--yp-radius-pill);

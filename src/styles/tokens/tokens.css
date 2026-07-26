@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r57 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r58 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -121,17 +121,18 @@
   --yp-space-16: 4rem;      /* 64px — was 68px */
   --yp-space-20: 5rem;      /* 80px — was 84px */
   /* ── BORDER RADIUS ──
-     ★ v3.10.0 รอบที่ 57: ลดค่า radius ลงมาก เพื่อให้ดูมั่นคงและสบายตา
-     ก่อนหน้านี้ radius ใหญ่เกินไป (54px สำหรับ card) ทำให้ content
-     ในการ์ดรู้สึกอัด และดู "bubbly" มากเกินไป ไม่เป็นมืออาชีพ
-     ปรับเป็นค่าที่สมดุลระหว่าง "soft" กับ "stable"
-     (อ้างอิง: Apple HIG, Material 3, Linear, Vercel ใช้ 8-24px สำหรับ cards) */
-  --yp-radius-xs:   8px;    /* small chips, dots — was 26px */
-  --yp-radius-sm:   12px;   /* small icon containers — was 34px */
-  --yp-radius-md:   16px;   /* controls, buttons, FAB — was 44px */
-  --yp-radius-lg:   20px;   /* cards, panels — was 54px */
-  --yp-radius-xl:   28px;   /* hero blocks — was 68px */
-  --yp-radius-2xl:  36px;   /* feature panels — was 84px */
+     ★ v3.10.0 รอบที่ 58: คืนค่าความโค้งมนให้ "น้อยกว่าเดิม (r56) นิดหน่อย"
+     ก่อนหน้านี้ r56 ใช้ 54px (ใหญ่เกินไป — content อัด)
+     r57 ปรับลงเหลือ 20px (เล็กเกินไป — ดูแข็ง)
+     รอบ 58 ใช้ค่ากลางที่สมดุล — ยังคงความโค้งมนที่เป็นเอกลักษณ์
+     แต่ไม่ใหญ่จน content อัด และไม่เล็กจนดูแข็งทื่อ
+     ค่าประมาณ 60-70% ของ r56 (original) — เหมาะกับทุกขนาดหน้าจอ */
+  --yp-radius-xs:   14px;    /* small chips, dots — was 26px (r56) → 8px (r57) → 14px (r58) */
+  --yp-radius-sm:   18px;    /* small icon containers — 34 → 12 → 18 */
+  --yp-radius-md:   22px;    /* controls, buttons, FAB — 44 → 16 → 22 */
+  --yp-radius-lg:   28px;    /* cards, panels — 54 → 20 → 28 */
+  --yp-radius-xl:   36px;    /* hero blocks — 68 → 28 → 36 */
+  --yp-radius-2xl:  44px;    /* feature panels — 84 → 36 → 44 */
   --yp-radius-pill: 999px;
   --yp-radius-control: var(--yp-radius-md);
   --yp-radius-card:    var(--yp-radius-lg);
