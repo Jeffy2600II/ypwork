@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
+     var(--yp-shadow-sm) ที่ปรับใน tokens อยู่แล้ว ไม่ต้องแก้ที่นี่
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -53,7 +55,9 @@
 }
 
 .top-bar__title {
-  font-size: var(--yp-text-base);
+  /* ★ r64: text-base → text-sm (15→13px after token change) — top bar title
+     ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   letter-spacing: 0.01em;
   /* v8.2: accent-driven gradient stops — interpolate ผ่าน @property <color> */
@@ -74,8 +78,9 @@
 }
 
 .top-bar__back svg {
-  width: 20px;
-  height: 20px;
+  /* ★ r64: ลดจาก 20×20 → 18×18 — back icon ที่เล็กลง ให้สมดุลกับ type scale */
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -103,7 +108,8 @@
 }
 
 .top-bar__avatar {
-  width: 32px; height: 32px;
+  /* ★ r64: ลดจาก 32×32 → 28×28 — top bar avatar ที่เล็กลง ให้สมดุลกับ type scale */
+  width: 28px; height: 28px;
   border-radius: var(--yp-radius-pill);
   display: block;
   flex-shrink: 0;
@@ -135,7 +141,8 @@
 */
 @media (min-width: 900px) {
   :root {
-    --yp-nav-top-h: 56px;
+    /* ★ r64: ลดจาก 56px → 50px — desktop top bar ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+    --yp-nav-top-h: 50px;
     /* ★ v3.9.7: เปิด left-rail บน desktop — ความกว้าง 96px */
     --yp-left-rail-width: 96px;
   }
@@ -197,7 +204,8 @@
   }
 
   .bottom-nav__label {
-    font-size: 11.5px;
+    /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
+    font-size: 10.5px;
     text-align: center;
     line-height: 1;
     font-weight: var(--yp-fw-medium);
@@ -248,7 +256,8 @@
   }
 
   .bottom-nav__label {
-    font-size: 12px;
+    /* ★ r64: ลดจาก 12px → 11px — large desktop label */
+    font-size: 11px;
   }
 
   /* ★ v3.5.0: Center content with max-width on large screens

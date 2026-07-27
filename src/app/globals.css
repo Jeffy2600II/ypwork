@@ -9409,8 +9409,9 @@ body.yp-sheet-open .fab {
 
 .bottom-nav__icon {
   position: relative;
-  width: 64px;
-  height: 36px;
+  /* ★ r64: ลดจาก 64×36 → 58×32 — bottom nav icon ที่เล็กลง ให้สมดุลกับ type scale */
+  width: 58px;
+  height: 32px;
   /* ★ v3.9.2: คืนค่า pill radius เดิม (999px = --yp-radius-pill) — เอกลักษณ์ความโค้งมน */
   border-radius: var(--yp-radius-pill);
   overflow: hidden;

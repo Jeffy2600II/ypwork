@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Calendar Module (Grid View, List View) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Calendar Module (Grid View, List View) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: soft shadows + soft view toggle active state — เน้น soft ตามแนวทางรอบ 65
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -63,8 +64,9 @@
 .yp-cal-view-btn.is-active {
   background: var(--yp-bg-card);
   color: var(--yp-indigo-600);
+  /* ★ r65: ลด alpha ของ active shadow ลง ~25% — soft ขึ้น */
   box-shadow:
-    0 1px 3px rgba(30, 27, 70, 0.10),
+    0 1px 3px rgba(30, 27, 70, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
@@ -101,12 +103,14 @@
 .yp-cal-nav-btn:active { transform: scale(0.92); }
 
 .yp-cal-today-btn {
-  padding: 8px 16px;
+  /* ★ r64: ลด padding 8px 16px → 6px 13px — today button ที่เล็กลง */
+  padding: 6px 13px;
   border-radius: var(--yp-radius-xs);
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   color: var(--yp-text-body);
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — today button ที่เล็กลง */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-bold);
   cursor: pointer;
   transition: all 200ms cubic-bezier(0.2, 0, 0, 1);
@@ -175,7 +179,8 @@
   white-space: nowrap;
   padding: var(--yp-space-2) 0;
   text-align: center;
-  font-size: 11px;
+  /* ★ r64: ลดจาก 11px → 10.5px — weekday header ที่เล็กลง */
+  font-size: 10.5px;
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-faint);
   text-transform: uppercase;
@@ -330,8 +335,9 @@
 .yp-cal-legend__item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 5px;
+  /* ★ r64: ลดจาก 11px → 10.5px — legend text ที่เล็กลง */
+  font-size: 10.5px;
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.01em;
@@ -402,15 +408,17 @@
 }
 
 .yp-cal-list-summary__label {
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — summary label ที่เล็กลง */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-semibold);
   letter-spacing: 0.02em;
 }
 
 .yp-cal-list-summary__count {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
-  font-size: var(--yp-text-xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     ★ r64: ลดจาก text-xl → text-lg — count ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-lg);
   color: var(--yp-indigo-600);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: -0.01em;
@@ -469,13 +477,14 @@
 }
 
 .yp-cal-list-day__num {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
-  font-size: var(--yp-text-xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     ★ r64: ลดจาก text-xl → text-lg — day number ที่เล็กลง */
+  font-size: var(--yp-text-lg);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   line-height: 1;
   letter-spacing: -0.01em;
-  min-width: 28px;
+  min-width: 26px;
 }
 
 .yp-cal-list-day__header.is-today .yp-cal-list-day__num {

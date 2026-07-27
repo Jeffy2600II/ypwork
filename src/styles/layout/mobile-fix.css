@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r62 (Modular CSS Refactor)
+   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: คงค่า r64 ไว้ — bottom-nav บนมือถือพอดีแล้ว ไม่ต้องปรับ
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -64,11 +65,12 @@ html {
      เดิมใน r10: 56×42px, pill radius, grid place-items center
      ★ r62: 56×42px → 54×36px — ผู้ใช้ระบุว่าแถบนำทางใหญ่เกินไปบนมือถือ
      ลดความสูงของ icon container ลง 6px โดยไอคอนข้างในยังคมชัด อ่านง่าย
-     (ตัว SVG ไอคอนเองไม่ได้ปรับ ขนาดยังเท่าเดิม แค่กรอบรอบๆ เล็กลง) */
+     (ตัว SVG ไอคอนเองไม่ได้ปรับ ขนาดยังเท่าเดิม แค่กรอบรอบๆ เล็กลง)
+     ★ r64: 54×36px → 50×32px — ลดลงอีกเพื่อให้สมดุลกับ type scale ใหม่ */
   .bottom-nav__icon {
     position: relative;
-    width: 54px;
-    height: 36px;
+    width: 50px;
+    height: 32px;
     border-radius: var(--yp-radius-pill, 999px);
     overflow: hidden;
     display: grid;
@@ -80,9 +82,10 @@ html {
   }
 
   /* ★ .bottom-nav__label — คืนขนาด 11.5px จาก r10
-     เดิมใน r10: 11.5px, letter-spacing 0.01em, white-space nowrap */
+     เดิมใน r10: 11.5px, letter-spacing 0.01em, white-space nowrap
+     ★ r64: 11.5px → 10.5px — label ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
   .bottom-nav__label {
-    font-size: 11.5px;
+    font-size: 10.5px;
     line-height: 1.2;
     text-align: center;
     font-weight: var(--yp-fw-medium, 500);

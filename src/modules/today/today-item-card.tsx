@@ -42,7 +42,7 @@ import type { TimelineItem } from './today-types';
 import { PRIORITY_LBL } from './today-types';
 import { formatScheduleLabel, formatCardTimeDisplay } from './today-format';
 
-// MODULE 7: TODAY ITEM CARD (v3.10.0-r46 — 4-Row Layout + Subtask Clarity)
+// MODULE 7: TODAY ITEM CARD (v3.10.0-r65 — 4-Row Layout + Subtask Clarity + Soft Feel)
 // ═══════════════════════════════════════════════════════════════
 //
 // Card layout (TOP → BOTTOM):
@@ -120,14 +120,16 @@ export function TodayItemCard({
               สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่ */}
           {isSubItem ? (
             <span className="yp-today-item-card__subtag">
-              <CornerDownRight width={11} height={11} strokeWidth={2.5} />
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
+              <CornerDownRight width={10} height={10} strokeWidth={2.5} />
               รายการย่อย
             </span>
           ) : (
             <span className="yp-today-item-card__type-tag">
               {/* ★ r46: Standalone indicator — ใช้ icon เดียวบอกประเภท
-                  (Flag = standalone task, Layers = subtask) */}
-              <Flag width={11} height={11} strokeWidth={2.5} />
+                  (Flag = standalone task, Layers = subtask)
+                  ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
+              <Flag width={10} height={10} strokeWidth={2.5} />
               รายการหลัก
             </span>
           )}
@@ -135,7 +137,8 @@ export function TodayItemCard({
           <div className="yp-today-item-card__top-right">
             {timeDisplay ? (
               <span className="yp-today-item-card__time">
-                <Clock width={12} height={12} />
+                {/* ★ r64: ลด icon จาก 12×12 → 11×11 ให้สมดุลกับ type scale ใหม่ */}
+                <Clock width={11} height={11} />
                 {timeDisplay}
               </span>
             ) : null}
@@ -151,7 +154,8 @@ export function TodayItemCard({
                 else onOpenMenu(item);
               }}
             >
-              <MoreHorizontal width={16} height={16} />
+              {/* ★ r64: ลด icon จาก 16×16 → 15×15 ให้สมดุลกับ type scale ใหม่ */}
+              <MoreHorizontal width={15} height={15} />
             </button>
           </div>
         </div>
@@ -160,8 +164,9 @@ export function TodayItemCard({
         <div className="yp-today-item-card__title">
           {isSubItem ? (
             <Layers
-              width={16}
-              height={16}
+              /* ★ r64: ลด icon จาก 16×16 → 14×14 ให้สมดุลกับ title text ที่เล็กลง */
+              width={14}
+              height={14}
               strokeWidth={2.25}
               className="yp-today-item-card__title-icon"
             />
@@ -172,7 +177,8 @@ export function TodayItemCard({
         {/* Row 3: From group (sub-items only) */}
         {isSubItem && item.parentEvent ? (
           <div className="yp-today-item-card__group">
-            <Users width={12} height={12} />
+            {/* ★ r64: ลด icon จาก 12×12 → 11×11 ให้สมดุลกับ type scale ใหม่ */}
+            <Users width={11} height={11} />
             <span className="yp-today-item-card__group-label">
               จากกลุ่ม:
             </span>
@@ -187,19 +193,21 @@ export function TodayItemCard({
           {/* Status / Overdue badge */}
           {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__badge yp-today-item-card__badge--overdue">
-              <AlertTriangle width={11} height={11} />
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ — badge ที่บรรจุ relative-day label ควรเล็กที่สุด */}
+              <AlertTriangle width={10} height={10} />
               เลยกำหนด {relativeDay(item.itemDate)}
             </span>
           ) : (
             <span
               className={`yp-today-item-card__badge yp-today-item-card__badge--status yp-today-item-card__badge--${item.status}`}
             >
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               {item.status === 'done' ? (
-                <Check width={11} height={11} />
+                <Check width={10} height={10} />
               ) : item.status === 'ongoing' ? (
-                <RefreshCw width={11} height={11} />
+                <RefreshCw width={10} height={10} />
               ) : (
-                <Clock width={11} height={11} />
+                <Clock width={10} height={10} />
               )}
               {statusLabel(item.status)}
             </span>
@@ -217,7 +225,8 @@ export function TodayItemCard({
           {/* Location badge */}
           {item.location ? (
             <span className="yp-today-item-card__badge">
-              <MapPin width={11} height={11} />
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
+              <MapPin width={10} height={10} />
               {item.location}
             </span>
           ) : null}
@@ -225,7 +234,8 @@ export function TodayItemCard({
           {/* Estimated time badge */}
           {item.estimatedTime ? (
             <span className="yp-today-item-card__badge">
-              <Timer width={11} height={11} />
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
+              <Timer width={10} height={10} />
               {item.estimatedTime}
             </span>
           ) : null}
@@ -250,7 +260,8 @@ export function TodayItemCard({
           item.itemDate !== todayStr &&
           !timeDisplay ? (
             <span className="yp-today-item-card__badge">
-              <CalIcon width={11} height={11} />
+              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
+              <CalIcon width={10} height={10} />
               จะเริ่ม {relativeDay(item.itemDate)}
             </span>
           ) : null}
@@ -278,7 +289,8 @@ export function TodayItemCard({
                 onViewMore(item);
               }}
             >
-              <Eye width={14} height={14} />
+              {/* ★ r64: ลด icon จาก 14×14 → 13×13 ให้สมดุลกับ type scale ใหม่ */}
+              <Eye width={13} height={13} />
               ดูเพิ่มเติม
             </button>
           </div>

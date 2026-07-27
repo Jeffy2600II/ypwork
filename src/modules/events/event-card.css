@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card + Page Container + Date Badge — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Event Card + Page Container + Date Badge — v3.10.0-r65 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -57,29 +57,33 @@
   gap: var(--yp-space-3);
 }
 
-/* ★ v3.7.4: ใช้ --accent จาก parent (.yp-event-card) แทน inline style */
+/* ★ v3.7.4: ใช้ --accent จาก parent (.yp-event-card) แทน inline style
+   ★ r64: ลด icon container จาก 42×42 → 38×38 — ให้สมดุลกับ type scale
+   ใหม่ที่เล็กลง และลด svg จาก 20×20 → 18×18 */
 .yp-event-card__icon {
   flex-shrink: 0;
-  width: 42px; height: 42px;
+  width: 38px; height: 38px;
   border-radius: var(--yp-radius-sm);
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 12%, transparent);
   color: var(--accent, var(--yp-indigo-600));
 }
-.yp-event-card__icon svg { width: 20px; height: 20px; stroke-width: 2; }
+.yp-event-card__icon svg { width: 18px; height: 18px; stroke-width: 2; }
 
 .yp-event-card__main {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   padding-right: var(--yp-space-2);
 }
 
+/* ★ r64: ลด title font-size จาก 0.9375rem (15px) → var(--yp-text-sm) (13px) —
+   ให้สมดุลกับ type scale ใหม่ที่เล็กลงทั้งระบบ */
 .yp-event-card__title {
-  font-size: 0.9375rem;
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
   line-height: 1.35;
@@ -90,6 +94,7 @@
 }
 
 .yp-event-card__meta {
+  /* ★ r64: text-xs (12→11.5px after token change) — meta ที่เล็กลง */
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   line-height: 1.45;
@@ -101,10 +106,11 @@
 
 /* ★ v3.10.0 รอบที่ 29: meta บรรทัดรอง — สำหรับแสดง "กำหนดส่ง ..." ใต้บรรทัด
    "เริ่ม ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุดของงานพร้อมกัน
-   ดูจางกว่า meta หลัก เพราะเป็นข้อมูลเสริม ไม่ใช่ข้อมูลหลัก */
+   ดูจางกว่า meta หลัก เพราะเป็นข้อมูลเสริม ไม่ใช่ข้อมูลหลัก
+   ★ r64: ลดจาก 11px → 10.5px ให้สมดุลกับ type scale ใหม่ */
 .yp-event-card__meta--secondary {
   color: var(--yp-text-faint);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: var(--yp-fw-medium);
   opacity: 0.85;
 }
@@ -114,7 +120,8 @@
   align-items: center;
   gap: 12px;
   margin-top: var(--yp-space-3);
-  padding-left: 58px;
+  /* ★ r64: ลด padding-left จาก 58px → 54px ให้ตรงกับ icon ใหม่ 38px */
+  padding-left: 54px;
 }
 /* ★ v3.10.0 รอบที่ 30: progress bar — ใช้ accent tint แทน indigo flat
    ทำให้ bar กลมกลืนกับ accent ของงาน ไม่ใช่สีเดียวกันทุกการ์ด */
@@ -137,7 +144,8 @@
 .yp-event-card__progress-text {
   font-weight: var(--yp-fw-bold);
   color: var(--accent, var(--yp-indigo-600));
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — progress text ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   flex-shrink: 0;
   letter-spacing: 0.01em;
 }
@@ -154,12 +162,14 @@
    ★ v3.10.0 รอบที่ 26: EventCard — Date Badge + Subtask Preview
    ═══════════════════════════════════════════════════════════════ */
 
-/* Date Badge (วันนี้ / พรุ่งนี้ / เลยกำหนด) */
+/* Date Badge (วันนี้ / พรุ่งนี้ / เลยกำหนด)
+   ★ r64: ลด font-size จาก 10px → 9.5px และ padding 2px 8px → 2px 7px —
+   ให้สมดุลกับ type scale ใหม่ */
 .yp-event-card__date-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: var(--yp-fw-bold);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--yp-radius-pill);
   margin-left: 6px;
   letter-spacing: 0.02em;
@@ -198,11 +208,13 @@
   flex-wrap: wrap;
   gap: var(--yp-space-2);
   margin-top: var(--yp-space-3);
-  padding-left: 58px; /* ★ เยื้องตามแนวเดียวกับ progress bar ด้านล่าง */
+  /* ★ r64: ลด padding-left จาก 58px → 54px ให้ตรงกับ icon ใหม่ 38px */
+  padding-left: 54px;
 }
 
 .yp-event-card__breakdown-label {
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — breakdown label ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   flex-shrink: 0;
@@ -212,15 +224,16 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 /* ★ chip ขนาดเล็ก — ใช้ต่อยอดจาก .yp-chip เดิม (สีต่อสถานะใช้ของเดิมทั้งหมด
-   ไม่สร้างสีซ้ำ เพื่อให้ทุกหน้าที่มี status chip ใช้โทนสีเดียวกันเป๊ะๆ) */
+   ไม่สร้างสีซ้ำ เพื่อให้ทุกหน้าที่มี status chip ใช้โทนสีเดียวกันเป๊ะๆ)
+   ★ r64: ลด padding 2px 8px → 1px 7px, font-size 10px → 9.5px, gap 4px → 3px */
 .yp-chip--sm {
-  padding: 2px 8px;
-  font-size: 10px;
-  gap: 4px;
+  padding: 1px 7px;
+  font-size: 9.5px;
+  gap: 3px;
 }
 
 /* ★ v3.10.0 รอบที่ 32: ลูกศรบอกว่าการ์ดกดเข้าไปดูรายละเอียดได้ */

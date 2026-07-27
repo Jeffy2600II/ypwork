@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: soft hero shadow + soft accent tint + warm up gradient — เน้น soft
+     ตามแนวทางรอบ 65 โดย "ห้ามแตะ" ค่า border-radius
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -23,29 +25,31 @@
      - accent ยังคงชัดเจนผ่าน icon, type pill, meta item accent
      - ผสมสีขาวเข้าไปให้ดูสะอาด สบายตา ตามที่ user ต้องการ */
   background:
-    /* layer 1: accent-tinted mesh gradient — 4 radial lights (อ่อนกว่าเดิม) */
-    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 14%, transparent) 0%, transparent 48%),
-    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 8%, transparent) 0%, transparent 42%),
-    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent) 0%, transparent 52%),
-    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent) 0%, transparent 46%),
+    /* layer 1: accent-tinted mesh gradient — 4 radial lights (อ่อนกว่าเดิม)
+       ★ r65: ลด saturation ลงอีก ~10% — soft ขึ้น */
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 7%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 16%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 9%, transparent) 0%, transparent 46%),
     /* layer 2: white base + subtle accent tint (สว่าง สะอาด) */
     linear-gradient(135deg,
       color-mix(in srgb, var(--accent, #4F46E5) 4%, white) 0%,
-      color-mix(in srgb, var(--accent, #4F46E5) 10%, white) 50%,
-      color-mix(in srgb, var(--accent, #4F46E5) 16%, white) 100%);
+      color-mix(in srgb, var(--accent, #4F46E5) 9%, white) 50%,
+      color-mix(in srgb, var(--accent, #4F46E5) 14%, white) 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   color: var(--yp-text-strong);
-  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 20%, transparent);
   border-radius: var(--yp-radius-hero);
   padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
   margin-bottom: var(--yp-space-6);
   position: relative;
   overflow: hidden;
-  /* ★ r56: shadow ออนลงอีก ~45% ทำให้ hero ดูนิ่ง สะอาดตา ไม่ฟุ้ง */
+  /* ★ r56: shadow ออนลงอีก ~45% ทำให้ hero ดูนิ่ง สะอาดตา ไม่ฟุ้ง
+     ★ r65: ลด alpha ลงอีก ~25% — hero "นุ่มนิ่ม" ขึ้น */
   box-shadow:
-    0 4px 14px color-mix(in srgb, var(--accent, #4F46E5) 7%, rgba(30, 27, 70, 0.04)),
-    0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent),
+    0 4px 14px color-mix(in srgb, var(--accent, #4F46E5) 5%, rgba(30, 27, 70, 0.03)),
+    0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 3%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.80);
   animation: yp-hero-enter var(--yp-hero-enter) both;
   isolation: isolate;
@@ -79,17 +83,19 @@
 
 .yp-detail-hero__type {
   /* ★ v3.10.0 รอบที่ 31: ปรับ frosted glass pill สำหรับพื้นหลังสว่าง
-     เปลี่ยนจาก white/18% → accent/12% บน white */
+     เปลี่ยนจาก white/18% → accent/12% บน white
+     ★ r64: ลด padding 7px 14px 7px 10px → 5px 12px 5px 9px และใช้ text-2xs
+     (11px) แทน text-xs (12px) — type pill ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px 7px 10px;
+  gap: 5px;
+  padding: 5px 12px 5px 9px;
   border-radius: var(--yp-radius-pill);
   background: color-mix(in srgb, var(--accent, #4F46E5) 12%, white);
   backdrop-filter: blur(10px) saturate(160%);
   -webkit-backdrop-filter: blur(10px) saturate(160%);
   border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 26%, transparent);
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
   color: var(--accent, var(--yp-indigo-600));
   margin-bottom: var(--yp-space-4);
@@ -97,17 +103,20 @@
   z-index: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  /* ★ r56: ลด type pill shadow ลง ~50% ให้ดูนิ่ง */
+  /* ★ r56: ลด type pill shadow ลง ~50% ให้ดูนิ่ง
+     ★ r64: ลด alpha ลงอีก — type pill แทบไม่มี shadow */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.60),
-    0 1px 3px color-mix(in srgb, var(--accent, #4F46E5) 5%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    0 1px 3px color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent);
 }
-.yp-detail-hero__type svg { width: 14px; height: 14px; }
+.yp-detail-hero__type svg { width: 13px; height: 13px; }
 
 .yp-detail-hero__title {
   /* ★ v3.10.0 รอบที่ 31: ลดจาก text-3xl → text-2xl เพื่อสมดุลมากขึ้น
      text-3xl (30px) ใหญ่เกินไปสำหรับ mobile, text-2xl (24px) พอดี
-     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว */
+     เปลี่ยน color จาก white → text-strong เพราะพื้นหลังสว่างแล้ว
+     ★ r64: text-2xl ยังเป็น text-2xl แต่ตอนนี้ text-2xl = 22px (ลดจาก 24px
+     ใน tokens.css) — สัดส่วนยังคงเดิม แต่ขนาดจริงเล็กลงตาม type scale ใหม่ */
   font-size: var(--yp-text-2xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
@@ -123,7 +132,8 @@
   display: flex;
   align-items: center;
   gap: var(--yp-space-2) var(--yp-space-3);
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — meta ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-body);
   position: relative;
   z-index: 1;
@@ -133,11 +143,11 @@
 .yp-detail-hero__meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.005em;
 }
-.yp-detail-hero__meta-item svg { width: 14px; height: 14px; opacity: 0.85; color: var(--accent, var(--yp-indigo-600)); }
+.yp-detail-hero__meta-item svg { width: 13px; height: 13px; opacity: 0.85; color: var(--accent, var(--yp-indigo-600)); }
 .yp-detail-hero__meta-item + .yp-detail-hero__meta-item::before {
   content: '·';
   margin-right: 2px;
@@ -173,19 +183,22 @@
 }
 
 .yp-detail-section__count {
-  /* ★ v3.9.3: Frosted count pill — accent-driven */
-  font-size: var(--yp-text-xs);
+  /* ★ v3.9.3: Frosted count pill — accent-driven
+     ★ r64: text-xs → text-2xs (11px), ลด padding 5px 14px → 3px 11px —
+     count pill ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-2xs);
   color: var(--accent, var(--yp-indigo-600));
   font-weight: var(--yp-fw-bold);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card));
-  padding: 5px 14px;
+  padding: 3px 11px;
   border-radius: var(--yp-radius-pill);
-  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 26%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, transparent);
   letter-spacing: 0.02em;
-  /* ★ r56: ลด progress shadow ลง ~50% */
+  /* ★ r56: ลด progress shadow ลง ~50%
+     ★ r64: ลด alpha ลงอีก — count pill แทบไม่มี shadow */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.60),
-    0 1px 3px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    0 1px 3px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, transparent);
 }
 
 .yp-detail-desc {
@@ -340,7 +353,8 @@
   display: flex;
   align-items: center;
   gap: var(--yp-space-2);
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — meta ที่เล็กลง */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-secondary);
   flex-wrap: wrap;
   position: relative;
@@ -350,8 +364,9 @@
 .yp-single-hero__meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px 6px 10px;
+  gap: 5px;
+  /* ★ r64: ลด padding 6px 12px 6px 10px → 4px 10px 4px 8px — meta pill ที่เล็กลง */
+  padding: 4px 10px 4px 8px;
   border-radius: var(--yp-radius-pill);
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
@@ -359,7 +374,7 @@
   letter-spacing: 0.005em;
   box-shadow: var(--yp-shadow-xs);
 }
-.yp-single-hero__meta-item svg { width: 14px; height: 14px; color: var(--accent, var(--yp-indigo-600)); opacity: 0.85; }
+.yp-single-hero__meta-item svg { width: 13px; height: 13px; color: var(--accent, var(--yp-indigo-600)); opacity: 0.85; }
 
 /* ★ v3.8.0: Muted meta item — สำหรับ "ยังไม่ได้เลือกเวลา" */
 .yp-single-hero__meta-item--muted {
@@ -504,19 +519,21 @@
 }
 .yp-task-time-group__label {
   /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก text-sm bold heading →
-     text-xs semibold muted (เล็กและจาง ไม่แข่งกับหัวข้อใหญ่) */
+     text-xs semibold muted (เล็กและจาง ไม่แข่งกับหัวข้อใหญ่)
+     ★ r64: text-xs → text-2xs (11px) — task time group label ที่เล็กลง */
   display: inline;
   align-items: baseline;
-  gap: 6px;
-  font-size: var(--yp-text-xs);
+  gap: 5px;
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-muted);
   letter-spacing: 0.02em;
   line-height: 1.3;
 }
 .yp-task-time-group__caption {
-  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint) */
-  font-size: 11px;
+  /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint)
+     ★ r64: ลดจาก 11px → 10.5px */
+  font-size: 10.5px;
   color: var(--yp-text-faint);
   margin-top: 0;
   line-height: 1.3;
@@ -524,9 +541,10 @@
 }
 .yp-task-time-group__count {
   /* ★ v3.10.0 รอบที่ 38: ลบ count chip (background, border, padding,
-     border-radius) → ตัวเลขเล็ก inline สีจาง */
+     border-radius) → ตัวเลขเล็ก inline สีจาง
+     ★ r64: ลดจาก 11px → 10.5px */
   margin-left: auto;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-faint);
   background: transparent;

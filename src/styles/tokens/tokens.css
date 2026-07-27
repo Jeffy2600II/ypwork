@@ -1,5 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r63 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
+     soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
+     ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
+     สบายตาขึ้น "พอดี" บนมือถือ ไม่ทฤษฎีมากเกินไป มองจากสายตาผู้ใช้
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -51,21 +55,34 @@
      ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
   --yp-bg-page:        #EFEDF9;
   --yp-bg-card:        #FFFFFF;
-  --yp-bg-card-soft:   #FAF9FE;
+  /* ★ r65: warm up card-soft เล็กน้อย #FAF9FE → #FAF8FC — ให้รู้สึกอบอุ่น
+     นุ่มนวลขึ้นเวลา hover/subitem tint ไม่เย็นจัดเกินไป ตามแนวทาง
+     Archive Tune / Apple Music ที่ใช้ surface tint โทนอุ่น */
+  --yp-bg-card-soft:   #FAF8FC;
   --yp-bg-elevated:    #FFFFFF;
   --yp-bg-indigo-soft: #EEF2FF;
   --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
-  --yp-bg-cream:       #FAF9F6;
+  /* ★ r65: warm up cream เล็กน้อย #FAF9F6 → #FAF8F4 — โทนอุ่นนุ่มขึ้น */
+  --yp-bg-cream:       #FAF8F4;
   /* ── BORDER ──
      ★ v3.10.0 รอบที่ 13: ลดความเข้มของเส้นขอบลงเล็กน้อย ให้ shadow เป็นตัว
      สร้างมิติหลักแทน — เส้นขอบที่เบาลงทำให้ผิวหน้าดูสะอาดตา ไม่รก
-     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง */
-  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
-  --yp-border-default:  rgba(79, 70, 229, 0.08);
-  --yp-border-strong:   rgba(30, 27, 70, 0.14);
-  --yp-border-indigo:   rgba(79, 70, 229, 0.22);
-  --yp-border-indigo-strong: rgba(99, 102, 241, 0.45);
-  --yp-focus-ring:      rgba(79, 70, 229, 0.16);
+     ในขณะที่มิติ/น้ำหนักของการ์ดยังชัดเจนจาก shadow ที่ปรับปรุงด้านล่าง
+     ★ v3.10.0 รอบที่ 64: ทำให้เส้นขอบ "นิ่ง" และ "นุ่ม" ขึ้นอีก — ลด
+     alpha ของเส้นขอบทุกระดับลง ~25% (subtle 0.05→0.04, default
+     0.08→0.06, strong 0.14→0.11) เพื่อให้ผิวหน้าดู soft ขึ้น ตาม
+     แนวทางของ Apple HIG / Linear ที่ใช้เส้นขอบบางจนแทบมองไม่เห็น
+     แล้วใช้ surface tint เป็นตัวสร้าง hierarchy แทน */
+  --yp-border-subtle:   rgba(79, 70, 229, 0.04);
+  --yp-border-default:  rgba(79, 70, 229, 0.06);
+  --yp-border-strong:   rgba(30, 27, 70, 0.11);
+  /* ★ r65: soft indigo borders — ลด alpha ลงอีกเล็กน้อย ให้รู้สึกนุ่มนิ่ม
+     สบายตาขึ้น เส้นขอบ indigo ที่จางลงจะทำให้ "ความโค้ง" ที่เราคงไว้
+     ดูสบายตามากขึ้น เพราะเส้นขอบหนา/เข้มจะดู "แข็ง" และทำให้ความโค้ง
+     รู้สึกไม่เข้ากับผิวหน้า */
+  --yp-border-indigo:   rgba(79, 70, 229, 0.15);
+  --yp-border-indigo-strong: rgba(99, 102, 241, 0.32);
+  --yp-focus-ring:      rgba(79, 70, 229, 0.14);
   /* ── GRADIENTS ── */
   --yp-gradient-brand:
     radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.55) 0%, transparent 60%),
@@ -160,24 +177,44 @@
   /* ── TYPOGRAPHY ── */
   --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
-  /* ★ v3.10.0 รอบที่ 63 (แก้ไขรอบเดียวกัน — ครั้งที่ 2): ลองขยับ
-     --yp-text-xs/sm ขึ้น +1px ไปก่อนหน้านี้ แล้วผู้ใช้ทดสอบจริงพบว่า
-     "ใหญ่เกินไป" และยิ่งขยับยิ่งแย่ลง — ไปวิจัยอ้างอิงหลักการพิมพ์ของ
-     แพลตฟอร์มขนาดใหญ่ (Linear, Vercel, Stripe, Notion) ที่เป็นต้นแบบของ
-     ระบบดีไซน์นี้อยู่แล้ว (ดู Type Scale ใน design skill reference) พบว่า
-     scale มาตรฐานของ dense UI แบบนี้คือ Caption 12-13px / Body S 14px /
-     Body 16px — ซึ่งตรงกับค่า "ก่อน" ที่จะขยับในรอบ 63 พอดี (12px/14px)
-     สรุปคือขนาดเดิมถูกต้องตามหลักแพลตฟอร์มขนาดใหญ่อยู่แล้ว ปัญหาความไม่
-     สมดุลที่ผู้ใช้รู้สึกจริงๆ มาจาก spacing/nav (แก้ไปแล้วในรอบ 61-62)
-     ไม่ใช่ตัวอักษร — จึงย้อนกลับ xs/sm เป็นค่าเดิม ไม่ขยับอีก */
-  --yp-text-xs:   0.75rem;
-  --yp-text-sm:   0.875rem;
-  --yp-text-base: 1rem;
-  --yp-text-lg:   1.125rem;
-  --yp-text-xl:   1.25rem;
-  --yp-text-2xl:  1.5rem;
-  --yp-text-3xl:  1.875rem;
-  --yp-text-4xl:  2.25rem;
+  /* ★ v3.10.0 รอบที่ 64: ปรับ type scale ให้ "เล็กลงจริง" ทั้งระบบ
+     ผู้ใช้คอมเพลนต่อเนื่องในรอบ 60-63 ว่าตัวอักษร "ใหญ่เกินไป"
+     "ไม่เป็นธรรมชาติ" "ไม่สมดุลทางสายตา" "ดูเทอะทะ" โดยเฉพาะส่วน
+     meta / relative-day labels ("2 วันที่แล้ว", "เลยกำหนด ...") บน
+     หน้า Today และทั่วทั้งเว็บ
+
+     งานวิจัยที่นำมาปรับใช้ (ไม่ก๊อปปี้เป๊ะ — เอามาผสมให้เข้ากับ
+     identity ของ YP Work):
+     • Apple HIG / iOS 17 — caption 11px / footnote 12px / body 15-17px
+     • Material 3 — label-small 11px / label-medium 12px / body-small 12px / body 14px
+     • Linear / Vercel / Stripe / Notion — caption 11-12px / body-s 13px / body 14-15px
+     • Archive Tune (open-source music app) — meta/caption ใช้ ~11px ตัวเบา
+     • Spotify / Apple Music — chip & meta ใช้ 11-12px
+
+     หลักการออกแบบของเรา (ยังเป็นตัวของตัวเอง):
+     - เพิ่ม tier ใหม่ --yp-text-2xs (11px) สำหรับ caption/meta ที่
+       เดิมใช้ --yp-text-xs (12px) เพื่อให้ meta/relative-day labels
+       "เล็กลงจริง" แต่ยังอ่านง่าย — เป็นทางออกที่ให้ความรู้สึก
+       "นิ่ง สมดุล" โดยไม่ต้องเปลี่ยนขนาด body หลัก
+     - ปรับ --yp-text-xs จาก 12px → 11.5px และ --yp-text-sm จาก
+       14px → 13px — ลดลงเล็กน้อยทั้งสองระดับ เพื่อให้สัดส่วนรอบๆ
+       การ์ด/รายการเล็กลงตามที่ผู้ใช้รู้สึก
+     - ปรับ --yp-text-lg / xl / 2xl ลง 1px แต่ละระดับ เพื่อรักษา
+       hierarchy แต่ให้หัวข้อ "ไม่โดดใหญ่" เกินไปเทียบกับ body
+     - headline scale ลดลง ~10% ทุกระดับ
+     - ตัวเลขเดิม (12/14/16/18/20/24/30/36) → (11/11.5/13/15/16/
+       17.5/19/22/26/28) — ลดลงเฉพาะที่จำเป็นเพื่อความสมดุล
+     - ยังคงเป็น "ตัวของตัวเอง" คือใช้ Noto Sans Thai + Inter
+       และยังคงความโค้งมนที่เป็นเอกลักษณ์ */
+  --yp-text-2xs:  0.6875rem;   /* 11px — NEW r64: caption/meta/relative-day */
+  --yp-text-xs:   0.71875rem;  /* 11.5px — was 12px, meta/time/label */
+  --yp-text-sm:   0.8125rem;   /* 13px — was 14px, body small, card title */
+  --yp-text-base: 0.9375rem;   /* 15px — was 16px, body (soft, slightly smaller) */
+  --yp-text-lg:   1.0625rem;   /* 17px — was 18px */
+  --yp-text-xl:   1.1875rem;   /* 19px — was 20px */
+  --yp-text-2xl:  1.375rem;    /* 22px — was 24px */
+  --yp-text-3xl:  1.625rem;    /* 26px — was 30px */
+  --yp-text-4xl:  2rem;        /* 32px — was 36px */
   --yp-leading-tight:   1.25;
   --yp-leading-normal:  1.6;
   --yp-leading-relaxed: 1.75;
@@ -192,12 +229,20 @@
      เอฟเฟคเงา "เห็นประปราย" ตามแนวทางแพลตฟอร์มขนาดใหญ่
      (Linear, Vercel, Stripe, Apple HIG) ที่เลือกใช้เงาน้อยและเบา
      ทำให้ดวามูดูสบายตา ไม่หนักหน่วง ขณะที่ยังรักษา hierarchy
-     ผ่าน border + background tint เป็นหลัก แทนเงาหนา */
-  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.03);
-  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.03), 0 1px 3px rgba(30, 27, 70, 0.04);
-  --yp-shadow-md: 0 1px 3px rgba(30, 27, 70, 0.04), 0 2px 6px rgba(30, 27, 70, 0.05);
-  --yp-shadow-lg: 0 2px 4px rgba(30, 27, 70, 0.05), 0 4px 12px rgba(30, 27, 70, 0.06);
-  --yp-shadow-indigo: 0 1px 3px rgba(79, 70, 229, 0.05), 0 2px 8px rgba(79, 70, 229, 0.07);
+     ผ่าน border + background tint เป็นหลัก แทนเงาหนา
+     ★ v3.10.0 รอบที่ 64: ลด alpha ของเงาลงอีก ~25-30% ทุกระดับ
+     เพื่อให้ผิวหน้า "นิ่ง นุ่ม สบายตา" มากขึ้น — เงาแทบจะมองไม่เห็น
+     ใช้ surface tint + border เป็นตัวสร้าง depth หลัก ตามแนวทาง
+     Apple HIG / Linear ที่เลือก "no shadow UI" สำหรับ layering */
+  /* ★ r65: ลด alpha ของ shadows ลงอีก ~15-20% ทุกระดับ — เงาแทบมองไม่เห็น
+     ให้ความรู้สึก "soft นิ่ง สะอาด" ตามแนวทาง Archive Tune / Linear /
+     Apple HIG ที่เลือกใช้ surface tint + warm bg เป็นตัวสร้าง depth หลัก
+     แทน shadow หนา */
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.015);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.015), 0 1px 3px rgba(30, 27, 70, 0.022);
+  --yp-shadow-md: 0 1px 3px rgba(30, 27, 70, 0.022), 0 2px 6px rgba(30, 27, 70, 0.03);
+  --yp-shadow-lg: 0 2px 4px rgba(30, 27, 70, 0.03), 0 4px 12px rgba(30, 27, 70, 0.03);
+  --yp-shadow-indigo: 0 1px 3px rgba(79, 70, 229, 0.03), 0 2px 8px rgba(79, 70, 229, 0.038);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
   /* ★ v3.10.0 รอบที่ 25: ลบ --yp-glass-grain ออก — เคยใช้ทำลาย noise texture
      สำหรับผิวกระจกฝ้า (frosted glass) ของ .top-bar / .bottom-nav เท่านั้น
@@ -229,8 +274,12 @@
         fab-nav-animations.css) โดยยังคง tap target ≥44px ตามมาตรฐาน
      ปรับ token ทั้งสองตัวให้ตรงกับขนาดจริงที่ลดลง — ผลรวม: มือถือเห็น
      เนื้อหาเพิ่มขึ้นจริง ~35-40px โดยไม่ลดความกว้างของพื้นที่กดปุ่ม */
-  --yp-nav-bottom-h:   74px;
-  --yp-nav-top-h:      48px;
+  /* ★ v3.10.0 รอบที่ 64: ลด nav-top-h จาก 48 → 44px ให้สมดุลกับ
+     type scale ใหม่ที่เล็กลง — top bar ที่ต่ำลงจะทำให้ตัวหนังสือ
+     ใน top bar ดูไม่ "แน่นเกิน" เมื่อขนาดตัวอักษรเล็กลง และเพิ่ม
+     พื้นที่เนื้อหาด้านบนได้อีกเล็กน้อย */
+  --yp-nav-bottom-h:   72px;
+  --yp-nav-top-h:      44px;
   --yp-page-pad-x:     1.125rem;
   /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
   --yp-fab-size:       56px;
@@ -245,7 +294,11 @@
   --yp-bottom-nav-total:  calc(var(--yp-nav-bottom-h) + var(--yp-bottom-nav-margin) * 2 + var(--yp-safe-bottom));
   --yp-page-bottom-pad:   calc(var(--yp-bottom-nav-total) + var(--yp-space-5));
   --yp-fab-bottom:        calc(var(--yp-bottom-nav-total) + var(--yp-space-4));
-  --yp-card-pad:    1.25rem;
+  /* ★ r65: ลด --yp-card-pad บนมือถือจาก 1.25rem → 1.0625rem — ให้เนื้อหา
+     ในการ์ดมีที่หายใจมากขึ้น การ์ดไม่ "แน่น" เกิน แต่ลดพอประมาณ
+     ไม่ใช่ทำให้การ์ดดูโหลงเตี้ย ค่านี้ถูก override เป็น 1.25rem บนจอ ≥768px
+     ใน tokens-responsive.css อยู่แล้ว */
+  --yp-card-pad:    1.0625rem;
   --yp-card-pad-lg: 1.625rem;
   --yp-section-gap: 1.75rem;
   --yp-content-gap: 1.125rem;
@@ -262,11 +315,13 @@
   --yp-safe-bottom: env(safe-area-inset-bottom, 0px);
   --yp-safe-left:   env(safe-area-inset-left, 0px);
   --yp-safe-right:  env(safe-area-inset-right, 0px);
-  /* ── HEADLINE SCALE ── */
-  --yp-h1-size: clamp(1.30rem, 1.15rem + 0.6vw, 1.60rem);
-  --yp-h2-size: clamp(1.12rem, 1.04rem + 0.4vw, 1.32rem);
-  --yp-h3-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.17rem);
-  --yp-lead-size: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+  /* ── HEADLINE SCALE ──
+     ★ v3.10.0 รอบที่ 64: ลดลง ~10% ทุกระดับ — ให้สมดุลกับ type scale
+     ใหม่ที่เล็กลง หัวข้อไม่โดดใหญ่เกินไปเทียบกับ body */
+  --yp-h1-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.40rem);
+  --yp-h2-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.18rem);
+  --yp-h3-size: clamp(0.92rem, 0.88rem + 0.2vw, 1.05rem);
+  --yp-lead-size: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
   /* shadcn compat */
   --radius: 0.625rem;
   --background: var(--yp-bg-page);
@@ -301,27 +356,34 @@
   --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
   /* Calmer shadows — opacity reduced 25% from v3.8.x
      ★ v3.10.0 รอบที่ 56: ลดลงอีก เพื่อให้ดูเบาสบายตา
-     เห็นเงานิดหน่อยพอให้รู้สึกว่ามี layer แต่ไม่ฟุ้ง */
-  --yp-shadow-xs-v39: 0 1px 2px rgba(30, 27, 70, 0.03);
-  --yp-shadow-sm-v39: 0 1px 2px rgba(30, 27, 70, 0.03), 0 1px 2px rgba(30, 27, 70, 0.02);
-  --yp-shadow-md-v39: 0 1px 4px rgba(30, 27, 70, 0.04), 0 1px 2px rgba(30, 27, 70, 0.02);
-  --yp-shadow-lg-v39: 0 2px 6px rgba(30, 27, 70, 0.05), 0 1px 2px rgba(30, 27, 70, 0.03);
-  --yp-shadow-xl-v39: 0 4px 10px rgba(30, 27, 70, 0.06), 0 2px 4px rgba(30, 27, 70, 0.03);
+     เห็นเงานิดหน่อยพอให้รู้สึกว่ามี layer แต่ไม่ฟุ้ง
+     ★ v3.10.0 รอบที่ 64: ลด alpha ลงอีก ~30% ทุกระดับ — เงาแทบ
+     มองไม่เห็น ให้ความรู้สึก "นิ่ง สะอาด" ตามแนวทาง Linear/Apple */
+  /* ★ r65: soft v39 shadows ลงอีก ~15% — ให้สอดคล้องกับ --yp-shadow-*
+     ด้านบนที่ลดลง ความสม่ำเสมอของ soft feel ทั้งระบบ */
+  --yp-shadow-xs-v39: 0 1px 2px rgba(30, 27, 70, 0.015);
+  --yp-shadow-sm-v39: 0 1px 2px rgba(30, 27, 70, 0.015), 0 1px 2px rgba(30, 27, 70, 0.012);
+  --yp-shadow-md-v39: 0 1px 4px rgba(30, 27, 70, 0.022), 0 1px 2px rgba(30, 27, 70, 0.012);
+  --yp-shadow-lg-v39: 0 2px 6px rgba(30, 27, 70, 0.028), 0 1px 2px rgba(30, 27, 70, 0.016);
+  --yp-shadow-xl-v39: 0 4px 10px rgba(30, 27, 70, 0.032), 0 2px 4px rgba(30, 27, 70, 0.016);
   /* FAB shadow — Material 3 tonal elevation (3-layer)
-     ★ v3.10.0 รอบที่ 56: ลด opacity ทุกชั้นลง ~40% */
+     ★ v3.10.0 รอบที่ 56: ลด opacity ทุกชั้นลง ~40%
+     ★ v3.10.0 รอบที่ 64: ลด alpha ลงอีก ~25% — FAB ยังเด่นแต่ไม่ "หนัก" */
+  /* ★ r65: FAB shadows ลด alpha ลงอีก ~15% — FAB ยังเด่นแต่ soft ขึ้น
+     ไม่ "หนักหน่วง" เวลามองบนมือถือ */
   --yp-fab-shadow-v39:
-    0 2px 6px rgba(79, 70, 229, 0.10),
-    0 1px 3px rgba(79, 70, 229, 0.06),
-    0 1px 1px rgba(15, 23, 42, 0.04);
+    0 2px 6px rgba(79, 70, 229, 0.07),
+    0 1px 3px rgba(79, 70, 229, 0.04),
+    0 1px 1px rgba(15, 23, 42, 0.025);
   --yp-fab-shadow-hover-v39:
-    0 4px 12px rgba(79, 70, 229, 0.14),
-    0 2px 4px rgba(79, 70, 229, 0.07),
-    0 1px 1px rgba(15, 23, 42, 0.04),
-    0 0 0 6px rgba(99, 102, 241, 0.08);
+    0 4px 12px rgba(79, 70, 229, 0.085),
+    0 2px 4px rgba(79, 70, 229, 0.045),
+    0 1px 1px rgba(15, 23, 42, 0.025),
+    0 0 0 6px rgba(99, 102, 241, 0.05);
   --yp-fab-shadow-press-v39:
-    0 1px 4px rgba(79, 70, 229, 0.08),
-    0 1px 1px rgba(79, 70, 229, 0.05),
-    0 1px 1px rgba(15, 23, 42, 0.03);
+    0 1px 4px rgba(79, 70, 229, 0.05),
+    0 1px 1px rgba(79, 70, 229, 0.035),
+    0 1px 1px rgba(15, 23, 42, 0.018);
   /* Material 3 motion tokens */
   --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
   --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);
@@ -337,18 +399,21 @@
   --yp-state-focus: 0.10;
   --yp-state-press: 0.12;
   --yp-state-press-strong: 0.16;
-  /* Calmer border tokens */
-  --yp-border-v39-subtle:  rgba(30, 27, 70, 0.05);
-  --yp-border-v39-default: rgba(30, 27, 70, 0.08);
-  --yp-border-v39-strong:  rgba(30, 27, 70, 0.14);
+  /* ★ r65: Calmer border tokens — ลด alpha ลงอีก ~10% ให้สอดคล้องกับ
+     --yp-border-* ด้านบนที่ลดลง เส้นขอบที่จางลงทั่วระบบจะทำให้ผิวหน้า
+     ดู soft และทำให้ "ความโค้ง" (ที่เราคงไว้) ดูสบายตามากขึ้น */
+  --yp-border-v39-subtle:  rgba(30, 27, 70, 0.045);
+  --yp-border-v39-default: rgba(30, 27, 70, 0.07);
+  --yp-border-v39-strong:  rgba(30, 27, 70, 0.12);
   /* FAB size — slightly larger for better touch target (Material 3 spec) */
   --yp-fab-size-v39: 58px;
-  /* Calmer surface tints for hover states (Gemini-style) */
-  --yp-tint-v392-hover:      rgba(30, 27, 70, 0.045);
-  --yp-tint-v392-hover-strong: rgba(30, 27, 70, 0.07);
-  --yp-tint-v392-indigo:     rgba(99, 102, 241, 0.08);
-  --yp-tint-v392-indigo-strong: rgba(99, 102, 241, 0.14);
-  --yp-tint-v392-press:      rgba(30, 27, 70, 0.08);
+  /* ★ r65: Calmer surface tints — ลด alpha ลง ~10% ให้ hover และ press
+     รู้สึกนุ่มนิ่มขึ้น "พอดี" ไม่แรงเกินไปเวลาแตะบนมือถือ */
+  --yp-tint-v392-hover:      rgba(30, 27, 70, 0.04);
+  --yp-tint-v392-hover-strong: rgba(30, 27, 70, 0.06);
+  --yp-tint-v392-indigo:     rgba(99, 102, 241, 0.07);
+  --yp-tint-v392-indigo-strong: rgba(99, 102, 241, 0.12);
+  --yp-tint-v392-press:      rgba(30, 27, 70, 0.07);
   /* Calmer info button palette */
   --yp-info-btn-v392-bg:      rgba(99, 102, 241, 0.06);
   --yp-info-btn-v392-border:  rgba(99, 102, 241, 0.18);

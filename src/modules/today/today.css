@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r63
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r65
    ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
      (Linear, Vercel, Stripe) — เงา "เห็นประปราย" ไม่ฟุ้ง ไม่หนัก
      โครงสร้าง 3 sections (Overdue/Today/Upcoming) ปรับให้นิ่ง มั่นคง สะอาดตา
@@ -15,6 +15,23 @@
      text-sm 14px, badge padding 3px) ตรงตามหลักอยู่แล้ว จึงย้อนกลับ
      ทั้งหมดในรอบเดียวกัน — ปัญหาความไม่สมดุลที่แท้จริงคือ spacing/nav
      ซึ่งแก้ไปแล้วในรอบ 61-62 ไม่ใช่ตัวอักษร
+   ★ r64: ผู้ใช้คอมเพลนอีกครั้งว่า "ยังใหญ่เกินไป" "ไม่เป็นธรรมชาติ"
+     "ไม่สมดุลทางสายตา" "ดูเทอะทะ" — โดยเฉพาะ relative-day labels
+     ("เลยกำหนด 2 วันที่แล้ว", "จะเริ่ม 1 วันที่แล้ว") บน Today และทั่วเว็บ
+     ครั้งนี้ "ไม่ย้อน" — ปรับจริงทั้งระบบ โดยใช้ type scale ใหม่จาก
+     tokens.css ที่ลดลง (xs 12→11.5px, sm 14→13px) และเพิ่ม tier
+     ใหม่ --yp-text-2xs (11px) สำหรับ meta/relative-day labels
+   ★ r65: เน้น "soft + พอดี + กว้างขวาง" บนมือถือ โดย "ห้ามแตะ" ค่าความโค้ง
+     - ลด card padding มือถือ 16px → 14px (เนื้อหาหายใจมากขึ้น)
+     - เพิ่ม gap ระหว่างการ์ดใน list มือถือ space-3 (12px) → space-3 + 2px (14px)
+       การ์ด "ห่างกัน" มากขึ้น = รู้สึก "กว้างขวาง"
+     - ลด hero padding มือถือ space-7/space-6 → space-6/space-5 +
+       ลด stat min-height 68→62px — hero กระชับขึ้น ไม่ครองจอเกินไป
+     - ลด saturation ของ hero radial lights ลงอีก ~10% — soft ขึ้น
+     - ลด alpha ของ is-subitem tint 3% → 2% — เบาบางขึ้น ไม่ลายตา
+     - ลด alpha ของ frosted stat tile (13→11% bg, 18→16% border) — soft
+     - ลด inset highlight ของ stat tile 0.16 → 0.13 — flat ขึ้น
+     - ลด hero shadow alpha ลงอีก ~25% — นิ่งขึ้น
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
@@ -33,22 +50,32 @@
   background-size: 180% 180%, 180% 180%, 100% 100%;
   color: white;
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-8) var(--yp-space-6);
+  /* ★ r65: ลด padding มือถือจาก space-8/space-6 → space-6/space-5 — ให้สมดุล
+     กับ yp-today-hero ที่ปรับในรอบนี้ ขณะที่ desktop คง padding เดิม */
+  padding: var(--yp-space-6) var(--yp-space-5);
   /* ★ r56: shadow ลดลง ~50% ให้ hero ดูนิ่งขึ้น ไม่ฟุ้ง */
   box-shadow: var(--yp-shadow-indigo);
   position: relative;
   overflow: hidden;
 }
 
+/* ★ r65: บนจอ ≥768px ขยาย placeholder hero padding กลับเป็น space-8/space-6 */
+@media (min-width: 768px) {
+  .yp-today-placeholder__hero {
+    padding: var(--yp-space-8) var(--yp-space-6);
+  }
+}
+
 .yp-today-placeholder__hero::before {
   content: '';
   position: absolute;
   inset: 0;
+  /* ★ r65: ลด alpha ของ glow layers ลง ~15% — soft ขึ้น */
   background:
-    radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.18) 0%, transparent 50%),
-    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.09) 1px, transparent 0),
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1.5px, transparent 0),
-    radial-gradient(circle at 3px 3px, rgba(255,255,255,0.05) 0.7px, transparent 0);
+    radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.075) 1px, transparent 0),
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1.5px, transparent 0),
+    radial-gradient(circle at 3px 3px, rgba(255,255,255,0.04) 0.7px, transparent 0);
   background-size: auto, 37px 31px, 23px 43px, 17px 19px;
   pointer-events: none;
 }
@@ -59,17 +86,21 @@
 }
 
 .yp-today-placeholder__greeting {
-  font-size: var(--yp-text-sm);
-  opacity: 0.78;
-  margin-bottom: 6px;
+  /* ★ r64: ใช้ text-2xs (11px) แทน text-sm — greeting เป็น caption
+     ไม่ใช่ body ควรเล็กกว่า name ชัดเจน */
+  font-size: var(--yp-text-2xs);
+  opacity: 0.74;
+  margin-bottom: 5px;
   font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .yp-today-placeholder__name {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl ให้สมดุลกับ today-hero */
-  font-size: var(--yp-text-xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl ให้สมดุลกับ today-hero
+     ★ r64: ลดจาก text-xl → text-lg ตาม type scale ใหม่ — ให้สมดุลกับ
+     body text ที่เล็กลง ไม่โดดใหญ่เกินไป */
+  font-size: var(--yp-text-lg);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
   line-height: 1.2;
@@ -77,8 +108,9 @@
 }
 
 .yp-today-placeholder__date {
-  font-size: var(--yp-text-sm);
-  opacity: 0.82;
+  /* ★ r64: text-sm → text-xs ให้สมดุลกับ greeting ที่เล็กลง */
+  font-size: var(--yp-text-xs);
+  opacity: 0.80;
   margin-top: var(--yp-space-2);
   letter-spacing: 0.015em;
 }
@@ -108,37 +140,57 @@
      - ลดความอิ่มตัวของ radial lights (55→35%, 42→28%, 65→40%, 45→30%)
      - ลดความเข้มของ base gradient (312E81 → 3730A3, 4F46E5 → 6366F1)
      - ใช้สีอ่อนกว่าเดิมเล็กน้อยให้ดูสดใสขึ้น ไม่หนักจนเกินไป
-     - ยังคงความเป็น indigo/violet ที่เป็นเอกลักษณ์ของหน้า Today */
+     - ยังคงความเป็น indigo/violet ที่เป็นเอกลักษณ์ของหน้า Today
+     ★ r64: ลดความอิ่มตัวของ radial lights ลงอีก ~25% และเปลี่ยน base
+     gradient ให้อ่อนกว่าเดิม — ให้ hero "นิ่ง นุ่ม สบายตา" มากขึ้น ตาม
+     แนวทาง Archive Tune / Apple Music ที่ใช้ gradient soft */
   background:
-    /* layer 1: mesh gradient — 4 radial lights at corners (อ่อนกว่าเดิม) */
-    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.35) 0%, transparent 45%),
-    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.28) 0%, transparent 42%),
-    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.40) 0%, transparent 50%),
-    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.30) 0%, transparent 45%),
+    /* layer 1: mesh gradient — 4 radial lights at corners (อ่อนกว่าเดิม)
+       ★ r65: ลด saturation ลงอีก ~10% — soft ขึ้น ไม่เข้มเกินไป */
+    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.18) 0%, transparent 42%),
+    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.26) 0%, transparent 50%),
+    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.18) 0%, transparent 45%),
     /* layer 2: base diagonal gradient (อ่อนกว่าเดิม — สดใสขึ้น) */
-    linear-gradient(135deg, #3730A3 0%, #6366F1 50%, #8B5CF6 100%);
+    linear-gradient(135deg, #3F3D9C 0%, #5B57D8 50%, #7C5AE8 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   color: white;
   border-radius: var(--yp-radius-hero);
   /* ★ r60: เพิ่ม padding เล็กน้อย (space-7→space-8 แนวตั้ง) ให้เนื้อหา
-     ภายใน hero หายใจสะดวกขึ้น ไม่ชิดขอบ */
-  padding: var(--yp-space-8) var(--yp-space-6);
+     ภายใน hero หายใจสะดวกขึ้น ไม่ชิดขอบ
+     ★ r64: ลด padding แนวตั้งจาก space-8 → space-7 — ให้สมดุลกับ type scale
+     ที่เล็กลง เนื้อหา hero ไม่ต้องการพื้นที่เท่าเดิม
+     ★ r65: ลด padding มือถือลงอีก space-7/space-6 → space-6/space-5 —
+     hero กระชับขึ้น ไม่ครองพื้นที่จอเกินไป เนื้อหาด้านล่างเห็นเร็วขึ้น */
+  padding: var(--yp-space-6) var(--yp-space-5);
   /* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างจาก hero ไป section แรก
      จาก --yp-space-6 (26px) เป็น --yp-space-8 (36px) — ให้ hero
      "หายใจ" มากขึ้น และเห็นชัดว่า hero จบที่ไหน section ถัดไปเริ่มที่ไหน
-     ★ r60: --yp-space-8 ขยายเป็น 40px ในรอบนี้ ระยะนี้จึงกว้างขึ้นตามไปด้วย */
-  margin-bottom: var(--yp-space-8);
+     ★ r60: --yp-space-8 ขยายเป็น 40px ในรอบนี้ ระยะนี้จึงกว้างขึ้นตามไปด้วย
+     ★ r64: ลดจาก space-8 → space-7 — ให้สมดุลกับ hero ที่เล็กลง
+     ★ r65: คง space-7 ไว้ — ระยะ hero-to-section ยังพอดี ไม่ต้องลดลง */
+  margin-bottom: var(--yp-space-7);
   /* ★ r56: ลด shadow ลง ~45% — ใช้ shadow เดียวชั้นเบา แทน 3 ชั้นหนา
      ★ r60: ตัด inset highlight ออก เหลือ 2 ชั้นเงาเบาบางที่สุด
-     เพื่อความเรียบ (flat) มากขึ้น — ยังพอเห็นมิติแต่ไม่ฟุ้ง */
+     เพื่อความเรียบ (flat) มากขึ้น — ยังพอเห็นมิติแต่ไม่ฟุ้ง
+     ★ r64: ลด alpha ลงอีก ~40% — hero แทบไม่มีเงา ดู "นิ่ง" มาก
+     ★ r65: ลด alpha ลงอีก ~25% — hero "นุ่มนิ่ม" สุดๆ แทบจะไม่มีเงาเลย */
   box-shadow:
-    0 3px 10px rgba(49, 46, 129, 0.10),
-    0 1px 2px rgba(79, 70, 229, 0.06);
+    0 2px 8px rgba(49, 46, 129, 0.045),
+    0 1px 2px rgba(79, 70, 229, 0.03);
   position: relative;
   overflow: hidden;
   animation: yp-hero-enter var(--yp-hero-enter) both;
   isolation: isolate;
+}
+
+/* ★ r65: บนจอ ≥768px มีพื้นที่พอ ขยาย hero padding กลับเป็น space-7/space-6
+   ให้ hero "หายใจ" มากขึ้นบนจอใหญ่ ขณะที่มือถือกระชับขึ้น (ตาม base rule ด้านบน) */
+@media (min-width: 768px) {
+  .yp-today-hero {
+    padding: var(--yp-space-7) var(--yp-space-6);
+  }
 }
 
 /* ★ v3.10.0 รอบที่ 31: Pattern layers — ลด opacity ลงเล็กน้อย
@@ -174,28 +226,32 @@
 }
 
 .yp-today-hero__greeting {
-  font-size: var(--yp-text-sm);
-  opacity: 0.78;
-  margin-bottom: 6px;
+  /* ★ r64: text-sm → text-2xs (11px) — greeting เป็น caption ที่อยู่เหนือ
+     name ควรเล็กกว่า name ชัดเจน ตามหลัก typography hierarchy */
+  font-size: var(--yp-text-2xs);
+  opacity: 0.74;
+  margin-bottom: 5px;
   font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .yp-today-hero__name {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
-  font-size: var(--yp-text-xl);
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
+     ★ r64: ลดจาก text-xl → text-lg ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-lg);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   line-height: 1.2;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
   word-break: break-word;
 }
 
 .yp-today-hero__date {
-  font-size: var(--yp-text-sm);
-  opacity: 0.82;
+  /* ★ r64: text-sm → text-xs (11.5px) ให้สมดุลกับ greeting/name ที่เล็กลง */
+  font-size: var(--yp-text-xs);
+  opacity: 0.80;
   margin-bottom: var(--yp-space-4);
   letter-spacing: 0.015em;
 }
@@ -221,26 +277,37 @@
 .yp-today-hero__stat {
   /* ★ v3.9.3: Frosted glass stat tile — Apple visionOS / iOS 17 style
      ใช้ rgba + backdrop-filter แทน solid color
-     ทำให้ดูมี depth และ "ลอย" บน hero */
-  background: rgba(255, 255, 255, 0.16);
+     ทำให้ดูมี depth และ "ลอย" บน hero
+     ★ r64: ลด frosted opacity ลง (16→13% bg, 22→18% border) ให้ tile
+     "นิ่ง" ขึ้น ดู soft ตามแนวทาง Archive Tune / Apple Music ที่ใช้
+     surface tint เบาๆ ไม่เด่นเกิน
+     ★ r65: ลด alpha ลงอีก (13→11% bg, 18→16% border) — soft ขึ้นอีก
+     เล็กน้อย tile เบาบางขึ้น ไม่ลายตา */
+  background: rgba(255, 255, 255, 0.11);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--yp-radius-md);
   /* ★ r60: เคยขยาย padding แนวตั้งเป็น space-4 แบบ global
      ★ r61: กลับมาใช้ space-3 บนมือถือ — tile สูงขึ้นบนจอแคบทำให้ hero
      ทั้งก้อนสูงขึ้นตามไปด้วย กินพื้นที่จอเล็กที่มีจำกัดอยู่แล้ว
-     ค่าที่สูงขึ้นย้ายไปอยู่ใน media query ด้านล่างสำหรับจอ ≥768px */
-  padding: var(--yp-space-3) var(--yp-space-2);
+     ค่าที่สูงขึ้นย้ายไปอยู่ใน media query ด้านล่างสำหรับจอ ≥768px
+     ★ r64: ลด padding แนวตั้งจาก space-3 → space-2 + min-height 76→68 —
+     ให้สมดุลกับ stat-value ที่เล็กลง
+     ★ r65: ลด min-height อีก 68→62 บนมือถือ — stat tile กระชับขึ้น
+     hero รวมสูงลดลง พื้นที่ content ด้านล่างเห็นมากขึ้น */
+  padding: var(--yp-space-2) var(--yp-space-2);
   text-align: center;
   position: relative;
   overflow: hidden;
   /* ★ r56: ลด shadow ลง ~60% — ใช้แค่ inset highlight + เงาบางมาก
-     เพื่อให้ tile ดูสะอาด ไม่ฟุ้ง เหมือน frosted glass จริง */
+     เพื่อให้ tile ดูสะอาด ไม่ฟุ้ง เหมือน frosted glass จริง
+     ★ r64: ลด inset highlight alpha ลง (0.22→0.16) ให้ tile "flat" ขึ้น
+     ★ r65: ลด inset highlight alpha ลงอีก (0.16→0.13) — flat ขึ้นอีก */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 1px 2px rgba(49, 46, 129, 0.06);
-  min-height: 76px;
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    0 1px 2px rgba(49, 46, 129, 0.03);
+  min-height: 62px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -259,8 +326,10 @@
 
 .yp-today-hero__stat-value {
   /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
-     stat value ไม่ต้องใหญ่เกิน — เป็นแค่ตัวเลข */
-  font-size: var(--yp-text-xl);
+     stat value ไม่ต้องใหญ่เกิน — เป็นแค่ตัวเลข
+     ★ r64: ลดจาก text-xl → text-base (15px) — stat value เป็นตัวเลข
+     ที่ไม่ต้องเด่นมาก ให้สมดุลกับ hero ที่เล็กลง */
+  font-size: var(--yp-text-base);
   font-weight: var(--yp-fw-extrabold);
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -268,21 +337,24 @@
 }
 
 .yp-today-hero__stat-label {
-  font-size: var(--yp-text-xs);
-  opacity: 0.82;
-  margin-top: 4px;
+  /* ★ r64: text-xs → text-2xs (11px) — label ควรเล็กกว่า value ชัดเจน */
+  font-size: var(--yp-text-2xs);
+  opacity: 0.78;
+  margin-top: 3px;
   font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   word-break: keep-all;
   line-height: 1.3;
 }
 
 /* ★ r61: จอ ≥768px มีพื้นที่พอ ให้ tile สูงขึ้น/หายใจมากขึ้นได้จริง
-   โดยไม่กระทบความกระชับของมือถือ (ดู base rule ด้านบน) */
+   โดยไม่กระทบความกระชับของมือถือ (ดู base rule ด้านบน)
+   ★ r64: ลด min-height จาก 80 → 72 ให้สมดุลกับ type scale ใหม่
+   ★ r65: คง min-height 72 ไว้ — บน desktop ขนาดนี้พอดี ไม่ต้องลดลง */
 @media (min-width: 768px) {
   .yp-today-hero__stat {
-    padding: var(--yp-space-4) var(--yp-space-2);
-    min-height: 80px;
+    padding: var(--yp-space-3) var(--yp-space-2);
+    min-height: 72px;
   }
 }
 
@@ -304,31 +376,35 @@
   gap: var(--yp-space-3);
   /* ★ r56: เพิ่มจาก --yp-space-5 → --yp-space-6
      ให้มีระยะหายใจระหว่างหัวข้อ section กับเนื้อหาด้านล่างมากขึ้น
-     ทำให้ section ดูเป็นระเบียบ นิ่ง ไม่อัดกัน */
-  margin-bottom: var(--yp-space-6);
+     ทำให้ section ดูเป็นระเบียบ นิ่ง ไม่อัดกัน
+     ★ r64: ลดจาก space-6 → space-5 ให้สมดุลกับ type scale ที่เล็กลง */
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-section__title {
+  /* ★ r64: ใช้ h3-size ที่ลดลง ~10% จาก tokens — section title ไม่ต้อง
+     โดดใหญ่เกินไป เพราะมี accent bar ช่วยให้เด่นอยู่แล้ว */
   font-size: var(--yp-h3-size);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-heading);
   letter-spacing: 0.005em;
   line-height: 1.3;
   position: relative;
-  padding-left: 14px;
+  padding-left: 12px;
 }
 
 /* ★ r56: Accent bar ข้างหน้า section title — ลด shadow จาก 0 1px 3px rgba(...,0.25)
    ไปเป็นค่าว่าง (no shadow) เพื่อให้บาร์ดู flat สะอาดตา ไม่ฟุ้ง
-   ใช้สี gradient เดียวกัน เพื่อรักษา identity */
+   ใช้สี gradient เดียวกัน เพื่อรักษา identity
+   ★ r64: ลด bar height จาก 18 → 16px ให้สมดุลกับ title ที่เล็กลง */
 .yp-today-section__title::before {
   content: '';
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 4px;
-  height: 18px;
+  width: 3px;
+  height: 16px;
   background: linear-gradient(135deg, var(--yp-indigo-500) 0%, var(--yp-violet-500) 100%);
   border-radius: var(--yp-radius-pill);
 }
@@ -340,17 +416,17 @@
 }
 
 .yp-today-section__count {
-  font-size: var(--yp-text-xs);
-  /* ★ v3.10.0 รอบที่ 37: เปลี่ยนจาก --yp-text-muted เป็น indigo-600
-     ให้ count chip เข้ากับ hero และ accent bar ของ title */
+  /* ★ r56: ใช้ count chip แบบ subtle ที่สะอาดตา — ใช้ background tint
+     + border แทน shadow หนา
+     ★ r64: ใช้ text-2xs (11px) + ลด padding 5px 14px → 3px 10px —
+     count chip ที่เล็กลงจะทำให้สมดุลกับ title ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   color: var(--yp-indigo-600);
   font-weight: var(--yp-fw-bold);
-  /* ★ v3.10.0 รอบที่ 37: ใช้ indigo-soft background แทน plain white
-     ทำให้ chip ดูเป็นส่วนหนึ่งของระบบออกแบบ ไม่ใช่กล่องขาวลอยๆ */
   background: var(--yp-bg-indigo-soft);
-  padding: 5px 14px;
+  padding: 3px 10px;
   border-radius: var(--yp-radius-pill);
-  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 16%, transparent);
   letter-spacing: 0.02em;
 }
 
@@ -404,8 +480,8 @@
 }
 
 .yp-today-time-section__icon svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   stroke-width: 2;
 }
 
@@ -414,12 +490,14 @@
   min-width: 0;
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
 .yp-today-time-section__label {
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — time-section label เป็น sub-section
+     ควรเล็กกว่า main section title และเล็กกว่า card title */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-heading);
   letter-spacing: 0.01em;
@@ -427,7 +505,8 @@
 }
 
 .yp-today-time-section__caption {
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — caption ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
   margin-top: 0;
@@ -436,13 +515,14 @@
 
 .yp-today-time-section__count {
   /* ★ r56: ใช้ count chip แบบ subtle ที่สะอาดตา — ใช้ background tint
-     + border แทน shadow หนา */
-  font-size: var(--yp-text-xs);
+     + border แทน shadow หนา
+     ★ r64: text-xs → text-2xs (11px) + ลด padding 2px 9px → 2px 8px */
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-semibold);
   background: var(--yp-bg-card-soft);
   border: 1px solid var(--yp-border-subtle);
-  padding: 2px 9px;
+  padding: 2px 8px;
   border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
   line-height: 1.4;
@@ -460,8 +540,11 @@
   flex-direction: column;
   /* ★ r60: เคยขยาย gap เป็น space-4 แบบ global
      ★ r61: กลับมาใช้ space-3 (12px) บนมือถือ — จอเล็กควรเห็นรายการได้
-     มากกว่าต่อการเลื่อน 1 หน้าจอ ค่าที่กว้างขึ้นย้ายไป media query ด้านล่าง */
-  gap: var(--yp-space-3);
+     มากกว่าต่อการเลื่อน 1 หน้าจอ ค่าที่กว้างขึ้นย้ายไป media query ด้านล่าง
+     ★ r65: เพิ่ม gap มือถือจาก space-3 (12px) → 14px — การ์ด "ห่างกัน"
+     มากขึ้น รู้สึก "กว้างขวาง" ขึ้น ขณะที่ตัวการ์ดเองกระชับขึ้น (padding 14px)
+     สมดุลระหว่าง "กระชับ" และ "กว้างขวาง" */
+  gap: 14px;
 }
 
 @media (min-width: 768px) {
@@ -484,13 +567,16 @@
 
 /* ★ v3.10.0 รอบที่ 30: banner — top corners full radius (lg)
    bottom corners 0 (ต่อเนื่องกับ progress / cards)
-   ใช้ accent tint อ่อนๆ แทนสีเข้ม */
+   ใช้ accent tint อ่อนๆ แทนสีเข้ม
+   ★ r65: ลด accent tint ใน banner จาก 5% → 4% — soft ขึ้นเล็กน้อย */
 .yp-today-group__banner {
   display: flex;
   align-items: center;
   gap: var(--yp-space-2);
-  padding: var(--yp-space-3) var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, var(--yp-bg-card));
+  /* ★ r64: ลด padding จาก space-3 space-4 → space-2 space-3 — ให้สมดุล
+     กับ type scale ที่เล็กลง */
+  padding: var(--yp-space-2) var(--yp-space-3);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
   border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-border-subtle));
   margin-bottom: 0;
 }
@@ -499,8 +585,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  /* ★ r64: ลดจาก 24×24 → 22×22 ให้สมดุลกับ type scale ใหม่ */
+  width: 22px;
+  height: 22px;
   border-radius: var(--yp-radius-sm);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
   color: var(--accent, var(--yp-indigo-500));
@@ -512,12 +599,14 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .yp-today-group__banner-title {
-  font-size: var(--yp-text-sm);
+  /* ★ r64: text-sm → text-xs (11.5px) — group banner title เป็น sub-heading
+     ควรเล็กกว่า main section title */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-heading);
   letter-spacing: 0.01em;
@@ -527,10 +616,11 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — chip ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   color: var(--accent, var(--yp-indigo-500));
   font-weight: var(--yp-fw-medium);
-  padding: 2px 8px;
+  padding: 2px 7px;
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
   border-radius: var(--yp-radius-pill);
 }
@@ -543,8 +633,8 @@
 }
 
 .yp-today-group__banner-chip svg {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   flex-shrink: 0;
 }
 
@@ -552,15 +642,16 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — date chip ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--yp-radius-pill);
 }
 
 .yp-today-group__banner-date svg {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   flex-shrink: 0;
 }
 
@@ -578,8 +669,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  /* ★ r64: ลดจาก 28×28 → 26×26 ให้สมดุลกับ type scale ใหม่ */
+  width: 26px;
+  height: 26px;
   border-radius: var(--yp-radius-sm);
   background: transparent;
   border: 1px solid var(--yp-border-subtle);
@@ -598,17 +690,20 @@
 
 /* ★ v3.10.0 รอบที่ 30: Progress section — thin modern progress bar
    แสดง "X/Y เสร็จ" + bar แบบ thin (4px) modern style
-   อยู่ระหว่าง banner และ cards ทำให้เห็นภาพรวมของกลุ่ม */
+   อยู่ระหว่าง banner และ cards ทำให้เห็นภาพรวมของกลุ่ม
+   ★ r65: ลด accent tint ใน progress จาก 2% → 1.5% — soft ขึ้น */
 .yp-today-group__progress {
   display: flex;
   align-items: center;
   gap: var(--yp-space-3);
-  padding: var(--yp-space-2) var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 2%, var(--yp-bg-card));
+  /* ★ r64: ลด padding จาก space-2 space-4 → space-2 space-3 */
+  padding: var(--yp-space-2) var(--yp-space-3);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 1.5%, var(--yp-bg-card));
   border-bottom: 1px solid var(--yp-border-subtle);
 }
 .yp-today-group__progress-text {
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — progress text ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   flex-shrink: 0;
@@ -634,13 +729,14 @@
 }
 
 /* ★ v3.10.0 รอบที่ 32: คำแนะนำสั้นๆ ว่ากดตรงไหนทำอะไร — ใส่ครั้งเดียวต่อกลุ่ม
-   ตัวเล็ก สีจาง ไม่แย่งความสนใจจากรายการจริง แต่ช่วยตัดความสับสนตั้งแต่แรกเห็น */
+   ตัวเล็ก สีจาง ไม่แย่งความสนใจจากรายการจริง แต่ช่วยตัดความสับสนตั้งแต่แรกเห็น
+   ★ r64: ลด font-size จาก 10.5px → 10px ให้สมดุลกับ type scale ใหม่ */
 .yp-today-group__hint {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px var(--yp-space-4) 0;
-  font-size: 10.5px;
+  padding: 5px var(--yp-space-3) 0;
+  font-size: 10px;
   color: var(--yp-text-faint);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.01em;
@@ -659,7 +755,7 @@
   padding: var(--yp-space-2) 0;
 }
 
-/* ── Today Item Card (v3.10.0-r56 — Cleaner / Stable / Lighter) ──
+/* ── Today Item Card (v3.10.0-r65 — Softer / Stable / Lighter / Smaller / Spacious) ──
    ★ r56: ลด shadow ทั้งหมดออก ใช้ border เป็นตัวสร้าง hierarchy
      - default state: no shadow, only border subtle
      - hover state: shift to border-default + bg-card-soft (no shadow)
@@ -668,10 +764,17 @@
    - ★ r60: เคยขยาย padding 18px → 20px แบบ global
    - ★ r61: กลับมาใช้ 18px บนมือถือ — พื้นที่จอแคบ padding ที่มากขึ้นทำให้
      เนื้อหาข้างในต้องบีบตัวลง (โดยเฉพาะ title ยาวๆ) ความรู้สึกเลยกลาย
-     เป็น "อึดอัด" แทนที่จะโปร่งขึ้น ค่า 20px ย้ายไปใช้เฉพาะจอ ≥768px */
+     เป็น "อึดอัด" แทนที่จะโปร่งขึ้น ค่า 20px ย้ายไปใช้เฉพาะจอ ≥768px
+   - ★ r64: ลด padding จาก 18px → 16px บนมือถือ — ให้สมดุลกับ type scale
+     ใหม่ที่เล็กลง (text-sm 14→13px, text-xs 12→11.5px) การ์ดที่เล็กลง
+     จะรู้สึก "กระชับ นิ่ง สมดุล" มากขึ้น
+   - ★ r65: ลด padding มือถือ 16px → 14px — เนื้อหาหายใจมากขึ้น ขณะที่
+     gap ระหว่างการ์ดเพิ่มขึ้น (12→14px) ทำให้รู้สึก "กว้างขวาง" แต่การ์ด
+     แต่ละใบยังกระชับ "พอดี" ไม่ใหญ่ไม่เล็กเกินไป
+     บนจอ ≥768px คง padding 18px ไว้ (desktop มีที่พอ) */
 .yp-today-item-card {
   position: relative;
-  padding: 18px;
+  padding: 14px;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-lg);
@@ -683,8 +786,9 @@
      ทำให้รายการดูสะอาด ไม่ฟุ้ง ไม่หนัก */
   box-shadow: none;
   /* ★ r46: Reserve space for left accent bar (subtask เท่านั้น)
-     ใช้ border-left transparent 4px เพื่อไม่ให้กระโดดเวลาเปลี่ยนประเภท */
-  border-left: 4px solid transparent;
+     ใช้ border-left transparent 4px เพื่อไม่ให้กระโดดเวลาเปลี่ยนประเภท
+     ★ r64: ลดจาก 4px → 3px ให้สมดุลกับ padding ที่เล็กลง */
+  border-left: 3px solid transparent;
 }
 
 /* ★ r46: Subtask Clarity — left accent bar + tinted background
@@ -692,15 +796,18 @@
    "การ์ดนี้เป็นลูกของ event สีนี้" เหมือนใน Linear / Asana
    - 4px left bar เป็นเส้นเชื่อมกับ parent (visual hierarchy)
    - tinted background สีอ่อนๆ ทำให้ card ดู "ลึกเข้าไป" หน่อย
-     เหมือนเป็น child element ไม่ใช่ top-level */
+     เหมือนเป็น child element ไม่ใช่ top-level
+   ★ r65: ลด tint alpha จาก 3% → 2% — เบาบางขึ้น ไม่ลายตา
+     ยังคงมี tint พอให้รู้ว่าเป็นลูก แต่ soft ขึ้น */
 .yp-today-item-card.is-subitem {
   border-left-color: var(--accent, var(--yp-indigo-500));
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 2%, var(--yp-bg-card));
 }
 
-/* ★ r46: Subtask hover — เน้น accent มากขึ้น */
+/* ★ r46: Subtask hover — เน้น accent มากขึ้น
+   ★ r65: ลด hover tint จาก 6% → 5% — soft ขึ้น */
 .yp-today-item-card.is-subitem:hover {
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card-soft));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, var(--yp-bg-card-soft));
   border-left-color: var(--accent, var(--yp-indigo-500));
 }
 
@@ -732,30 +839,34 @@
    บรรจุ subtag/type-tag (ซ้าย) + time + menu (ขวา)
    ใช้ justify-content: space-between ให้ tag อยู่สุดซ้าย เวลา+menu อยู่สุดขวา
    ปิดด้วย subtle hairline divider เพื่อแยก "metadata row" กับ "content rows"
-   ให้รู้ว่าส่วนบนเป็นข้อมูลเมตา ส่วนล่างเป็นเนื้อหา */
+   ให้รู้ว่าส่วนบนเป็นข้อมูลเมตา ส่วนล่างเป็นเนื้อหา
+   ★ r64: ลด padding-bottom 10→8, margin-bottom 12→10 — ให้สมดุลกับ card
+   padding ที่ลดลง 16px */
 .yp-today-item-card__top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 24px;
+  gap: 7px;
+  min-height: 22px;
   /* ★ r46: เพิ่ม padding-bottom + border-bottom (faint hairline)
      เพื่อแยก Row 1 (metadata) จาก Row 2 (title) ให้ชัดเจน
      ก่อนหน้านี้ไม่มี divider ทำให้ 4 บรรทัดดูยืดเดียวกัน */
-  /* ★ r61: margin-bottom กลับเป็น 12px บนมือถือ (คู่กับ card padding 18px) */
-  padding-bottom: 10px;
-  margin-bottom: 12px;
+  /* ★ r61: margin-bottom กลับเป็น 12px บนมือถือ (คู่กับ card padding 18px)
+     ★ r64: ลดลงเหลือ 10px คู่กับ card padding 16px */
+  padding-bottom: 8px;
+  margin-bottom: 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
 }
 
 /* ★ r46: Subtask tag ("↳ รายการย่อย") — identifier หลักของ subtask
    ใช้ CornerDownRight icon เหมือนบอกว่า "ย่อยลงมาจากของใหญ่"
-   สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่ */
+   สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่
+   ★ r64: ลด font-size จาก 10px → 9.5px ให้สมดุลกับ type scale ใหม่ */
 .yp-today-item-card__subtag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
+  gap: 3px;
+  font-size: 9.5px;
   font-weight: var(--yp-fw-bold);
   color: var(--accent, var(--yp-indigo-500));
   letter-spacing: 0.06em;
@@ -765,20 +876,21 @@
 }
 
 .yp-today-item-card__subtag svg {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   stroke-width: 2.5;
   flex-shrink: 0;
 }
 
 /* ★ r46: Standalone type tag ("รายการหลัก") — identifier ของ standalone
    ใช้ Flag icon บอกว่าเป็น "หมุดหลัก" ไม่ใช่ลูกของอะไร
-   สี muted เพื่อไม่แข่งกับ subtask ที่เด่นกว่า */
+   สี muted เพื่อไม่แข่งกับ subtask ที่เด่นกว่า
+   ★ r64: ลด font-size จาก 10px → 9.5px ให้สมดุลกับ type scale ใหม่ */
 .yp-today-item-card__type-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10px;
+  gap: 3px;
+  font-size: 9.5px;
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-faint);
   letter-spacing: 0.06em;
@@ -788,8 +900,8 @@
 }
 
 .yp-today-item-card__type-tag svg {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   stroke-width: 2.5;
   flex-shrink: 0;
   opacity: 0.8;
@@ -806,12 +918,15 @@
 }
 
 /* ★ r44: Time — subtle, no capsule, no border, no bg
-   Just plain text + clock icon in muted color */
+   Just plain text + clock icon in muted color
+   ★ r64: text-xs → text-2xs (11px) — time display ควรเป็น caption-level
+   ไม่ใช่ body — ผู้ใช้ชี้จุดนี้โดยตรงว่า "ใหญ่เกินไป" โดยเฉพาะเวลาที่บรรจุ
+   relative day label เช่น "เริ่ม 2 วันที่แล้ว 10:00 น." */
 .yp-today-item-card__time {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--yp-text-xs);
+  gap: 3px;
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   white-space: nowrap;
@@ -819,8 +934,8 @@
 }
 
 .yp-today-item-card__time svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2;
   opacity: 0.7;
 }
@@ -839,8 +954,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  /* ★ r64: ลดจาก 28×28 → 26×26 ให้สมดุลกับ type scale ใหม่ */
+  width: 26px;
+  height: 26px;
   border-radius: var(--yp-radius-sm);
   background: transparent;
   color: var(--yp-text-muted);
@@ -864,8 +980,8 @@
 }
 
 .yp-today-item-card__menu svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   stroke-width: 2;
 }
 
@@ -875,7 +991,10 @@
      type scale ของแพลตฟอร์มขนาดใหญ่ (Linear/Vercel/Stripe/Notion) แล้ว
      พบว่า 14px เหมาะสมกับความหนาแน่นของ list UI แบบนี้อยู่แล้ว การขยับ
      เป็น text-base (16px) ก่อนหน้านี้ทำให้ตัวอักษรรู้สึกใหญ่เกินสัดส่วน
-     กับ badge/meta รอบๆ */
+     กับ badge/meta รอบๆ
+     ★ r64: text-sm ยังเป็น text-sm แต่ตอนนี้ text-sm = 13px (ลดจาก 14px
+     ใน tokens.css) — สัดส่วนยังคงเดิม แต่ขนาดจริงเล็กลงตาม type scale ใหม่
+     ที่ผู้ใช้ต้องการจริง */
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-heading);
@@ -884,7 +1003,7 @@
   letter-spacing: -0.005em;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 7px;
   /* ★ r46: margin-top จาก 2px → 0 (ใช้ margin ของ __top-row แทน —
      เพราะ __top-row มี border-bottom และ margin-bottom 12px แล้ว) */
   margin-top: 0;
@@ -892,7 +1011,8 @@
 
 /* ★ r46: Title icon for sub-items — ใหญ่และเด่นขึ้น
    ขนาด 14px → 16px, opacity 0.6 → 1, color muted → accent
-   ทำให้ Layers icon เป็น "พระเอก" ของ subtask ไม่ใช่ element จางๆ */
+   ทำให้ Layers icon เป็น "พระเอก" ของ subtask ไม่ใช่ element จางๆ
+   ★ r64: ลดจาก 16px → 14px ให้สมดุลกับ title text ที่เล็กลง */
 .yp-today-item-card__title-icon {
   flex-shrink: 0;
   margin-top: 1px;
@@ -915,17 +1035,19 @@
   align-items: center;
   gap: 5px;
   /* ★ r46: margin-top 4px → 8px ให้หายใจจาก title
-     ★ r61: กลับมา 8px บนมือถือ (r60 เคยขยับเป็น 10px แบบ global) */
-  margin-top: 8px;
+     ★ r61: กลับมา 8px บนมือถือ (r60 เคยขยับเป็น 10px แบบ global)
+     ★ r64: ลดจาก 8px → 6px ให้สมดุลกับ type scale ที่เล็กลง */
+  margin-top: 6px;
   min-width: 0;
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — group info เป็น meta */
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
 }
 
 .yp-today-item-card__group svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2;
   flex-shrink: 0;
   opacity: 0.6;
@@ -950,20 +1072,26 @@
   flex-wrap: wrap;
   /* ★ r46: margin-top 8px → 14px ให้ badges หายใจจาก parent group
      เพราะ badges เป็นข้อมูลแยก (status/priority) ไม่ใช่ต่อจาก parent
-     ★ r61: กลับมา 14px บนมือถือ (r60 เคยขยับเป็น 16px แบบ global) */
-  gap: 6px;
-  margin-top: 14px;
+     ★ r61: กลับมา 14px บนมือถือ (r60 เคยขยับเป็น 16px แบบ global)
+     ★ r64: ลด gap 6px → 5px, margin-top 14px → 11px — ให้สมดุลกับ type
+     scale ที่เล็กลง badges จะได้ไม่ "แน่นเกิน" แต่ก็ไม่ "ห่างเกิน" */
+  gap: 5px;
+  margin-top: 11px;
 }
 
-/* Individual badge — small pill */
+/* Individual badge — small pill
+   ★ r64: ลด padding 3px 10px → 2px 8px และใช้ text-2xs (11px) แทน
+   text-xs (12px) — badge ที่เล็กลงจะทำให้ relative-day labels
+   ("เลยกำหนด 2 วันที่แล้ว", "จะเริ่ม 1 วันที่แล้ว") ที่ผู้ใช้ชี้ว่า "ใหญ่เกินไป"
+   เล็กลงจริง ตามที่ผู้ใช้ต้องการ */
 .yp-today-item-card__badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--yp-text-xs);
+  gap: 4px;
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
-  padding: 3px 10px;
+  padding: 2px 8px;
   background: var(--yp-bg-card-soft);
   border: 1px solid transparent;
   border-radius: var(--yp-radius-pill);
@@ -972,27 +1100,30 @@
 }
 
 .yp-today-item-card__badge svg {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   stroke-width: 2;
   flex-shrink: 0;
 }
 
 /* ★ r61: จอ ≥768px มีพื้นที่พอ ให้การ์ดรายการหายใจมากขึ้นได้จริง
    (ค่าเดียวกับที่เคยลองใช้ global ในรอบ 60) โดยไม่กระทบความกระชับ
-   ของมือถือ ซึ่งกลับไปใช้ค่ารอบ 56 แล้ว (ดู base rules ด้านบน) */
+   ของมือถือ ซึ่งกลับไปใช้ค่ารอบ 56 แล้ว (ดู base rules ด้านบน)
+   ★ r64: ลดค่าทั้งหมดลงเล็กน้อย (padding 20→18, margin 14→12, 10→8,
+   16→13) ให้สมดุลกับ type scale ใหม่
+   ★ r65: คงค่า desktop ไว้ที่ 18px padding — พอดีสำหรับจอใหญ่ ไม่ต้องลดลง */
 @media (min-width: 768px) {
   .yp-today-item-card {
-    padding: 20px;
+    padding: 18px;
   }
   .yp-today-item-card__top-row {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   .yp-today-item-card__group {
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .yp-today-item-card__badges {
-    margin-top: 16px;
+    margin-top: 13px;
   }
 }
 
@@ -1151,6 +1282,7 @@
 .yp-today-item-compact__title {
   flex: 1;
   min-width: 0;
+  /* ★ r64: text-sm (14→13px after token change) — compact title */
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-body);
@@ -1176,9 +1308,10 @@
 }
 
 .yp-today-item-compact__status {
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — compact status ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
-  padding: 1px 8px;
+  padding: 1px 7px;
   border-radius: var(--yp-radius-pill);
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -1203,7 +1336,8 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — compact time ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   white-space: nowrap;
@@ -1216,7 +1350,8 @@
 }
 
 .yp-today-item-compact__priority {
-  font-size: 10px;
+  /* ★ r64: ลดจาก 10px → 9.5px ให้สมดุลกับ type scale ใหม่ */
+  font-size: 9.5px;
   font-weight: var(--yp-fw-bold);
   color: #BE123C;
   background: rgba(244, 63, 94, 0.10);
@@ -1226,7 +1361,8 @@
 }
 
 .yp-today-item-compact__date {
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — compact date ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   white-space: nowrap;
@@ -1242,8 +1378,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  /* ★ r64: ลดจาก 24×24 → 22×22 ให้สมดุลกับ type scale ใหม่ */
+  width: 22px;
+  height: 22px;
   border-radius: var(--yp-radius-sm);
   background: transparent;
   color: var(--yp-text-faint);
@@ -1258,12 +1395,13 @@
 }
 
 .yp-today-item-compact__link svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 .yp-today-card-list__hint {
   text-align: center;
-  font-size: var(--yp-text-xs);
+  /* ★ r64: text-xs → text-2xs (11px) — hint ที่เล็กลง */
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-faint);
   padding: var(--yp-space-3) 0 var(--yp-space-1);
   letter-spacing: 0.01em;

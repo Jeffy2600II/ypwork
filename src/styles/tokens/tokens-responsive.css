@@ -1,5 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r61 (Modular CSS Refactor)
+   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r65 (Modular CSS Refactor)
+   ★ r65: เพิ่มความโปร่งของ desktop/tablet อีกเล็กน้อย (section-gap,
+     card-pad-lg) ให้รู้สึก "กว้างขวาง" บนจอใหญ่ขณะที่มือถือคงค่า
+     "พอดี" จาก base tokens ตามเดิม
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -13,7 +16,9 @@
   :root {
     --yp-page-pad-x:   1.75rem;    /* v3.9.3: +0.25rem จาก 1.5rem */
     --yp-card-pad:     1.25rem;
-    --yp-card-pad-lg:  1.75rem;
+    /* ★ r65: card-pad-lg เพิ่มจาก 1.75rem → 1.875rem บน desktop — ให้การ์ด
+       ใหญ่บนจอ desktop มีพื้นที่ภายในมากขึ้น รู้สึก "กว้างขวาง" ขึ้น */
+    --yp-card-pad-lg:  1.875rem;
     --yp-section-gap:  1.75rem;
     --yp-stack-gap:    0.8125rem;
     /* ★ v3.10.0 รอบที่ 61: ค่าระยะห่างระดับ section ที่เคยขยาย global
@@ -29,6 +34,8 @@
 @media (min-width: 1024px) {
   :root {
     --yp-page-pad-x: 2rem;          /* v3.9.3: +0.25rem จาก 1.75rem */
-    --yp-section-gap: 2rem;
+    /* ★ r65: section-gap บนจอใหญ่ขยายจาก 2rem → 2.125rem ให้ "กว้างขวาง"
+       บน desktop มากขึ้น */
+    --yp-section-gap: 2.125rem;
   }
 }
