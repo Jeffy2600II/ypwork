@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r62 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r63 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -160,6 +160,16 @@
   /* ── TYPOGRAPHY ── */
   --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
+  /* ★ v3.10.0 รอบที่ 63 (แก้ไขรอบเดียวกัน — ครั้งที่ 2): ลองขยับ
+     --yp-text-xs/sm ขึ้น +1px ไปก่อนหน้านี้ แล้วผู้ใช้ทดสอบจริงพบว่า
+     "ใหญ่เกินไป" และยิ่งขยับยิ่งแย่ลง — ไปวิจัยอ้างอิงหลักการพิมพ์ของ
+     แพลตฟอร์มขนาดใหญ่ (Linear, Vercel, Stripe, Notion) ที่เป็นต้นแบบของ
+     ระบบดีไซน์นี้อยู่แล้ว (ดู Type Scale ใน design skill reference) พบว่า
+     scale มาตรฐานของ dense UI แบบนี้คือ Caption 12-13px / Body S 14px /
+     Body 16px — ซึ่งตรงกับค่า "ก่อน" ที่จะขยับในรอบ 63 พอดี (12px/14px)
+     สรุปคือขนาดเดิมถูกต้องตามหลักแพลตฟอร์มขนาดใหญ่อยู่แล้ว ปัญหาความไม่
+     สมดุลที่ผู้ใช้รู้สึกจริงๆ มาจาก spacing/nav (แก้ไปแล้วในรอบ 61-62)
+     ไม่ใช่ตัวอักษร — จึงย้อนกลับ xs/sm เป็นค่าเดิม ไม่ขยับอีก */
   --yp-text-xs:   0.75rem;
   --yp-text-sm:   0.875rem;
   --yp-text-base: 1rem;
