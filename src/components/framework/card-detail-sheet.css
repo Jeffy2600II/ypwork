@@ -414,7 +414,7 @@
   border-radius: var(--yp-radius-pill);
   letter-spacing: 0.01em;
 }
-.yp-task-row__chip svg { width: 11px; height: 11px; stroke-width: 2; }
+.yp-task-row__chip svg { width: 12px; height: 12px; stroke-width: 2; }
 .yp-task-row__chip.is-overdue {
   color: #BE123C;
   background: rgba(244, 63, 94, 0.08);
@@ -498,7 +498,8 @@
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  font-size: 11px;
+  /* ★ r66: ใช้ text-2xs (11px) — chip label เป็น true caption ตาม Rulebook */
+  font-size: var(--yp-text-2xs);
   margin-right: -2px;
 }
 .yp-task-row__chip--due .yp-task-row__chip-label { color: var(--yp-text-muted); }

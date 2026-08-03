@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r65 (Modular CSS Refactor)
+   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r66 (Modular CSS Refactor)
    ★ r65: คงค่า r64 ไว้ — bottom-nav บนมือถือพอดีแล้ว ไม่ต้องปรับ
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -83,9 +83,10 @@ html {
 
   /* ★ .bottom-nav__label — คืนขนาด 11.5px จาก r10
      เดิมใน r10: 11.5px, letter-spacing 0.01em, white-space nowrap
-     ★ r64: 11.5px → 10.5px — label ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+     ★ r66: ใช้ 11px (text-2xs) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook
+     11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption (nav label) */
   .bottom-nav__label {
-    font-size: 10.5px;
+    font-size: var(--yp-text-2xs);
     line-height: 1.2;
     text-align: center;
     font-weight: var(--yp-fw-medium, 500);

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r65 (Modular CSS Refactor)
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r66 (Modular CSS Refactor)
    ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
      var(--yp-shadow-sm) ที่ปรับใน tokens อยู่แล้ว ไม่ต้องแก้ที่นี่
    ═══════════════════════════════════════════════════════════════
@@ -204,8 +204,9 @@
   }
 
   .bottom-nav__label {
-    /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
-    font-size: 10.5px;
+    /* ★ r66: ใช้ 11px (text-2xs) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook
+       11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption (nav label) */
+    font-size: var(--yp-text-2xs);
     text-align: center;
     line-height: 1;
     font-weight: var(--yp-fw-medium);

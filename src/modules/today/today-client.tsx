@@ -76,7 +76,7 @@ import {
   buildTaskItem,
   categorizeByDates,
   buildDateClusters,
-  formatFullDateCaption,
+  formatClusterCaption,
   buildTimeGroups,
 } from './today-helpers';
 import {
@@ -114,13 +114,17 @@ export function TodayClient({
   const deptMembers = liveDeptMembers;
 
   // ── Date / greeting ──
+  // ★ r67: ปรับ todayLong ให้สะอาดตาขึ้น — เปลี่ยนจาก
+  //   "อาทิตย์ที่ 12 มกราคม 2568" (ยาว + prefix "ที่" ทำให้รก)
+  //   เป็น "12 มกราคม 2568 · อาทิตย์" (date first, weekday เสริมท้าย)
+  //   ใช้ full month name ตามที่ผู้ใช้แนะนำ แต่จัดวางใหม่ให้ compact และอ่านง่าย
   const todayParts = getThailandTodayParts();
   const greeting = getTimeGreeting();
   const dayName = THAI_DAYS[todayParts.weekday];
   const dayNum = todayParts.day;
   const monthName = THAI_MONTHS[todayParts.month];
   const yearBE = todayParts.year + 543;
-  const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
+  const todayLong = `${dayNum} ${monthName} ${yearBE} · วัน${dayName}`;
   const todayStr = getLocalTodayStr();
 
   // ── Categorize events into sections ──
@@ -372,31 +376,42 @@ export function TodayClient({
     isOverdue = false,
   ) => (
     <>
-      {clusters.map((cluster) => (
-        <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
-          <div className="yp-today-time-section__head">
-            <span className="yp-today-time-section__icon" aria-hidden="true">
-              {icon}
-            </span>
-            <div className="yp-today-time-section__text">
-              <div className="yp-today-time-section__label">
-                {cluster.dateKey
-                  ? getLabel(cluster.dateKey)
-                  : 'ไม่ระบุวันที่'}
+      {clusters.map((cluster) => {
+        // ★ r67: Smart caption — ซ่อน caption เมื่อ label บอกข้อมูลครบแล้ว
+        //   (เช่น "วันนี้"/"พรุ่งนี้"/"เมื่อวาน") และใช้ compact format เมื่อต้องแสดง
+        //   แก้ปัญหา "รกตา" ที่ผู้ใช้รายงานจากการมีทั้ง label + long caption ซ้อนกัน
+        const clusterLabel = cluster.dateKey
+          ? getLabel(cluster.dateKey)
+          : 'ไม่ระบุวันที่';
+        const clusterCaption = cluster.dateKey
+          ? formatClusterCaption(clusterLabel, cluster.dateKey)
+          : 'ยังไม่ได้กำหนดวันที่';
+        return (
+          <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
+            <div className="yp-today-time-section__head">
+              <span className="yp-today-time-section__icon" aria-hidden="true">
+                {icon}
+              </span>
+              <div className="yp-today-time-section__text">
+                <div className="yp-today-time-section__label">
+                  {clusterLabel}
+                </div>
+                {/* ★ r67: ซ่อน caption เมื่อ formatClusterCaption คืนค่าว่าง
+                    (กรณี label บอกข้อมูลครบแล้ว เช่น "วันนี้"/"พรุ่งนี้") */}
+                {clusterCaption ? (
+                  <div className="yp-today-time-section__caption">
+                    {clusterCaption}
+                  </div>
+                ) : null}
               </div>
-              <div className="yp-today-time-section__caption">
-                {cluster.dateKey
-                  ? formatFullDateCaption(cluster.dateKey)
-                  : 'ยังไม่ได้กำหนดวันที่'}
-              </div>
+              <span className="yp-today-time-section__count">
+                {cluster.itemCount}
+              </span>
             </div>
-            <span className="yp-today-time-section__count">
-              {cluster.itemCount}
-            </span>
+            {renderCardList(cluster.items)}
           </div>
-          {renderCardList(cluster.items)}
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Calendar Module (Grid View, List View) — v3.10.0-r65 (Modular CSS Refactor)
+   YP WORK · Calendar Module (Grid View, List View) — v3.10.0-r66 (Modular CSS Refactor)
    ★ r65: soft shadows + soft view toggle active state — เน้น soft ตามแนวทางรอบ 65
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -179,8 +179,9 @@
   white-space: nowrap;
   padding: var(--yp-space-2) 0;
   text-align: center;
-  /* ★ r64: ลดจาก 11px → 10.5px — weekday header ที่เล็กลง */
-  font-size: 10.5px;
+  /* ★ r66: ใช้ text-2xs (11px) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook
+     weekday header เป็น caption ใช้ 11px ซึ่งเป็นขั้นต่ำที่ยังอ่านได้ */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-faint);
   text-transform: uppercase;
@@ -336,8 +337,9 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  /* ★ r64: ลดจาก 11px → 10.5px — legend text ที่เล็กลง */
-  font-size: 10.5px;
+  /* ★ r66: ใช้ text-xs (12px) แทน 10.5px — legend text ควรอ่านง่าย
+     12px เป็นมาตรฐาน meta ตาม Rulebook */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.01em;
@@ -519,11 +521,12 @@
 .yp-cal-list-day__today-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: var(--yp-radius-pill);
   background: var(--yp-indigo-600);
   color: white;
-  font-size: 10px;
+  /* ★ r66: ใช้ text-2xs (11px) แทน 10px — 10px ผิดกฎ WCAG ตาม Rulebook */
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;

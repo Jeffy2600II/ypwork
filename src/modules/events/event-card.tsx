@@ -93,14 +93,12 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
   // ★ r51: meta หลัก — เปลี่ยนไปใช้ effectiveStart ที่รองรับ null
   //   - ถ้ามี effectiveStart → แสดง "เริ่ม ..." หรือ date ปกติ
   //   - ถ้าไม่มีเลย → แสดง "ไม่มีกำหนดส่ง" (group ที่ไม่มีกำหนดการ)
+  //   ★ r67: ลบ "เริ่ม" prefix ออกจาก meta — ทำให้ meta line สะอาดขึ้น
+  //     เพราะมี DateBadge (วันนี้/พรุ่งนี้/เลยกำหนด) บอก context อยู่แล้ว
+  //     และ meta อื่นๆ (time, location) ก็ไม่มี prefix ด้วย เพื่อให้สม่ำเสมอ
   const metaParts: string[] = [];
   if (effectiveStart) {
-    if (hasStartDate) {
-      metaParts.push(`เริ่ม ${relativeDay(effectiveStart)}`);
-    } else {
-      // ไม่มี start_date แยก → effectiveStart คือ deadline → แสดงเป็น relativeDay ธรรมดา
-      metaParts.push(relativeDay(effectiveStart));
-    }
+    metaParts.push(relativeDay(effectiveStart));
     if (event.time) metaParts.push(event.time);
   } else {
     // ★ r51: group ที่ไม่มีทั้ง start_date และ date → แสดง "ไม่มีกำหนดส่ง"
@@ -150,7 +148,9 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
           {/* ★ v3.10.0 รอบที่ 29: ถ้ามี start_date และต่างจาก deadline
               → แสดงบรรทัด meta รอง "กำหนดส่ง ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุด
               ถ้า start_date เท่ากับ deadline → ไม่ต้องแสดงซ้ำ
-              ★ r51: ถ้าไม่มี deadline (group) → ไม่แสดงบรรทัดนี้ */}
+              ★ r51: ถ้าไม่มี deadline (group) → ไม่แสดงบรรทัดนี้
+              ★ r67: คง "กำหนดส่ง" prefix ไว้ เพราะเป็น meta รอง ต้องบอกชัดว่า
+                บรรทัดนี้คือ deadline ไม่ใช่ start date */}
           {hasStartDate && hasDeadline && event.start_date !== event.date ? (
             <div className="yp-event-card__meta yp-event-card__meta--secondary">
               กำหนดส่ง {relativeDay(event.date!)}

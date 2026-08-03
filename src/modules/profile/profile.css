@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Profile Page (Stats, Settings) — v3.10.0-r65 (Modular CSS Refactor)
+   YP WORK · Profile Page (Stats, Settings) — v3.10.0-r66 (Modular CSS Refactor)
    ★ r65: soft hero shadow + soft avatar shadow + warm up hero glow — เน้น soft
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -103,15 +103,16 @@
 .yp-profile-hero__chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  /* ★ r64: ลด padding 6px 14px → 4px 11px — chip ที่เล็กลง */
-  padding: 4px 11px;
+  gap: 6px;
+  /* ★ r66: คืน padding 4px 11px → 5px 12px — type scale ใหญ่ขึ้น chip ต้องการพื้นที่ */
+  padding: 5px 12px;
   border-radius: var(--yp-radius-pill);
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.32);
   color: white;
-  /* ★ r64: text-xs → text-2xs (11px) — chip ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — chip ควรอ่านง่าย
+     12px เป็นมาตรฐาน meta ตาม Rulebook */
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -159,8 +160,9 @@
 }
 
 .yp-profile-stat__label {
-  /* ★ r64: text-xs → text-2xs (11px) — stat label ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — stat label ควรอ่านง่าย
+     12px เป็นมาตรฐาน meta ตาม Rulebook และสอดคล้องกับ today-hero__stat-label */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.04em;
@@ -269,8 +271,9 @@
 .yp-profile-info__row:last-child { border-bottom: 0; }
 
 .yp-profile-info__label {
-  /* ★ r64: text-xs → text-2xs (11px) — info label ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — info label ควรอ่านง่าย
+     12px เป็นมาตรฐาน meta ตาม Rulebook */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   text-transform: uppercase;

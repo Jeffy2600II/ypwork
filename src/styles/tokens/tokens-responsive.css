@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r65 (Modular CSS Refactor)
-   ★ r65: เพิ่มความโปร่งของ desktop/tablet อีกเล็กน้อย (section-gap,
-     card-pad-lg) ให้รู้สึก "กว้างขวาง" บนจอใหญ่ขณะที่มือถือคงค่า
-     "พอดี" จาก base tokens ตามเดิม
+   YP WORK · Responsive Token Overrides (768px/1024px) — v3.10.0-r66 (Modular CSS Refactor)
+   ★ r66: คงค่า desktop จาก r65 ไว้ทั้งหมด — type scale และ headline
+     scale ปรับแล้วใน tokens.css (base) ส่วน responsive overrides
+     ยังใช้ค่าเดิม ไม่ต้องแตะ
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.

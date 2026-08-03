@@ -1,9 +1,48 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r65 (Modular CSS Refactor)
-   ★ r65: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
-     soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
-     ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
-     สบายตาขึ้น "พอดี" บนมือถือ ไม่ทฤษฎีมากเกินไป มองจากสายตาผู้ใช้
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r66 (Modular CSS Refactor)
+   ★ r66: "Typography Rulebook + Cohesive Card Depth"
+     ───────────────────────────────────────────────────────────
+     ผู้ใช้คอมเพลนว่า "ตัวอักษรเล็กเกินไป" "การ์ดในหน้า today ดูตื้นเขิน
+     เป็นช่องว่าง สู้การ์ดหน้าอื่นไม่ได้" "ดีไซน์ยังดูตื้น ไม่เสถียร"
+     "อยากให้ทั้งเว็บเป็นเว็บเดียวกัน ทันสมัย" — รอบนี้ตั้งกฎเกณฑ์
+     ชัดเจน แล้วปรับระบบทั้งหมดให้สอดคล้องกับกฎ ดังนี้:
+
+     ── TYPOGRAPHY RULEBOOK (r66 — ใช้ทั่วทั้งเว็บ) ──
+     Rule 1: ขนาดต่ำสุดที่อ่านได้ = 11px (--yp-text-2xs) ใช้เฉพาะ
+             legal/footer micro-text, status dot tooltips และ caption
+             ที่ "ไม่ใช่ข้อมูลสำคัญ" เท่านั้น — ห้ามใช้กับเนื้อหาหลัก
+     Rule 2: เนื้อหาหลัก (body) ห้ามต่ำกว่า 14px (--yp-text-sm)
+             - card title, list item title, form label = 14px
+             - เพื่อให้อ่านง่ายบนมือถือจริง ไม่อ้วนตา
+     Rule 3: meta/secondary text ใช้ --yp-text-xs (12px) เป็นหลัก
+             - time stamps, dates, badge text, helper text
+     Rule 4: ช่องว่างระหว่าง tier ติดกัน ≥ 2px — รักษา hierarchy
+             ให้เห็นชัด ไม่กลืนกัน
+     Rule 5: ห้ามใช้ 9.5px/10px โดยเด็ดขาด — ต่ำกว่า WCAG threshold
+             ทำให้สายตาเมื่อยล้าบนมือถือ
+     Rule 6: ตัวเลข/ตัวอักษรเด่น (hero stat value, page title, hero
+             name) ใช้ tier ที่เหมาะสม ไม่ใช่ "ใหญ่ที่สุดเสมอ"
+     Rule 7: ใช้ตัวหนา (font-weight) แยก hierarchy คู่กับขนาด
+             — บางครั้ง 14px bold + 12px regular ดีกว่า 16px + 12px
+
+     ── TYPE SCALE (rebalanced from r64) ──
+     r64 ลดลงเกินไป: xs 12→11.5, sm 14→13, 2xs 11 (new)
+     ส่งผลให้ body กลายเป็น 13px (เล็กเกินไปสำหรับเนื้อหาหลัก)
+     และมีการใช้ 9.5px/10px ในหลายจุด (ผิดกฎ WCAG)
+     r66 ปรับกลับ: xs 11.5→12, sm 13→14 (กลับเป็นค่ามาตรฐาน), คง 2xs ไว้
+     ที่ 11px (ใช้เฉพาะ true caption) และลด tier 9.5px/10px ออก
+
+     ── CARD DEPTH SYSTEM (r66) ──
+     การ์ดทุกใบในเว็บ (today item card, event card, group card, etc.)
+     ใช้หลักการเดียวกัน:
+     - accent-tinted background (radial gradient ที่มุมบน-ขวา)
+     - border ที่ "เห็นได้" (alpha ≥ 0.06)
+     - hover: lift + accent border + glow shadow
+     - active: scale-down (0.985)
+     - ::before accent left bar เห็นได้ชัด (ไม่ใช่ transparent)
+     ทำให้ทุกการ์ดดูเป็น "ก้อน" ที่มีน้ำหนัก ไม่ใช่ "ช่องว่าง"
+
+     ★ ห้ามแตะค่า border-radius ทั้งหมด — คงไว้ตามรอบก่อนหน้า
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -177,44 +216,45 @@
   /* ── TYPOGRAPHY ── */
   --yp-font-stack: 'Noto Sans Thai', 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --yp-font-mono:  'JetBrains Mono', 'Sarasa Mono SC', ui-monospace, monospace;
-  /* ★ v3.10.0 รอบที่ 64: ปรับ type scale ให้ "เล็กลงจริง" ทั้งระบบ
-     ผู้ใช้คอมเพลนต่อเนื่องในรอบ 60-63 ว่าตัวอักษร "ใหญ่เกินไป"
-     "ไม่เป็นธรรมชาติ" "ไม่สมดุลทางสายตา" "ดูเทอะทะ" โดยเฉพาะส่วน
-     meta / relative-day labels ("2 วันที่แล้ว", "เลยกำหนด ...") บน
-     หน้า Today และทั่วทั้งเว็บ
+  /* ★ r66: REBALANCED TYPE SCALE — คืนค่าจากการลดลงเกินไปของ r64
+     ───────────────────────────────────────────────────────────
+     ปัญหา: รอบ 64 ลด type scale ลงเกินไป (xs 12→11.5, sm 14→13)
+     ทำให้ body กลายเป็น 13px ซึ่งเล็กเกินไปสำหรับเนื้อหาหลักบนมือถือ
+     ผู้ใช้รายงานว่า "ตัวอักษรเล็กเกินไปในหน้า today" และ "ไม่เป็น
+     รูปแบบเดียวกัน" — เพราะบางจุดใช้ 9.5px/10px ที่ต่ำกว่ามาตรฐาน
+     WCAG และสร้างความไม่สม่ำเสมอทั่วทั้งเว็บ
 
-     งานวิจัยที่นำมาปรับใช้ (ไม่ก๊อปปี้เป๊ะ — เอามาผสมให้เข้ากับ
-     identity ของ YP Work):
-     • Apple HIG / iOS 17 — caption 11px / footnote 12px / body 15-17px
-     • Material 3 — label-small 11px / label-medium 12px / body-small 12px / body 14px
-     • Linear / Vercel / Stripe / Notion — caption 11-12px / body-s 13px / body 14-15px
-     • Archive Tune (open-source music app) — meta/caption ใช้ ~11px ตัวเบา
-     • Spotify / Apple Music — chip & meta ใช้ 11-12px
+     แนวทาง r66 (อ้างอิง: Apple HIG body 15-17px, Material 3 body
+     14px, Linear/Vercel/Stripe body 14-15px — ทุกแพลตฟอร์มใช้ 14px
+     เป็น body หลัก ไม่มีใครใช้ 13px):
+     - คืนค่า --yp-text-xs จาก 11.5px → 12px (meta มาตรฐาน)
+     - คืนค่า --yp-text-sm จาก 13px → 14px (body/card title หลัก)
+     - คืนค่า --yp-text-base จาก 15px → 16px (prominent body)
+     - ปรับ --yp-text-lg จาก 17px → 18px (card hero / subtitle)
+     - ปรับ --yp-text-xl จาก 19px → 20px (section title)
+     - ปรับ --yp-text-2xl จาก 22px → 24px (page title / hero name)
+     - ปรับ --yp-text-3xl จาก 26px → 28px (hero headline)
+     - คง --yp-text-2xs ไว้ที่ 11px ใช้เฉพาะ true caption เท่านั้น
+     - ลบ tier 9.5px/10px ออกจากการใช้งาน (ยังมี token แต่จะ deprecate)
 
-     หลักการออกแบบของเรา (ยังเป็นตัวของตัวเอง):
-     - เพิ่ม tier ใหม่ --yp-text-2xs (11px) สำหรับ caption/meta ที่
-       เดิมใช้ --yp-text-xs (12px) เพื่อให้ meta/relative-day labels
-       "เล็กลงจริง" แต่ยังอ่านง่าย — เป็นทางออกที่ให้ความรู้สึก
-       "นิ่ง สมดุล" โดยไม่ต้องเปลี่ยนขนาด body หลัก
-     - ปรับ --yp-text-xs จาก 12px → 11.5px และ --yp-text-sm จาก
-       14px → 13px — ลดลงเล็กน้อยทั้งสองระดับ เพื่อให้สัดส่วนรอบๆ
-       การ์ด/รายการเล็กลงตามที่ผู้ใช้รู้สึก
-     - ปรับ --yp-text-lg / xl / 2xl ลง 1px แต่ละระดับ เพื่อรักษา
-       hierarchy แต่ให้หัวข้อ "ไม่โดดใหญ่" เกินไปเทียบกับ body
-     - headline scale ลดลง ~10% ทุกระดับ
-     - ตัวเลขเดิม (12/14/16/18/20/24/30/36) → (11/11.5/13/15/16/
-       17.5/19/22/26/28) — ลดลงเฉพาะที่จำเป็นเพื่อความสมดุล
-     - ยังคงเป็น "ตัวของตัวเอง" คือใช้ Noto Sans Thai + Inter
-       และยังคงความโค้งมนที่เป็นเอกลักษณ์ */
-  --yp-text-2xs:  0.6875rem;   /* 11px — NEW r64: caption/meta/relative-day */
-  --yp-text-xs:   0.71875rem;  /* 11.5px — was 12px, meta/time/label */
-  --yp-text-sm:   0.8125rem;   /* 13px — was 14px, body small, card title */
-  --yp-text-base: 0.9375rem;   /* 15px — was 16px, body (soft, slightly smaller) */
-  --yp-text-lg:   1.0625rem;   /* 17px — was 18px */
-  --yp-text-xl:   1.1875rem;   /* 19px — was 20px */
-  --yp-text-2xl:  1.375rem;    /* 22px — was 24px */
-  --yp-text-3xl:  1.625rem;    /* 26px — was 30px */
-  --yp-text-4xl:  2rem;        /* 32px — was 36px */
+     Rule of thumb (ตาม Rulebook ด้านบน):
+       11px  = true caption (legal, micro-meta)
+       12px  = meta/time/label
+       14px  = body หลัก / card title ★ ห้ามต่ำกว่านี้สำหรับเนื้อหา
+       16px  = prominent body / button text
+       18px  = card hero title / subtitle
+       20px  = section title / hero stat value
+       24px  = page title / hero name
+       28px  = hero headline */
+  --yp-text-2xs:  0.6875rem;   /* 11px — true caption only (legal, tooltips) */
+  --yp-text-xs:   0.75rem;     /* 12px — meta/time/label (rebalanced r66) */
+  --yp-text-sm:   0.875rem;    /* 14px — body & card title (rebalanced r66) ★ */
+  --yp-text-base: 1rem;        /* 16px — prominent body (rebalanced r66) */
+  --yp-text-lg:   1.125rem;    /* 18px — card hero title (rebalanced r66) */
+  --yp-text-xl:   1.25rem;     /* 20px — section title (rebalanced r66) */
+  --yp-text-2xl:  1.5rem;      /* 24px — page title / hero name (rebalanced r66) */
+  --yp-text-3xl:  1.75rem;     /* 28px — hero headline (rebalanced r66) */
+  --yp-text-4xl:  2rem;        /* 32px — reserved */
   --yp-leading-tight:   1.25;
   --yp-leading-normal:  1.6;
   --yp-leading-relaxed: 1.75;
@@ -316,12 +356,17 @@
   --yp-safe-left:   env(safe-area-inset-left, 0px);
   --yp-safe-right:  env(safe-area-inset-right, 0px);
   /* ── HEADLINE SCALE ──
-     ★ v3.10.0 รอบที่ 64: ลดลง ~10% ทุกระดับ — ให้สมดุลกับ type scale
-     ใหม่ที่เล็กลง หัวข้อไม่โดดใหญ่เกินไปเทียบกับ body */
-  --yp-h1-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.40rem);
-  --yp-h2-size: clamp(1.02rem, 0.96rem + 0.3vw, 1.18rem);
-  --yp-h3-size: clamp(0.92rem, 0.88rem + 0.2vw, 1.05rem);
-  --yp-lead-size: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
+     ★ r66: คืนค่าจากการลดลงเกินไปของ r64 — ให้สมดุลกับ type scale
+     ใหม่ที่คืนไปเป็นค่ามาตรฐาน (body 14px) หัวข้อจะได้ไม่โดดเล็กเกิน
+     ไปเทียบกับ body — รักษา hierarchy ที่ชัดเจน
+     - h1: ~22-26px (page hero headline)
+     - h2: ~18-22px (page section title)
+     - h3: ~16-18px (subsection, card section)
+     - lead: ~14-16px (intro/lead paragraph) */
+  --yp-h1-size: clamp(1.375rem, 1.25rem + 0.6vw, 1.625rem);
+  --yp-h2-size: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --yp-h3-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --yp-lead-size: clamp(0.875rem, 0.825rem + 0.2vw, 1rem);
   /* shadcn compat */
   --radius: 0.625rem;
   --background: var(--yp-bg-page);

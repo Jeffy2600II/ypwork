@@ -40,6 +40,73 @@ export const THAI_MONTHS_SHORT = [
   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
 ];
 
+/**
+ * ★ r67: Compact Thai date formatters — แก้ปัญหา "วันที่รกตา" ที่ผู้ใช้รายงาน
+ *   ปัญหาเดิม: `วันอาทิตย์ที่ 12 มกราคม 2568` (28 ตัวอักษร) ยาวเกินไป
+ *   โดยเฉพาะเวลาใช้เป็น caption ใต้ cluster label ที่ซ้ำซ้อนข้อมูล
+ *
+ *   แนวทาง r67:
+ *   - ใช้ชื่อเดือนแบบสั้น ("12 ม.ค. 68") สำหรับ caption / meta ที่ต้องการ compact
+ *   - ใช้ชื่อเดือนเต็ม ("12 มกราคม 2568") เฉพาะในจุดที่เป็น primary date (hero, page title)
+ *   - ใช้ weekday เดี่ยวๆ ("วันอาทิตย์") สำหรับ caption ที่ label อื่นบอกวันที่อยู่แล้ว
+ *   - ไม่ใช้ prefix "วัน...ที่" ซ้ำ เพราะทำให้ยาวโดยไม่จำเป็น
+ */
+
+/** Compact Thai date: "12 ม.ค. 68" (short month + short BE year)
+ *  ★ r67: ใช้สำหรับ caption / meta ที่ต้องการ compact ไม่รกตา */
+export function formatShortThaiDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const [yStr, mStr, dStr] = dateStr.split('-');
+  if (!yStr || !mStr || !dStr) return '';
+  const year = parseInt(yStr, 10);
+  const month = parseInt(mStr, 10) - 1;
+  const day = parseInt(dStr, 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return '';
+  const yearBE = String(year + 543).slice(-2);
+  return `${day} ${THAI_MONTHS_SHORT[month]} ${yearBE}`;
+}
+
+/** Full Thai date without weekday prefix: "12 มกราคม 2568"
+ *  ★ r67: ใช้แทน `formatDate(dateStr, { long: true })` ในจุดที่ต้องการชื่อเดือนเต็ม
+ *    แต่ไม่ต้องการ prefix "วัน...ที่ ..." */
+export function formatFullThaiDateNoPrefix(dateStr: string): string {
+  if (!dateStr) return '';
+  const [yStr, mStr, dStr] = dateStr.split('-');
+  if (!yStr || !mStr || !dStr) return '';
+  const year = parseInt(yStr, 10);
+  const month = parseInt(mStr, 10) - 1;
+  const day = parseInt(dStr, 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return '';
+  return `${day} ${THAI_MONTHS[month]} ${year + 543}`;
+}
+
+/** Weekday only: "วันอาทิตย์"
+ *  ★ r67: ใช้เป็น caption ใต้ cluster label ที่มี relative day ("อีก 3 วัน")
+ *    เพื่อให้รู้ว่าตรงกับวันอะไรของสัปดาห์ โดยไม่ต้องแสดงวันที่เต็มๆ */
+export function formatWeekdayOnly(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  return `วัน${THAI_DAYS[d.getDay()]}`;
+}
+
+/** Compact date with weekday: "อา · 12 ม.ค. 68"
+ *  ★ r67: ใช้ในจุดที่ต้องการข้อมูลครบแต่ compact มาก เช่น card corner stamp */
+export function formatCompactDateWithWeekday(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  const weekdayShort = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'][d.getDay()];
+  const [yStr, mStr, dStr] = dateStr.split('-');
+  if (!yStr || !mStr || !dStr) return '';
+  const year = parseInt(yStr, 10);
+  const month = parseInt(mStr, 10) - 1;
+  const day = parseInt(dStr, 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return '';
+  const yearBE = String(year + 543).slice(-2);
+  return `${weekdayShort} · ${day} ${THAI_MONTHS_SHORT[month]} ${yearBE}`;
+}
+
 export const THAI_DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
 
 /**

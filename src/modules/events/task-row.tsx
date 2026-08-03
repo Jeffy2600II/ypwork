@@ -80,11 +80,11 @@ export function TaskRow({
             className={`yp-task-row__chip yp-task-row__status yp-task-row__status--${task.status}`}
           >
             {task.status === 'done' ? (
-              <Check width={11} height={11} />
+              <Check width={12} height={12} />
             ) : task.status === 'ongoing' ? (
-              <RefreshCw width={11} height={11} />
+              <RefreshCw width={12} height={12} />
             ) : (
-              <Clock width={11} height={11} />
+              <Clock width={12} height={12} />
             )}
             {statusLabel(task.status)}
           </span>
@@ -115,13 +115,13 @@ export function TaskRow({
              ถ้ามีแค่ start_date (ไม่มีเวลา) และต่างจาก due_date → แสดงแค่วัน */}
           {task.start_time ? (
             <span className="yp-task-row__chip yp-task-row__chip--start">
-              <Clock width={11} height={11} />
+              <Clock width={12} height={12} />
               <span className="yp-task-row__chip-label">เริ่ม</span>
               {startDayForTime ? `${startDayForTime} ` : ''}{task.start_time} น.
             </span>
           ) : showStartChip ? (
             <span className="yp-task-row__chip yp-task-row__chip--start">
-              <CalIcon width={11} height={11} />
+              <CalIcon width={12} height={12} />
               <span className="yp-task-row__chip-label">เริ่ม</span>
               {startLabel}
             </span>
@@ -131,7 +131,7 @@ export function TaskRow({
             <span
               className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
             >
-              {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
+              {overdue ? <AlertTriangle width={12} height={12} /> : <CalIcon width={12} height={12} />}
               <span className="yp-task-row__chip-label">กำหนดส่ง</span>
               {dueLabel}
             </span>
@@ -139,7 +139,7 @@ export function TaskRow({
 
           {task.estimated_time ? (
             <span className="yp-task-row__chip yp-task-row__chip--est">
-              <Clock width={11} height={11} />
+              <Clock width={12} height={12} />
               <span className="yp-task-row__chip-label">ใช้เวลา</span>
               {task.estimated_time}
             </span>
