@@ -1,9 +1,7 @@
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Status Chips (Planning/Todo/Ongoing/Done/Overdue) — v3.10.0-r66 (Modular CSS Refactor)
-   ★ r66: คืน chip padding 3px 10px → 4px 12px และ gap 5px → 6px —
-     type scale ใหม่ใหญ่ขึ้น (xs 11.5→12px) chip ต้องการพื้นที่มากขึ้น
-     ให้สมดุล และยังคง soft feel จาก r65 (alpha คงไว้)
+   YP WORK · Status Chips (Planning/Todo/Ongoing/Done/Overdue) — v3.10.0-r68 (Modular CSS Refactor)
+   ★ r65: ลด alpha ของ chip backgrounds และ borders ลง ~15% — chip soft ขึ้น
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -13,14 +11,17 @@
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
   /* ── Chips ──
-     ★ r66: คืน padding 4px 12px + gap 6px — type scale ใหม่ใหญ่ขึ้น (xs 12px)
-     chip ต้องการพื้นที่มากขึ้น ให้สมดุล ขณะที่ยังคง soft feel จาก r65
-     chip font-size ใช้ text-xs (12px) ตาม Rulebook "meta = 12px" */
+     ★ r64: ลด padding 4px 12px → 3px 10px และ gap 6px → 5px — chip ที่เล็กลง
+     ให้สมดุลกับ type scale ใหม่ (xs 12→11.5px) ทั่วทั้งระบบ ตามที่ผู้ใช้ระบุ
+     ว่าตัวอักษร "ใหญ่เกินไป" chip ที่เล็กลงจะช่วยให้ UI ดู "นิ่ง นุ่ม สมดุล"
+     มากขึ้น chip font-size ยังคงเป็น text-xs ตามเดิม (แต่ตอนนี้ text-xs = 11.5px)
+     ★ r65: ลด alpha ของ chip backgrounds (12→10%) และ borders (30→26%) —
+     chip soft ขึ้น ไม่ลายตา */
   .yp-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
+    gap: 5px;
+    padding: 3px 10px;
     border-radius: var(--yp-radius-pill);
     font-size: var(--yp-text-xs);
     font-weight: var(--yp-fw-bold);

@@ -13,17 +13,11 @@
  *     / getEffectiveTaskDueDate จาก event-date.ts (single source of truth)
  *   - ทุก function รองรับ null date (group type ที่ไม่มี deadline)
  *   - categorizeByDates ไม่ crash เมื่อ effectiveStart/effectiveDue เป็น null
- *
- * ★ r67 changes:
- *   - formatFullDateCaption → เปลี่ยนจาก "วันอาทิตย์ที่ 12 มกราคม 2568" (28 ตัว)
- *     เป็น "12 ม.ค. 68" (10 ตัว) — ลดความยาว ~64% ทำให้ caption ไม่รกตา
- *   - เพิ่ม formatClusterCaption ที่เลือก format ตาม cluster label context
- *     (ซ่อน caption เมื่อ label บอกข้อมูลครบแล้ว เช่น "วันนี้"/"พรุ่งนี้"/"เมื่อวาน")
  * ============================================================
  */
 
 import type { YPEvent, Task } from '@/lib/types';
-import { resolveEventStatus, formatShortThaiDate, formatWeekdayOnly } from '@/lib/utils/date';
+import { THAI_DAYS, THAI_MONTHS, resolveEventStatus } from '@/lib/utils/date';
 // ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
 import {
   getEffectiveStartDate,
@@ -149,53 +143,15 @@ export function buildDateClusters(items: TimelineItem[]): DateCluster[] {
   return clusters;
 }
 
-/**
- * ★ r67: Compact date caption — เปลี่ยนจาก "วันอาทิตย์ที่ 12 มกราคม 2568" (28 ตัว)
- *   เป็น "12 ม.ค. 68" (10 ตัว) — ลดความยาว ~64%
- *   ผู้ใช้รายงานว่า caption ที่ยาวเกินไปทำให้หัวข้อ cluster "รกตา"
- *
- *   ถ้ายังต้องการ long format (เช่น screen reader) สามารถเรียก formatDate จาก
- *   lib/utils/date โดยตรงได้
- */
+/** Full Thai date caption for date-cluster headers */
 export function formatFullDateCaption(dateStr: string): string {
   if (!dateStr) return '';
-  return formatShortThaiDate(dateStr);
-}
-
-/**
- * ★ r67: Smart cluster caption — เลือก format ตาม cluster label context
- *
- * กติกาการแสดง caption ใต้ cluster header:
- *   - label เป็น "วันนี้" / "พรุ่งนี้" / "เมื่อวาน" → ซ่อน caption (label บอกข้อมูลครบแล้ว)
- *   - label เป็น "อีก N วัน" / "N วันที่แล้ว" (2-7 วัน) → แสดง weekday "วันอาทิตย์"
- *     (compact เพิ่มเติม ไม่ต้องแสดง date เต็ม เพราะ label บอก range อยู่แล้ว)
- *   - label เป็น absolute date ("12 ม.ค. 68") → แสดง weekday "วันอาทิตย์"
- *     (label บอก date แล้ว caption เสริมด้วย weekday)
- *   - กรณีอื่นๆ → ใช้ compact date "12 ม.ค. 68"
- *
- * คืนค่า '' เมื่อไม่ควรแสดง caption
- */
-export function formatClusterCaption(label: string, dateKey: string): string {
-  if (!dateKey) return '';
-
-  // Label ที่บอกข้อมูลครบแล้ว → ไม่ต้องแสดง caption
-  const selfExplanatory = ['วันนี้', 'พรุ่งนี้', 'เมื่อวาน'];
-  if (selfExplanatory.includes(label)) return '';
-
-  // Label ที่บอก relative range ("อีก N วัน", "N วันที่แล้ว") → แสดง weekday เสริม
-  // เพื่อให้รู้ว่าตรงกับวันอะไรของสัปดาห์ โดยไม่ต้องแสดง date เต็มๆ
-  if (/^(อีก\s*\d+\s*วัน|\d+\s*วันที่แล้ว)$/.test(label)) {
-    return formatWeekdayOnly(dateKey);
-  }
-
-  // Label เป็น absolute date (จาก relativeDay fallback) → แสดง weekday เสริม
-  // เช่น label = "12 ม.ค. 68" → caption = "วันอาทิตย์"
-  if (/\d+\s+[ก-๙.]+\s+\d{2,4}/.test(label)) {
-    return formatWeekdayOnly(dateKey);
-  }
-
-  // Default: แสดง compact date
-  return formatShortThaiDate(dateKey);
+  const d = new Date(dateStr + 'T00:00:00');
+  const weekday = THAI_DAYS[d.getDay()];
+  const day = d.getDate();
+  const month = THAI_MONTHS[d.getMonth()];
+  const yearBE = d.getFullYear() + 543;
+  return `วัน${weekday}ที่ ${day} ${month} ${yearBE}`;
 }
 
 /** Split items into morning / afternoon / unscheduled groups */

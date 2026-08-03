@@ -24,7 +24,6 @@ export {
   categorizeByDates,
   buildDateClusters,
   formatFullDateCaption,
-  formatClusterCaption,
   buildTimeGroups,
 } from './today-helpers';
 export { sortByPriorityTimeTitle, sortByDatePriorityTimeTitle } from './today-sorting';

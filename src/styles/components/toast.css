@@ -1,56 +1,65 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Toast Component (Slide Animations) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Toast Component — v3.10.0-r68
+   ★ r68: Token-based toast styling with soft depth, clean typography,
+     and responsive floating placement.
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Extracted from globals.css into modular files
    for easier development, faster navigation, and better maintainability.
-   
+
    ★ This file is part of the YP Work Design Library system.
    ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   v3.7.4 — Toast component (reuse แทน inline style 30 บรรทัด)
-   ═══════════════════════════════════════════════════════════════ */
+
 .yp-toast {
   position: fixed;
-  /* v2.1.0: ยก toast ขึ้นให้พ้น bottom-nav บนมือถือ */
   bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  color: white;
-  padding: 12px 18px;
+  color: var(--yp-text-inverse, #FFFFFF);
+  padding: 12px 20px;
   border-radius: var(--yp-radius-pill);
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
-  /* ★ r56: ลด toast shadow ลง ~50% */
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10);
+  box-shadow: var(--yp-shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   max-width: calc(100vw - 32px);
   text-align: center;
-  line-height: 1.4;
-  animation: yp-toast-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  line-height: var(--yp-leading-tight);
+  letter-spacing: -0.005em;
+  animation: yp-toast-in 240ms var(--yp-ease-emphasized-decel) both;
+}
+
+@media (min-width: 768px) {
+  .yp-toast {
+    bottom: 28px;
+  }
 }
 
 @keyframes yp-toast-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(8px);
+    transform: translateX(-50%) translateY(10px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 
 .yp-toast--success {
-  background: rgba(16, 185, 129, 0.95);
+  background: var(--yp-emerald-500, #10B981);
 }
 
 .yp-toast--error {
-  background: rgba(190, 18, 60, 0.95);
+  background: var(--yp-rose-500, #F43F5E);
 }
 
 .yp-toast--info {
-  background: rgba(79, 70, 229, 0.95);
+  background: var(--yp-indigo-600, #4F46E5);
 }
 
+.yp-toast--warning {
+  background: var(--yp-amber-500, #F59E0B);
+}

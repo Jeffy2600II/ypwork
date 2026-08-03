@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover & Active Micro-Interactions (r21) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Hover & Active Micro-Interactions (r21) — v3.10.0-r68 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -9,7 +9,7 @@
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
-   HOVER & ACTIVE STATES (v3.10.0-r21 — micro-interactions restored)
+   HOVER & ACTIVE STATES (v3.10.0-r68 — micro-interactions restored)
    ═══════════════════════════════════════════════════════════════
    ★ r21: คืนค่า hover/active micro-interactions — ลบ transform:none
    Hover = state layer (bg/shadow/border) + subtle transform

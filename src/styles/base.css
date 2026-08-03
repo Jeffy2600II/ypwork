@@ -1,17 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Base Styles (@layer base) — v3.10.0-r66 (Modular CSS Refactor)
-   ★ r65: ลด alpha ของ radial blobs ลงอีก ~15% — พื้นหลัง soft ขึ้น นิ่งขึ้น
+   YP WORK · Base Styles (@layer base) — v3.10.0-r68
+   ★ r68: Unified design token system for base elements, headings, paragraphs,
+     and text selection for cohesive cross-platform typography & layout.
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Extracted from globals.css into modular files
    for easier development, faster navigation, and better maintainability.
-   
+
    ★ This file is part of the YP Work Design Library system.
    ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   BASE STYLES
-   ═══════════════════════════════════════════════════════════════ */
+
 @layer base {
   * {
     border-color: var(--yp-border-default);
@@ -20,10 +19,12 @@
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    color-scheme: light;
   }
 
   body {
-    background: var(--yp-bg-page);
+    background-color: var(--yp-bg-page);
     color: var(--yp-text-body);
     font-family: var(--yp-font-stack);
     font-size: var(--yp-text-base);
@@ -31,14 +32,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* ★ v3.9.4: Telegram-inspired surface texture (RELAXED — ลดความหนาแน่น)
-       — subtle dot grid + plus signs overlay บนพื้นหลังเพื่อให้มี "ชีวิต"
-       แทน plain flat color (inspired by Telegram chat background patterns)
-       ★ v3.9.4 ปรับ: pattern ใหญ่ขึ้น (48px → 96px) + opacity ลดลง (5% → 2-3%)
-       ทำให้ดูสบายตาขึ้น ไม่แน่นเกินไป
-       ★ r64: ลด alpha ของ radial blobs และ pattern ลงอีก ~30-40% — ให้
-       พื้นหลัง "นิ่ง นุ่ม สะอาด" มากขึ้น ตามแนวทาง Archive Tune / Linear
-       ที่ใช้พื้นหลังเกือบ flat เลย */
     background-image:
       radial-gradient(circle at 20% 18%, rgba(99, 102, 241, 0.018) 0%, transparent 38%),
       radial-gradient(circle at 82% 70%, rgba(124, 58, 237, 0.015) 0%, transparent 42%),
@@ -49,13 +42,72 @@
     background-repeat: no-repeat, no-repeat, repeat;
   }
 
+  /* Heading scale using design tokens */
   h1, h2, h3, h4, h5, h6 {
     color: var(--yp-text-heading);
     font-weight: var(--yp-fw-bold);
     line-height: var(--yp-leading-tight);
+    letter-spacing: -0.01em;
   }
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
+  h1 {
+    font-size: var(--yp-text-3xl);
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: var(--yp-text-2xl);
+    letter-spacing: -0.015em;
+  }
+
+  h3 {
+    font-size: var(--yp-text-xl);
+  }
+
+  h4 {
+    font-size: var(--yp-text-lg);
+  }
+
+  h5 {
+    font-size: var(--yp-text-base);
+  }
+
+  h6 {
+    font-size: var(--yp-text-sm);
+  }
+
+  p {
+    font-size: var(--yp-text-base);
+    color: var(--yp-text-body);
+    line-height: var(--yp-leading-normal);
+  }
+
+  small, caption {
+    font-size: var(--yp-text-xs);
+    color: var(--yp-text-muted);
+  }
+
+  code, pre, kbd, samp {
+    font-family: var(--yp-font-mono);
+    font-size: var(--yp-text-sm);
+  }
+
+  a {
+    color: var(--yp-indigo-600);
+    text-decoration: none;
+    transition: color var(--yp-t-fast);
+  }
+
+  a:hover {
+    color: var(--yp-indigo-700);
+  }
+
+  ::selection {
+    background: var(--yp-bg-indigo-soft);
+    color: var(--yp-indigo-700);
+  }
+
+  /* Scrollbar utilities */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

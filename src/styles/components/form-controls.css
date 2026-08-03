@@ -1,26 +1,35 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.10.0-r68
+   ★ r68: Modernized form controls with unified soft token language:
+     - Full token integration (--yp-input-*, --yp-radius-control, --yp-bg-card, --yp-border-*)
+     - Soft focus glow (--yp-focus-ring) and subtle hover feedback
+     - Consistent label, hint, and error states across all app screens
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Extracted from globals.css into modular files
    for easier development, faster navigation, and better maintainability.
-   
+
    ★ This file is part of the YP Work Design Library system.
    ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   YP WORK · FORM CONTROLS (v3.7.3 — unified design system)
-   ═══════════════════════════════════════════════════════════════
-   ★ v3.7.3: Reuse design tokens ทุกที่ — input, label, hint, error
-   ใช้เดียวกันทุกหน้า (login, register, create-event, edit-event, task)
-   ═══════════════════════════════════════════════════════════════ */
 
 /* ── FIELD WRAPPER ── */
-.field { display: block; }
+.field {
+  display: block;
+  margin-bottom: var(--yp-field-gap, var(--yp-space-5));
+}
 
-/* ★ v3.7.3: label variant ที่มี inline hint (เช่น "· กำลังโหลด...") */
+.field__label, .field-label, label.field-label {
+  display: block;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  margin-bottom: var(--yp-field-label-gap, var(--yp-space-2));
+  line-height: var(--yp-leading-tight);
+}
+
 .field__label-hint {
-  margin-left: 8px;
+  margin-left: var(--yp-space-2);
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
@@ -28,97 +37,103 @@
 
 /* ── HINT (ใต้ input) ── */
 .field__hint {
-  margin-top: var(--yp-field-hint-gap);
+  margin-top: var(--yp-field-hint-gap, 6px);
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
-  line-height: 1.4;
+  line-height: var(--yp-leading-normal);
   font-weight: var(--yp-fw-medium);
 }
 
 /* ── ERROR ── */
 .field__error {
   font-size: var(--yp-text-xs);
-  color: #BE123C;
-  margin-top: var(--yp-field-hint-gap);
+  color: var(--yp-rose-500, #F43F5E);
+  margin-top: var(--yp-field-hint-gap, 6px);
   display: none;
   font-weight: var(--yp-fw-medium);
 }
 
-.field.has-error .field__error { display: block; }
+.field.has-error .field__error {
+  display: block;
+}
 
 /* ── INPUT / TEXTAREA / SELECT — unified ── */
 .yp-input, .yp-textarea, .yp-select {
   width: 100%;
   padding: var(--yp-input-padding-y) var(--yp-input-padding-x);
-  border: var(--yp-input-border-width) solid var(--yp-border-default);
+  border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
   border-radius: var(--yp-radius-control);
   background: var(--yp-bg-card);
   font-family: inherit;
   font-size: var(--yp-input-font-size);
   line-height: var(--yp-leading-normal);
   color: var(--yp-text-strong);
-  letter-spacing: 0.1px;
+  letter-spacing: -0.005em;
   min-height: var(--yp-input-min-height);
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--yp-shadow-xs);
+  transition: border-color var(--yp-t-fast),
+              box-shadow var(--yp-t-fast),
+              background-color var(--yp-t-fast);
   -webkit-appearance: none;
   appearance: none;
 }
 
 .yp-input::placeholder, .yp-textarea::placeholder {
-  color: var(--yp-text-muted);
+  color: var(--yp-text-faint, var(--yp-text-muted));
   font-weight: var(--yp-fw-normal);
 }
 
-/* ★ Focus ring แบบเดียวกับ login — indigo border + soft glow */
+/* Focus ring — soft indigo glow */
 .yp-input:focus, .yp-textarea:focus, .yp-select:focus {
   outline: none;
   border-color: var(--yp-indigo-500);
-  background: white;
-  /* ★ r56: ลด focus shadow ลง ~30% ให้ดูสะอาดขึ้น */
-  box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.10),
-    0 1px 1px rgba(99, 102, 241, 0.04);
+  background: var(--yp-bg-card);
+  box-shadow: 0 0 0 3px var(--yp-focus-ring), var(--yp-shadow-xs);
 }
 
-/* ★ Hover state — subtle indigo tint */
+/* Hover state — subtle border tint */
 .yp-input:hover:not(:focus), .yp-textarea:hover:not(:focus), .yp-select:hover:not(:focus) {
-  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  border-color: var(--yp-border-indigo);
 }
 
+/* Error state controls */
 .field.has-error .yp-input,
 .field.has-error .yp-textarea,
 .field.has-error .yp-select {
-  border-color: rgba(244, 63, 94, 0.5);
-  background: rgba(244, 63, 94, 0.04);
+  border-color: rgba(244, 63, 94, 0.45);
+  background: rgba(244, 63, 94, 0.03);
 }
-
 
 .field.has-error .yp-input:focus,
 .field.has-error .yp-textarea:focus,
 .field.has-error .yp-select:focus {
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.14);
+  border-color: var(--yp-rose-500);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
 }
 
-/* ★ Disabled state */
+/* Disabled state */
 .yp-input:disabled, .yp-textarea:disabled, .yp-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-subtle);
+  box-shadow: none;
 }
 
-/* v1.5: large input variant (สำหรับ task title ใน add/edit task sheet) */
+/* Large input variant (for task titles, modal headings) */
 .yp-input--lg {
-  padding: 1em 1.2em;
+  padding: 0.875rem 1.125rem;
   font-size: var(--yp-text-base);
   min-height: 56px;
   font-weight: var(--yp-fw-medium);
+  border-radius: var(--yp-radius-md);
 }
+
 .yp-input--lg::placeholder {
   font-weight: var(--yp-fw-normal);
 }
 
+/* Select custom dropdown arrow */
 .yp-select {
   appearance: none;
   -webkit-appearance: none;
@@ -132,9 +147,24 @@
   line-height: 1.4;
 }
 
-/* ★ v3.6.0: Hover state สำหรับ input-group */
+/* Input group addon */
+.input-group {
+  display: flex;
+  align-items: center;
+  border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
+  border-radius: var(--yp-radius-control);
+  background: var(--yp-bg-card);
+  overflow: hidden;
+  transition: border-color var(--yp-t-fast), box-shadow var(--yp-t-fast);
+}
+
 .input-group:hover:not(:focus-within) {
-  border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  border-color: var(--yp-border-indigo);
+}
+
+.input-group:focus-within {
+  border-color: var(--yp-indigo-500);
+  box-shadow: 0 0 0 3px var(--yp-focus-ring);
 }
 
 .input-group__addon {
@@ -145,6 +175,7 @@
   background: var(--yp-bg-card-soft);
   font-size: var(--yp-text-sm);
   border-right: 1px solid var(--yp-border-subtle);
+  flex-shrink: 0;
 }
 
 .input-group .yp-input {
@@ -156,10 +187,9 @@
 }
 
 .field.has-error .input-group {
-  border-color: rgba(244, 63, 94, 0.5);
+  border-color: rgba(244, 63, 94, 0.45);
 }
 
 .field.has-error .input-group .yp-input {
-  background: rgba(244, 63, 94, 0.04);
+  background: rgba(244, 63, 94, 0.03);
 }
-

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r66 (Modular CSS Refactor)
+   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.10.0-r68 (Modular CSS Refactor)
    ★ r65: soft hero shadow + soft accent tint + warm up gradient — เน้น soft
      ตามแนวทางรอบ 65 โดย "ห้ามแตะ" ค่า border-radius
    ═══════════════════════════════════════════════════════════════
@@ -184,14 +184,13 @@
 
 .yp-detail-section__count {
   /* ★ v3.9.3: Frosted count pill — accent-driven
-     ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 3px 11px →
-     4px 12px — count pill ควรอ่านง่าย 12px เป็นมาตรฐาน meta ตาม Rulebook
-     และทำให้สอดคล้องกับ today-section__count */
-  font-size: var(--yp-text-xs);
+     ★ r64: text-xs → text-2xs (11px), ลด padding 5px 14px → 3px 11px —
+     count pill ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-2xs);
   color: var(--accent, var(--yp-indigo-600));
   font-weight: var(--yp-fw-bold);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card));
-  padding: 4px 12px;
+  padding: 3px 11px;
   border-radius: var(--yp-radius-pill);
   border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, transparent);
   letter-spacing: 0.02em;
@@ -521,14 +520,11 @@
 .yp-task-time-group__label {
   /* ★ v3.10.0 รอบที่ 38: ลดขนาดจาก text-sm bold heading →
      text-xs semibold muted (เล็กและจาง ไม่แข่งกับหัวข้อใหญ่)
-     ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — task time group label
-     เป็น sub-heading ควรอ่านง่าย 12px ตาม Rulebook และสอดคล้องกับ
-     today-time-section__label (14px) — hierarchy ยังคงอยู่เพราะนี่เป็น
-     "label" ส่วน today เป็น "title" ใหญ่กว่า */
+     ★ r64: text-xs → text-2xs (11px) — task time group label ที่เล็กลง */
   display: inline;
   align-items: baseline;
   gap: 5px;
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-muted);
   letter-spacing: 0.02em;
@@ -536,8 +532,8 @@
 }
 .yp-task-time-group__caption {
   /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint)
-     ★ r66: ใช้ text-2xs (11px) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook */
-  font-size: var(--yp-text-2xs);
+     ★ r64: ลดจาก 11px → 10.5px */
+  font-size: 10.5px;
   color: var(--yp-text-faint);
   margin-top: 0;
   line-height: 1.3;
@@ -546,9 +542,9 @@
 .yp-task-time-group__count {
   /* ★ v3.10.0 รอบที่ 38: ลบ count chip (background, border, padding,
      border-radius) → ตัวเลขเล็ก inline สีจาง
-     ★ r66: ใช้ text-2xs (11px) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook */
+     ★ r64: ลดจาก 11px → 10.5px */
   margin-left: auto;
-  font-size: var(--yp-text-2xs);
+  font-size: 10.5px;
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-faint);
   background: transparent;

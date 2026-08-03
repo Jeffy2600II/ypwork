@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Events List (Filter, Group) — v3.10.0-r66 (Modular CSS Refactor)
+   YP WORK · Events List (Filter, Group) — v3.10.0-r68 (Modular CSS Refactor)
+   ★ r68: ปรับ group label จาก text-2xs (11px) เป็น text-xs (12px) ให้อ่านง่ายขึ้น
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -38,7 +39,7 @@
   background: var(--yp-bg-page);
   padding: var(--yp-space-3) 0;
   /* ★ r64: text-xs → text-2xs (11px) — group label ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-extrabold);
   text-transform: uppercase;
   color: var(--yp-text-secondary);

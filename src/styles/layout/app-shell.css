@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r66 (Modular CSS Refactor)
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r68 (Modular CSS Refactor)
+   ★ r68: ปรับ nav label และ avatar ให้สมดุลกับ type scale ใหม่ที่ใหญ่ขึ้น
+     ปรับ motion tokens ให้ snappier (180ms polish, 100ms press)
    ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
      var(--yp-shadow-sm) ที่ปรับใน tokens อยู่แล้ว ไม่ต้องแก้ที่นี่
    ═══════════════════════════════════════════════════════════════
@@ -109,7 +111,7 @@
 
 .top-bar__avatar {
   /* ★ r64: ลดจาก 32×32 → 28×28 — top bar avatar ที่เล็กลง ให้สมดุลกับ type scale */
-  width: 28px; height: 28px;
+  width: 32px; height: 32px;
   border-radius: var(--yp-radius-pill);
   display: block;
   flex-shrink: 0;
@@ -204,8 +206,7 @@
   }
 
   .bottom-nav__label {
-    /* ★ r66: ใช้ 11px (text-2xs) แทน 10.5px — 10.5px ผิดกฎ WCAG ตาม Rulebook
-       11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption (nav label) */
+    /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
     font-size: var(--yp-text-2xs);
     text-align: center;
     line-height: 1;
@@ -258,7 +259,7 @@
 
   .bottom-nav__label {
     /* ★ r64: ลดจาก 12px → 11px — large desktop label */
-    font-size: 11px;
+    font-size: var(--yp-text-xs);
   }
 
   /* ★ v3.5.0: Center content with max-width on large screens

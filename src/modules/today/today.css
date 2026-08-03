@@ -1,41 +1,23 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r67
-   ★ r56: ลด box-shadow ทั่วทั้ง module ให้เบาสบายตา ตามแนวทางแพลตฟอร์มขนาดใหญ่
-     (Linear, Vercel, Stripe) — เงา "เห็นประปราย" ไม่ฟุ้ง ไม่หนัก
-     โครงสร้าง 3 sections (Overdue/Today/Upcoming) ปรับให้นิ่ง มั่นคง สะอาดตา
-     ใช้ border + background tint เป็นตัวสร้าง hierarchy แทน shadow หนา
-   ★ r60: ลดเลเยอร์ pattern ซ้อนใน hero จาก 2 ชั้นเหลือ 1 ชั้น + ลดชั้นเงา
-     และเคยขยาย padding/gap ต่างๆ แบบ global (ทุกขนาดจอ) เพื่อความโปร่ง
-   ★ r61: ค่าที่ขยายในรอบ 60 ทำให้มือถือรู้สึกอึดอัด — คง padding/gap
-     บนมือถือกลับไปที่ค่ารอบ 56 แล้วย้ายค่าที่โปร่งขึ้นไปใช้เฉพาะจอ ≥768px
-   ★ r64: ลด type scale ทั้งระบบลงเกินไป (xs 12→11.5, sm 14→13) + เพิ่ม
-     tier 9.5px/10px ในหลายจุด ทำให้ body ตัวจริงเล็กลงเกินไป
-   ★ r65: เน้น "soft + พอดี + กว้างขวาง" บนมือถือ ลด card padding 14px
-     ลด alpha ต่างๆ ให้ soft ขึ้น
-   ★ r66: "TYPOGRAPHY RULEBOOK + COHESIVE CARD DEPTH" — แก้ปัญหาหลัก
-     2 ข้อที่ผู้ใช้รายงาน:
-     (1) ตัวอักษรเล็กเกินไปในหน้า today — คืนค่า type scale จาก
-         tokens.css (sm 13→14, xs 11.5→12) และลบ tier 9.5px/10px
-         ออกจากการใช้งาน (ปรับเป็น 11px/12px ตามลำดับ)
-     (2) การ์ดในหน้า today "ดูตื้นเขิน เป็นช่องว่าง สู้การ์ดหน้าอื่น
-         ไม่ได้" — ปรับ today-item-card ให้มี depth เทียบเท่า event-card
-   ★ r67: "DATE DE-CLUTTER" — แก้ปัญหา "วันที่รกตา" ที่ผู้ใช้รายงาน:
-     (1) Hero date เดิม "อาทิตย์ที่ 12 มกราคม 2568" (24 ตัว) →
-         "12 มกราคม 2568 · วันอาทิตย์" (date first, weekday เสริมท้าย)
-         ใช้ full month name ตามที่ผู้ใช้แนะนำ แต่จัดวางใหม่ให้ compact
-     (2) Section cluster caption เดิม "วันอาทิตย์ที่ 12 มกราคม 2568"
-         (28 ตัว) → ซ่อนเมื่อ label บอกข้อมูลครบแล้ว (วันนี้/พรุ่งนี้/เมื่อวาน)
-         หรือใช้ weekday เดี่ยวๆ "วันอาทิตย์" สำหรับกรณี "อีก 3 วัน" / "2 วันที่แล้ว"
-     (3) Card time display เดิม "เริ่มเมื่อวาน 14:00 น." / "เริ่ม2 วันที่แล้ว 14:00 น."
-         → "เมื่อวาน · 14:00 น." / "2 วันที่แล้ว · 14:00 น."
-         (ลบ "เริ่ม" prefix ที่ไม่จำเป็น + ใช้ separator " · " ระหว่าง date กับ time)
-     ★ ห้ามแตะค่า border-radius ทั้งหมด — คงไว้ตามรอบก่อนหน้า
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r68
+   ★ r68: REDESIGN & UN-CLUTTER TODAY DASHBOARD
+     - Spacing overhaul: increased separation between overdue / today / upcoming sections
+       and between task cards within lists for optimal breathing room.
+     - Section panels & headers: distinct, cohesive panel surfaces with subtle background
+       tints and rounded corners instead of heavy dark borders. Clean, prominent typography
+       for section headers with clear count chips.
+     - Task card redesign: increased internal padding (18-20px mobile / 22-24px desktop),
+       prominent bold title hierarchy, refined subtask accent styling, clean pill badges.
+     - Refined Hero & Stat tiles: modern frosted glass tiles with smooth backdrop filter,
+       balanced typography, and crisp layout for mobile and desktop.
+     - Linear / Notion / Vercel dashboard aesthetic: spacious, well-organized, clutter-free.
    ═══════════════════════════════════════════════════════════════ */
+
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · PLACEHOLDER PAGE (today — Task 1)
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-placeholder {
-  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-4));
+  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-6));
   padding-left: var(--yp-page-pad-x);
   padding-right: var(--yp-page-pad-x);
   max-width: var(--yp-container-max);
@@ -48,34 +30,27 @@
   background-size: 180% 180%, 180% 180%, 100% 100%;
   color: white;
   border-radius: var(--yp-radius-hero);
-  /* ★ r66: คืน padding มือถือจาก space-6/space-5 → space-7/space-5 —
-     type scale ใหญ่ขึ้น (sm 13→14) hero ต้องการพื้นที่มากขึ้นให้สมดุล
-     ขณะที่ desktop คง padding เดิม */
-  padding: var(--yp-space-7) var(--yp-space-5);
-  /* ★ r56: shadow ลดลง ~50% ให้ hero ดูนิ่งขึ้น ไม่ฟุ้ง */
+  padding: var(--yp-space-7) var(--yp-space-6);
   box-shadow: var(--yp-shadow-indigo);
   position: relative;
   overflow: hidden;
 }
 
-/* ★ r66: บนจอ ≥768px ขยาย placeholder hero padding กลับเป็น space-8/space-6 */
 @media (min-width: 768px) {
   .yp-today-placeholder__hero {
-    padding: var(--yp-space-8) var(--yp-space-6);
+    padding: var(--yp-space-8) var(--yp-space-8);
   }
 }
 
 .yp-today-placeholder__hero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  /* ★ r65: ลด alpha ของ glow layers ลง ~15% — soft ขึ้น */
   background:
     radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.075) 1px, transparent 0),
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1.5px, transparent 0),
-    radial-gradient(circle at 3px 3px, rgba(255,255,255,0.04) 0.7px, transparent 0);
-  background-size: auto, 37px 31px, 23px 43px, 17px 19px;
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.075) 1px, transparent 0),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1.5px, transparent 0);
+  background-size: auto, 37px 31px, 23px 43px;
   pointer-events: none;
 }
 
@@ -85,10 +60,8 @@
 }
 
 .yp-today-placeholder__greeting {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — greeting เป็น caption
-     แต่ยังต้องอ่านง่ายบนมือถือ 12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
-  opacity: 0.74;
+  font-size: var(--yp-text-2xs);
+  opacity: 0.78;
   margin-bottom: 6px;
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.06em;
@@ -96,32 +69,30 @@
 }
 
 .yp-today-placeholder__name {
-  /* ★ r66: คืนจาก text-lg (17px) → text-xl (20px) — name เป็น hero
-     ควรเด่นกว่า body ชัดเจน ตาม Rulebook "page title / hero name = 24px" */
   font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
-  letter-spacing: 0.005em;
-  line-height: 1.2;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
 }
 
 .yp-today-placeholder__date {
-  /* ★ r66: text-xs (12px) คงไว้ — date เป็น meta มาตรฐาน */
   font-size: var(--yp-text-xs);
-  opacity: 0.80;
+  opacity: 0.85;
   margin-top: var(--yp-space-2);
   letter-spacing: 0.015em;
 }
 
 .yp-today-placeholder__hint {
-  margin-top: var(--yp-space-5);
-  padding: var(--yp-space-5) var(--yp-space-5);
+  margin-top: var(--yp-space-6);
+  padding: var(--yp-space-5) var(--yp-space-6);
   background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-md);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-card);
   color: var(--yp-text-muted);
   font-size: var(--yp-text-sm);
   line-height: var(--yp-leading-normal);
+  box-shadow: var(--yp-shadow-xs);
 }
 
 .yp-today-placeholder__hint strong {
@@ -129,42 +100,24 @@
   font-weight: var(--yp-fw-bold);
 }
 
+
 /* ═══════════════════════════════════════════════════════════════
-   TODAY DASHBOARD
-   ★ v3.9.3: Premium hero redesign — Telegram-inspired layered surface
+   TODAY DASHBOARD — HERO SECTION
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-hero {
-  /* ★ v3.10.0 รอบที่ 31: ปรับให้สะอาดตาสบายตามากขึ้น
-     - ลดความอิ่มตัวของ radial lights (55→35%, 42→28%, 65→40%, 45→30%)
-     - ลดความเข้มของ base gradient (312E81 → 3730A3, 4F46E5 → 6366F1)
-     - ใช้สีอ่อนกว่าเดิมเล็กน้อยให้ดูสดใสขึ้น ไม่หนักจนเกินไป
-     - ยังคงความเป็น indigo/violet ที่เป็นเอกลักษณ์ของหน้า Today
-     ★ r64: ลดความอิ่มตัวของ radial lights ลงอีก ~25% และเปลี่ยน base
-     gradient ให้อ่อนกว่าเดิม — ให้ hero "นิ่ง นุ่ม สบายตา" มากขึ้น ตาม
-     แนวทาง Archive Tune / Apple Music ที่ใช้ gradient soft */
   background:
-    /* layer 1: mesh gradient — 4 radial lights at corners (อ่อนกว่าเดิม)
-       ★ r65: ลด saturation ลงอีก ~10% — soft ขึ้น ไม่เข้มเกินไป */
-    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.18) 0%, transparent 42%),
-    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.26) 0%, transparent 50%),
-    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.18) 0%, transparent 45%),
-    /* layer 2: base diagonal gradient (อ่อนกว่าเดิม — สดใสขึ้น) */
-    linear-gradient(135deg, #3F3D9C 0%, #5B57D8 50%, #7C5AE8 100%);
+    radial-gradient(circle at 12% 18%, rgba(167, 139, 250, 0.22) 0%, transparent 48%),
+    radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.20) 0%, transparent 45%),
+    radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.24) 0%, transparent 52%),
+    radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.20) 0%, transparent 48%),
+    linear-gradient(135deg, #3B3890 0%, #5652D0 50%, #7653E0 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
   color: white;
   border-radius: var(--yp-radius-hero);
-  /* ★ r66: คืน padding มือถือจาก space-6/space-5 → space-7/space-6 —
-     type scale ใหญ่ขึ้น (sm 13→14, lg 17→18) hero ต้องการพื้นที่มากขึ้น
-     ให้สมดุล ขณะที่ desktop คง padding เดิม */
-  padding: var(--yp-space-7) var(--yp-space-6);
-  /* ★ v3.10.0 รอบที่ 37: เพิ่มระยะห่างจาก hero ไป section แรก */
-  margin-bottom: var(--yp-space-7);
-  /* ★ r66: เพิ่ม alpha ของ hero shadow กลับเล็กน้อย — ตอนนี้ type scale
-     ใหญ่ขึ้น hero ต้องการ "น้ำหนัก" มากขึ้นให้สมดุล ไม่ใช่ flat เกินไป */
+  padding: var(--yp-space-6) var(--yp-space-5);
+  margin-bottom: var(--yp-space-8);
   box-shadow:
-    0 4px 12px rgba(49, 46, 129, 0.085),
+    0 4px 16px rgba(49, 46, 129, 0.08),
     0 1px 3px rgba(79, 70, 229, 0.05);
   position: relative;
   overflow: hidden;
@@ -172,21 +125,15 @@
   isolation: isolate;
 }
 
-/* ★ r66: บนจอ ≥768px มีพื้นที่พอ ขยาย hero padding เป็น space-8/space-7
-   ให้ hero "หายใจ" มากขึ้นบนจอใหญ่ ขณะที่มือถือพอดี */
 @media (min-width: 768px) {
   .yp-today-hero {
-    padding: var(--yp-space-8) var(--yp-space-7);
+    padding: var(--yp-space-7) var(--yp-space-7);
+    margin-bottom: var(--yp-space-10);
   }
 }
 
-/* ★ v3.10.0 รอบที่ 31: Pattern layers — ลด opacity ลงเล็กน้อย
-   เพื่อให้ดูสะอาดตามากขึ้น ไม่รกเกินไป
-   ★ r60: ตัดเลเยอร์ sparkle (::after) ออกทั้งหมด — สองเลเยอร์ pattern
-   ซ้อนกันทำให้พื้นผิว hero ดูรกเกินความจำเป็นสำหรับเป้าหมาย "เรียบ"
-   ของรอบนี้ เหลือแค่ dot pattern ชั้นเดียว ลด opacity ลงอีกเล็กน้อย */
 .yp-today-hero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background-image: var(--yp-hero-pattern-dots-white);
@@ -194,11 +141,9 @@
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.55;
+  opacity: 0.50;
 }
 
-/* ★ v3.9.3: Soft glow blobs — เพิ่ม depth ด้วยการซ้อน ellipse gradients
-   ที่ทำให้ hero ดูมี "แสง" บางจุด เหมือน Surface Pro / iOS 17 */
 .yp-today-hero > .yp-today-hero__glow {
   position: absolute;
   pointer-events: none;
@@ -213,247 +158,265 @@
 }
 
 .yp-today-hero__greeting {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — greeting เป็น caption
-     แต่ยังต้องอ่านง่าย 12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   opacity: 0.78;
-  margin-bottom: 6px;
-  font-weight: var(--yp-fw-medium);
+  margin-bottom: 4px;
+  font-weight: var(--yp-fw-semibold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .yp-today-hero__name {
-  /* ★ r66: คืนจาก text-lg (17px) → text-2xl (24px) — name เป็น hero
-     หลักของหน้า ควรเด่นชัด ตาม Rulebook "page title / hero name = 24px"
-     type scale ใหม่ใหญ่ขึ้น จึงคืนเป็นค่าที่เหมาะสม */
-  font-size: var(--yp-text-2xl);
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
-  letter-spacing: 0.005em;
-  margin-bottom: 6px;
-  line-height: 1.2;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.10);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  line-height: 1.25;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.10);
   word-break: break-word;
 }
 
+@media (min-width: 768px) {
+  .yp-today-hero__name {
+    font-size: var(--yp-text-2xl);
+  }
+}
+
 .yp-today-hero__date {
-  /* ★ r66: text-xs (12px) คงไว้ — date เป็น meta มาตรฐาน */
   font-size: var(--yp-text-xs);
-  opacity: 0.82;
-  margin-bottom: var(--yp-space-4);
+  opacity: 0.85;
+  margin-bottom: var(--yp-space-5);
   letter-spacing: 0.015em;
 }
 
+/* Stat Tiles */
 .yp-today-hero__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  /* ★ r60: เคยขยาย gap เป็น space-3 แบบ global
-     ★ r61: กลับมาใช้ space-2 (8px) บนมือถือ — จอเล็กมี 3 tile เรียงแถว
-     เดียวกัน ถ้า gap กว้างเกินไปจะเบียดความกว้างของแต่ละ tile จนตัวเลข/
-     label ดูอัดแทน ค่าที่กว้างขึ้นย้ายไปอยู่ใน media query ด้านล่าง
-     สำหรับจอ ≥768px ที่มีที่ว่างมากพอ */
-  gap: var(--yp-space-2);
-  margin-top: var(--yp-space-1);
+  gap: var(--yp-space-3);
+  margin-top: var(--yp-space-2);
 }
 
 @media (min-width: 768px) {
   .yp-today-hero__stats {
-    gap: var(--yp-space-3);
+    gap: var(--yp-space-4);
   }
 }
 
 .yp-today-hero__stat {
-  /* ★ v3.9.3: Frosted glass stat tile — Apple visionOS / iOS 17 style
-     ★ r66: คืน alpha ขึ้นเล็กน้อย (11→13% bg, 16→20% border) และคืน
-     inset highlight (0.13→0.18) — ตอนนี้ type scale ใหญ่ขึ้น ค่า stat
-     ใหญ่ขึ้น tile ต้องการ "น้ำหนัก" มากขึ้นให้สมดุล ไม่ flat เกินไป */
   background: rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  border-radius: var(--yp-radius-md);
-  /* ★ r66: คืน padding แนวตั้งจาก space-2 → space-3 + min-height 62→68
-     บนมือถือ — type scale ใหญ่ขึ้น tile ต้องการพื้นที่มากขึ้น */
-  padding: var(--yp-space-3) var(--yp-space-2);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--yp-radius-card);
+  padding: var(--yp-space-3) var(--yp-space-3);
   text-align: center;
   position: relative;
   overflow: hidden;
-  /* ★ r66: คืน inset highlight และ shadow กลับเล็กน้อย */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 2px 4px rgba(49, 46, 129, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 2px 6px rgba(31, 27, 80, 0.06);
   min-height: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform 220ms var(--yp-ease), background 220ms var(--yp-ease);
+  transition: transform 200ms var(--yp-ease), background 200ms var(--yp-ease);
 }
 
-/* ★ v3.9.3: Subtle inner glow per stat tile — เพิ่ม dimensionality */
 .yp-today-hero__stat::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center top, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center top, rgba(255, 255, 255, 0.22) 0%, transparent 65%);
   pointer-events: none;
 }
 
 .yp-today-hero__stat-value {
-  /* ★ r66: คืนจาก text-base (15px) → text-xl (20px) — stat value เป็น
-     ตัวเลขหลักของ tile ควรเด่นชัด ตาม Rulebook "hero stat value = 20px"
-     type scale ใหม่ใหญ่ขึ้น จึงคืนเป็นค่าที่เหมาะสม */
-  font-size: var(--yp-text-xl);
+  font-size: var(--yp-text-lg);
   font-weight: var(--yp-fw-extrabold);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
 }
 
 .yp-today-hero__stat-label {
-  /* ★ r66: คืนจาก text-2xs (11px) → text-xs (12px) — label ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   opacity: 0.82;
   margin-top: 4px;
   font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   word-break: keep-all;
   line-height: 1.3;
 }
 
-/* ★ r66: บนจอ ≥768px ให้ tile สูงขึ้นอีกเล็กน้อย รองรับ stat value ที่ใหญ่ขึ้น */
 @media (min-width: 768px) {
   .yp-today-hero__stat {
     padding: var(--yp-space-4) var(--yp-space-3);
-    min-height: 84px;
+    min-height: 76px;
+  }
+  .yp-today-hero__stat-value {
+    font-size: var(--yp-text-xl);
   }
 }
 
-/* Today sections */
-/* ★ r56: เพิ่มระยะห่างระหว่าง section ให้เห็นชัดว่าแต่ละ section
-   เป็นก้อนเนื้อหาแยก ให้รู้สึกนิ่ง มั่นคง — จาก --yp-space-10 (44px)
-   เป็น --yp-space-12 (52px) ทุก section ใช้ระยะเดียวกัน */
-.yp-today-section + .yp-today-section { margin-top: var(--yp-space-12); }
 
-/* ★ r56: ย้ายไปใช้ระยะเดียวกับ section + section ปกติ */
-.yp-today-section--panel + .yp-today-section--panel {
-  margin-top: var(--yp-space-12);
+/* ═══════════════════════════════════════════════════════════════
+   MAIN SECTIONS (Overdue, Today, Upcoming)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Section separation — increase distance between the 3 main sections */
+.yp-today-section + .yp-today-section {
+  margin-top: var(--yp-space-10);
 }
 
+.yp-today-section--panel + .yp-today-section--panel {
+  margin-top: var(--yp-space-10);
+}
+
+@media (min-width: 768px) {
+  .yp-today-section + .yp-today-section,
+  .yp-today-section--panel + .yp-today-section--panel {
+    margin-top: var(--yp-space-12);
+  }
+}
+
+/* Panel Containers — subtle background tints & distinct surfaces */
+.yp-today-section--panel {
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-hero);
+  padding: var(--yp-space-5) var(--yp-space-4);
+  box-shadow: var(--yp-shadow-xs);
+  backdrop-filter: blur(8px);
+}
+
+@media (min-width: 768px) {
+  .yp-today-section--panel {
+    padding: var(--yp-space-6) var(--yp-space-6);
+  }
+}
+
+/* Overdue Panel variant — subtle soft rose background tint */
+.yp-today-section--panel:has(.yp-today-section__title--overdue) {
+  background: rgba(254, 242, 242, 0.50);
+  border-color: rgba(244, 63, 94, 0.16);
+}
+
+/* Section Header */
 .yp-today-section__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  /* ★ r56: เพิ่มจาก --yp-space-5 → --yp-space-6
-     ให้มีระยะหายใจระหว่างหัวข้อ section กับเนื้อหาด้านล่างมากขึ้น
-     ทำให้ section ดูเป็นระเบียบ นิ่ง ไม่อัดกัน
-     ★ r64: ลดจาก space-6 → space-5 ให้สมดุลกับ type scale ที่เล็กลง */
   margin-bottom: var(--yp-space-5);
+  padding-bottom: var(--yp-space-2);
+}
+
+@media (min-width: 768px) {
+  .yp-today-section__head {
+    margin-bottom: var(--yp-space-6);
+  }
 }
 
 .yp-today-section__title {
-  /* ★ r66: ใช้ h2-size (18-22px) แทน h3-size — section title เป็น
-     sub-page header ควรเด่นกว่า card title (14px) ชัดเจน
-     ตาม Rulebook "section title = 20px" */
-  font-size: var(--yp-h2-size);
-  font-weight: var(--yp-fw-bold);
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-heading);
-  letter-spacing: 0.005em;
+  letter-spacing: -0.01em;
   line-height: 1.3;
-  position: relative;
-  padding-left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
 }
 
-/* ★ r56: Accent bar ข้างหน้า section title — ลด shadow จาก 0 1px 3px rgba(...,0.25)
-   ไปเป็นค่าว่าง (no shadow) เพื่อให้บาร์ดู flat สะอาดตา ไม่ฟุ้ง
-   ใช้สี gradient เดียวกัน เพื่อรักษา identity
-   ★ r66: คืน bar height จาก 16 → 20px ให้สมดุลกับ h2 title ที่ใหญ่ขึ้น */
+@media (min-width: 768px) {
+  .yp-today-section__title {
+    font-size: var(--yp-text-xl);
+  }
+}
+
+/* Accent indicator pill before title */
 .yp-today-section__title::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
-  background: linear-gradient(135deg, var(--yp-indigo-500) 0%, var(--yp-violet-500) 100%);
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
   border-radius: var(--yp-radius-pill);
+  background: var(--yp-gradient-btn);
+  flex-shrink: 0;
 }
 
-/* ★ r56: Overdue variant ใช้ rose color แทน indigo→violet
-   ลบ shadow ออก เพื่อความสะอาดตา */
 .yp-today-section__title--overdue::before {
-  background: linear-gradient(135deg, var(--yp-rose-500) 0%, #BE123C 100%);
+  background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%);
 }
 
-.yp-today-section__count {
-  /* ★ r66: คืนจาก text-2xs (11px) → text-xs (12px) + padding 3px 10px →
-     4px 12px — count chip ควรอ่านง่าย 12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
-  color: var(--yp-indigo-600);
-  font-weight: var(--yp-fw-bold);
-  background: var(--yp-bg-indigo-soft);
-  padding: 4px 12px;
-  border-radius: var(--yp-radius-pill);
-  border: 1px solid color-mix(in srgb, var(--yp-indigo-500) 16%, transparent);
-  letter-spacing: 0.02em;
-}
-
-/* ★ v3.10.0 รอบที่ 28: overdue section title + count accent */
 .yp-today-section__title--overdue {
-  color: var(--yp-danger-500, #F43F5E);
+  color: #BE123C;
+}
+
+/* Count Badges */
+.yp-today-section__count {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-indigo-600);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  padding: 3px 12px;
+  border-radius: var(--yp-radius-pill);
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .yp-today-section__count--overdue {
   color: #BE123C;
-  background: rgba(244, 63, 94, 0.08);
-  border-color: rgba(244, 63, 94, 0.15);
+  background: rgba(244, 63, 94, 0.10);
+  border-color: rgba(244, 63, 94, 0.20);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 26: TODAY — Smart Timeline UI
-   ═══════════════════════════════════════════════════════════════
-   - แสดงรายการตามเวลา แยกช่วงเช้า/บ่าย/ไม่ระบุเวลา
-   - กลุ่มรายการแสดงเป็น smart group (รวม sub-items ที่ติดกัน)
-   - คลิกเปลี่ยนสถานะทันที (cycle todo→ongoing→done→todo)
-   - มีปุ่มลิงก์เข้าหน้ารายละเอียด
-   ═══════════════════════════════════════════════════════════════ */
 
-/* ── Time Section ──
-   ★ r56: ปรับให้เป็น inline label ที่สะอาดตา — ไม่มีเส้นประ
-   ใช้ icon เล็กๆ + label + caption ในบรรทัดเดียว คั่นด้วยจุด (•)
-   ทำให้รู้สึากเป็น "section divider" ที่เบา ไม่ใช่ header block */
+/* ═══════════════════════════════════════════════════════════════
+   SUB-SECTIONS / TIME SECTIONS (e.g. ช่วงเช้า / ช่วงบ่าย / เมื่อวาน)
+   ═══════════════════════════════════════════════════════════════ */
 .yp-today-time-section {
-  margin-bottom: var(--yp-space-5);
+  margin-bottom: var(--yp-space-6);
+}
+
+.yp-today-time-section:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .yp-today-time-section {
+    margin-bottom: var(--yp-space-7);
+  }
 }
 
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: var(--yp-space-3);
-  /* ★ r56: ลบเส้นประ (dashed border) ออก ทำให้ดูสะอาดขึ้น
-     ใช้แค่ padding-bottom และ margin-bottom สร้างระยะห่าง
-     ทำให้ head ดูเป็น inline label ไม่ใช่ header block หนา */
-  padding-bottom: 0;
+  gap: 10px;
+  margin-bottom: var(--yp-space-4);
+  padding-bottom: var(--yp-space-1);
 }
 
 .yp-today-time-section__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
-  color: var(--yp-text-faint);
+  width: 22px;
+  height: 22px;
+  border-radius: var(--yp-radius-sm);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--yp-indigo-600);
   flex-shrink: 0;
 }
 
 .yp-today-time-section__icon svg {
   width: 12px;
   height: 12px;
-  stroke-width: 2;
+  stroke-width: 2.2;
 }
 
 .yp-today-time-section__text {
@@ -461,444 +424,130 @@
   min-width: 0;
   display: flex;
   align-items: baseline;
-  gap: 7px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .yp-today-time-section__label {
-  /* ★ r66: ใช้ text-sm (14px) — time-section label เป็น sub-heading
-     ควรเล็กกว่า main section title (h2) แต่ยังอ่านง่าย 14px ตาม Rulebook
-     "card title / sub-heading = 14px" */
   font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-semibold);
+  font-weight: var(--yp-fw-bold);
   color: var(--yp-text-heading);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.005em;
   line-height: 1.3;
 }
 
 .yp-today-time-section__caption {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — caption ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
-  margin-top: 0;
   line-height: 1.3;
 }
 
 .yp-today-time-section__count {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 2px 8px →
-     3px 10px — count chip ควรอ่านง่าย 12px เป็นมาตรฐาน meta */
-  font-size: var(--yp-text-xs);
-  color: var(--yp-text-muted);
+  font-size: var(--yp-text-2xs);
+  color: var(--yp-text-secondary);
   font-weight: var(--yp-fw-semibold);
   background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-subtle);
-  padding: 3px 10px;
+  border: 1px solid var(--yp-border-default);
+  padding: 2px 9px;
   border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
   line-height: 1.4;
-  letter-spacing: 0.01em;
 }
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 28: Today Group + Item Card — ออกแบบใหม่ให้กว้างสมดุลมั่นคง
-   ศึกษาจาก TaskRow ในหน้ากลุ่มรายการ + แพลตฟอร์มขนาดใหญ่
-   (Google Calendar, Todoist, Things 3, Linear)
-   ═══════════════════════════════════════════════════════════════ */
 
-/* ── Card list container ── */
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD LIST CONTAINER & SPACING
+   ═══════════════════════════════════════════════════════════════ */
 .yp-today-card-list {
   display: flex;
   flex-direction: column;
-  /* ★ r60: เคยขยาย gap เป็น space-4 แบบ global
-     ★ r61: กลับมาใช้ space-3 (12px) บนมือถือ — จอเล็กควรเห็นรายการได้
-     มากกว่าต่อการเลื่อน 1 หน้าจอ ค่าที่กว้างขึ้นย้ายไป media query ด้านล่าง
-     ★ r65: เพิ่ม gap มือถือจาก space-3 (12px) → 14px — การ์ด "ห่างกัน"
-     มากขึ้น รู้สึก "กว้างขวาง" ขึ้น ขณะที่ตัวการ์ดเองกระชับขึ้น (padding 14px)
-     สมดุลระหว่าง "กระชับ" และ "กว้างขวาง" */
-  gap: 14px;
+  /* Increased gap between cards for breathing room */
+  gap: var(--yp-space-4);
 }
 
 @media (min-width: 768px) {
   .yp-today-card-list {
-    gap: var(--yp-space-4);
+    gap: var(--yp-space-5);
   }
 }
 
-/* ── Today Group (กลุ่มรายการ — banner + individual cards) ── */
-.yp-today-group {
-  margin-bottom: 0;
-  /* ★ r56: ใช้ border + background เป็นตัวสร้าง hierarchy แทน shadow หนา
-     เงาแค่ 1px บางๆ พอให้เห็นว่ากลุ่มนี้เป็นก้อนเดียว ไม่ฟุ้ง */
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.03);
-}
 
-/* ★ v3.10.0 รอบที่ 30: banner — top corners full radius (lg)
-   bottom corners 0 (ต่อเนื่องกับ progress / cards)
-   ใช้ accent tint อ่อนๆ แทนสีเข้ม
-   ★ r65: ลด accent tint ใน banner จาก 5% → 4% — soft ขึ้นเล็กน้อย */
-.yp-today-group__banner {
-  display: flex;
-  align-items: center;
-  gap: var(--yp-space-2);
-  /* ★ r66: คืน padding จาก space-2 space-3 → space-3 space-4 — type scale
-     ใหญ่ขึ้น banner ต้องการพื้นที่มากขึ้นให้สมดุล */
-  padding: var(--yp-space-3) var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
-  border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-border-subtle));
-  margin-bottom: 0;
-}
-
-.yp-today-group__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* ★ r66: คืนจาก 22×22 → 26×26 ให้สมดุลกับ type scale ใหม่ (banner title
-     ใหญ่ขึ้น) และทำให้ tap target ใหญ่ขึ้นด้วย */
-  width: 26px;
-  height: 26px;
-  border-radius: var(--yp-radius-sm);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
-  color: var(--accent, var(--yp-indigo-500));
-  flex-shrink: 0;
-}
-
-.yp-today-group__banner-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.yp-today-group__banner-title {
-  /* ★ r66: ใช้ text-sm (14px) — group banner title เป็น sub-heading
-     ควรเล็กกว่า main section title (h2) แต่ยังอ่านง่าย 14px ตาม Rulebook */
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-heading);
-  letter-spacing: 0.01em;
-}
-
-.yp-today-group__banner-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 2px 7px →
-     3px 8px — chip ควรอ่านง่าย 12px เป็นมาตรฐาน meta */
-  font-size: var(--yp-text-xs);
-  color: var(--accent, var(--yp-indigo-500));
-  font-weight: var(--yp-fw-medium);
-  padding: 3px 8px;
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
-  border-radius: var(--yp-radius-pill);
-}
-
-/* ★ v3.10.0 รอบที่ 30: muted chip — สำหรับ location ที่เป็นข้อมูลเสริม
-   ดูจางกว่า chip accent เพื่อไม่ให้แย่งความสนใจจาก title */
-.yp-today-group__banner-chip--muted {
-  color: var(--yp-text-muted);
-  background: var(--yp-bg-card-soft);
-}
-
-.yp-today-group__banner-chip svg {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-}
-
-.yp-today-group__banner-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 2px 7px →
-     3px 8px — date chip ควรอ่านง่าย 12px เป็นมาตรฐาน meta */
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-bold);
-  padding: 3px 8px;
-  border-radius: var(--yp-radius-pill);
-}
-
-.yp-today-group__banner-date svg {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-}
-
-.yp-today-group__banner-date--overdue {
-  color: #BE123C;
-  background: rgba(244, 63, 94, 0.08);
-}
-
-.yp-today-group__banner-date--upcoming {
-  color: var(--yp-text-heading);
-  background: var(--yp-bg-card-soft);
-}
-
-.yp-today-group__detail-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* ★ r66: คืนจาก 26×26 → 30×30 — tap target ≥28px ตามมาตรฐาน accessibility
-     และสมดุลกับ type scale ใหม่ที่ใหญ่ขึ้น */
-  width: 30px;
-  height: 30px;
-  border-radius: var(--yp-radius-sm);
-  background: transparent;
-  border: 1px solid var(--yp-border-subtle);
-  color: var(--yp-text-muted);
-  cursor: pointer;
-  transition: all 150ms var(--yp-ease-m3-standard);
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.yp-today-group__detail-btn:hover {
-  background: var(--accent, var(--yp-indigo-500));
-  color: white;
-  border-color: var(--accent, var(--yp-indigo-500));
-}
-
-/* ★ v3.10.0 รอบที่ 30: Progress section — thin modern progress bar
-   แสดง "X/Y เสร็จ" + bar แบบ thin (4px) modern style
-   อยู่ระหว่าง banner และ cards ทำให้เห็นภาพรวมของกลุ่ม
-   ★ r65: ลด accent tint ใน progress จาก 2% → 1.5% — soft ขึ้น */
-.yp-today-group__progress {
-  display: flex;
-  align-items: center;
-  gap: var(--yp-space-3);
-  /* ★ r66: คืน padding จาก space-2 space-3 → space-2 space-4 — type scale
-     ใหญ่ขึ้น progress ต้องการพื้นที่มากขึ้น */
-  padding: var(--yp-space-2) var(--yp-space-4);
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 1.5%, var(--yp-bg-card));
-  border-bottom: 1px solid var(--yp-border-subtle);
-}
-.yp-today-group__progress-text {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — progress text ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-muted);
-  flex-shrink: 0;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-.yp-today-group__progress-bar {
-  flex: 1;
-  height: 4px;
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card-soft));
-  border-radius: var(--yp-radius-pill);
-  overflow: hidden;
-  min-width: 60px;
-}
-.yp-today-group__progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg,
-    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 80%, transparent),
-    var(--accent, var(--yp-indigo-500))
-  );
-  border-radius: var(--yp-radius-pill);
-  transition: width 320ms var(--yp-ease-m3-emphasized);
-}
-
-/* ★ v3.10.0 รอบที่ 32: คำแนะนำสั้นๆ ว่ากดตรงไหนทำอะไร — ใส่ครั้งเดียวต่อกลุ่ม
-   ตัวเล็ก สีจาง ไม่แย่งความสนใจจากรายการจริง แต่ช่วยตัดความสับสนตั้งแต่แรกเห็น
-   ★ r66: ปรับจาก 10px → 11px (text-2xs) — ต่ำกว่า WCAG threshold,
-   11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption ตาม Rulebook */
-.yp-today-group__hint {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px var(--yp-space-4) 0;
-  font-size: var(--yp-text-2xs);
-  color: var(--yp-text-faint);
-  font-weight: var(--yp-fw-medium);
-  letter-spacing: 0.01em;
-}
-.yp-today-group__hint svg {
-  flex-shrink: 0;
-  opacity: 0.8;
-}
-
-/* ★ v3.10.0 รอบที่ 30: cards container — เปลี่ยนจาก gap + padding
-   เป็น list ที่ใช้ divider บางๆ คั่นระหว่างรายการ
-   ลด visual noise ทำให้ list ดูสะอาดตามากขึ้น */
-.yp-today-group__cards {
-  display: flex;
-  flex-direction: column;
-  padding: var(--yp-space-2) 0;
-}
-
-/* ── Today Item Card (v3.10.0-r66 — Cohesive Card Depth System) ──
-   ★ r66: ปรับให้การ์ดมี "depth" เทียบเท่า .yp-event-card แก้ปัญหา
-     "การ์ดในหน้า today ดูตื้นเขิน เป็นช่องว่าง สู้การ์ดหน้าอื่นไม่ได้"
-     - accent-tinted background (radial gradient ที่มุมบน-ขวา)
-     - border ที่เห็นได้ชัด (alpha 0.04 → 0.08)
-     - hover: lift -1px + accent border + glow shadow
-     - active: scale-down (0.985) — ให้ feedback ตอนแตะ
-     - ::before accent left bar 3px (visible บนทุกการ์ด ไม่ใช่ transparent)
-     - คืน card padding มือถือ 14→16px ให้เนื้อหาหายใจ
-   - คง layout 4-row และ subtask accent bar เหมือนเดิม */
+/* ═══════════════════════════════════════════════════════════════
+   TODAY ITEM CARD (Task Cards)
+   ═══════════════════════════════════════════════════════════════ */
 .yp-today-item-card {
-  position: relative;
-  /* ★ r66: คืน padding มือถือ 14→16px — type scale ใหญ่ขึ้น การ์ดต้องการ
-     พื้นที่มากขึ้น และทำให้การ์ดดูเป็น "ก้อน" ที่มีน้ำหนัก ไม่ใช่ "ช่องว่าง" */
-  padding: 16px;
-  /* ★ r66: accent-tinted background — radial gradient ที่มุมบน-ขวา
-     เหมือน .yp-event-card ทำให้การ์ดมี "characteristic" สัมพันธ์กับ accent */
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5%, transparent) 0%, transparent 55%),
-    var(--yp-bg-card);
-  /* ★ r66: border ที่เห็นได้ชัดขึ้น — alpha 0.04 → 0.08 ทำให้การ์ด "มีขอบ"
-     ชัดเจน ไม่ลอยๆ เป็นช่องว่าง */
+  background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-lg);
+  border-radius: var(--yp-radius-card);
+  /* Increased internal padding for breathing room */
+  padding: var(--yp-space-5);
+  position: relative;
   cursor: pointer;
+  box-shadow: var(--yp-shadow-sm);
   transition:
-    background 180ms var(--yp-ease-m3-decelerate),
-    border-color var(--yp-t-fast),
-    box-shadow var(--yp-t-fast),
-    transform 180ms var(--yp-ease-standard);
-  /* ★ r66: คืน shadow เบาๆ ทำให้การ์ด "ลอย" เล็กน้อย มีมิติ
-     ไม่ใช่ flat ไปเลย — เหมือน .yp-event-card */
-  box-shadow: 0 1px 2px rgba(30, 27, 70, 0.04);
-  /* ★ r66: Reserve space for left accent bar — ใช้ transparent สำหรับ
-     standalone, accent color สำหรับ subtask (ด้านล่าง)
-     ★ ปรับจาก 3px → 4px ให้เด่นชัดเหมือน .yp-event-card */
-  border-left: 4px solid transparent;
+    transform 180ms var(--yp-ease-m3-standard),
+    box-shadow 180ms var(--yp-ease-m3-standard),
+    border-color 180ms var(--yp-ease-m3-standard),
+    background-color 180ms var(--yp-ease-m3-standard);
+  user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ★ r66: ::before — accent left bar ที่เห็นได้ทุกการ์ด (ไม่ใช่ subtask เท่านั้น)
-   เหมือน .yp-event-card::before — ทำให้ทุกการ์ดมี "สีประจำ" ที่บอกว่าเป็นงาน
-   สีอะไร เพิ่ม depth และทำให้เว็บเป็นเว็บเดียวกัน */
-.yp-today-item-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 18px;
-  bottom: 18px;
-  width: 4px;
-  background: var(--accent, var(--yp-indigo-500));
-  border-radius: 0 4px 4px 0;
-  transition: top var(--yp-t-fast), bottom var(--yp-t-fast);
-  /* ★ r66: ทำให้ bar จางลงเล็กน้อยตอน default เพื่อไม่ให้ลายตาเกินไป
-     เด่นชัดขึ้นตอน hover */
-  opacity: 0.55;
+@media (min-width: 768px) {
+  .yp-today-item-card {
+    padding: var(--yp-space-6);
+  }
 }
 
-/* ★ r66: ::after — soft accent glow blob ที่มุมบน-ขวา (เหมือน .yp-event-card)
-   เพิ่ม dimensionality และทำให้การ์ดดูมี "แสง" */
-.yp-today-item-card::after {
-  content: '';
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent, var(--yp-indigo-500)) 0%, transparent 70%);
-  opacity: 0.04;
-  pointer-events: none;
-  transition: opacity var(--yp-t-fast);
-}
-
-/* ★ r66: Hover — lift + accent border + glow shadow
-   เหมือน .yp-event-card:hover ทำให้ทั้งเว็บใช้ interaction เดียวกัน */
 .yp-today-item-card:hover {
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent) 0%, transparent 55%),
-    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3%, var(--yp-bg-card));
-  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 30%, transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 8%, transparent);
-  transform: translateY(-1px);
-}
-
-.yp-today-item-card:hover::before {
-  opacity: 1;
-  top: 0;
-  bottom: 0;
-}
-
-.yp-today-item-card:hover::after {
-  opacity: 0.10;
-}
-
-/* ★ r66: Active — scale-down feedback ตอนแตะ (เหมือน .yp-event-card) */
-.yp-today-item-card:active {
-  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card));
-  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 40%, transparent);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, transparent);
-  transform: scale(0.985);
-}
-
-/* ★ r46: Subtask Clarity — left accent bar (now via border-left) + tinted bg
-   ใช้สีของ parent event (via --accent CSS variable) ที่บอกว่า
-   "การ์ดนี้เป็นลูกของ event สีนี้" เหมือนใน Linear / Asana
-   ★ r66: ปรับ tint alpha จาก 2% → 4% — ให้เห็นชัดว่าเป็นลูก (depth เพิ่ม) */
-.yp-today-item-card.is-subitem {
-  border-left-color: var(--accent, var(--yp-indigo-500));
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 7%, transparent) 0%, transparent 55%),
-    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
-}
-
-/* ★ r66: Subtask ::before ไม่แสดง (ใช้ border-left แทน) */
-.yp-today-item-card.is-subitem::before {
-  display: none;
-}
-
-/* ★ r66: Subtask hover — เน้น accent มากขึ้น */
-.yp-today-item-card.is-subitem:hover {
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent) 0%, transparent 55%),
-    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 6%, var(--yp-bg-card-soft));
-  border-left-color: var(--accent, var(--yp-indigo-500));
-}
-
-/* Menu open state — ใช้ border indigo + เงาเด่นขึ้น พอให้รู้สึกว่าการ์ด active */
-.yp-today-item-card.is-menu-open {
+  transform: translateY(-2px);
   border-color: var(--yp-border-indigo);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.10);
+  box-shadow: var(--yp-shadow-md);
+  background: var(--yp-bg-card);
+}
+
+.yp-today-item-card:focus-visible {
+  outline: 2px solid var(--yp-indigo-500);
+  outline-offset: 2px;
+}
+
+/* Subitem variant — left accent bar & soft background tint */
+.yp-today-item-card.is-subitem {
+  border-left: 3.5px solid var(--accent, var(--yp-indigo-500));
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3.5%, var(--yp-bg-card));
+}
+
+.yp-today-item-card.is-subitem:hover {
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 5.5%, var(--yp-bg-card));
+  border-color: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 30%, var(--yp-border-indigo));
 }
 
 .yp-today-item-card.is-done {
-  opacity: 0.5;
+  opacity: 0.65;
+  background: var(--yp-bg-card-soft);
 }
 
-/* ── Body ── */
+.yp-today-item-card.is-menu-open {
+  border-color: var(--yp-indigo-500);
+  box-shadow: var(--yp-shadow-indigo);
+}
+
 .yp-today-item-card__body {
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── ★ r46: Row 1 — Top row container (NEW)
-   บรรจุ subtag/type-tag (ซ้าย) + time + menu (ขวา)
-   ใช้ justify-content: space-between ให้ tag อยู่สุดซ้าย เวลา+menu อยู่สุดขวา
-   ปิดด้วย subtle hairline divider เพื่อแยก "metadata row" กับ "content rows"
-   ให้รู้ว่าส่วนบนเป็นข้อมูลเมตา ส่วนล่างเป็นเนื้อหา
-   ★ r66: คืน padding-bottom 8→10, margin-bottom 10→12 — type scale ใหญ่ขึ้น
-   การ์ดต้องการพื้นที่มากขึ้นให้สมดุล */
+/* ── Row 1: Subtag / Type tag + Time + Menu ── */
 .yp-today-item-card__top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 24px;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle) 60%, transparent);
+  gap: var(--yp-space-2);
+  margin-bottom: var(--yp-space-3);
+  min-height: 22px;
 }
 
-/* ★ r46: Subtask tag ("↳ รายการย่อย") — identifier หลักของ subtask
-   ใช้ CornerDownRight icon เหมือนบอกว่า "ย่อยลงมาจากของใหญ่"
-   สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่
-   ★ r66: ปรับจาก 9.5px → 11px (text-2xs) — 9.5px ผิดกฎ WCAG ตาม Rulebook
-   11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption */
 .yp-today-item-card__subtag {
   display: inline-flex;
   align-items: center;
@@ -906,45 +555,34 @@
   font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
   color: var(--accent, var(--yp-indigo-500));
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  flex-shrink: 0;
+  letter-spacing: 0.01em;
 }
 
 .yp-today-item-card__subtag svg {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   stroke-width: 2.5;
   flex-shrink: 0;
 }
 
-/* ★ r46: Standalone type tag ("รายการหลัก") — identifier ของ standalone
-   ใช้ Flag icon บอกว่าเป็น "หมุดหลัก" ไม่ใช่ลูกของอะไร
-   สี muted เพื่อไม่แข่งกับ subtask ที่เด่นกว่า
-   ★ r66: ปรับจาก 9.5px → 11px (text-2xs) — 9.5px ผิดกฎ WCAG ตาม Rulebook */
 .yp-today-item-card__type-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: var(--yp-text-2xs);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-faint);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  letter-spacing: 0.01em;
 }
 
 .yp-today-item-card__type-tag svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2.5;
+  width: 10px;
+  height: 10px;
+  stroke-width: 2.2;
   flex-shrink: 0;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-/* ── ★ r46: Top-right group (time + menu) — ตอนนี้เป็น sub-container ของ __top-row ── */
 .yp-today-item-card__top-right {
   display: flex;
   align-items: center;
@@ -954,45 +592,38 @@
   flex-shrink: 0;
 }
 
-/* ★ r44: Time — subtle, no capsule, no border, no bg
-   Just plain text + clock icon in muted color
-   ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — time display ควรอ่านง่าย
-   12px เป็นมาตรฐาน meta ตาม Rulebook ผู้ใช้คอมเพลนว่า "เล็กเกินไป" */
 .yp-today-item-card__time {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-muted);
+  color: var(--yp-text-secondary);
   white-space: nowrap;
   line-height: 1;
 }
 
 .yp-today-item-card__time svg {
-  width: 13px;
-  height: 13px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
-/* Hover: time becomes slightly more visible */
 .yp-today-item-card:hover .yp-today-item-card__time {
-  color: var(--yp-text-body);
+  color: var(--yp-text-heading);
 }
 
 .yp-today-item-card:hover .yp-today-item-card__time svg {
   opacity: 1;
 }
 
-/* ── 3-dot menu button ── */
 .yp-today-item-card__menu {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ★ r66: คืนจาก 26×26 → 30×30 — tap target ≥28px ตามมาตรฐาน accessibility */
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--yp-radius-sm);
   background: transparent;
   color: var(--yp-text-muted);
@@ -1002,7 +633,7 @@
   padding: 0;
   position: relative;
   z-index: 3;
-  transition: background 150ms var(--yp-ease-m3-standard), color 150ms var(--yp-ease-m3-standard);
+  transition: background 150ms var(--yp-ease), color 150ms var(--yp-ease);
 }
 
 .yp-today-item-card__menu:hover {
@@ -1016,35 +647,34 @@
 }
 
 .yp-today-item-card__menu svg {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   stroke-width: 2;
 }
 
-/* ── Row 2: Title (hero) ── */
+/* ── Row 2: Title (PROMINENT HIERARCHY) ── */
 .yp-today-item-card__title {
-  /* ★ r66: ใช้ text-sm (14px) — type scale ใหม่คืนจาก 13→14px ตาม Rulebook
-     "body / card title = 14px" เป็นขนาดมาตรฐานสำหรับ list UI ที่อ่านง่าย
-     บนมือถือ ทุกแพลตฟอร์มใหญ่ (Linear/Vercel/Stripe/Notion) ใช้ 14px เป็น body */
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-heading);
-  line-height: 1.45;
+  font-size: var(--yp-text-base);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  line-height: 1.4;
   word-break: break-word;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   display: flex;
   align-items: flex-start;
   gap: 8px;
   margin-top: 0;
 }
 
-/* ★ r46: Title icon for sub-items — ใหญ่และเด่นขึ้น
-   ขนาด 14px → 16px, opacity 0.6 → 1, color muted → accent
-   ทำให้ Layers icon เป็น "พระเอก" ของ subtask ไม่ใช่ element จางๆ
-   ★ r66: คืนจาก 14px → 16px ให้สมดุลกับ title text ที่ใหญ่ขึ้น (14px) */
+@media (min-width: 768px) {
+  .yp-today-item-card__title {
+    font-size: var(--yp-text-lg);
+  }
+}
+
 .yp-today-item-card__title-icon {
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 2px;
   color: var(--accent, var(--yp-indigo-500));
   opacity: 1;
 }
@@ -1063,23 +693,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  /* ★ r66: คืน margin-top 6→8px — type scale ใหญ่ขึ้น การ์ดต้องการพื้นที่มากขึ้น
-     ให้สมดุล */
   margin-top: 8px;
   min-width: 0;
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — group info เป็น meta
-     12px เป็นมาตรฐานตาม Rulebook */
   font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
 }
 
 .yp-today-item-card__group svg {
-  width: 13px;
-  height: 13px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2;
   flex-shrink: 0;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .yp-today-item-card__group-label {
@@ -1092,89 +718,89 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  color: var(--yp-text-body);
+  font-weight: var(--yp-fw-semibold);
 }
 
-/* ── Row 4: Badges ── */
+/* ── Row 4: Badges Container ── */
 .yp-today-item-card__badges {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  /* ★ r66: คืน gap 5→6px, margin-top 11→14px — type scale ใหญ่ขึ้น badges
-     ต้องการพื้นที่มากขึ้นให้สมดุล และให้ badges หายใจจาก parent group */
   gap: 6px;
-  margin-top: 14px;
+  margin-top: var(--yp-space-4);
 }
 
-/* Individual badge — small pill
-   ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 2px 8px →
-   3px 9px — badge ควรอ่านง่าย 12px เป็นมาตรฐาน meta ตาม Rulebook
-   relative-day labels ("เลยกำหนด 2 วันที่แล้ว", "จะเริ่ม 1 วันที่แล้ว")
-   ที่ผู้ใช้คอมเพลนว่า "เล็กเกินไป" จะได้อ่านง่ายขึ้น */
+@media (min-width: 768px) {
+  .yp-today-item-card__badges {
+    gap: 8px;
+    margin-top: var(--yp-space-4);
+  }
+}
+
 .yp-today-item-card__badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-muted);
-  padding: 3px 9px;
+  color: var(--yp-text-secondary);
+  padding: 3px 10px;
   background: var(--yp-bg-card-soft);
-  border: 1px solid transparent;
+  border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-pill);
   white-space: nowrap;
   letter-spacing: 0;
 }
 
 .yp-today-item-card__badge svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2;
   flex-shrink: 0;
 }
 
-/* ★ r66: จอ ≥768px ให้การ์ดรายการหายใจมากขึ้น — type scale ใหญ่ขึ้น ต้องการ
-   พื้นที่มากขึ้น คืนค่า desktop padding เป็น 20px (จาก 18px) */
-@media (min-width: 768px) {
-  .yp-today-item-card {
-    padding: 20px;
-  }
-  .yp-today-item-card__top-row {
-    margin-bottom: 14px;
-    padding-bottom: 12px;
-  }
-  .yp-today-item-card__group {
-    margin-top: 10px;
-  }
-  .yp-today-item-card__badges {
-    margin-top: 16px;
-  }
-}
-
-/* Status badge variants */
 .yp-today-item-card__badge--status {
-  font-weight: var(--yp-fw-medium);
+  font-weight: var(--yp-fw-semibold);
 }
 
-.yp-today-item-card__badge--todo { color: var(--yp-amber-500); }
-.yp-today-item-card__badge--ongoing { color: var(--yp-indigo-500); }
-.yp-today-item-card__badge--done { color: #047857; }
-.yp-today-item-card__badge--planning { color: #A78BFA; }
+.yp-today-item-card__badge--todo {
+  color: var(--yp-amber-500);
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.18);
+}
 
-/* Overdue badge */
+.yp-today-item-card__badge--ongoing {
+  color: var(--yp-indigo-500);
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+.yp-today-item-card__badge--done {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.18);
+}
+
+.yp-today-item-card__badge--planning {
+  color: #8B5CF6;
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.18);
+}
+
 .yp-today-item-card__badge--overdue {
   color: #BE123C;
-  background: rgba(244, 63, 94, 0.06);
-  border-color: rgba(244, 63, 94, 0.20);
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.22);
   font-weight: var(--yp-fw-bold);
 }
 
-/* Priority badge */
 .yp-today-item-card__badge--priority {
   font-weight: var(--yp-fw-semibold);
 }
 
 .yp-today-item-card__badge--priority::before {
-  content: '';
+  content: "";
   width: 6px;
   height: 6px;
   border-radius: var(--yp-radius-pill);
@@ -1182,7 +808,9 @@
   flex-shrink: 0;
 }
 
-.yp-today-item-card__badge--priority svg { display: none; }
+.yp-today-item-card__badge--priority svg {
+  display: none;
+}
 
 .yp-today-item-card__badge--priority.is-priority-low {
   color: #047857;
@@ -1196,25 +824,237 @@
   border-color: rgba(244, 63, 94, 0.22);
 }
 
-/* Assignee badge — ghost style */
 .yp-today-item-card__badge--assignee {
   background: transparent;
   border-color: transparent;
-  color: var(--yp-text-muted);
+  color: var(--yp-text-secondary);
   padding-left: 4px;
   padding-right: 4px;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 30: Today Item Compact — list item สำหรับรายการย่อย
-   ที่อยู่ในกลุ่มรายการบน Today page
+/* Card Popup Menu */
+.yp-today-item-card__popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
 
-   หลักการออกแบบ:
-   - ใช้ divider บางๆ คั่นระหว่างรายการ แทนการ์ดแยก → ลด visual noise
-   - 1-line layout กระทัดรัด: status dot | title | meta | chevron
-   - มีพื้นที่พอสมควร (padding 12px) ไม่แคบเกินไป
-   - hover state ใช้ background tint ไม่ใช่ border
-   - มุมไม่โค้ง เพราะอยู่ใน list ไม่ใช่การ์ดแยก
+.yp-today-item-card__popup {
+  position: absolute;
+  top: 36px;
+  right: 12px;
+  z-index: 100;
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-md);
+  box-shadow: var(--yp-shadow-lg);
+  padding: 4px;
+  min-width: 140px;
+}
+
+.yp-today-item-card__popup-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-heading);
+  border-radius: var(--yp-radius-sm);
+  cursor: pointer;
+  transition: background 120ms var(--yp-ease);
+}
+
+.yp-today-item-card__popup-item:hover {
+  background: var(--yp-bg-card-soft);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TODAY GROUP (Group Banner & Compact List)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-today-group {
+  margin-bottom: 0;
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-card);
+  overflow: hidden;
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-today-group__banner {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-3) var(--yp-space-4);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 4%, var(--yp-bg-card));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-border-subtle));
+}
+
+.yp-today-group__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--yp-radius-sm);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 12%, transparent);
+  color: var(--accent, var(--yp-indigo-500));
+  flex-shrink: 0;
+}
+
+.yp-today-group__banner-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.yp-today-group__banner-title {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  letter-spacing: 0.01em;
+}
+
+.yp-today-group__banner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--yp-text-2xs);
+  color: var(--accent, var(--yp-indigo-500));
+  font-weight: var(--yp-fw-semibold);
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
+  border-radius: var(--yp-radius-pill);
+}
+
+.yp-today-group__banner-chip--muted {
+  color: var(--yp-text-muted);
+  background: var(--yp-bg-card-soft);
+}
+
+.yp-today-group__banner-chip svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.yp-today-group__banner-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--yp-text-2xs);
+  font-weight: var(--yp-fw-bold);
+  padding: 2px 8px;
+  border-radius: var(--yp-radius-pill);
+}
+
+.yp-today-group__banner-date svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.yp-today-group__banner-date--overdue {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.yp-today-group__banner-date--upcoming {
+  color: var(--yp-text-heading);
+  background: var(--yp-bg-card-soft);
+}
+
+.yp-today-group__detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--yp-radius-sm);
+  background: transparent;
+  border: 1px solid var(--yp-border-subtle);
+  color: var(--yp-text-muted);
+  cursor: pointer;
+  transition: all 150ms var(--yp-ease);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.yp-today-group__detail-btn:hover {
+  background: var(--accent, var(--yp-indigo-500));
+  color: white;
+  border-color: var(--accent, var(--yp-indigo-500));
+}
+
+.yp-today-group__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-2) var(--yp-space-4);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 1.5%, var(--yp-bg-card));
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-today-group__progress-text {
+  font-size: var(--yp-text-2xs);
+  font-weight: var(--yp-fw-medium);
+  color: var(--yp-text-muted);
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.yp-today-group__progress-bar {
+  flex: 1;
+  height: 4px;
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, var(--yp-bg-card-soft));
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.yp-today-group__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 80%, transparent),
+    var(--accent, var(--yp-indigo-500))
+  );
+  border-radius: var(--yp-radius-pill);
+  transition: width 320ms var(--yp-ease);
+}
+
+.yp-today-group__hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px var(--yp-space-4) 2px;
+  font-size: var(--yp-text-2xs);
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-medium);
+  letter-spacing: 0.01em;
+}
+
+.yp-today-group__hint svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.yp-today-group__cards {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TODAY ITEM COMPACT
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-item-compact {
   display: flex;
@@ -1225,14 +1065,10 @@
   border: none;
   border-bottom: 1px solid var(--yp-border-subtle);
   cursor: pointer;
-  transition:
-    background 140ms var(--yp-ease-m3-decelerate),
-    opacity var(--yp-t-fast);
-  /* ★ no border-radius — เป็น list item ไม่ใช่การ์ด */
+  transition: background 140ms var(--yp-ease), opacity var(--yp-t-fast);
   text-decoration: none;
 }
 
-/* ★ last item ไม่มี divider (เพราะมี border ของ group ครอบอยู่แล้ว) */
 .yp-today-item-compact:last-child {
   border-bottom: none;
 }
@@ -1242,10 +1078,9 @@
 }
 
 .yp-today-item-compact.is-done {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
-/* ── Status dot (compact, 12px — เล็กกว่า full card เพื่อให้ title เด่น) ── */
 .yp-today-item-compact__dot {
   width: 14px;
   height: 14px;
@@ -1256,10 +1091,8 @@
   cursor: pointer;
   background: transparent;
   padding: 0;
-  /* ★ r56: ลด ring shadow ลง ~50% ทำให้ dot ดูเบา ไม่ฟุ้ง
-     ring ยังช่วยให้รู้สึกว่าเป็นปุ่มกดได้ แต่ไม่หนัก */
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.06);
-  transition: transform 150ms var(--yp-ease-m3-standard), box-shadow var(--yp-t-fast);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.04);
+  transition: transform 150ms var(--yp-ease);
 }
 
 .yp-today-item-compact:hover .yp-today-item-compact__dot {
@@ -1277,7 +1110,7 @@
 }
 
 .yp-today-item-compact__dot--ongoing::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 2px;
   border-radius: var(--yp-radius-pill);
@@ -1290,31 +1123,22 @@
 }
 
 .yp-today-item-compact__dot--done::after {
-  content: '';
+  content: "";
   position: absolute;
-  top: 1px;
-  left: 3px;
-  width: 3px;
-  height: 6px;
-  border-right: 2px solid white;
-  border-bottom: 2px solid white;
-  transform: rotate(45deg);
+  inset: 3px;
+  border-radius: var(--yp-radius-pill);
+  background: white;
 }
 
-/* ── Title (single line, truncated) ── */
 .yp-today-item-compact__title {
   flex: 1;
   min-width: 0;
-  /* ★ r66: ใช้ text-sm (14px after token rebalance) — compact title
-     type scale ใหม่ใหญ่ขึ้น 14px ตาม Rulebook "card title = 14px" */
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-medium);
-  color: var(--yp-text-body);
-  line-height: 1.4;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.01em;
 }
 
 .yp-today-item-compact.is-done .yp-today-item-compact__title {
@@ -1322,75 +1146,60 @@
   color: var(--yp-text-faint);
 }
 
-/* ── Meta (compact inline) ── */
 .yp-today-item-compact__meta {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  flex-wrap: nowrap;
 }
 
 .yp-today-item-compact__status {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) + padding 1px 7px →
-     2px 8px — status chip ควรอ่านง่าย 12px เป็นมาตรฐาน meta */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
-  padding: 2px 8px;
+  padding: 1px 6px;
   border-radius: var(--yp-radius-pill);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
 }
 
 .yp-today-item-compact__status--todo {
-  color: #B45309;
-  background: rgba(245, 158, 11, 0.10);
+  color: var(--yp-amber-500);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 .yp-today-item-compact__status--ongoing {
-  color: var(--yp-indigo-600);
-  background: rgba(99, 102, 241, 0.10);
+  color: var(--yp-indigo-500);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 .yp-today-item-compact__status--done {
   color: #047857;
-  background: rgba(16, 185, 129, 0.10);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .yp-today-item-compact__time {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — time ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-medium);
+  gap: 3px;
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
-  white-space: nowrap;
 }
 
 .yp-today-item-compact__time svg {
-  width: 12px;
-  height: 12px;
-  opacity: 0.7;
+  width: 10px;
+  height: 10px;
 }
 
 .yp-today-item-compact__priority {
-  /* ★ r66: ปรับจาก 9.5px → 11px (text-2xs) — 9.5px ผิดกฎ WCAG ตาม Rulebook
-     11px เป็นขั้นต่ำที่ยังอ่านได้สำหรับ true caption */
   font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-bold);
   color: #BE123C;
   background: rgba(244, 63, 94, 0.10);
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: var(--yp-radius-pill);
   letter-spacing: 0.02em;
 }
 
 .yp-today-item-compact__date {
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — date ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-muted);
   white-space: nowrap;
@@ -1401,20 +1210,18 @@
   font-weight: var(--yp-fw-bold);
 }
 
-/* ── Detail link (chevron — เล็กกว่า full card) ── */
 .yp-today-item-compact__link {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ★ r66: คืนจาก 22×22 → 26×26 — tap target ≥24px accessibility-friendly */
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: var(--yp-radius-sm);
   background: transparent;
   color: var(--yp-text-faint);
   text-decoration: none;
   flex-shrink: 0;
-  transition: all 150ms var(--yp-ease-m3-standard);
+  transition: all 150ms var(--yp-ease);
 }
 
 .yp-today-item-compact__link:hover {
@@ -1423,16 +1230,148 @@
 }
 
 .yp-today-item-compact__link svg {
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
 }
+
 .yp-today-card-list__hint {
   text-align: center;
-  /* ★ r66: ใช้ text-xs (12px) แทน text-2xs (11px) — hint ควรอ่านง่าย
-     12px เป็นมาตรฐาน meta ตาม Rulebook */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   color: var(--yp-text-faint);
   padding: var(--yp-space-3) 0 var(--yp-space-1);
   letter-spacing: 0.01em;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD DETAIL SHEET (.yp-card-detail)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-card-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-4);
+  padding: var(--yp-space-2) 0;
+}
+
+.yp-card-detail__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+  padding-bottom: var(--yp-space-3);
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+.yp-card-detail__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.yp-card-detail__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--yp-text-muted);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-medium);
+  flex-shrink: 0;
+}
+
+.yp-card-detail__label-text {
+  white-space: nowrap;
+}
+
+.yp-card-detail__value {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-heading);
+  font-weight: var(--yp-fw-semibold);
+  text-align: right;
+  word-break: break-word;
+}
+
+.yp-card-detail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--yp-radius-pill);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+}
+
+.yp-card-detail__chip--status {
+  background: var(--yp-bg-card-soft);
+  color: var(--yp-indigo-600);
+}
+
+.yp-card-detail__schedule {
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+}
+
+.yp-card-detail__schedule.is-overdue {
+  color: #BE123C;
+}
+
+.yp-card-detail__link {
+  color: var(--yp-indigo-600);
+  text-decoration: none;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.yp-card-detail__assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.yp-card-detail__priority {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--yp-radius-pill);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+}
+
+.yp-card-detail__priority--high {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.10);
+}
+
+.yp-card-detail__priority--medium {
+  color: var(--yp-indigo-600);
+  background: rgba(99, 102, 241, 0.10);
+}
+
+.yp-card-detail__priority--low {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.10);
+}
+
+.yp-card-detail__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: var(--yp-space-3) var(--yp-space-4);
+  margin-top: var(--yp-space-2);
+  background: var(--yp-gradient-btn);
+  color: white;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  border-radius: var(--yp-radius-md);
+  text-decoration: none;
+  box-shadow: var(--yp-shadow-indigo);
+  transition: opacity 150ms var(--yp-ease);
+}
+
+.yp-card-detail__cta:hover {
+  opacity: 0.95;
+}
