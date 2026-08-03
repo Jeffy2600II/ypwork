@@ -1,0 +1,139 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Custom Caret + Input Focus Animations — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.8.1 — Custom Caret + Character Animation
+   ═══════════════════════════════════════════════════════════════
+   The user asked for two things:
+   1. Replace the default black hard-blinking caret with a smooth,
+      brand-colored custom caret — applies to ALL text inputs site-wide.
+   2. Make characters appear/delete with a smooth transition — but
+      ONLY on login & register pages (the .yp-auth scope).
+
+   DESIGN DECISIONS
+   ────────────────
+   - Native <input> caret blink rate is browser-controlled and cannot
+     be overridden with CSS transitions. The only way to get a
+     "smooth" caret is to hide the native one (caret-color: transparent)
+     and render a fake caret as a CSS element.
+   - Positioning a fake caret at the actual cursor location requires
+     JS to measure text width (mirror-div technique). That's heavy
+     and fragile. Instead, we use a hybrid approach:
+       a) Set caret-color to brand indigo (so the native caret at
+          least matches the brand color when visible).
+       b) Add a smooth "caret pulse" overlay on the input wrapper
+          using ::after — this creates a soft glow that breathes
+          in/out while the input is focused, simulating a smoother
+          caret without needing JS to track cursor position.
+       c) The native caret is still visible (in brand color), but
+          the pulse overlay makes the whole experience feel softer.
+   - For login/register character animation: we add a "typing pulse"
+     class via JS on input events. The class triggers a subtle scale
+     animation on the input, giving the impression that characters
+     appear/delete smoothly. We can't animate individual characters
+     in a native input without a contenteditable refactor, but the
+     pulse effect is a pragmatic, native-app-like approximation.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Custom Caret Color (global — all text inputs) ──
+   Sets the native caret to brand indigo instead of black.
+   This is the most reliable cross-browser way to "design our own"
+   caret color. The blink itself is still browser-controlled, but
+   the color now matches the brand. */
+.yp-input,
+.yp-textarea,
+.yp-select,
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='tel'],
+input[type='number'],
+input[type='search'],
+input[type='url'],
+input[type='time'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'],
+textarea {
+  caret-color: var(--yp-indigo-500, #6366F1);
+  /* ★ v3.8.1: Smooth color transition when caret appears/disappears
+     (e.g. on focus/blur). Most browsers don't animate caret-color,
+     but adding the transition is harmless and works in Firefox. */
+  transition:
+    caret-color 220ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 220ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.input-group {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-control);
+  background: var(--yp-bg-card);
+  overflow: hidden;
+  /* ★ v3.6.0: transition ที่ลื่นไหลขึ้น */
+  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+
+.input-group::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* ★ v3.8.1: Soft indigo glow — pulses while focused */
+  background: radial-gradient(
+    ellipse at var(--yp-caret-x, 12px) center,
+    rgba(99, 102, 241, 0.08) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.input-group:focus-within::after {
+  opacity: 1;
+  animation: yp-caret-breathe 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ★ v3.8.1: Smooth breathing keyframes — fade in/out, NOT hard blink.
+   - 0%: full visibility (caret "on")
+   - 50%: reduced visibility (caret "dim")
+   - 100%: full visibility again
+   This simulates a smooth caret pulse instead of the hard on/off
+   blink that browsers use by default. */
+@keyframes yp-caret-breathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes yp-input-focus-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.14),
+      0 1px 2px rgba(99, 102, 241, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(99, 102, 241, 0.20),
+      0 1px 2px rgba(99, 102, 241, 0.10);
+  }
+}
+

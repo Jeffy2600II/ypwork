@@ -1,0 +1,699 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Bottom Sheet (Legacy + Desktop Modal Conversion) — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   BOTTOM SHEET (port จาก demo v8.2 — framework/bottom-sheet.css)
+   iOS-native quality bottom sheet — drag-to-dismiss + snap-back spring
+   State classes: is-open, is-dragging, is-animating, is-closing,
+   is-scroll-locked, has-footer, sheet--{size}
+   Body classes: yp-sheet-open, yp-sheet-popup
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Backdrop ── */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--sheet-z, 1000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(30, 27, 70, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 220ms;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overscroll-behavior: contain;
+  contain: layout paint style;
+}
+
+.sheet-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Sheet (ตัวการ์ดจริง ๆ) ── */
+.sheet {
+  position: relative;
+  background: var(--yp-bg-card, #fff);
+  border-radius: var(--yp-radius-lg, 44px) var(--yp-radius-lg, 44px) 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  max-height: 92dvh;
+  transform: translate3d(0, 100%, 0);
+  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* ★ r56: ลด sheet shadow ลง ~45% ให้ sheet ดูเบา ไม่ฟุ้ง */
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.10);
+  padding: 16px var(--yp-space-5, 20px)
+           calc(24px + var(--yp-safe-bottom, 0px));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  contain: layout style;
+  overscroll-behavior: contain;
+}
+
+.sheet.has-footer {
+  padding-bottom: 0;
+}
+
+/* ── OPEN STATE — pre-promote GPU layer สำหรับ drag smoothness ── */
+.sheet.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* ── DRAG STATE — transition:none + touch-action:none ── */
+.sheet.is-dragging {
+  transition: none;
+  touch-action: none;
+  will-change: transform;
+}
+
+/* ── ANIMATING STATE (snap-back only) — spring bounce ── */
+.sheet.is-animating {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+/* ── CLOSING STATE (close only) — smooth decel ── */
+.sheet.is-closing {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+/* size variants */
+.sheet--auto { /* default */ }
+.sheet--tall { max-height: 88vh; max-height: 88dvh; }
+.sheet--full { max-height: 96vh; max-height: 96dvh; }
+
+/* ── Handle (capsule pill ด้านบน) ── */
+.sheet__handle {
+  width: 100%;
+  padding: 10px 0 6px;
+  margin-top: -10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+.sheet__handle::before {
+  content: '';
+  display: block;
+  width: 38px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--yp-border-strong, #cbd5e1);
+  opacity: 0.32;
+  transition: transform 180ms cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 180ms ease;
+  transform-origin: center;
+}
+.sheet__handle:active::before {
+  transform: scaleX(0.94);
+  opacity: 0.5;
+}
+
+/* ── Header ── */
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-2, 8px);
+  margin-bottom: var(--yp-space-4, 16px);
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.sheet__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet__title {
+  font-size: var(--yp-text-lg, 18px);
+  font-weight: var(--yp-fw-bold, 700);
+  color: var(--yp-text-strong, #1e1b3a);
+  letter-spacing: 0.01em;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: grab;
+  line-height: 1.3;
+}
+
+.sheet__desc {
+  margin: 4px 0 0;
+  font-size: var(--yp-text-sm, 14px);
+  color: var(--yp-text-muted, #6b6685);
+  font-weight: var(--yp-fw-medium, 500);
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet__close {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--yp-radius-sm, 8px);
+  display: grid;
+  place-items: center;
+  background: var(--yp-bg-card-soft, #f5f4fb);
+  border: 1px solid var(--yp-border-subtle, #ece9f5);
+  color: var(--yp-text-muted, #6b6685);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 150ms, color 150ms, border-color 150ms, transform 150ms;
+  padding: 0;
+}
+
+.sheet__close:hover {
+  background: var(--yp-bg-indigo-soft, #eef2ff);
+  color: var(--yp-indigo-600, #4f46e5);
+  border-color: var(--yp-border-indigo, #c7d2fe);
+}
+
+.sheet__close:active {
+  transform: scale(0.94);
+}
+
+.sheet__close svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* ── Body (scrollable, hidden scrollbar) ── */
+.sheet__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  flex: 1;
+  min-height: 0;
+  contain: layout style;
+  padding: 0 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sheet__body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Scroll lock ระหว่าง drag — ใช้ touch-action: none แทน overflow: hidden */
+.sheet.is-scroll-locked .sheet__body {
+  touch-action: none;
+}
+
+.sheet__message {
+  color: var(--yp-text-body, #4a4663);
+  margin: 0 0 var(--yp-space-5, 20px);
+  line-height: 1.55;
+}
+
+/* ── Footer ── */
+.sheet__footer {
+  flex-shrink: 0;
+  margin-left: calc(-1 * var(--yp-space-5, 20px));
+  margin-right: calc(-1 * var(--yp-space-5, 20px));
+  padding: var(--yp-space-4, 16px) var(--yp-space-5, 20px)
+           calc(var(--yp-space-4, 16px) + var(--yp-safe-bottom, 0px));
+  border-top: 1px solid var(--yp-border-subtle, #ece9f5);
+  background: var(--yp-bg-card, #fff);
+  position: relative;
+  z-index: 1;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: var(--yp-space-2, 8px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DESKTOP: sheet → centered modal (popup mode, ≥768px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  .sheet-backdrop {
+    align-items: center;
+    padding: var(--yp-space-6, 24px);
+  }
+
+  .sheet {
+    border-radius: var(--yp-radius-lg, 44px);
+    transform: translate3d(0, 20px, 0) scale(0.98);
+    max-width: 520px;
+  }
+
+  .sheet.is-open {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .sheet__handle {
+    display: none;
+  }
+
+  .sheet__header,
+  .sheet__title {
+    cursor: default;
+  }
+
+  .sheet__footer {
+    border-bottom-left-radius: var(--yp-radius-lg, 44px);
+    border-bottom-right-radius: var(--yp-radius-lg, 44px);
+    padding-bottom: var(--yp-space-4, 16px);
+  }
+}
+
+/* ── Reduced motion ── */
+
+.yp-window-root.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Backdrop animation แยกตาม type ── */
+/* sheet/fullscreen/sidepanel — fade */
+.yp-window-root--sheet,
+.yp-window-root--fullscreen,
+.yp-window-root--sidepanel {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* sidepanel — align by side */
+.yp-window-root--sidepanel {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+}
+.yp-window-root--sidepanel.is-side-left {
+  justify-content: flex-start;
+}
+
+/* fullscreen — no padding, content fills */
+.yp-window-root--fullscreen {
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+}
+
+/* ── WINDOW (ตัวการ์ดจริง ๆ) ── */
+.yp-window {
+  position: relative;
+  background: var(--yp-bg-card, #fff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  contain: layout style;
+  overscroll-behavior: contain;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.yp-window--sheet.has-footer {
+  padding-bottom: 0;
+}
+
+.yp-window--sheet.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* DRAG STATE */
+.yp-window--sheet.is-dragging {
+  transition: none;
+  touch-action: none;
+  will-change: transform;
+}
+
+/* SNAP-BACK SPRING (after drag) */
+.yp-window--sheet.is-animating {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+.yp-window--modal.is-open {
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+  will-change: transform, opacity;
+}
+
+/* ── FULLSCREEN (เหมือนเปิดหน้าใหม่ — lightweight) ── */
+.yp-window--fullscreen {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  border-radius: 0;
+  transform: translate3d(0, 100%, 0);
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
+           calc(16px + var(--yp-safe-bottom, 0px));
+}
+
+.yp-window--fullscreen.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.yp-window--fullscreen.is-closing {
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.yp-window--fullscreen.is-bare {
+  padding: 0;
+}
+
+/* ── SIDEPANEL ── */
+.yp-window--sidepanel {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  border-radius: var(--yp-radius-lg, 28px) 0 0 var(--yp-radius-lg, 28px);
+  transform: translate3d(100%, 0, 0);
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
+           calc(16px + var(--yp-safe-bottom, 0px));
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: -4px 0 18px rgba(15, 23, 42, 0.10);
+}
+
+.yp-window-root--sidepanel.is-side-left .yp-window--sidepanel {
+  border-radius: 0 var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0;
+  transform: translate3d(-100%, 0, 0);
+  /* ★ r56: ลด side panel shadow ลง ~45% */
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.10);
+}
+
+.yp-window--sidepanel.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.yp-window--sidepanel.is-closing {
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ── SIZE VARIANTS (apply per type) ── */
+.yp-window--auto { /* default */ }
+.yp-window--sm { max-width: 360px; }
+.yp-window--md { max-width: 520px; }
+.yp-window--tall { max-height: 88vh; max-height: 88dvh; }
+.yp-window--full { max-height: 96vh; max-height: 96dvh; }
+
+/* fullscreen ไม่จำกัด max-width — เต็มจอ */
+.yp-window--fullscreen.yp-window--sm,
+.yp-window--fullscreen.yp-window--md,
+.yp-window--fullscreen.yp-window--auto,
+.yp-window--fullscreen.yp-window--tall,
+.yp-window--fullscreen.yp-window--full {
+  max-width: 100%;
+}
+
+/* ── HANDLE (grip pill ด้านบน — sheet เท่านั้น) ── */
+.yp-window__handle {
+  width: 100%;
+  padding: 10px 0 6px;
+  margin-top: -10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── HEADER ── */
+.yp-window__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-2, 8px);
+  margin-bottom: var(--yp-space-4, 16px);
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.yp-window__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-window__title {
+  font-size: var(--yp-text-lg, 18px);
+  font-weight: var(--yp-fw-bold, 700);
+  color: var(--yp-text-strong, #1e1b3a);
+  letter-spacing: 0.01em;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: grab;
+  line-height: 1.3;
+}
+
+.yp-window__desc {
+  margin: 4px 0 0;
+  font-size: var(--yp-text-sm, 14px);
+  color: var(--yp-text-muted, #6b6685);
+  font-weight: var(--yp-fw-medium, 500);
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yp-window__close {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--yp-radius-sm, 8px);
+  display: grid;
+  place-items: center;
+  background: var(--yp-bg-card-soft, #f5f4fb);
+  border: 1px solid var(--yp-border-subtle, #ece9f5);
+  color: var(--yp-text-muted, #6b6685);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 150ms, color 150ms, border-color 150ms, transform 150ms;
+  padding: 0;
+}
+
+.yp-window__close:hover {
+  background: var(--yp-bg-indigo-soft, #eef2ff);
+  color: var(--yp-indigo-600, #4f46e5);
+  border-color: var(--yp-border-indigo, #c7d2fe);
+}
+
+.yp-window__close svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* ── BODY (scrollable, hidden scrollbar) ── */
+.yp-window__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  flex: 1;
+  min-height: 0;
+  contain: layout style;
+  padding: 0 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.yp-window__body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Scroll lock ระหว่าง drag — ใช้ touch-action: none */
+.yp-window.is-scroll-locked .yp-window__body {
+  touch-action: none;
+}
+
+/* ── FOOTER ── */
+.yp-window__footer {
+  flex-shrink: 0;
+  margin-left: calc(-1 * var(--yp-space-5, 20px));
+  margin-right: calc(-1 * var(--yp-space-5, 20px));
+  padding: var(--yp-space-4, 16px) var(--yp-space-5, 20px)
+           calc(var(--yp-space-4, 16px) + var(--yp-safe-bottom, 0px));
+  border-top: 1px solid var(--yp-border-subtle, #ece9f5);
+  background: var(--yp-bg-card, #fff);
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DESKTOP: sheet → centered modal (popup mode, ≥768px)
+   ★ v3.5.0: ปรับปรุง desktop popup ให้สวยขึ้น
+     - Scale-in ที่ลื่นไหลขึ้น (0.96 → 1, จาก 0.98)
+     - Box shadow ที่ depth ดีขึ้น (multi-layer)
+     - Hover state บนปุ่ม close
+     - Border ที่ subtle ขึ้น
+     - Larger max-width สำหรับ desktop (560px แทน 520px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  .yp-window-root--sheet.is-popup-mode {
+    align-items: center;
+    padding: var(--yp-space-6, 24px);
+  }
+
+  .yp-window--sheet.is-popup-mode {
+    border-radius: var(--yp-radius-lg, 28px);
+    transform: translate3d(0, 24px, 0) scale(0.96);
+    max-width: 560px;
+    /* ★ r56: ลด popup shadow ลง ~45% */
+    box-shadow:
+      0 12px 32px rgba(15, 23, 42, 0.10),
+      0 4px 8px rgba(15, 23, 42, 0.04),
+      0 0 0 1px rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .yp-window--sheet.is-popup-mode.is-open {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .yp-window--sheet.is-popup-mode.is-closing {
+    transform: translate3d(0, 24px, 0) scale(0.96);
+    opacity: 0;
+    transition:
+      transform 260ms cubic-bezier(0.4, 0, 1, 1),
+      opacity 200ms cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  .yp-window--sheet.is-popup-mode .yp-window__handle {
+    display: none;
+  }
+
+  .yp-window--sheet.is-popup-mode .yp-window__header,
+  .yp-window--sheet.is-popup-mode .yp-window__title {
+    cursor: default;
+  }
+
+  .yp-window--sheet.is-popup-mode .yp-window__footer {
+    border-bottom-left-radius: var(--yp-radius-lg, 28px);
+    border-bottom-right-radius: var(--yp-radius-lg, 28px);
+    padding-bottom: var(--yp-space-4, 16px);
+  }
+
+  /* modal ใหญ่ขึ้นบน desktop
+     ★ r56: ลด modal shadow ลง ~45% */
+  .yp-window--modal {
+    max-width: 600px;
+    box-shadow:
+      0 16px 40px rgba(15, 23, 42, 0.12),
+      0 6px 12px rgba(15, 23, 42, 0.05),
+      0 0 0 1px rgba(99, 102, 241, 0.05);
+  }
+
+  /* sidepanel ใหญ่ขึ้น + มี border-radius ที่สวยขึ้น */
+  .yp-window--sidepanel {
+    max-width: 480px;
+    /* ★ r56: ลด side panel shadow ลง ~45% */
+    box-shadow:
+      -8px 0 24px rgba(15, 23, 42, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.4);
+  }
+
+  .yp-window-root--sidepanel.is-side-left .yp-window--sidepanel {
+    box-shadow:
+      8px 0 24px rgba(15, 23, 42, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.4);
+  }
+
+  /* ★ v3.5.0: Desktop — close button hover state ที่ชัดเจนขึ้น */
+  .yp-window__close {
+    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
+                color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .yp-window__close:hover {
+    background: rgba(244, 63, 94, 0.08);
+    color: #BE123C;
+    border-color: rgba(244, 63, 94, 0.20);
+    transform: scale(1.05);
+  }
+
+  .yp-window__close:active {
+    transform: scale(0.92);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.5.0: Large desktop enhancements (≥1280px)
+   - Larger modal/sheet max-width
+   - More padding for breathing room
+   - Subtle background pattern for backdrop
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  .yp-window--sheet.is-popup-mode {
+    max-width: 640px;
+  }
+
+  .yp-window--modal {
+    max-width: 680px;
+  }
+
+  .yp-window--sidepanel {
+    max-width: 540px;
+  }
+
+  /* More padding for modal backdrop on large screens */
+  .yp-window-root--modal {
+    padding: var(--yp-space-8, 32px);
+  }
+
+  .yp-window-root--sheet.is-popup-mode {
+    padding: var(--yp-space-8, 32px);
+  }
+}
+
+/* ── Reduced motion ── */
+

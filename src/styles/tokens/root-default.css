@@ -1,0 +1,25 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Default Root Variables (Cascade-Critical) — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ★ v3.10.0 รอบที่ 25: ต้องประกาศค่าเริ่มต้นนี้ "ที่นี่" (บนสุดของไฟล์)
+   ไม่ใช่ในบล็อก :root หลักที่อยู่ท้ายไฟล์ (~line 8500) — เหตุผล:
+   ก่อนหน้านี้มี `--yp-left-rail-width: 0px;` ซ้ำอยู่ใน :root หลักที่ท้าย
+   ไฟล์ ซึ่งมาหลัง @media(min-width:900px) ทุกตัวที่ตั้งค่า 96/108/120px
+   ไว้สำหรับ desktop — เพราะ custom property ใช้ cascade order ปกติ
+   (ไม่สนตำแหน่ง media query) ตัวที่ "อยู่ท้ายไฟล์สุด" เลยชนะเสมอ ทำให้
+   ค่าที่ desktop ได้จริงคือ 0px ตลอด ผลคือ .app-main ไม่เว้น padding-left
+   ให้ left-rail เลย แต่ .bottom-nav (rail) ยังคงกว้าง 96-120px และวางทับ
+   เนื้อหาอยู่ดี (นี่คือสาเหตุที่ผู้ใช้เห็นแถบนำทางด้านซ้ายทับเนื้อหา)
+   การแก้: ย้ายค่า default (0px, สำหรับมือถือที่ไม่มี rail) มาไว้บนสุดของ
+   ไฟล์แทน — ให้ @media(min-width:900px) ที่มาทีหลังใน source order ชนะ
+   ค่านี้ได้ตามปกติ (ดูจุดที่ลบ default ซ้ำออกจาก :root ท้ายไฟล์ด้วย) */
+:root {
+  --yp-left-rail-width: 0px;
+}

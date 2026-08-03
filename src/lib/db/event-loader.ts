@@ -72,13 +72,15 @@ function buildAssigneesMap(
 
 // ─────────────────────────────────────────────────────────────────
 // Helper: normalize event row → YPEvent
+// ★ r51: date อาจเป็น null สำหรับ group type
 // ─────────────────────────────────────────────────────────────────
 function toEvent(e: any, assigneesMap: Map<string, UserProfile[]>): YPEvent {
   return {
     id: e.id,
     type: e.type,
     title: e.title,
-    date: e.date,
+    date: e.date ?? null,   // ★ r51: nullable สำหรับ group type
+    start_date: e.start_date ?? null,
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',
@@ -99,6 +101,8 @@ function toEvent(e: any, assigneesMap: Map<string, UserProfile[]>): YPEvent {
       event_id: t.event_id,
       title: t.title,
       due_date: t.due_date ?? null,
+      start_time: t.start_time ?? null,
+      start_date: t.start_date ?? null,
       status: t.status,
       priority: t.priority,
       estimated_time: t.estimated_time ?? '',
@@ -120,6 +124,7 @@ const EVENT_FIELDS = `
   type,
   title,
   date,
+  start_date,
   end_date,
   time,
   location,
@@ -134,7 +139,7 @@ const EVENT_FIELDS = `
     id, name, color, icon, description
   ),
   tasks:ypwork_tasks (
-    id, event_id, title, due_date, status, priority,
+    id, event_id, title, due_date, start_date, start_time, status, priority,
     estimated_time, notes, tags, sort_order, created_at, updated_at
   )
 `;

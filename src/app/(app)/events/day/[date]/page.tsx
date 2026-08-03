@@ -43,6 +43,7 @@ export default async function DayViewPage({ params }: PageProps) {
       type,
       title,
       date,
+      start_date,
       end_date,
       time,
       location,
@@ -57,7 +58,7 @@ export default async function DayViewPage({ params }: PageProps) {
         id, name, color, icon, description
       ),
       tasks:ypwork_tasks (
-        id, event_id, title, due_date, status, priority,
+        id, event_id, title, due_date, start_date, start_time, status, priority,
         estimated_time, notes, tags, sort_order, created_at, updated_at
       )
     `
@@ -69,7 +70,8 @@ export default async function DayViewPage({ params }: PageProps) {
     id: e.id,
     type: e.type,
     title: e.title,
-    date: e.date,
+    date: e.date ?? null,   // ★ r51: nullable สำหรับ group type (แต่หน้า day view กรองด้วย .eq('date', dateStr) จึงไม่มี null ในหน้านี้)
+    start_date: e.start_date ?? null,
     end_date: e.end_date ?? null,
     time: e.time ?? '',
     location: e.location ?? '',
@@ -94,6 +96,7 @@ export default async function DayViewPage({ params }: PageProps) {
       title={formatDate(dateStr, { long: true })}
       showBack
       showBottomNav={false}
+      showFAB
     >
       <DayViewClient
         dateStr={dateStr}

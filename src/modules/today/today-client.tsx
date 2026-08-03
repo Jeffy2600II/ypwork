@@ -1,43 +1,93 @@
 'use client';
 
-// ═══════════════════════════════════════════════════════════════
-// YP WORK · Today Dashboard (v1.8.2 — full realtime client island)
-// ═══════════════════════════════════════════════════════════════
-// แยกออกจาก today/page.tsx (server) เพื่อให้สามารถ subscribe
-// Supabase Realtime ได้ — ปฏิเสธ polling โดยสิ้นเชิง
-//
-// v1.8.2 changes (Realtime ทั่วทั้งหน้า):
-//   - เพิ่ม useRealtimeSessionUser — ชื่อ/สี/ฝ่าย ของ user ใน hero อัพเดต live
-//     (ถ้า admin เปลี่ยนชื่อหรือย้ายฝ่าย ผู้ใช้เห็นทันที)
-//   - เพิ่ม useRealtimeDeptMembers — สมาชิกในฝ่าย (avatar group) อัพเดต live
-//     (ถ้ามีคนใหม่เข้าฝ่าย หรือมีคนถูกปิดใช้งาน)
-//   - เพิ่ม useRealtimeDepartments — ชื่อ/ไอคอน/คำอธิบายฝ่ายอัพเดต live
-//   - แก้ useRealtimeEvents ให้ reload ตอน mount + subscribe council_users,
-//     departments, ypwork_event_members (เห็นการเปลี่ยนแปลงทุกตารางที่เกี่ยวข้อง)
-// ═══════════════════════════════════════════════════════════════
+// ============================================================
+// YP WORK - Today Dashboard (r48 - modular split)
+// ============================================================
+// Orchestrator ของ Today dashboard
+// - ใช้ helpers/sorting/format จากไฟล์แยก (today-helpers, today-sorting, today-format)
+// - ใช้ TodayItemCard จาก today-item-card.tsx
+// - ใช้ shared types จาก today-types.ts
+// ============================================================
 
 import * as React from 'react';
-import { EventCard } from '@/modules/events/event-card';
-import { TodayTaskCard } from '@/modules/today/today-task-card';
+import {
+  AlertCircle,
+  AlertTriangle,
+  Calendar as CalIcon,
+  Flag,
+  Check,
+  Clock,
+  Layers,
+  Sunrise,
+  Sunset,
+  CircleDashed,
+  ChevronRight,
+  RefreshCw,
+  ArrowUpRight,
+  MoreHorizontal,
+  Users,
+  Eye,
+  MapPin,
+  User as UserIcon,
+  Timer,
+  CornerDownRight,
+} from 'lucide-react';
+import { Avatar } from '@/components/framework/avatar';
+import { BottomSheet } from '@/components/framework/bottom-sheet';
+import type {
+  YPEvent,
+  Department,
+  UserProfile,
+  SessionUser,
+  Task,
+  TaskStatus,
+  EventStatus,
+} from '@/lib/types';
+import {
+  useRealtimeEvents,
+  useRealtimeDepartments,
+  useRealtimeDeptMembers,
+  useRealtimeSessionUser,
+} from '@/lib/hooks/use-realtime';
+import { STATUS_META } from '@/modules/_shared/status-meta';
+import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
+import { TOAST_AUTO_DISMISS, REACT_COMMIT_DURATION } from '@/lib/core/sheet-timing';
 import {
   getTimeGreeting,
   getLocalTodayStr,
-  getThailandTodayParts,   // ★ v3.9.4: Thailand timezone
+  getThailandTodayParts,
+  resolveEventStatus,
   THAI_DAYS,
   THAI_MONTHS,
+  relativeDay,
+  statusLabel,
+  statusChipClass,
 } from '@/lib/utils/date';
-import { AlertCircle, Flag, Check, Clock } from 'lucide-react';
-import { Avatar } from '@/components/framework/avatar';
-import type { YPEvent, Department, UserProfile, SessionUser, Task } from '@/lib/types';
-import { useRealtimeEvents, useRealtimeDepartments, useRealtimeDeptMembers, useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
+// r48: imports จาก split files
+import type {
+  TodayClientProps,
+  TimelineItem,
+  ItemDateContext,
+  DateCluster,
+} from './today-types';
+import { PRIORITY_LBL } from './today-types';
+import {
+  buildStandaloneEventItem,
+  buildTaskItem,
+  categorizeByDates,
+  buildDateClusters,
+  formatFullDateCaption,
+  buildTimeGroups,
+} from './today-helpers';
+import {
+  sortByPriorityTimeTitle,
+  sortByDatePriorityTimeTitle,
+} from './today-sorting';
+import { formatScheduleLabel, formatCardTimeDisplay } from './today-format';
+import { TodayItemCard } from './today-item-card';
 
-export interface TodayClientProps {
-  initialEvents: YPEvent[];
-  user: SessionUser;
-  dept: Department | null;
-  deptMembers: UserProfile[];
-  deptStats: { total: number; done: number; ongoing: number; overdue: number };
-}
+// MODULE 6: TODAY DASHBOARD (Main Component)
+// ═══════════════════════════════════════════════════════════════
 
 export function TodayClient({
   initialEvents,
@@ -46,39 +96,24 @@ export function TodayClient({
   deptMembers: initialDeptMembers,
   deptStats: initialDeptStats,
 }: TodayClientProps) {
-  // v1.6: realtime subscription — events อัพเดตทันทีเมื่อ DB เปลี่ยน
-  // v1.8.2: ตอนนี้ subscribe ครอบคลุม ypwork_events, ypwork_tasks,
-  //   ypwork_task_assignees, ypwork_event_members, council_users, departments
-  const { events } = useRealtimeEvents(initialEvents);
-
-  // v1.8.2: live session user — ชื่อ/สี/ฝ่าย ของ user ใน hero อัพเดต live
-  //   ถ้า admin เปลี่ยนชื่อหรือย้ายฝ่าย ผู้ใช้เห็นทันที
+  // ── Realtime hooks ──
+  const { events, patchEvent, patchTask } = useRealtimeEvents(initialEvents);
   const { user } = useRealtimeSessionUser(initialUser);
-
-  // v1.8.2: live departments — ถ้า user มีฝ่าย ดึงฝ่ายล่าสุดจาก DB
-  //   เผื่อ admin เปลี่ยนชื่อ/ไอคอน/คำอธิบายฝ่าย
   const { departments: liveDepartments } = useRealtimeDepartments(
-    initialDept ? [initialDept] : []
+    initialDept ? [initialDept] : [],
   );
-  const liveDept =
-    user.department_id
-      ? liveDepartments.find((d) => d.id === user.department_id) ?? null
-      : null;
-
-  // v1.8.2: live dept members — avatar group + จำนวนสมาชิกอัพเดต live
-  //   ถ้ามีคนใหม่เข้าฝ่าย หรือคนถูก disabled
+  const liveDept = user.department_id
+    ? liveDepartments.find((d) => d.id === user.department_id) ?? null
+    : null;
   const { members: liveDeptMembers } = useRealtimeDeptMembers(
     user.department_id,
-    initialDeptMembers
+    initialDeptMembers,
   );
 
-  // ใช้ live dept + live members แทน static props
   const dept = liveDept ?? initialDept;
   const deptMembers = liveDeptMembers;
 
-  // ★ v3.9.4: ใช้เขตเวลาไทย (Asia/Bangkok, UTC+7) สำหรับ "วันนี้" และการแสดงผล
-  //   ก่อนหน้านี้: new Date().getDay() ใช้ timezone เครื่อง user
-  //   ถ้า user เปิดเว็บจากต่างประเทศ "วันนี้" อาจไม่ตรงกับไทย → แสดงผิด
+  // ── Date / greeting ──
   const todayParts = getThailandTodayParts();
   const greeting = getTimeGreeting();
   const dayName = THAI_DAYS[todayParts.weekday];
@@ -88,65 +123,337 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ★ v3.9.9: "งานวันนี้" แสดงผลครบทุกงานที่ต้องทำวันนี้จริง ๆ
-  //   ประกอบด้วย:
-  //   1. todaysEvents — event ที่ date = วันนี้ (เหมือนเดิม)
-  //   2. todaysStandaloneTasks — task ย่อยที่ due_date = วันนี้ แต่ parent event
-  //      อยู่ในวันอื่น (เพื่อกัน duplicate — ถ้า parent event อยู่ในวันนี้อยู่แล้ว
-  //      task เหล่านั้นจะแสดงผ่าน EventCard ของ parent อยู่แล้วในส่วน progress)
-  const todaysEvents = events.filter((e) => e.date === todayStr);
-  const todaysStandaloneTasks = React.useMemo(() => {
-    const list: { task: Task; event: YPEvent }[] = [];
+  // ── Categorize events into sections ──
+  // ★ r51: handle null date — group type ที่ไม่มี date จะถูก categorize
+  //   โดยใช้ start_date เป็น fallback (ถ้ามี) หรือ skip ถ้าไม่มีอะไรเลย
+  const categorizedItems = React.useMemo(() => {
+    const overdue: TimelineItem[] = [];
+    const today: TimelineItem[] = [];
+    const upcoming: TimelineItem[] = [];
+
     for (const ev of events) {
-      // ข้าม event ที่เป็นวันนี้ — task ของมันจะแสดงใน EventCard ของ parent แล้ว
-      if (ev.date === todayStr) continue;
-      // ข้าม task ที่ done (เสร็จแล้วไม่ต้องแสดงใน "งานวันนี้")
-      //   ยกเว้นถ้า user อยากเห็น — แต่ default คือซ่อน task ที่เสร็จแล้ว
-      //   เพื่อให้ "งานวันนี้" โฟกัสที่สิ่งที่ต้องทำ
-      for (const t of ev.tasks || []) {
-        if (t.due_date === todayStr && t.status !== 'done') {
-          list.push({ task: t, event: ev });
+      if (ev.type === 'group') {
+        const tasks = ev.tasks || [];
+        if (tasks.length === 0) {
+          // Empty group → use event dates
+          // ★ r51: ev.date อาจเป็น null → categorizeByDates จะ handle
+          const effectiveStart = ev.start_date || ev.date;
+          const effectiveDue = ev.date;
+          const isDone = resolveEventStatus(ev) === 'done';
+          const ctx = categorizeByDates(
+            effectiveStart,
+            effectiveDue,
+            todayStr,
+            isDone,
+          );
+          if (!ctx) continue;
+          const item = buildStandaloneEventItem(ev, ctx);
+          if (ctx === 'overdue') overdue.push(item);
+          else if (ctx === 'today') today.push(item);
+          else upcoming.push(item);
+        } else {
+          // Each task uses its own dates
+          // ★ r51: parent event.date อาจเป็น null → ใช้ task.due_date เท่านั้น
+          for (const t of tasks) {
+            const effectiveStart =
+              t.start_date || ev.start_date || ev.date;
+            const effectiveDue = t.due_date || ev.date;
+            const isDone = t.status === 'done';
+            const ctx = categorizeByDates(
+              effectiveStart,
+              effectiveDue,
+              todayStr,
+              isDone,
+            );
+            if (!ctx) continue;
+            const item = buildTaskItem(ev, t, ctx);
+            if (ctx === 'overdue') overdue.push(item);
+            else if (ctx === 'today') today.push(item);
+            else upcoming.push(item);
+          }
         }
+      } else {
+        // Standalone task event
+        // ★ r51: standalone task ยังบังคับมี date (per business rule)
+        const effectiveStart = ev.start_date || ev.date;
+        const effectiveDue = ev.date;
+        const isDone = ev.status === 'done';
+        const ctx = categorizeByDates(
+          effectiveStart,
+          effectiveDue,
+          todayStr,
+          isDone,
+        );
+        if (!ctx) continue;
+        const item = buildStandaloneEventItem(ev, ctx);
+        if (ctx === 'overdue') overdue.push(item);
+        else if (ctx === 'today') today.push(item);
+        else upcoming.push(item);
       }
     }
-    // เรียงตาม priority (high > medium > low) แล้วตาม title
-    const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
-    list.sort((a, b) => {
-      const pa = PRIORITY_ORDER[a.task.priority] ?? 3;
-      const pb = PRIORITY_ORDER[b.task.priority] ?? 3;
-      if (pa !== pb) return pa - pb;
-      return a.task.title.localeCompare(b.task.title, 'th');
-    });
-    return list;
+
+    overdue.sort(sortByDatePriorityTimeTitle);
+    today.sort(sortByPriorityTimeTitle);
+    upcoming.sort(sortByDatePriorityTimeTitle);
+
+    return { overdue, today, upcoming };
   }, [events, todayStr]);
 
-  // จำนวนรายการ "งานวันนี้" รวม = events ของวันนี้ + standalone tasks
-  const todayTotalCount = todaysEvents.length + todaysStandaloneTasks.length;
+  const overdueTimelineItems = categorizedItems.overdue;
+  const todayTimelineItems = categorizedItems.today;
+  const upcomingTimelineItems = categorizedItems.upcoming;
 
-  const upcoming = events
-    .filter((e) => e.date > todayStr)
-    .slice(0, 4);
-  const overdue = events.filter(
-    (e) => e.date < todayStr && e.status !== 'done'
+  // ★ r45: แยก today items เป็น 2 กลุ่ม:
+  //   1. carryoverItems — เริ่มก่อนวันนี้ ยังคงดำเนินการอยู่ (itemDate < todayStr)
+  //   2. todayStartItems — เริ่มวันนี้จริงๆ (itemDate === todayStr)
+  //   ถ้า itemDate ไม่มี ให้ถือว่าเป็น todayStart (ไม่ระบุ = ถือว่าวันนี้)
+  const { carryoverItems, todayStartItems } = React.useMemo(() => {
+    const carryover: TimelineItem[] = [];
+    const todayStart: TimelineItem[] = [];
+    for (const item of todayTimelineItems) {
+      if (item.itemDate && item.itemDate < todayStr) {
+        carryover.push(item);
+      } else {
+        todayStart.push(item);
+      }
+    }
+    return { carryoverItems: carryover, todayStartItems: todayStart };
+  }, [todayTimelineItems, todayStr]);
+
+  // ★ r45: buildTimeGroups ใช้เฉพาะ todayStartItems (ไม่รวม carryover)
+  const timeGroups = React.useMemo(
+    () => buildTimeGroups(todayStartItems),
+    [todayStartItems],
   );
 
-  // dept stats คำนวณจาก events ทั้งหมด (realtime)
+  const carryoverCount = carryoverItems.length;
+
+  const overdueDateClusters = React.useMemo(
+    () => buildDateClusters(overdueTimelineItems),
+    [overdueTimelineItems],
+  );
+
+  const upcomingDateClusters = React.useMemo(
+    () => buildDateClusters(upcomingTimelineItems),
+    [upcomingTimelineItems],
+  );
+
+  const todayTotalCount = todayTimelineItems.length;
+  const overdueCount = overdueTimelineItems.length;
+  const upcomingCount = upcomingTimelineItems.length;
+
+  // ── Department stats ──
   const deptStats = React.useMemo(() => {
     if (!dept) return initialDeptStats;
-    const deptEvents = events.filter(
-      (e) => e.department_id === dept.id
-    );
+    const deptEvents = events.filter((e) => e.department_id === dept.id);
     return {
       total: deptEvents.length,
-      done: deptEvents.filter((e) => e.status === 'done').length,
-      ongoing: deptEvents.filter(
-        (e) => e.status === 'ongoing' || e.status === 'planning'
-      ).length,
+      done: deptEvents.filter((e) => resolveEventStatus(e) === 'done').length,
+      ongoing: deptEvents.filter((e) => {
+        const s = resolveEventStatus(e);
+        return s === 'ongoing' || s === 'planning';
+      }).length,
+      // ★ r51: e.date อาจเป็น null (group type) → ใช้ ?? '' เพื่อ defensive
+      //   null < todayStr ใน JS จะได้ false แต่ TS strict จะ error ตอน compile
       overdue: deptEvents.filter(
-        (e) => e.date < todayStr && e.status !== 'done'
+        (e) => (e.date ?? '') < todayStr && resolveEventStatus(e) !== 'done',
       ).length,
     };
   }, [events, dept, todayStr, initialDeptStats]);
+
+  // ── State: status picker ──
+  const [statusPickerOpen, setStatusPickerOpen] = React.useState(false);
+  const [activeItem, setActiveItem] = React.useState<TimelineItem | null>(null);
+  const [toast, setToast] = React.useState<{
+    msg: string;
+    type: 'success' | 'error';
+  } | null>(null);
+
+  // ── State: 3-dot menu & detail sheet ──
+  const [menuOpenFor, setMenuOpenFor] = React.useState<TimelineItem | null>(null);
+  const [detailSheetItem, setDetailSheetItem] =
+    React.useState<TimelineItem | null>(null);
+
+  React.useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), TOAST_AUTO_DISMISS);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const handleOpenStatusPicker = (item: TimelineItem) => {
+    setActiveItem(item);
+    setStatusPickerOpen(true);
+  };
+
+  const handleOpenCardMenu = (item: TimelineItem) => {
+    setMenuOpenFor((prev) => (prev?.id === item.id ? null : item));
+  };
+  const handleCloseCardMenu = () => setMenuOpenFor(null);
+  const handleOpenDetailSheet = (item: TimelineItem) => {
+    setMenuOpenFor(null);
+    setDetailSheetItem(item);
+  };
+  const handleCloseDetailSheet = () => setDetailSheetItem(null);
+
+  const handleStatusChange = async (
+    newStatus: TaskStatus | EventStatus,
+  ) => {
+    if (!activeItem) return;
+    const item = activeItem;
+    const oldStatus = item.status;
+    const isTask = !!item.task;
+    const isEvent = !!item.event;
+
+    if (isTask && item.task)
+      patchTask(item.task.id, { status: newStatus as TaskStatus });
+    else if (isEvent && item.event)
+      patchEvent(item.event.id, { status: newStatus as EventStatus });
+
+    setStatusPickerOpen(false);
+    setActiveItem(null);
+
+    try {
+      if (isTask && item.task) {
+        const res = await fetch(`/api/tasks/${item.task.id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
+      } else if (isEvent && item.event) {
+        const res = await fetch(`/api/events/${item.event.id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
+      }
+      setToast({
+        msg: `เปลี่ยนสถานะ "${item.title}" เป็น ${statusLabel(newStatus)}`,
+        type: 'success',
+      });
+    } catch (e: any) {
+      if (isTask && item.task)
+        patchTask(item.task.id, { status: oldStatus as TaskStatus });
+      else if (isEvent && item.event)
+        patchEvent(item.event.id, { status: oldStatus as EventStatus });
+      setToast({
+        msg: `ไม่สามารถเปลี่ยนสถานะ: ${e.message || 'unknown'}`,
+        type: 'error',
+      });
+    }
+  };
+
+  // ── RENDER HELPERS ──
+
+  const renderCardList = (items: TimelineItem[]) => (
+    <div className="yp-today-card-list">
+      {items.map((item) => (
+        <TodayItemCard
+          key={item.id}
+          item={item}
+          onOpenStatusPicker={handleOpenStatusPicker}
+          todayStr={todayStr}
+          isMenuOpen={menuOpenFor?.id === item.id}
+          onOpenMenu={handleOpenCardMenu}
+          onCloseMenu={handleCloseCardMenu}
+          onViewMore={handleOpenDetailSheet}
+        />
+      ))}
+    </div>
+  );
+
+  const renderDateClusterSection = (
+    clusters: DateCluster[],
+    icon: React.ReactNode,
+    getLabel: (dateKey: string) => string,
+    isOverdue = false,
+  ) => (
+    <>
+      {clusters.map((cluster) => (
+        <div className="yp-today-time-section" key={cluster.dateKey || 'no-date'}>
+          <div className="yp-today-time-section__head">
+            <span className="yp-today-time-section__icon" aria-hidden="true">
+              {icon}
+            </span>
+            <div className="yp-today-time-section__text">
+              <div className="yp-today-time-section__label">
+                {cluster.dateKey
+                  ? getLabel(cluster.dateKey)
+                  : 'ไม่ระบุวันที่'}
+              </div>
+              <div className="yp-today-time-section__caption">
+                {cluster.dateKey
+                  ? formatFullDateCaption(cluster.dateKey)
+                  : 'ยังไม่ได้กำหนดวันที่'}
+              </div>
+            </div>
+            <span className="yp-today-time-section__count">
+              {cluster.itemCount}
+            </span>
+          </div>
+          {renderCardList(cluster.items)}
+        </div>
+      ))}
+    </>
+  );
+
+  const renderOverdueSection = () => {
+    if (overdueCount === 0) return null;
+    return (
+      <section className="yp-today-section yp-today-section--panel">
+        <div className="yp-today-section__head">
+          <h2 className="yp-today-section__title yp-today-section__title--overdue">
+            รายการที่เลยกำหนด
+          </h2>
+          <span className="yp-today-section__count yp-today-section__count--overdue">
+            {overdueCount} รายการ
+          </span>
+        </div>
+        {/* ★ r46: ใช้ renderDateClusterSection เสมอ — ให้ทุก section มี sub-section
+            header เหมือน section "วันนี้" (ช่วงเช้า/บ่าย/ฯลฯ) และ section "กำลังจะถึง"
+            ก่อนหน้านี้เมื่อมี 1 cluster จะ render การ์ดเลย ทำให้ flow ต่างจาก section อื่น */}
+        {renderDateClusterSection(
+          overdueDateClusters,
+          <AlertTriangle width={16} height={16} strokeWidth={2} />,
+          (dk) => relativeDay(dk),
+          true,
+        )}
+      </section>
+    );
+  };
+
+  const renderTimeSection = (
+    label: string,
+    caption: string,
+    icon: React.ReactNode,
+    items: TimelineItem[],
+    sectionKey: string,
+  ) => {
+    if (items.length === 0) return null;
+    return (
+      <div className="yp-today-time-section">
+        <div className="yp-today-time-section__head">
+          <span
+            className="yp-today-time-section__icon"
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+          <div className="yp-today-time-section__text">
+            <div className="yp-today-time-section__label">{label}</div>
+            <div className="yp-today-time-section__caption">{caption}</div>
+          </div>
+          <span className="yp-today-time-section__count">{items.length}</span>
+        </div>
+        {renderCardList(items)}
+      </div>
+    );
+  };
+
+  // ── MAIN RENDER ──
 
   return (
     <div className="yp-page yp-page-enter">
@@ -158,15 +465,21 @@ export function TodayClient({
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{todayTotalCount}</div>
-              <div className="yp-today-hero__stat-label">งานวันนี้</div>
+              <div className="yp-today-hero__stat-value">
+                {todayTotalCount}
+              </div>
+              <div className="yp-today-hero__stat-label">รายการวันนี้</div>
             </div>
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{upcoming.length}</div>
+              <div className="yp-today-hero__stat-value">
+                {upcomingCount}
+              </div>
               <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
             </div>
             <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">{overdue.length}</div>
+              <div className="yp-today-hero__stat-value">
+                {overdueCount}
+              </div>
               <div className="yp-today-hero__stat-label">เลยกำหนด</div>
             </div>
           </div>
@@ -174,30 +487,12 @@ export function TodayClient({
       </div>
 
       {/* ── OVERDUE ── */}
-      {overdue.length > 0 ? (
-        <section className="yp-today-section">
-          <div className="yp-today-section__head">
-            <h2 className="yp-today-section__title">
-              งานที่เลยกำหนด
-            </h2>
-            <span className="yp-today-section__count">
-              {overdue.length} รายการ
-            </span>
-          </div>
-          <div>
-            {overdue.map((ev) => (
-              <EventCard key={ev.id} event={ev} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {renderOverdueSection()}
 
       {/* ── TODAY ── */}
-      <section className="yp-today-section">
+      <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
-          <h2 className="yp-today-section__title">
-            งานวันนี้
-          </h2>
+          <h2 className="yp-today-section__title">รายการวันนี้</h2>
           <span className="yp-today-section__count">
             {todayTotalCount} รายการ
           </span>
@@ -205,58 +500,74 @@ export function TodayClient({
         {todayTotalCount === 0 ? (
           <div className="yp-empty">
             <div className="yp-empty__icon" aria-hidden="true">
-              <span role="img" aria-label="ว่าง">
-                🌤️
-              </span>
+              <span role="img" aria-label="ว่าง">🌤️</span>
             </div>
-            <div className="yp-empty__title">ไม่มีงานวันนี้</div>
+            <div className="yp-empty__title">ไม่มีรายการวันนี้</div>
             <div className="yp-empty__desc">
-              ว่าง ๆ ลองดูงานที่กำลังจะถึงด้านล่าง
+              ว่าง ๆ ลองดูรายการที่กำลังจะถึงด้านล่าง
             </div>
           </div>
         ) : (
-          <div>
-            {/* ★ v3.9.9: แสดง event ของวันนี้ก่อน (แบบเดิม) */}
-            {todaysEvents.map((ev) => (
-              <EventCard key={`ev-${ev.id}`} event={ev} />
-            ))}
-            {/* ★ v3.9.9: แสดง task ย่อยที่ due_date = วันนี้ แต่ parent event
-                อยู่ในวันอื่น — ทำให้เห็นทุกงานที่ต้องทำวันนี้จริง ๆ */}
-            {todaysStandaloneTasks.map(({ task, event }) => (
-              <TodayTaskCard
-                key={`task-${task.id}`}
-                task={task}
-                parentEvent={event}
-              />
-            ))}
-          </div>
+          <>
+            {/* ★ r45: แยก carryover items — งานที่เริ่มก่อนวันนี้ */}
+            {renderTimeSection(
+              'ดำเนินการต่อเนื่อง',
+              'งานที่เริ่มก่อนหน้านี้และยังคงดำเนินการ',
+              <Timer width={16} height={16} strokeWidth={2} />,
+              carryoverItems,
+              'carryover',
+            )}
+            {/* งานที่เริ่มวันนี้จริงๆ — แบ่งตามช่วงเวลา */}
+            {renderTimeSection(
+              'ช่วงเช้า',
+              'เริ่มก่อน 12:00 น.',
+              <Sunrise width={16} height={16} strokeWidth={2} />,
+              timeGroups.morning,
+              'morning',
+            )}
+            {renderTimeSection(
+              'ช่วงบ่าย',
+              'เริ่มตั้งแต่ 12:00 น. เป็นต้นไป',
+              <Sunset width={16} height={16} strokeWidth={2} />,
+              timeGroups.afternoon,
+              'afternoon',
+            )}
+            {renderTimeSection(
+              'ไม่ระบุเวลา',
+              'ยังไม่ได้กำหนดเวลาเริ่ม',
+              <CircleDashed width={16} height={16} strokeWidth={2} />,
+              timeGroups.unscheduled,
+              'unscheduled',
+            )}
+          </>
         )}
       </section>
 
       {/* ── UPCOMING ── */}
-      <section className="yp-today-section">
+      <section className="yp-today-section yp-today-section--panel">
         <div className="yp-today-section__head">
           <h2 className="yp-today-section__title">กำลังจะถึง</h2>
           <span className="yp-today-section__count">
-            {upcoming.length} รายการ
+            {upcomingCount} รายการ
           </span>
         </div>
-        {upcoming.length === 0 ? (
+        {upcomingCount === 0 ? (
           <div className="yp-empty">
             <div className="yp-empty__icon" aria-hidden="true">
-              <span role="img" aria-label="ว่าง">
-                📅
-              </span>
+              <span role="img" aria-label="ว่าง">📅</span>
             </div>
-            <div className="yp-empty__title">ยังไม่มีงานที่กำลังจะถึง</div>
-            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างงานใหม่</div>
+            <div className="yp-empty__title">
+              ยังไม่มีรายการที่กำลังจะถึง
+            </div>
+            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
           </div>
         ) : (
-          <div>
-            {upcoming.map((ev) => (
-              <EventCard key={ev.id} event={ev} />
-            ))}
-          </div>
+          renderDateClusterSection(
+            upcomingDateClusters,
+            <CalIcon width={16} height={16} strokeWidth={2} />,
+            (dk) => relativeDay(dk),
+            false,
+          )
         )}
       </section>
 
@@ -268,14 +579,16 @@ export function TodayClient({
               {dept.icon || '◎'} ภาพรวม{dept.name}
             </h2>
           </div>
-
           <div className="yp-stat-grid">
-            <div className="yp-stat" style={{ ['--accent' as string]: dept.color }}>
+            <div
+              className="yp-stat"
+              style={{ ['--accent' as string]: dept.color }}
+            >
               <div className="yp-stat__icon">
                 <Flag width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.total}</div>
-              <div className="yp-stat__label">งานทั้งหมด</div>
+              <div className="yp-stat__label">รายการทั้งหมด</div>
             </div>
             <div
               className="yp-stat"
@@ -285,7 +598,7 @@ export function TodayClient({
                 <Check width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.done}</div>
-              <div className="yp-stat__label">เสร็จแล้ว</div>
+              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
             <div
               className="yp-stat"
@@ -295,7 +608,7 @@ export function TodayClient({
                 <Clock width={18} height={18} />
               </div>
               <div className="yp-stat__value">{deptStats.ongoing}</div>
-              <div className="yp-stat__label">กำลังทำ</div>
+              <div className="yp-stat__label">กำลังดำเนินการ</div>
             </div>
             <div
               className="yp-stat"
@@ -308,7 +621,6 @@ export function TodayClient({
               <div className="yp-stat__label">เลยกำหนด</div>
             </div>
           </div>
-
           <div className="yp-card">
             <div
               style={{
@@ -335,11 +647,7 @@ export function TodayClient({
                     }}
                     title={m.full_name}
                   >
-                    <Avatar
-                      name={m.full_name}
-                      color={m.color}
-                      size={28}
-                    />
+                    <Avatar name={m.full_name} color={m.color} size={28} />
                   </span>
                 ))}
               </div>
@@ -366,6 +674,244 @@ export function TodayClient({
           </div>
         </section>
       ) : null}
+
+      {/* ── STATUS PICKER SHEET ── */}
+      {/* ★ r47: ใช้ shared StatusPickerSheet จาก _shared/ แทน inline JSX */}
+      <StatusPickerSheet
+        open={statusPickerOpen}
+        onClose={() => {
+          setStatusPickerOpen(false);
+          setActiveItem(null);
+        }}
+        title="สถานะของรายการ"
+        description={activeItem?.title}
+        statuses={
+          activeItem
+            ? activeItem.task
+              ? (['todo', 'ongoing', 'done'] as TaskStatus[])
+              : (['todo', 'ongoing', 'done'] as EventStatus[])
+            : []
+        }
+        currentStatus={activeItem?.status}
+        onSelect={(s) => handleStatusChange(s as TaskStatus | EventStatus)}
+      />
+
+      {/* ── DETAIL SHEET ── */}
+      <BottomSheet
+        open={!!detailSheetItem}
+        onClose={handleCloseDetailSheet}
+        title={detailSheetItem?.title}
+        description={
+          detailSheetItem &&
+          detailSheetItem.task &&
+          detailSheetItem.parentEvent
+            ? 'รายการย่อย'
+            : 'รายการ'
+        }
+      >
+        {detailSheetItem
+          ? (() => {
+              const di = detailSheetItem;
+              const diIsSubItem = !!di.parentEvent && !!di.task;
+              const diDetailHref = di.event
+                ? `/events/${di.event.id}`
+                : di.parentEvent
+                  ? `/events/${di.parentEvent.id}`
+                  : '#';
+              const diStatusMeta = STATUS_META[di.status];
+              const diPriorityLbl =
+                PRIORITY_LBL[di.priority || 'medium'] || 'ปกติ';
+              // ★ r43: Use centralized formatScheduleLabel (Module 5)
+              const diScheduleText = formatScheduleLabel(di, todayStr);
+              const diIsOverdue = di.dateContext === 'overdue';
+
+              return (
+                <div className="yp-card-detail">
+                  {/* Status row */}
+                  <div className="yp-card-detail__row">
+                    <div className="yp-card-detail__label">
+                      <span className="yp-card-detail__label-text">
+                        สถานะ
+                      </span>
+                    </div>
+                    <div className="yp-card-detail__value">
+                      <span
+                        className={`yp-card-detail__chip yp-card-detail__chip--status yp-card-detail__chip--status-${di.status}`}
+                        style={{
+                          ['--status-color' as string]: diStatusMeta.color,
+                        }}
+                      >
+                        {di.status === 'done' ? (
+                          <Check width={12} height={12} />
+                        ) : di.status === 'ongoing' ? (
+                          <RefreshCw width={12} height={12} />
+                        ) : (
+                          <Clock width={12} height={12} />
+                        )}
+                        {diStatusMeta.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Schedule row — uses centralized formatScheduleLabel */}
+                  {diScheduleText ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Clock width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          กำหนดการ
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        <span
+                          className={`yp-card-detail__schedule${diIsOverdue ? ' is-overdue' : ''}`}
+                        >
+                          {diScheduleText}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* From group row (sub-items only) */}
+                  {diIsSubItem && di.parentEvent ? (() => {
+                    const parentEvent = di.parentEvent;  // ★ r47: capture เพื่อ narrow type ใน setTimeout closure
+                    return (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Layers width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          จากกลุ่ม
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        {/* ★ r45 FIX: ใช้ <a> + window.location.href แทน Next.js Link
+                            เพื่อหลีกเลี่ยงปัญหา history state conflict
+                            ที่ทำให้กดแล้ว sheet ปิดแต่ไม่ navigate
+                            ใช้ href จริงเพื่อรองรับ right-click → เปิดในแท็บใหม่ */}
+                        <a
+                          href={`/events/${parentEvent.id}`}
+                          className="yp-card-detail__link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleCloseDetailSheet();
+                            // รอให้ React ประมวลผล state แล้วค่อย navigate
+                            // ★ r47: ใช้ shared constant แทน magic number 50
+                            setTimeout(() => {
+                              window.location.href = `/events/${parentEvent.id}`;
+                            }, REACT_COMMIT_DURATION);
+                          }}
+                        >
+                          {parentEvent.title}
+                          <ArrowUpRight width={12} height={12} />
+                        </a>
+                      </div>
+                    </div>
+                    );
+                  })() : null}
+
+                  {/* Assignee row */}
+                  {di.assigneeName ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <UserIcon width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          ผู้รับผิดชอบ
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        <span className="yp-card-detail__assignee">
+                          {di.assigneeColor ? (
+                            <Avatar
+                              name={di.assigneeName}
+                              color={di.assigneeColor}
+                              size={20}
+                            />
+                          ) : null}
+                          {di.assigneeName}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Estimated time row */}
+                  {di.estimatedTime ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <Timer width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          ระยะเวลา
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        {di.estimatedTime}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Location row */}
+                  {di.location ? (
+                    <div className="yp-card-detail__row">
+                      <div className="yp-card-detail__label">
+                        <MapPin width={14} height={14} />
+                        <span className="yp-card-detail__label-text">
+                          สถานที่
+                        </span>
+                      </div>
+                      <div className="yp-card-detail__value">
+                        {di.location}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Priority row */}
+                  <div className="yp-card-detail__row">
+                    <div className="yp-card-detail__label">
+                      <Flag width={14} height={14} />
+                      <span className="yp-card-detail__label-text">
+                        ความสำคัญ
+                      </span>
+                    </div>
+                    <div className="yp-card-detail__value">
+                      <span
+                        className={`yp-card-detail__priority yp-card-detail__priority--${di.priority || 'medium'}`}
+                      >
+                        {diPriorityLbl}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA: open full detail page
+                      ★ r45 FIX: ใช้ <a> + window.location.href แทน Next.js Link
+                      เพื่อหลีกเลี่ยงปัญหา Next.js spread history state
+                      ทำให้ cleanup ของ window เรียก history.back() ยกเลิก navigation */}
+                  <a
+                    href={diDetailHref}
+                    className="yp-card-detail__cta"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCloseDetailSheet();
+                      setTimeout(() => {
+                        window.location.href = diDetailHref;
+                      }, 50);
+                    }}
+                  >
+                    ดูหน้าเต็ม
+                    <ChevronRight width={14} height={14} />
+                  </a>
+                </div>
+              );
+            })()
+          : null}
+      </BottomSheet>
+
+      {/* ── Toast ── */}
+      {toast ? (
+        <div className={`yp-toast yp-toast--${toast.type || 'info'}`}>
+          {toast.msg}
+        </div>
+      ) : null}
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════

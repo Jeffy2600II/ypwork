@@ -1,0 +1,197 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Event Card Animations v3.9 (Stagger, List) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes yp-page-in-v39 {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yp-shell-content-enter {
+  animation: yp-shell-in-v39 320ms var(--yp-ease-m3-emphasized) both;
+}
+
+
+@keyframes yp-shell-in-v39 {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes yp-card-in-v39 {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yp-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+
+.yp-card:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+
+.yp-card:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+
+.yp-card:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+
+.yp-card:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+
+.yp-card:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+
+.yp-card:nth-child(7) {
+  animation-delay: 240ms;
+}
+
+
+.yp-card:nth-child(8) {
+  animation-delay: 280ms;
+}
+
+
+.yp-event-card {
+  animation: yp-event-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
+}
+
+
+@keyframes yp-event-card-in-v39 {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yp-event-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+
+.yp-event-card:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+
+.yp-event-card:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+
+.yp-event-card:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+
+.yp-event-card:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+
+.yp-event-card:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+
+.yp-window--sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 92dvh;
+  border-radius: var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0 0;
+  transform: translate3d(0, 100%, 0);
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--sheet ใน WINDOW TRANSITIONS) */
+  /* ★ v3.7.9: Deeper layered shadow ที่ดูมีมิติ */
+  box-shadow:
+    0 -8px 32px rgba(15, 23, 42, 0.18),
+    0 -16px 48px rgba(15, 23, 42, 0.08),
+    0 -1px 0 rgba(255, 255, 255, 0.6) inset;
+  padding: 16px var(--yp-space-5, 20px)
+           calc(24px + var(--yp-safe-bottom, 0px));
+  transition: transform 380ms var(--yp-ease-m3-emphasized);
+}
+
+
+.yp-window--sheet.is-closing {
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--sheet.is-closing ใน WINDOW TRANSITIONS) */
+  will-change: transform;
+  transition: transform 260ms var(--yp-ease-m3-accelerate);
+}
+
+
+.yp-window--modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88dvh;
+  border-radius: var(--yp-radius-lg, 28px);
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--modal ใน WINDOW TRANSITIONS) */
+  /* ★ v3.7.9: Deeper layered shadow */
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.28),
+    0 8px 24px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(99, 102, 241, 0.06);
+  padding: 20px var(--yp-space-5, 20px)
+           calc(20px + var(--yp-safe-bottom, 0px));
+  transition:
+    transform 340ms var(--yp-ease-m3-emphasized),
+    opacity 260ms var(--yp-ease-m3-emphasized);
+}
+
+
+.yp-window--modal.is-closing {
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 240ms var(--yp-ease-m3-accelerate),
+    opacity 200ms var(--yp-ease-m3-accelerate);
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--modal.is-closing ใน WINDOW TRANSITIONS) */
+}
+
+
+.yp-window-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yp-window-z, 18000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}

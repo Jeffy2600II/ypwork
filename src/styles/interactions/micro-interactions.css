@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Micro-Interactions (Active:scale, Tap Highlight, Haptic) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.4.0 — Native App Micro-Interactions & Polish
+   ═══════════════════════════════════════════════════════════════
+   เพิ่ม active:scale, tap highlight removal, haptic-like feedback
+   เพื่อให้ใช้งานรู้สึกเหมือน native app
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ Universal tap feedback — scale down slightly on press */
+.yp-btn,
+.yp-type-option,
+.yp-color-option,
+.yp-events-filter__btn,
+.bottom-nav__item,
+.fab,
+.top-bar__back,
+.top-bar__avatar,
+.yp-card {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.15s ease,
+              box-shadow 0.15s ease;
+}
+
+/* Press state — scale down 2% (native iOS feel) */
+.yp-btn:active:not(:disabled),
+.yp-type-option:active,
+.yp-color-option:active,
+.yp-events-filter__btn:active,
+.fab:active,
+.top-bar__back:active,
+.top-bar__avatar:active {
+  transform: scale(0.97);
+}
+
+/* Remove ugly blue outline on mouse click */
+.yp-btn:focus:not(:focus-visible),
+.yp-input:focus:not(:focus-visible),
+.yp-select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+@keyframes yp-page-in-v3710 {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes yp-bottom-nav-in {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) ทั้งหมดออกตามคำขอ —
+   เปลี่ยนเป็นพื้นหลังทึบแสงปกติ (solid) แทน — ให้ contrast กับเนื้อหา
+   ที่เลื่อนผ่านชัดเจนกว่าเดิม ไม่ต้องพึ่ง GPU compositing ของ blur เลย */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
+  padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
+  background: #FFFFFF;
+  box-shadow: 0 1px 0 var(--yp-border-subtle);
+  z-index: var(--yp-z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+  animation: yp-top-bar-in 280ms ease-out both;
+}
+
+
+@keyframes yp-top-bar-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes yp-card-in-v3710 {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ★ v3.4.0: Smooth color transitions on theme elements */
+.yp-events-filter__btn,
+.yp-type-option,
+.bottom-nav__item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ★ v3.4.0: Native-style input focus */
+.yp-input,
+.yp-select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.yp-input:focus,
+.yp-select:focus {
+  border-color: var(--yp-indigo-400);
+  box-shadow: 0 0 0 3px var(--yp-focus-ring);
+}
+
+/* ★ v3.4.0: Disable text selection on UI controls (native feel) */
+.yp-btn,
+.yp-type-option,
+.yp-color-option,
+.bottom-nav__item,
+.fab,
+.top-bar__back,
+.top-bar__avatar {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: var(--yp-page-bottom-pad);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+
+@keyframes yp-nav-loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+

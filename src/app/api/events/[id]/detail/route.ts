@@ -42,11 +42,11 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
     const { data: eventRaw, error } = await guard.adminClient
       .from('ypwork_events')
       .select(`
-        id, type, title, date, end_date, time, location, description,
+        id, type, title, date, start_date, end_date, time, location, description,
         department_id, status, color, created_by, created_at, updated_at,
         department:departments ( id, name, color, icon, description ),
         tasks:ypwork_tasks (
-          id, event_id, title, due_date, status, priority,
+          id, event_id, title, due_date, start_date, start_time, status, priority,
           estimated_time, notes, tags, sort_order, created_at, updated_at
         )
       `)
@@ -119,7 +119,8 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       id: e.id,
       type: e.type,
       title: e.title,
-      date: e.date,
+      date: e.date ?? null,   // ★ r51: nullable สำหรับ group type
+      start_date: e.start_date ?? null,
       end_date: e.end_date ?? null,
       time: e.time ?? '',
       location: e.location ?? '',
@@ -140,6 +141,8 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
         event_id: t.event_id,
         title: t.title,
         due_date: t.due_date ?? null,
+        start_time: t.start_time ?? null,   // ★ v3.10.0 รอบที่ 9
+        start_date: t.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
         status: t.status,
         priority: t.priority,
         estimated_time: t.estimated_time ?? '',

@@ -5,11 +5,17 @@
 // ═══════════════════════════════════════════════════════════════
 // ใช้ useRealtimeEventsForDate เพื่อ subscribe events ของวันที่กำหนด
 // เมื่อมี event ใหม่/ถูกลบ/ถูกแก้ → list อัพเดตทันที ไม่ต้อง refresh
+//
+// ★ r47: register FAB action 'navigate-create-with-date' — ทำให้ปุ่ม +
+//   ในหน้านี้พาไป /events/create?date=YYYY-MM-DD แทนที่จะเป็น /events/create
+//   แก้ปัญหา empty state CTA "กดปุ่ม + เพื่อสร้างรายการใหม่สำหรับวันนี้"
+//   ที่ก่อนหน้านี้โกหก user (FAB ไม่มี, หรือ FAB ไม่ pre-fill date)
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
 import { EventCard } from '@/modules/events/event-card';
 import { useRealtimeEventsForDate } from '@/lib/hooks/use-realtime';
+import { useFabRegister } from '@/lib/core/fab-context';
 import type { YPEvent } from '@/lib/types';
 
 export interface DayViewClientProps {
@@ -26,10 +32,13 @@ export function DayViewClient({
 }: DayViewClientProps) {
   const { events, loading } = useRealtimeEventsForDate(initialEvents, dateStr);
 
+  // ★ r47: register FAB action — ปุ่ม + ในหน้านี้พาไป create form ที่ pre-fill วันที่
+  useFabRegister({ kind: 'navigate-create-with-date', date: dateStr });
+
   return (
     <div className="yp-page yp-page-enter">
       <div className="yp-page-header">
-        <div className="yp-page-header__eyebrow">งานในวันที่</div>
+        <div className="yp-page-header__eyebrow">รายการในวันที่</div>
         <h1 className="yp-page-header__title">{formattedTitle}</h1>
         <p className="yp-page-header__subtitle">
           {events.length} รายการ{loading ? ' · กำลังซิงค์…' : ''}
@@ -43,9 +52,9 @@ export function DayViewClient({
               📭
             </span>
           </div>
-          <div className="yp-empty__title">ไม่มีงานในวันนี้</div>
+          <div className="yp-empty__title">ไม่มีรายการในวันนี้</div>
           <div className="yp-empty__desc">
-            กดปุ่ม + เพื่อสร้างงานใหม่สำหรับวันนี้
+            กดปุ่ม + เพื่อสร้างรายการใหม่สำหรับวันนี้
           </div>
         </div>
       ) : (

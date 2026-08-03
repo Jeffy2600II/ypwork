@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Design Library Manifest — v3.10.0-r68
+   ═══════════════════════════════════════════════════════════════
+   
+   This is the central manifest that imports ALL modular CSS files
+   in the correct cascade order. Replace the old monolithic 
+   globals.css with this file.
+   
+   ★ CASCADE ORDER MATTERS — do NOT reorder imports!
+   
+   Architecture (Round 56 — Modular CSS Refactor):
+   ┌─────────────────────────────────────────────────────────┐
+   │ src/styles/           ← Central Design Library          │
+   │   ├── index.css       ← THIS manifest file              │
+   │   ├── tokens/         ← Design tokens (variables)       │
+   │   ├── base.css        ← Base/reset styles               │
+   │   ├── components/     ← Shared component styles         │
+   │   ├── animations/     ← Animation library               │
+   │   ├── interactions/   ← Micro-interactions & hover      │
+   │   ├── layout/         ← Layout framework                │
+   │   ├── accessibility.css ← WCAG 2.2                     │
+   │   ├── utilities/      ← Utility classes                 │
+   │                                                         │
+   │ src/modules/           ← Module-specific CSS             │
+   │   ├── today/today.css                                   │
+   │   ├── events/event-card.css                             │
+   │   ├── events/events-list.css                            │
+   │   ├── events/event-detail.css                           │
+   │   ├── events/form-pages.css                             │
+   │   ├── calendar/calendar.css                             │
+   │   ├── profile/profile.css                               │
+   │                                                         │
+   │ src/components/framework/ ← Framework component CSS      │
+   │   ├── password-field.css                                │
+   │   ├── card-detail-sheet.css                             │
+   │   ├── task-detail-sheet.css                             │
+   │   ├── sheet/bottom-sheet.css                            │
+   │   ├── sheet/framework-sheet.css                         │
+   │   ├── popup/confirm-dialog.css                          │
+   │   ├── popup/framework-popup.css                         │
+   │   ├── popup/framework-sidepanel.css                     │
+   │   ├── popup/framework-fullscreen.css                    │
+   │   ├── fab/framework-overlay-hide.css                    │
+   │   ├── shared/framework-compat.css                       │
+   │   ├── shared/framework-responsive.css                   │
+   │   ├── shared/framework-reduced-motion.css               │
+   │                                                         │
+   │ src/app/login/auth.css  ← Login/Register page CSS       │
+   └─────────────────────────────────────────────────────────┘
+   
+   To find a specific style:
+   • Today module? → src/modules/today/today.css
+   • Calendar? → src/modules/calendar/calendar.css
+   • Bottom Sheet? → src/components/framework/sheet/bottom-sheet.css
+   • Design tokens? → src/styles/tokens/tokens.css
+   • Animations? → src/styles/animations/
+   • Hover effects? → src/styles/interactions/
+   
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── PHASE 1: Imports & Custom Variant ── */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── PHASE 2: Default Root Variables (MUST come first for cascade) ── */
+@import "./tokens/root-default.css";
+
+/* ── PHASE 3: Tailwind Theme Bridge ── */
+@import "./tokens/theme-tailwind.css";
+
+/* ── PHASE 4: Responsive Token Overrides ── */
+@import "./tokens/tokens-responsive.css";
+
+/* ── PHASE 5: Base Styles ── */
+@import "./base.css";
+
+/* ── PHASE 6: Component Layer Styles (low priority in cascade) ── */
+@import "./components/hero-pattern.css";
+@import "./components/event-card.css";
+@import "./components/chips.css";
+@import "./components/top-title.css";
+
+/* ── PHASE 7: Core Animations ── */
+@import "./animations/core-animations.css";
+
+/* ── PHASE 8: Layout Framework ── */
+@import "./layout/app-shell.css";
+
+/* ── PHASE 9: Form Controls ── */
+@import "./components/form-controls.css";
+
+/* ── PHASE 10: Password Field (component co-located) ── */
+@import "../components/framework/password-field.css";
+
+/* ── PHASE 11: Buttons ── */
+@import "./components/buttons.css";
+
+/* ── PHASE 12: Auth/Login/Register (page co-located) ── */
+@import "../app/login/auth.css";
+
+/* ── PHASE 13: Today Module (module co-located) ── */
+@import "../modules/today/today.css";
+
+/* ── PHASE 14: Popup Menu ── */
+@import "./components/popup-menu.css";
+
+/* ── PHASE 15: Event Card + Page Container ── */
+@import "../modules/events/event-card.css";
+
+/* ── PHASE 16: Events List ── */
+@import "../modules/events/events-list.css";
+
+/* ── PHASE 17: Event Detail ── */
+@import "../modules/events/event-detail.css";
+
+/* ── PHASE 18: Card Detail Sheet (component co-located) ── */
+@import "../components/framework/card-detail-sheet.css";
+
+/* ── PHASE 19: Form Pages ── */
+@import "../modules/events/form-pages.css";
+
+/* ── PHASE 20: Profile Module ── */
+@import "../modules/profile/profile.css";
+
+/* ── PHASE 21: Shared Components ── */
+@import "./components/shared-components.css";
+
+/* ── PHASE 22: Calendar Module ── */
+@import "../modules/calendar/calendar.css";
+
+/* ── PHASE 23: Bottom Sheet (Legacy + Desktop) ── */
+@import "../components/framework/sheet/bottom-sheet.css";
+
+/* ── PHASE 24: Confirm Dialog ── */
+@import "../components/framework/popup/confirm-dialog.css";
+
+/* ── PHASE 25: Skeleton ── */
+@import "./components/skeleton.css";
+
+/* ── PHASE 26: Task Detail Sheet (component co-located) ── */
+@import "../components/framework/task-detail-sheet.css";
+
+/* ── PHASE 27: App-UX Polish ── */
+@import "./components/app-ux-polish.css";
+
+/* ── PHASE 28: Micro-Interactions ── */
+@import "./interactions/micro-interactions.css";
+
+/* ── PHASE 29: Design Polish ── */
+@import "./interactions/design-polish.css";
+
+/* ── PHASE 30: Component Library Utilities ── */
+@import "./utilities/component-library.css";
+
+/* ── PHASE 31: Toast ── */
+@import "./components/toast.css";
+
+/* ── PHASE 32: Hover States ── */
+@import "./interactions/hover-states.css";
+
+/* ── PHASE 33: Premium Button + FAB Animations ── */
+@import "./animations/btn-fab-animations.css";
+
+/* ── PHASE 34: Content Animations ── */
+@import "./animations/content-animations.css";
+
+/* ── PHASE 35: Transition System ── */
+@import "./animations/transition-system.css";
+
+/* ── PHASE 36: Caret Animations ── */
+@import "./animations/caret-animations.css";
+
+/* ── PHASE 37: Character Animations ── */
+@import "./animations/char-animations.css";
+
+/* ── PHASE 38: FAB + Nav Animations ── */
+@import "./animations/fab-nav-animations.css";
+
+/* ── PHASE 39: Page Animations v3.9 ── */
+@import "./animations/page-animations-v39.css";
+
+/* ── PHASE 40: Event Card Animations v3.9 ── */
+@import "./animations/event-card-animations.css";
+
+/* ── PHASE 41: Hover/Active r21 ── */
+@import "./interactions/hover-active-r21.css";
+
+/* ── PHASE 42: Polish v3.9 ── */
+@import "./interactions/polish-v39.css";
+
+/* ── PHASE 43: Hover Refinements v3.9.x ── */
+@import "./interactions/hover-refinements-v39.css";
+
+/* ── PHASE 44: Polish Layer ── */
+@import "./interactions/polish-layer.css";
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE 46+: CASCADE-CRITICAL LATE OVERRIDES
+   ═══════════════════════════════════════════════════════════════
+   These MUST come after ALL base rules because CSS cascade 
+   uses source order — later rules win when specificity is equal.
+   
+   ★ DO NOT move these earlier in the import chain! ★
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── PHASE 46: Main Design Tokens ── */
+@import "./tokens/tokens.css";
+
+/* ── PHASE 47: Desktop Left-Rail Override (r25 cascade fix) ── */
+@import "./layout/desktop-rail-override.css";
+
+/* ── PHASE 48: Mobile Bottom-Nav Fixes ── */
+@import "./layout/mobile-fix.css";
+
+/* ── PHASE 49: Desktop Left-Rail Quality (r24) ── */
+@import "./layout/desktop-quality.css";
+
+/* ── PHASE 50: Framework r50 — Bottom Sheet ── */
+@import "../components/framework/sheet/framework-sheet.css";
+
+/* ── PHASE 51: Framework r50 — Desktop Popup ── */
+@import "../components/framework/popup/framework-popup.css";
+
+/* ── PHASE 52: Framework r50 — Side Panel ── */
+@import "../components/framework/popup/framework-sidepanel.css";
+
+/* ── PHASE 53: Framework r50 — Fullscreen Overlay ── */
+@import "../components/framework/popup/framework-fullscreen.css";
+
+/* ── PHASE 54: Framework r50 — FAB/Bottom Nav Overlay-Hide ── */
+@import "../components/framework/fab/framework-overlay-hide.css";
+
+/* ── PHASE 55: Framework r50 — Backward Compat ── */
+@import "../components/framework/shared/framework-compat.css";
+
+/* ── PHASE 56: Framework r50 — Responsive ── */
+@import "../components/framework/shared/framework-responsive.css";
+
+/* ── PHASE 57: Accessibility (prefers-reduced-motion — MUST be last) ── */
+@import "./accessibility.css";
+
+/* ── PHASE 58: Framework r50 — Reduced Motion (MUST be very last) ── */
+@import "../components/framework/shared/framework-reduced-motion.css";

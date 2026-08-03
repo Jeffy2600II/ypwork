@@ -1,0 +1,72 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Fullscreen Overlay (.yp-fullscreen-*) — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 4: FULLSCREEN OVERLAY (.yp-fullscreen-*)
+   ═══════════════════════════════════════════════════════════════ */
+
+.yp-fullscreen-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yp-fullscreen-z, 18000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  overscroll-behavior: contain;
+  transition:
+    opacity 280ms var(--yp-ease-m3-emphasized),
+    visibility 280ms;
+}
+
+.yp-fullscreen-root.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.yp-fullscreen {
+  position: relative;
+  background: var(--yp-bg-card, #fff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  contain: layout style;
+  overscroll-behavior: contain;
+
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  transform: translate3d(0, 100%, 0);
+  transition: transform 320ms var(--yp-ease-m3-emphasized);
+  padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
+           calc(16px + var(--yp-safe-bottom, 0px));
+}
+
+.yp-fullscreen.is-open {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.yp-fullscreen.is-closing {
+  transition: transform 280ms var(--yp-ease-m3-emphasized);
+}
+
+.yp-fullscreen.is-bare {
+  padding: 0;
+}
+

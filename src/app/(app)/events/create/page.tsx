@@ -21,11 +21,11 @@ import { CreateEventForm } from '@/modules/events/create-event-form';
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; date?: string }>;
 }
 
 export default async function CreateEventPage({ searchParams }: PageProps) {
-  const { edit: editId } = await searchParams;
+  const { edit: editId, date: prefillDate } = await searchParams;
   const supabase = await createClient();
   const user = await getSessionUser(supabase);
 
@@ -33,11 +33,13 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
 
   // ★ v3.4.0: ถ้ามี editId ให้ดึง event ฝั่ง server (จำเป็นต้อง preload)
   // ถ้าไม่มี editId (โหมดสร้าง) — ไม่ดึงอะไรเลย ปล่อยให้ form render ทันที
+  // ★ r51: editEvent.date เป็น string | null (group type อาจเป็น null)
   let editEvent: {
     id: string;
     type: 'group' | 'task';
     title: string;
-    date: string;
+    date: string | null;
+    start_date: string | null;
     time: string;
     location: string;
     description: string;
@@ -49,7 +51,7 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
     const { data: evRaw } = await supabase
       .from('ypwork_events')
       .select(
-        'id, type, title, date, time, location, description, department_id, color'
+        'id, type, title, date, start_date, time, location, description, department_id, color'
       )
       .eq('id', editId)
       .limit(1)
@@ -60,7 +62,8 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
         id: evRaw.id,
         type: evRaw.type as 'group' | 'task',
         title: evRaw.title,
-        date: evRaw.date,
+        date: evRaw.date ?? null,   // ★ r51: nullable สำหรับ group type
+        start_date: evRaw.start_date ?? null,
         time: evRaw.time || '',
         location: evRaw.location || '',
         description: evRaw.description || '',
@@ -74,15 +77,18 @@ export default async function CreateEventPage({ searchParams }: PageProps) {
     <AppShell
       user={user}
       activeNav="events"
-      title={editEvent ? 'แก้ไขงาน' : 'สร้างงาน'}
+      title={editEvent ? 'แก้ไขรายการ' : 'สร้างรายการ'}
       showBack
       showBottomNav={false}
     >
       {/* ★ v3.4.0: departments = [] → form จะ fetch เองฝั่ง client */}
+      {/* ★ r47: prefillDate — ส่งต่อให้ form pre-fill date field
+          (มาจาก day-view กด FAB ที่ register 'navigate-create-with-date') */}
       <CreateEventForm
         departments={[]}
         editEvent={editEvent}
         userUid={user.auth_uid}
+        prefillDate={prefillDate}
       />
     </AppShell>
   );

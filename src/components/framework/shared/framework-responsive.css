@@ -1,0 +1,56 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Responsive Overrides — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 7: RESPONSIVE — Sheet เป็น popup บน desktop
+   ═══════════════════════════════════════════════════════════════
+   ★ r50: บน desktop (≥ 768px) BottomSheet จะถูกแสดงเป็น popup แทน
+   โดยใช้ AdaptiveOverlay ที่เลือก type ตาม viewport
+
+   CSS นี้จัดการกรณีที่ใช้ BottomSheet โดยตรงบน desktop
+   (AdaptiveOverlay จะเลือก Dialog component แทน ไม่ต้องใช้ CSS นี้)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+  .yp-sheet-root {
+    align-items: center;
+    padding: var(--yp-space-4, 16px);
+  }
+
+  .yp-sheet {
+    max-width: 480px;
+    max-height: 88dvh;
+    border-radius: var(--yp-radius-lg, 28px);
+    transform: translate3d(0, 24px, 0) scale(0.94);
+    opacity: 0;
+    transition:
+      transform 340ms var(--yp-ease-m3-emphasized),
+      opacity 260ms var(--yp-ease-m3-emphasized);
+  }
+
+  .yp-sheet.is-open {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+
+  .yp-sheet.is-closing {
+    transform: translate3d(0, 24px, 0) scale(0.94);
+    opacity: 0;
+    transition:
+      transform 240ms var(--yp-ease-m3-emphasized),
+      opacity 200ms var(--yp-ease-m3-emphasized);
+  }
+
+  /* บน desktop sheet ไม่มี handle (drag ไม่ได้) */
+  .yp-sheet__handle {
+    display: none;
+  }
+}
+

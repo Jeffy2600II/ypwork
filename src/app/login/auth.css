@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Auth/Login/Register Page Styles — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · LOGIN / REGISTER PAGE (port จาก demo v8.2)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-auth {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.yp-auth__inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--yp-safe-top) + var(--yp-space-8)) var(--yp-page-pad-x) calc(var(--yp-safe-bottom) + var(--yp-space-6));
+  max-width: 460px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.yp-auth__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  margin-bottom: var(--yp-space-8);
+}
+
+.yp-auth__logo {
+  width: 46px; height: 46px;
+  border-radius: var(--yp-radius-sm);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: var(--yp-fw-extrabold);
+  font-size: var(--yp-text-lg);
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* v1.9.5 — image logo variant: transparent backdrop because the demo icon has its own
+   indigo→purple gradient background that matches the auth page background */
+.yp-auth__logo--image {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+}
+
+.yp-auth__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.yp-auth__brand-text { color: white; }
+.yp-auth__brand-name {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.01em;
+}
+.yp-auth__brand-tag {
+  font-size: var(--yp-text-xs);
+  opacity: 0.75;
+  letter-spacing: 0.02em;
+}
+
+.yp-auth__back {
+  margin-left: auto;
+  color: white;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity var(--yp-t-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.yp-auth__back:hover { opacity: 1; }
+
+.yp-auth__hero {
+  color: white;
+  margin-bottom: var(--yp-space-6);
+}
+
+.yp-auth__hero h1 {
+  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
+  color: white;
+  font-size: var(--yp-text-xl);
+  font-weight: var(--yp-fw-extrabold);
+  letter-spacing: 0.01em;
+  margin-bottom: var(--yp-space-2);
+  line-height: var(--yp-leading-tight);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.yp-auth__hero p {
+  font-size: var(--yp-text-sm);
+  opacity: 0.88;
+  line-height: var(--yp-leading-normal);
+  max-width: 360px;
+}
+
+.yp-auth__card {
+  background: white;
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-space-6);
+  /* ★ r56: ลด auth card shadow ลง ~55% ทำให้ดูเบา ไม่ฟุ้ง */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.yp-auth__card-title {
+  font-size: var(--yp-text-base);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  margin-bottom: 2px;
+}
+
+.yp-auth__card-sub {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  margin-bottom: var(--yp-space-4);
+}
+
+.yp-auth__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--yp-radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  color: white;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  margin-bottom: var(--yp-space-4);
+  letter-spacing: 0.04em;
+}
+
+.yp-auth__demo-badge::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: var(--yp-radius-pill);
+  background: var(--yp-amber-400);
+  box-shadow: 0 0 8px var(--yp-amber-400);
+}
+
+/* ── Mode toggle (segmented control) ── */
+.yp-auth__mode-toggle {
+  display: flex;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-pill);
+  padding: 4px;
+  gap: 3px;
+  margin-bottom: var(--yp-space-5);
+}
+
+.yp-auth__mode-btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--yp-radius-pill);
+  padding: 8px 12px;
+  font-family: inherit;
+  font-weight: var(--yp-fw-bold);
+  font-size: var(--yp-text-sm);
+  cursor: pointer;
+  background: transparent;
+  color: var(--yp-text-secondary);
+  transition: background var(--yp-t-fast), color var(--yp-t-fast), transform var(--yp-t-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.yp-auth__mode-btn.is-active {
+  background: var(--yp-bg-card);
+  color: var(--yp-indigo-600);
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-auth__mode-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── 3-button type toggle (register) ── */
+.yp-auth__type-toggle {
+  display: flex;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-pill);
+  padding: 4px;
+  gap: 3px;
+  margin-bottom: var(--yp-space-5);
+}
+
+.yp-auth__type-btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--yp-radius-pill);
+  padding: 8px 8px;
+  font-family: inherit;
+  font-weight: var(--yp-fw-bold);
+  font-size: var(--yp-text-xs);
+  cursor: pointer;
+  background: transparent;
+  color: var(--yp-text-secondary);
+  transition: background var(--yp-t-fast), color var(--yp-t-fast), transform var(--yp-t-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.yp-auth__type-btn.is-active {
+  background: var(--yp-bg-card);
+  color: var(--yp-indigo-600);
+  box-shadow: var(--yp-shadow-xs);
+}
+
+.yp-auth__type-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Register link / login link ── */
+.yp-auth__alt-link {
+  text-align: center;
+  margin-top: var(--yp-space-4);
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+}
+
+.yp-auth__alt-link a {
+  color: var(--yp-indigo-600);
+  font-weight: var(--yp-fw-bold);
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.yp-auth__alt-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── Footer ── */
+.yp-auth__footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--yp-text-xs);
+  margin-top: var(--yp-space-6);
+  line-height: 1.5;
+}
+
+/* ── Success state (register) ── */
+.yp-auth__success {
+  text-align: center;
+  padding: var(--yp-space-6) 0;
+}
+
+.yp-auth__success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--yp-space-4);
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--yp-emerald-500) 12%, transparent);
+  color: var(--yp-emerald-500);
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--yp-emerald-500) 30%, transparent);
+}
+
+.yp-auth__success-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yp-auth__success-title {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-extrabold);
+  color: var(--yp-emerald-500);
+  margin-bottom: var(--yp-space-2);
+}
+
+.yp-auth__success-desc {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  line-height: var(--yp-leading-normal);
+  margin-bottom: var(--yp-space-5);
+}
+
+.yp-auth__success-actions {
+  display: flex;
+  gap: var(--yp-space-2);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.yp-required {
+  color: #BE123C;
+  margin-left: 2px;
+}
+

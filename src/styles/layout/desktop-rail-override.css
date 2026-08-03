@@ -1,0 +1,98 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Desktop Left-Rail Override (End-of-File Cascade Fix — r25) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+.yp-window-root {
+  background: rgba(30, 27, 70, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window-root ใน WINDOW TRANSITIONS) */
+  /* default: align bottom (sheet mode) */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  overscroll-behavior: contain;
+  transition:
+    opacity 280ms var(--yp-ease-m3-emphasized),
+    visibility 280ms;
+  /* NOTE: ไม่ใส่ contain: paint เพราะทำให้ drag กระตุก */
+}
+
+
+/* ── v3.9.2 DESKTOP — FAB position refinement + คืนค่าความโค้งมนเดิม ── */
+@media (min-width: 900px) {
+  .fab {
+    bottom: calc(var(--yp-space-6) + var(--yp-safe-bottom));
+    right: calc(var(--yp-space-6) + var(--yp-safe-right));
+    width: 60px;
+    height: 60px;
+    /* ★ v3.9.2: คืนค่าความโค้งมนเดิม (ไม่ใช่ 20px แบบ Material 3) — ใช้ token */
+    border-radius: var(--yp-radius-md);
+  }
+
+  .fab svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* ★ v3.10.0 รอบที่ 25: .top-bar (base rule ที่ line ~5925) ก็มีบั๊ก
+     เดียวกัน — ตั้ง left:0 แบบ unconditional และอยู่ท้ายไฟล์กว่าบล็อก
+     @media(900px) แรกที่ตั้ง left:var(--yp-left-rail-width) ทำให้ top-bar
+     หลุดไปชิดซ้ายสุด (ทับ left-rail) บน desktop ด้วยเช่นกัน — ย้ายมาตั้งที่
+     นี่แทน (หลัง base rule แน่นอน) */
+  .top-bar {
+    left: var(--yp-left-rail-width);
+  }
+
+  /* Bottom-nav (left-rail) — ★ ตำแหน่งนี้คือจุดที่ต้องแก้จริงสำหรับ
+     property ที่ชนกับ .bottom-nav (base rule มือถือ) — ดู comment เต็ม
+     ที่บล็อก @media(min-width:900px) แรกของไฟล์ (บรรทัด ~656) */
+  /* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) — ใช้พื้นหลังทึบแสงสี
+     ขาวล้วน + ขอบเหลี่ยมชิดขอบจอ (ไม่มีมุมโค้ง) แบบ sidebar ทั่วไป, ตรึงชิด
+     ซ้ายเต็มความสูงจอ (inset:0 auto 0 0 — ก่อนหน้านี้หลุดไปใช้ค่าของมือถือ
+     ทำให้แถบลอยเยื้องมาจากขอบ 12px), จัดปุ่มแบบ "ต่อกันลงมาธรรมดา" จากด้านบน
+     (justify-content: flex-start — ก่อนหน้านี้หลุดไปใช้ space-evenly ของ
+     มือถือ ทำให้ปุ่มถูกดันให้กระจายเต็มความสูงของแถบ) */
+  .bottom-nav {
+    inset: 0 auto 0 0;
+    justify-content: flex-start;
+    align-items: center;
+    padding: calc(var(--yp-safe-top) + var(--yp-space-5)) var(--yp-space-2) var(--yp-space-4);
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid var(--yp-border-subtle);
+    background: #FFFFFF;
+    box-shadow: 1px 0 0 rgba(30, 27, 70, 0.03);
+  }
+
+  /* Active indicator — pill on left side (Material 3 Navigation Rail) */
+  .bottom-nav__item.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 32px;
+    border-radius: 0 4px 4px 0;
+    background: linear-gradient(to bottom, #5B50F0, #7C3AED);
+  }
+
+  /* Pill behind active icon — desktop — ใช้ pill radius เดิม */
+  .bottom-nav__item.is-active .bottom-nav__icon {
+    background: rgba(99, 102, 241, 0.12);
+    border-radius: var(--yp-radius-pill);
+  }
+}
+
+/* ── v3.9.2 REDUCED MOTION — kill all v3.9.2 animations ── */
+

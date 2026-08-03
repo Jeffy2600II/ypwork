@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · FAB + Bottom Nav Animations v3.9 — v3.10.0-r62 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes yp-fab-in-v39 {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ★ Bug fix (FAB flash on sheet close): เดิมใช้ transition-duration:0s !important
+   เพื่อ "ซ่อนทันที" — แต่ทำให้เวลา sheet ปิด body.yp-window-open ถูกลบออก
+   → FAB ปรากฏทันที (flash) ก่อนที่ useScrollDirection จะ recompute fabHidden
+
+   วิธีแก้:
+   - pointer-events: none ยังเป็น instant (safety — กัน click-through)
+   - visibility: hidden ยังเป็น instant (safety — กัน layout/AT issues)
+   - แต่ transform/opacity ใช้ transition สั้นๆ (180ms) — พอให้ useScrollDirection
+     มีเวลา commit fabHidden=true ก่อนที่ FAB จะ "โผล่จริง"
+   - ผลลัพธ์: ตอนเปิด sheet FAB "หาย" ทันทีเหมือนเดิม (เพราะ visibility:hidden)
+   - ตอนปิด sheet FAB fade-in 180ms — แต่ useScrollDirection sync ก่อนนั้น
+     → FAB ถูก set is-hidden-by-scroll กลับไป → ไม่มี flash */
+body.yp-window-open .fab,
+body.yp-sheet-open .fab {
+  transform: translateY(150%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 180ms var(--yp-ease-m3-standard),
+    opacity 180ms var(--yp-ease-m3-standard),
+    visibility 0s,
+    box-shadow 180ms var(--yp-ease-m3-standard);
+  animation: none !important;
+}
+
+/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) — ใช้พื้นหลังทึบแสงปกติ
+   สีขาวล้วนแทน rgba โปร่งแสง + เงานุ่มขึ้นเล็กน้อยให้ยังดูลอยเหนือเนื้อหา
+   ทั้งที่ทึบแสงแล้ว (ไม่ต้องพึ่งการมองทะลุเพื่อบอกว่าเป็น floating bar)
+   ★ v3.10.0 รอบที่ 62: ลด padding แนวตั้ง 10px→8px (บน) และ 8px→6px (ล่าง
+   ก่อนรวม safe-area) ให้แถบบางลงเล็กน้อย — ยังเหลือพื้นที่พอสำหรับปุ่มกด
+   (ดู .bottom-nav__item ใน mobile-fix.css ที่ลดขนาด icon ลงคู่กัน) */
+.bottom-nav {
+  position: fixed;
+  inset: auto var(--yp-space-3) calc(var(--yp-safe-bottom) + var(--yp-space-3)) var(--yp-space-3);
+  z-index: var(--yp-z-nav);
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 8px 8px calc(env(safe-area-inset-bottom, 0px) + 6px);
+  background: #FFFFFF;
+  box-shadow: 0 -2px 20px rgba(30, 27, 70, 0.10), 0 0 0 1px rgba(30, 27, 70, 0.04);
+  border-radius: var(--yp-radius-lg);
+  border: none;
+  transition:
+    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+
+.bottom-nav__icon {
+  position: relative;
+  width: 64px;
+  height: 36px;
+  /* ★ v3.9.2: คืนค่า pill radius เดิม (999px = --yp-radius-pill) — เอกลักษณ์ความโค้งมน */
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  transition:
+    background-color 220ms var(--yp-ease-m3-standard),
+    transform 220ms var(--yp-ease-m3-standard);
+  background: transparent;
+}
+
+
+/* Pill appears behind active icon — Material 3 spec */
+.bottom-nav__item.is-active .bottom-nav__icon {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* Active icon scales up slightly (Material 3 spec) */
+.bottom-nav__item.is-active .bottom-nav__icon svg {
+  transform: scale(1.10);
+  color: var(--yp-indigo-600);
+}
+
+/* Inactive icon — slightly faded */
+.bottom-nav__item:not(.is-active) .bottom-nav__icon svg {
+  color: var(--yp-text-muted);
+  transition: color 220ms var(--yp-ease-m3-standard);
+}
+
+/* Hover state for inactive items — subtle background tint */

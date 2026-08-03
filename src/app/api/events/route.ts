@@ -76,12 +76,22 @@ export async function GET(request: NextRequest) {
 // POST /api/events — สร้าง event ใหม่
 // ═══════════════════════════════════════════════════════════════
 // ★ v3.4.0: เพิ่ม audit log หลังสร้างสำเร็จ
+// ★ r51: ใช้ validateEventPayload() จาก event-validation.ts (single source of truth)
+//        + รองรับ null date สำหรับ group type
 // ═══════════════════════════════════════════════════════════════
 
 import { createId } from '@/lib/utils/id';
-
-const VALID_TYPES = ['group', 'task'] as const;
-const VALID_COLORS = /^#[0-9A-Fa-f]{6}$/;
+import {
+  validateEventPayload,
+  validateEventDate,
+  validateDateRange,
+  DATE_REGEX,
+  EVENT_TITLE_MAX_LENGTH,
+  EVENT_LOCATION_MAX_LENGTH,
+  EVENT_DESCRIPTION_MAX_LENGTH,
+  type EventPayloadForValidation,
+} from '@/modules/events/event-validation';
+import { resolveEventColor } from '@/modules/events/event-colors';
 
 export async function POST(request: NextRequest) {
   const guard = await requireUser();
@@ -102,33 +112,72 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ── Validate ──
-  if (!VALID_TYPES.includes(body.type)) {
+  // ── Validate payload ทั้งหมดผ่าน single source of truth ──
+  // ★ r51: ใช้ validateEventPayload แทน inline validation กระจัดกระจาย
+  const payload: EventPayloadForValidation = {
+    type: body.type,
+    title: body.title,
+    date: body.date,
+    start_date: body.start_date,
+    time: body.time,
+    location: body.location,
+    description: body.description,
+    color: body.color,
+    department_id: body.department_id,
+  };
+  const validation = validateEventPayload(payload);
+  if (!validation.ok) {
     return NextResponse.json(
-      { success: false, error: 'ประเภทงานไม่ถูกต้อง' },
+      { success: false, error: validation.error },
       { status: 400 }
     );
   }
 
-  if (typeof body.title !== 'string' || !body.title.trim() || body.title.length > 200) {
+  // ── Normalize fields หลัง validate ผ่าน ──
+  const type = body.type as 'group' | 'task';
+  const title = (body.title as string).trim().slice(0, EVENT_TITLE_MAX_LENGTH);
+
+  // ★ r51: date normalization — group type อาจเป็น null หรือ empty string
+  //   ถ้าส่งมาเป็น empty string → normalize เป็น null
+  //   ถ้า type='group' และ date เป็นค่าว่าง → เก็บ null
+  //   ถ้า type='task' → date เป็น string YYYY-MM-DD (guaranteed โดย validator)
+  let date: string | null = null;
+  if (typeof body.date === 'string' && DATE_REGEX.test(body.date)) {
+    date = body.date;
+  }
+
+  // start_date normalization — optional, YYYY-MM-DD
+  let start_date: string | null = null;
+  if (typeof body.start_date === 'string' && DATE_REGEX.test(body.start_date)) {
+    start_date = body.start_date;
+  }
+
+  // ── ตรวจสอบ date range อีกครั้ง (defensive) ──
+  const rangeCheck = validateDateRange(start_date, date);
+  if (!rangeCheck.ok) {
     return NextResponse.json(
-      { success: false, error: 'ชื่องานไม่ถูกต้อง (ต้องมี 1-200 ตัวอักษร)' },
+      { success: false, error: rangeCheck.error },
       { status: 400 }
     );
   }
 
-  if (typeof body.date !== 'string' || !DATE_RE.test(body.date)) {
-    return NextResponse.json(
-      { success: false, error: 'วันที่ไม่ถูกต้อง' },
-      { status: 400 }
-    );
-  }
-
-  const time = typeof body.time === 'string' ? body.time.slice(0, 8) : '';
-  const location = typeof body.location === 'string' ? body.location.trim().slice(0, 500) : '';
-  const description = typeof body.description === 'string' ? body.description.trim().slice(0, 5000) : '';
-  const color = typeof body.color === 'string' && VALID_COLORS.test(body.color) ? body.color : '#4F46E5';
-  const department_id = typeof body.department_id === 'string' && body.department_id ? body.department_id : null;
+  const time =
+    typeof body.time === 'string' && body.time
+      ? body.time.slice(0, 8)
+      : '';
+  const location =
+    typeof body.location === 'string'
+      ? body.location.trim().slice(0, EVENT_LOCATION_MAX_LENGTH)
+      : '';
+  const description =
+    typeof body.description === 'string'
+      ? body.description.trim().slice(0, EVENT_DESCRIPTION_MAX_LENGTH)
+      : '';
+  const color = resolveEventColor(body.color);
+  const department_id =
+    typeof body.department_id === 'string' && body.department_id
+      ? body.department_id
+      : null;
 
   // ── Generate ID ฝั่ง server (security: ป้องกัน user กำหนด ID เอง) ──
   const id = createId('ev');
@@ -136,9 +185,10 @@ export async function POST(request: NextRequest) {
   try {
     const { error } = await guard.adminClient.from('ypwork_events').insert({
       id,
-      type: body.type,
-      title: body.title.trim(),
-      date: body.date,
+      type,
+      title,
+      date, // ★ r51: อาจเป็น null สำหรับ group type
+      start_date,
       time,
       location,
       description,
@@ -151,7 +201,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('[/api/events POST] insert error:', error.message);
       return NextResponse.json(
-        { success: false, error: `ไม่สามารถสร้างงาน: ${error.message}` },
+        { success: false, error: `ไม่สามารถสร้างรายการ: ${error.message}` },
         { status: 500 }
       );
     }
@@ -160,7 +210,7 @@ export async function POST(request: NextRequest) {
     auditLog('event_created', {
       actor: guard.userAuthUid,
       status: 'success',
-      meta: { event_id: id, type: body.type, title: body.title.trim().slice(0, 100) },
+      meta: { event_id: id, type, title: title.slice(0, 100) },
     });
 
     // ★ v3.8.0: no-store — กัน browser replay POST บน back button

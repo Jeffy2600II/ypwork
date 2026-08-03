@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Mobile Bottom-Nav Fixes (max-width:899px) — v3.10.0-r68 (Modular CSS Refactor)
+   ★ r65: คงค่า r64 ไว้ — bottom-nav บนมือถือพอดีแล้ว ไม่ต้องปรับ
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+   หมายเหตุ: การแก้ไขส่วนที่ 1 ทำใน @media (max-width: 899px) เพื่อจำกัดเฉพาะ
+   มือถือ ส่วนการแก้ไขส่วนที่ 2 ทำแบบ global เพราะทุกขนาดหน้าจอต้องเว้นที่
+   ให้ bottom-nav / left-rail
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── ส่วนที่ 2 (global): page padding ป้องกันเนื้อหาถูกบัง ── */
+
+/* html: scroll-padding-bottom เพื่อให้ anchor/scroll-to ไม่ไปซ่อนใต้ nav */
+html {
+  scroll-padding-bottom: calc(var(--yp-page-bottom-pad) + var(--yp-space-4));
+}
+
+/* .yp-page: ใช้ --yp-page-bottom-pad แทนค่าคงที่ — รองรับทุกขนาดหน้าจอ
+   ก่อนหน้านี้ padding-bottom: var(--yp-space-6) บนมือถือแค่ 24px ไม่พอ
+   ให้รองรับแถบนำทางสูง 96px + margin 24px + safe-area */
+.yp-page {
+  padding-bottom: var(--yp-page-bottom-pad);
+}
+
+/* .yp-profile-page: เคยใช้ var(--yp-space-8) (32px) ซึ่งน้อยไป แทนที่ด้วย
+   --yp-page-bottom-pad ที่คำนวณจากความสูงของแถบนำทาง */
+.yp-profile-page {
+  padding-bottom: var(--yp-page-bottom-pad);
+}
+
+/* ── ส่วนที่ 1 (mobile only): คืนคุณภาพระดับ r10 ของ base rule ── */
+@media (max-width: 899px) {
+  /* ★ .bottom-nav__item — base rule ที่หายไป (เคยมีใน r10)
+     เดิมใน r10: padding 4px 6px, flex column, gap 3px, min-width 56px
+     ★ r62: padding-block 4px→3px, gap 3px→2px — ลดความสูงรวมของแถบลง
+     อีกเล็กน้อย พื้นที่กดจริง (item ทั้งก้อน) ยังกว้าง ~56px แนวตั้ง
+     สูงกว่าเกณฑ์ tap target ขั้นต่ำ 44px ของ WCAG/Material อยู่มาก */
+  .bottom-nav__item {
+    background: none;
+    border: 0;
+    padding: 3px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: var(--yp-radius-md, 14px);
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+    color: var(--yp-text-secondary);
+    transition: color var(--yp-t-fast, 160ms ease),
+                background var(--yp-t-fast, 160ms ease);
+  }
+
+  /* ★ .bottom-nav__icon — คืนขนาด 56×42 จาก r10
+     เดิมใน r10: 56×42px, pill radius, grid place-items center
+     ★ r62: 56×42px → 54×36px — ผู้ใช้ระบุว่าแถบนำทางใหญ่เกินไปบนมือถือ
+     ลดความสูงของ icon container ลง 6px โดยไอคอนข้างในยังคมชัด อ่านง่าย
+     (ตัว SVG ไอคอนเองไม่ได้ปรับ ขนาดยังเท่าเดิม แค่กรอบรอบๆ เล็กลง)
+     ★ r64: 54×36px → 50×32px — ลดลงอีกเพื่อให้สมดุลกับ type scale ใหม่ */
+  .bottom-nav__icon {
+    position: relative;
+    width: 50px;
+    height: 32px;
+    border-radius: var(--yp-radius-pill, 999px);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    transition:
+      background-color 220ms var(--yp-ease-m3-standard, cubic-bezier(0.2, 0, 0, 1)),
+      transform 220ms var(--yp-ease-m3-standard, cubic-bezier(0.2, 0, 0, 1));
+  }
+
+  /* ★ .bottom-nav__label — คืนขนาด 11.5px จาก r10
+     เดิมใน r10: 11.5px, letter-spacing 0.01em, white-space nowrap
+     ★ r64: 11.5px → 10.5px — label ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  .bottom-nav__label {
+    font-size: 10.5px;
+    line-height: 1.2;
+    text-align: center;
+    font-weight: var(--yp-fw-medium, 500);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    color: var(--yp-text-secondary);
+    transition: color var(--yp-t-fast, 160ms ease);
+  }
+
+  /* ★ Active label — คืนค่า indigo-600 + semibold + letter-spacing 0.02em ตาม r10 */
+  .bottom-nav__item.is-active .bottom-nav__label {
+    color: var(--yp-indigo-600);
+    font-weight: var(--yp-fw-semibold, 600);
+    letter-spacing: 0.02em;
+  }
+
+  /* ★ Active item — คืนสี indigo-600 ที่ตัวเอก */
+  .bottom-nav__item.is-active {
+    color: var(--yp-indigo-600);
+  }
+
+  /* ★ Hover บน inactive — เคยมีใน r10 */
+  .bottom-nav__item:hover {
+    color: var(--yp-indigo-500);
+  }
+}
+

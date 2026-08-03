@@ -1,0 +1,37 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Tailwind v4 Theme Bridge (@theme inline) — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+@theme inline {
+  --color-background: var(--yp-bg-page);
+  --color-foreground: var(--yp-text-body);
+  --font-sans: var(--yp-font-stack);
+  --font-mono: var(--yp-font-mono);
+  --color-card: var(--yp-bg-card);
+  --color-card-foreground: var(--yp-text-heading);
+  --color-popover: var(--yp-bg-elevated);
+  --color-popover-foreground: var(--yp-text-heading);
+  --color-primary: var(--yp-indigo-600);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--yp-bg-card-soft);
+  --color-secondary-foreground: var(--yp-text-heading);
+  --color-muted: var(--yp-bg-card-soft);
+  --color-muted-foreground: var(--yp-text-muted);
+  --color-accent: var(--yp-bg-indigo-soft);
+  --color-accent-foreground: var(--yp-indigo-600);
+  --color-destructive: #BE123C;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--yp-border-default);
+  --color-input: var(--yp-border-default);
+  --color-ring: var(--yp-focus-ring);
+  --radius-sm: var(--yp-radius-sm);
+  --radius-md: var(--yp-radius-md);
+  --radius-lg: var(--yp-radius-lg);
+  --radius-xl: var(--yp-radius-xl);
+}

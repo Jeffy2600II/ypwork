@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Responsive Token Overrides (768px/1024px/1280px) — v3.10.0-r68
+   ★ r68: Responsive Scaling Refinement & Desktop Typography Scale-up
+     - Smooth responsive typography scale up on tablet/desktop for elevated readability
+     - Consistent responsive spacing tokens (--yp-space-*, --yp-page-pad-x, --yp-section-gap, --yp-card-pad)
+     - Preserves warm, soft, cohesive design language across all viewports
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css into modular files
+   for easier development, faster navigation, and better maintainability.
+
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet scaling (≥ 768px) ── */
+@media (min-width: 768px) {
+  :root {
+    /* Spacing scale-up */
+    --yp-page-pad-x:   1.75rem;
+    --yp-card-pad:     1.25rem;
+    --yp-card-pad-lg:  1.875rem;
+    --yp-section-gap:  1.75rem;
+    --yp-stack-gap:    0.875rem;
+    --yp-space-8:      2.5rem;
+    --yp-space-10:     3rem;
+    --yp-space-12:     3.5rem;
+
+    /* Typography scale-up (Tablet) */
+    --yp-text-2xs:  0.6875rem;   /* 11px */
+    --yp-text-xs:   0.78125rem;  /* 12.5px */
+    --yp-text-sm:   0.875rem;    /* 14px */
+    --yp-text-base: 0.9375rem;   /* 15px */
+    --yp-text-lg:   1.0625rem;   /* 17px */
+    --yp-text-xl:   1.25rem;     /* 20px */
+    --yp-text-2xl:  1.5rem;      /* 24px */
+    --yp-text-3xl:  2rem;        /* 32px */
+    --yp-text-4xl:  2.375rem;    /* 38px */
+  }
+}
+
+/* ── Desktop scaling (≥ 1024px) ── */
+@media (min-width: 1024px) {
+  :root {
+    /* Spacing scale-up */
+    --yp-page-pad-x:   2rem;
+    --yp-card-pad:     1.375rem;
+    --yp-card-pad-lg:  2rem;
+    --yp-section-gap:  2.125rem;
+    --yp-stack-gap:    1rem;
+    --yp-space-8:      2.75rem;
+    --yp-space-10:     3.25rem;
+    --yp-space-12:     3.75rem;
+
+    /* Typography scale-up (Desktop) */
+    --yp-text-2xs:  0.71875rem;  /* 11.5px */
+    --yp-text-xs:   0.8125rem;   /* 13px */
+    --yp-text-sm:   0.90625rem;  /* 14.5px */
+    --yp-text-base: 1rem;        /* 16px */
+    --yp-text-lg:   1.125rem;    /* 18px */
+    --yp-text-xl:   1.375rem;    /* 22px */
+    --yp-text-2xl:  1.75rem;     /* 28px */
+    --yp-text-3xl:  2.25rem;     /* 36px */
+    --yp-text-4xl:  2.75rem;     /* 44px */
+  }
+}
+
+/* ── Large Desktop / Widescreen scaling (≥ 1280px) ── */
+@media (min-width: 1280px) {
+  :root {
+    /* Spacing scale-up */
+    --yp-page-pad-x:   2.25rem;
+    --yp-card-pad:     1.5rem;
+    --yp-card-pad-lg:  2.25rem;
+    --yp-section-gap:  2.5rem;
+
+    /* Typography scale-up (Widescreen) */
+    --yp-text-2xs:  0.75rem;     /* 12px */
+    --yp-text-xs:   0.84375rem;  /* 13.5px */
+    --yp-text-sm:   0.9375rem;   /* 15px */
+    --yp-text-base: 1.03125rem;  /* 16.5px */
+    --yp-text-lg:   1.1875rem;   /* 19px */
+    --yp-text-xl:   1.5rem;      /* 24px */
+    --yp-text-2xl:  1.875rem;    /* 30px */
+    --yp-text-3xl:  2.5rem;      /* 40px */
+    --yp-text-4xl:  3rem;        /* 48px */
+  }
+}

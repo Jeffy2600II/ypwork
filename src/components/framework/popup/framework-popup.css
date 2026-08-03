@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — Desktop Popup (.yp-popup-*) — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 2: DESKTOP POPUP / DIALOG (.yp-popup-*)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Popup Root (backdrop + flex container) ── */
+.yp-popup-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yp-popup-z, 18000);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yp-space-4, 16px);
+  overscroll-behavior: contain;
+  transition:
+    opacity 280ms var(--yp-ease-m3-emphasized),
+    visibility 280ms;
+}
+
+.yp-popup-root.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Popup (ตัวการ์ดจริง ๆ) ── */
+.yp-popup {
+  position: relative;
+  background: var(--yp-bg-card, #fff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  contain: layout style;
+  overscroll-behavior: contain;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  width: 100%;
+  max-width: 480px;
+  max-height: 88dvh;
+  border-radius: var(--yp-radius-lg, 28px);
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 340ms var(--yp-ease-m3-emphasized),
+    opacity 260ms var(--yp-ease-m3-emphasized);
+  /* ★ r56: ลด popup shadow ลง ~50% — ใช้ border เป็นหลัก ไม่ฟุ้ง */
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.14),
+    0 4px 12px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(99, 102, 241, 0.04);
+  padding: 20px var(--yp-space-5, 20px)
+           calc(20px + var(--yp-safe-bottom, 0px));
+}
+
+.yp-popup.has-footer {
+  padding-bottom: 0;
+}
+
+/* ── OPEN STATE ── */
+.yp-popup.is-open {
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+  will-change: transform, opacity;
+}
+
+/* ── CLOSING STATE ── */
+.yp-popup.is-closing {
+  transform: translate3d(0, 24px, 0) scale(0.94);
+  opacity: 0;
+  transition:
+    transform 240ms var(--yp-ease-m3-emphasized),
+    opacity 200ms var(--yp-ease-m3-emphasized);
+}
+
+/* ── Popup variants (size) ── */
+.yp-popup--auto { /* default */ }
+.yp-popup--sm { max-width: 360px; }
+.yp-popup--md { max-width: 520px; }
+.yp-popup--lg { max-width: 640px; }
+.yp-popup--full { max-width: 95vw; max-height: 95dvh; }
+
+/* ── Popup header ── */
+.yp-popup__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yp-space-3, 12px);
+  margin-bottom: var(--yp-space-4, 16px);
+}
+
+.yp-popup__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.yp-popup__title {
+  font-size: 1.1rem;
+  font-weight: var(--yp-fw-bold, 700);
+  color: var(--yp-text-body, #1f2937);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.yp-popup__desc {
+  font-size: 0.85rem;
+  color: var(--yp-text-secondary, #6b7280);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* ── Popup close button ── */
+.yp-popup__close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--yp-radius-md, 12px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--yp-text-muted, #6b7280);
+  transition: background 160ms var(--yp-ease-m3-standard, ease),
+              color 160ms var(--yp-ease-m3-standard, ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.yp-popup__close:hover {
+  background: rgba(30, 27, 70, 0.06);
+  color: var(--yp-text-body, #1f2937);
+}
+
+.yp-popup__close:active {
+  background: rgba(30, 27, 70, 0.10);
+}
+
+.yp-popup__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Popup body ── */
+.yp-popup__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+/* ── Popup footer ── */
+.yp-popup__footer {
+  flex-shrink: 0;
+  padding: var(--yp-space-3, 12px) 0
+            calc(var(--yp-space-4, 16px) + var(--yp-safe-bottom, 0px));
+  border-top: 1px solid var(--yp-border-subtle, rgba(30, 27, 70, 0.06));
+  background: var(--yp-bg-card, #fff);
+}
+

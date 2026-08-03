@@ -186,13 +186,54 @@ export function eventProgress(tasks: { status: string }[]): number {
   return Math.round((done / tasks.length) * 100);
 }
 
-/** แปลง status code เป็น label ภาษาไทย */
+/**
+ * คำนวณสถานะที่ควรแสดงจริงของงาน — ใช้แทนการอ่าน event.status ตรงๆ
+ * ★ v3.10.0 รอบที่ 9 (แก้บั๊ก): กลุ่มรายการไม่มีปุ่มเปลี่ยนสถานะของตัวเอง
+ *   status ที่บันทึกไว้ใน DB จึงค้างอยู่ค่าเดิม (มักเป็น "รอเริ่ม") ตลอดไป
+ *   ไม่ว่ารายการย่อยข้างในจะคืบหน้าไปแค่ไหนแล้วก็ตาม
+ *
+ * กติกา (สำหรับ type: 'group' เท่านั้น — รายการเดี่ยวใช้ status ที่ผู้ใช้ตั้งเองตรงๆ):
+ *   - ยังไม่มีรายการย่อย → ใช้ status เดิมที่บันทึกไว้ (ไม่มีอะไรให้คำนวณ)
+ *   - ทุกรายการย่อยเสร็จสมบูรณ์ → 'done'
+ *   - มีรายการย่อยอย่างน้อย 1 รายการเริ่มทำหรือเสร็จแล้ว (แต่ไม่ครบ) → 'ongoing'
+ *   - ยังไม่มีรายการย่อยไหนเริ่มเลย → 'todo'
+ * ผลลัพธ์นี้อ่านจาก event.tasks ที่มาจาก realtime hook อยู่แล้ว จึงอัปเดตทันทีเสมอ
+ * เมื่อรายการย่อยเปลี่ยนสถานะ โดยไม่ต้องรอ trigger หรือ column แยกต่างหาก
+ */
+export function resolveEventStatus(event: {
+  type: string;
+  status: EventStatus;
+  tasks?: { status: TaskStatus }[];
+}): EventStatus {
+  if (event.type !== 'group') return event.status;
+
+  const tasks = event.tasks || [];
+  if (tasks.length === 0) return event.status;
+
+  const allDone = tasks.every((t) => t.status === 'done');
+  if (allDone) return 'done';
+
+  const hasProgress = tasks.some((t) => t.status === 'ongoing' || t.status === 'done');
+  return hasProgress ? 'ongoing' : 'todo';
+}
+
+/** แปลง status code เป็น label ภาษาไทย
+ *  ★ v3.10.0 รอบที่ 5: เปลี่ยน labels ให้ชัดเจนขึ้น ป้องกันความเข้าใจผิด
+ *    - 'todo' เดิม = "ยังไม่เริ่ม" → ใหม่ = "รอเริ่ม" (ชัดเจนว่ารออยู่ ไม่ได้เริ่ม)
+ *      (คำว่า "ยังไม่เริ่ม" ทำให้เพื่อนเข้าใจผิดว่างานยังไม่ได้ทำอะไรเลย
+ *       ทั้งที่อาจมีบางขั้นตอน done แล้ว — "รอเริ่ม" ชัดเจนกว่า)
+ *    - 'ongoing' เดิม = "กำลังทำ" → ใหม่ = "กำลังทำอยู่" (เน้นว่ากำลังทำอยู่จริง)
+ *    - 'done' เดิม = "เสร็จแล้ว" → ใหม่ = "เสร็จสมบูรณ์" (ชัดเจนว่าเสร็จจริง)
+ *    - 'planning' เดิม = "วางแผน" → คงไว้ (ชัดเจนอยู่แล้ว)
+ *  ★ v3.10.0 รอบที่ 10: ปรับคำให้เป็นทางการมากขึ้นทั่วทั้งเว็บ
+ *    - 'ongoing' "กำลังทำอยู่" → "กำลังดำเนินการ" (ทางการขึ้น มาตรฐานเดียวกันทั้งเว็บ)
+ */
 export function statusLabel(status: EventStatus | TaskStatus): string {
   const labels: Record<string, string> = {
     planning: 'วางแผน',
-    todo: 'ยังไม่เริ่ม',
-    ongoing: 'กำลังทำ',
-    done: 'เสร็จแล้ว',
+    todo: 'รอเริ่ม',
+    ongoing: 'กำลังดำเนินการ',
+    done: 'เสร็จสมบูรณ์',
   };
   return labels[status] || status;
 }

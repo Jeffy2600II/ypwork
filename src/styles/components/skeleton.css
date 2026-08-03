@@ -1,0 +1,29 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Skeleton Loader — v3.10.0-r68
+   ★ r68: Token-driven soft loading shimmer matching warm card surface
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css into modular files
+   for easier development, faster navigation, and better maintainability.
+
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+
+.yp-skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--yp-bg-card-soft, #FAF8FC) 0%,
+    rgba(99, 102, 241, 0.09) 50%,
+    var(--yp-bg-card-soft, #FAF8FC) 100%
+  );
+  background-size: 200% 100%;
+  animation: yp-skeleton-shimmer 1.4s var(--yp-ease-standard, cubic-bezier(0.4, 0, 0.2, 1)) infinite;
+  border-radius: var(--yp-radius-sm, 34px);
+}
+
+@keyframes yp-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

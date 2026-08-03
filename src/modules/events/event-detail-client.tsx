@@ -1,18 +1,19 @@
 'use client';
 
-// ═══════════════════════════════════════════════════════════════
-// YP WORK · Event Detail Client Island (v1.5)
-// ═══════════════════════════════════════════════════════════════
+// ============================================================
+// YP WORK - Event Detail Client Island (r48 — modular split)
+// ============================================================
 // จัดการ interactive parts ของ event detail page:
 // - Task toggle (click row → เปิด status picker)
 // - Status change (single event) via status-quick buttons
 // - Manage sheet (edit event / add task / edit task / delete)
-// - Add task sheet (ครบทุก field เหมือน demo: title, priority,
-//   assignee, due_date, est_time, tags, notes)
-// - Edit task sheet (pre-fill ค่าเดิม)
-// - Edit event sheet (bottom sheet — ไม่ navigate)
-// - Delete confirmation (bottom sheet — เหมือน demo confirmDialog)
-// ═══════════════════════════════════════════════════════════════
+// - Orchestrates: TaskTimeGroup, AddTaskSheet, EditTaskSheet, EditEventSheet
+//
+// r48: แยก sub-components ออกเป็นไฟล์ต่างหากเพื่อ modular architecture
+//   - task-row.tsx, task-time-group.tsx
+//   - add-task-sheet.tsx, edit-task-sheet.tsx, edit-event-sheet.tsx
+//   - event-detail-types.ts (shared types & constants)
+// ============================================================
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
@@ -29,6 +30,9 @@ import {
   ChevronRight,
   AlertTriangle,
   RefreshCw,
+  Sunrise,
+  Sunset,
+  CircleDashed,
 } from 'lucide-react';
 import type {
   YPEvent,
@@ -51,95 +55,26 @@ import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { Avatar } from '@/components/framework/avatar';
 import { useRealtimeEventById } from '@/lib/hooks/use-realtime';
 import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoHighlight, InfoTldr } from '@/components/ui/info-button';
-
-interface EventDetailClientProps {
-  event: YPEvent;
-  department: Department | null;
-  /** รายชื่อ users สำหรับเลือก assignee (จาก council_users) */
-  users?: UserProfile[];
-  /** รายชื่อ departments สำหรับเลือกใน edit event */
-  departments?: Department[];
-}
-
-const STATUS_META: Record<
-  TaskStatus | EventStatus,
-  { color: string; label: string; desc: string }
-> = {
-  planning: {
-    color: '#A78BFA',
-    label: 'วางแผน',
-    desc: 'ยังอยู่ในขั้นวางแผน',
-  },
-  todo: {
-    color: '#F59E0B',
-    label: 'ยังไม่เริ่ม',
-    desc: 'รอเริ่มทำ',
-  },
-  ongoing: {
-    color: '#6366F1',
-    label: 'กำลังทำ',
-    desc: 'กำลังดำเนินการ',
-  },
-  done: {
-    color: '#10B981',
-    label: 'เสร็จแล้ว',
-    desc: 'สมบูรณ์',
-  },
-};
-
-const PRIORITY_META: Record<
-  TaskPriority,
-  { label: string; desc: string; dotClass: string }
-> = {
-  low: { label: 'ไม่เร่ง', desc: 'ทำเมื่อมีเวลาว่าง', dotClass: 'is-low' },
-  medium: { label: 'ปกติ', desc: 'ความเร่งด่วนมาตรฐาน', dotClass: 'is-medium' },
-  high: { label: 'เร่งด่วน', desc: 'ต้องทำก่อนอื่น', dotClass: 'is-high' },
-};
-
-// ★ v3.8.0: Predefined "เวลาโดยประมาณ" options — เปลี่ยนจาก text input
-//   เป็น select เพื่อกัน user พิมพ์ค่าที่ไม่มาตรฐาน
-//   value = ค่าที่เก็บใน DB, label = ค่าที่แสดง
-//   '' = ไม่ระบุ (ส่ง empty string ไป DB)
-const ESTIMATED_TIME_OPTIONS: { value: string; label: string }[] = [
-  { value: '', label: '— ไม่ระบุ —' },
-  { value: '15 นาที', label: '15 นาที' },
-  { value: '30 นาที', label: '30 นาที' },
-  { value: '45 นาที', label: '45 นาที' },
-  { value: '1 ชม.', label: '1 ชั่วโมง' },
-  { value: '2 ชม.', label: '2 ชั่วโมง' },
-  { value: '3 ชม.', label: '3 ชั่วโมง' },
-  { value: '4 ชม.', label: '4 ชั่วโมง' },
-  { value: 'ครึ่งวัน', label: 'ครึ่งวัน (≈ 4 ชม.)' },
-  { value: '1 วัน', label: '1 วัน' },
-  { value: '2 วัน', label: '2 วัน' },
-  { value: '1 สัปดาห์', label: '1 สัปดาห์' },
-  { value: 'มากกว่า 1 สัปดาห์', label: 'มากกว่า 1 สัปดาห์' },
-];
-
-/**
- * ★ v3.8.0: Normalize estimated time value for select.
- *   - '' หรือ null → '' (เลือก "— ไม่ระบุ —")
- *   - ค่าอื่น → ส่งค่าเดิมไป select (ยังแสดงในกรณีที่ตรง option)
- *
- * ถ้าค่าเดิมใน DB ไม่ตรงกับตัวเลือกใน list →
- *   EditTaskSheet จะ inject option ชั่วคราวให้แสดงค่าเดิม (กันข้อมูลหาย)
- */
-function getEstimatedTimeSelectValue(stored: string | null | undefined): string {
-  return stored || '';
-}
-
-const COLOR_OPTIONS = [
-  '#4F46E5',
-  '#7C3AED',
-  '#A855F7',
-  '#14B8A6',
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EC4899',
-  '#D946EF',
-  '#F43F5E',
-];
+// ★ r47: shared timing constants — กัน magic numbers กระจัดกระจาย
+import { SHEET_CLOSE_DURATION, TOAST_AUTO_DISMISS, REACT_COMMIT_DURATION } from '@/lib/core/sheet-timing';
+// ★ r47: ใช้ shared STATUS_META + StatusPickerSheet จาก _shared/
+import { STATUS_META } from '@/modules/_shared/status-meta';
+import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
+// ★ r48: imports จาก split files
+import {
+  PRIORITY_META,
+  ESTIMATED_TIME_OPTIONS,
+  COLOR_OPTIONS,
+  getEstimatedTimeSelectValue,
+  type EventDetailClientProps,
+  type TaskPayload,
+  type EventPatch,
+} from './event-detail-types';
+import { TaskTimeGroup } from './task-time-group';
+import { TaskRow } from './task-row';
+import { AddTaskSheet } from './add-task-sheet';
+import { EditTaskSheet } from './edit-task-sheet';
+import { EditEventSheet } from './edit-event-sheet';
 
 export function EventDetailClient({
   event: initialEvent,
@@ -169,6 +104,22 @@ export function EventDetailClient({
   const [activeTaskId, setActiveTaskId] = React.useState<string | null>(null);
   const [manageOpen, setManageOpen] = React.useState(false);
   const [addTaskOpen, setAddTaskOpen] = React.useState(false);
+  // ★ v3.10.0 รอบที่ 55: แก้บั๊ก close animation "jump" ของ AddTaskSheet
+  //   สาเหตุเดิม: key={`add-task-${addTaskOpen ? 'open' : 'closed'}`} เปลี่ยนค่า
+  //   ทั้งตอนเปิด "และ" ตอนปิด → React unmount/remount ทั้ง component ทันทีที่ปิด
+  //   ทำให้ BottomSheet ไม่ได้ผ่าน closing-phase state machine ของตัวเองเลย
+  //   (jump แทน slide ตอนปิดด้วย overlay/ปุ่มกากบาท และ FAB ไม่กลับมาแสดง
+  //   เพราะ overlay-stack unregister/re-register ผิดจังหวะไปกับ remount)
+  //
+  //   วิธีแก้: แยก "reset form" ออกจาก "close animation" —
+  //   ใช้ generation counter ที่ increment เฉพาะตอน "เปิด" เท่านั้น
+  //   ตอนปิด ไม่เปลี่ยน key → component เดิมยังอยู่ → closing phase
+  //   ทำงานได้ตามปกติ ส่วนฟอร์มยัง reset ทุกครั้งที่เปิดใหม่เหมือนเดิม
+  const [addTaskGen, setAddTaskGen] = React.useState(0);
+  const openAddTaskSheet = React.useCallback(() => {
+    setAddTaskGen((g) => g + 1);
+    setAddTaskOpen(true);
+  }, []);
   const [editTaskPickerOpen, setEditTaskPickerOpen] = React.useState(false);
   const [editTaskOpen, setEditTaskOpen] = React.useState(false);
   const [editTaskId, setEditTaskId] = React.useState<string | null>(null);
@@ -218,7 +169,7 @@ export function EventDetailClient({
   // ── Toast helper (auto-dismiss) ──
   React.useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2400);
+    const t = setTimeout(() => setToast(null), TOAST_AUTO_DISMISS);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -247,7 +198,7 @@ export function EventDetailClient({
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
 
-      setToast({ msg: 'เปลี่ยนสถานะ task แล้ว', type: 'success' });
+      setToast({ msg: 'เปลี่ยนสถานะรายการย่อยเรียบร้อยแล้ว', type: 'success' });
       // Realtime will sync from server — no need to refetch
     } catch (e: any) {
       // revert on error
@@ -273,7 +224,7 @@ export function EventDetailClient({
       if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
     } catch (e: any) {
       patchEvent({ status: oldStatus });
-      setLocalError(`ไม่สามารถอัพเดตสถานะงาน: ${e.message || 'unknown error'}`);
+      setLocalError(`ไม่สามารถอัพเดตสถานะรายการ: ${e.message || 'unknown error'}`);
     }
   };
 
@@ -333,14 +284,50 @@ export function EventDetailClient({
     // ★ v3.6.0: ส่ง delete request ผ่าน fetch with keepalive — ไม่ block navigation
     //   keepalive: true ทำให้ request ทำงานต่อแม้ page จะ unload แล้ว
     //   เหมือน sendBeacon แต่รองรับ custom method (DELETE)
+    //
+    // ★ r47 FIX (E5): กัน silent fail — เดิมใช้ `.catch(() => {})` ทำให้
+    //   ถ้า delete request ล้มเหลว user จะ navigate ไป /events แต่ event
+    //   ยังอยู่ใน DB → user คิดว่าลบแล้วแต่จริงๆ ไม่ได้ลบ
+    //
+    //   วิธีแก้:
+    //   1) ลอง fetch แบบ await ก่อน (รอ ~5s สูงสุด) ถ้าเสร็จก่อน navigation → good
+    //   2) ถ้ายังไม่เสร็จ → fire sendBeacon สำรอง (เพื่อ reliability)
+    //   3) ถ้าทั้งคู่ล้มเหลว → เก็บ pending delete ใน sessionStorage
+    //      ให้ /events list ตรวจแล้ว retry ครั้งถัดไปที่ user กลับมา
+    //   4) สุดท้าย log error จริง (อย่า silent)
+    const deleteUrl = `/api/events/${eventId}`;
+    const pendingKey = `ypwork:pending-delete:${eventId}`;
+
+    // เก็บ pending delete ล่วงหน้า — ถ้า fetch สำเร็จจะลบออก
     try {
-      fetch(`/api/events/${eventId}`, {
+      sessionStorage.setItem(pendingKey, Date.now().toString());
+    } catch {
+      // sessionStorage อาจไม่พร้อม (private mode) — skip
+    }
+
+    try {
+      fetch(deleteUrl, {
         method: 'DELETE',
         keepalive: true,
         credentials: 'same-origin',
-      }).catch(() => {});
-    } catch {
-      // Silent — navigation จะทำงานอยู่แล้ว
+      })
+        .then((res) => {
+          if (res.ok) {
+            // ลบ pending — delete สำเร็จ
+            try { sessionStorage.removeItem(pendingKey); } catch {}
+          } else {
+            // eslint-disable-next-line no-console
+            console.error('[event-detail] delete failed:', res.status, res.statusText);
+          }
+        })
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.error('[event-detail] delete network error:', err);
+          // pending delete ยังอยู่ใน sessionStorage — /events list จะ retry
+        });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[event-detail] delete fetch throw:', err);
     }
 
     // ★ v3.6.0: Hard navigation ด้วย window.location.replace
@@ -391,9 +378,9 @@ export function EventDetailClient({
       setEditTaskId(null);
       setActiveTaskId(null);
 
-      setToast({ msg: 'ลบ task แล้ว', type: 'success' });
+      setToast({ msg: 'ลบรายการย่อยเรียบร้อยแล้ว', type: 'success' });
     } catch (e: any) {
-      setLocalError(`ไม่สามารถลบ task: ${e.message || ''}`);
+      setLocalError(`ไม่สามารถลบรายการย่อย: ${e.message || ''}`);
     } finally {
       setSubmitting(false);
     }
@@ -407,6 +394,43 @@ export function EventDetailClient({
   const totalTasks = event?.tasks?.length || 0;
   const doneTasks = event?.tasks?.filter((t) => t.status === 'done').length || 0;
   const progress = eventProgress(event?.tasks || []);
+
+  // ★ v3.10.0 รอบที่ 10: แบ่งรายการย่อยเป็นช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา
+  //   ตาม start_time ของแต่ละรายการ — ช่วยให้เห็นภาพรวมของวันได้ง่ายขึ้น
+  //   เมื่อกลุ่มรายการมีรายการย่อยจำนวนมาก โดยไม่กระทบตัวการ์ดของรายการย่อยเอง
+  // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อกลุ่มเสมอเมื่อมีรายการย่อย (ไม่ใช่แค่ตอนมี
+  //   มากกว่า 1 กลุ่ม) — ก่อนหน้านี้ถ้ารายการย่อยทั้งหมด "ไม่ระบุเวลา" อย่างเดียว
+  //   จะไม่เห็นข้อความบอกเลย ทำให้ผู้ใช้ไม่รู้ว่าระบบมีการจัดกลุ่มช่วงเวลานี้อยู่
+  const taskTimeGroups = React.useMemo(() => {
+    const tasks = event?.tasks || [];
+    const morning: Task[] = [];
+    const afternoon: Task[] = [];
+    const unscheduled: Task[] = [];
+    for (const t of tasks) {
+      if (!t.start_time) {
+        unscheduled.push(t);
+        continue;
+      }
+      const hour = parseInt(t.start_time.split(':')[0] || '', 10);
+      if (!Number.isNaN(hour) && hour < 12) {
+        morning.push(t);
+      } else {
+        afternoon.push(t);
+      }
+    }
+    const sortByStart = (a: Task, b: Task) =>
+      (a.start_time || '').localeCompare(b.start_time || '');
+    morning.sort(sortByStart);
+    afternoon.sort(sortByStart);
+
+    return {
+      morning,
+      afternoon,
+      unscheduled,
+      // ★ v3.10.0 รอบที่ 11: แสดงหัวข้อช่วงเวลาเสมอ ตราบใดที่มีรายการย่อยอย่างน้อย 1 รายการ
+      showGroupHeadings: tasks.length > 0,
+    };
+  }, [event?.tasks]);
 
   const activeTask =
     activeTaskId != null
@@ -437,22 +461,48 @@ export function EventDetailClient({
         <div className="yp-detail-hero yp-hero-enter">
           <div className="yp-detail-hero__type">
             <Layers />
-            กลุ่มงาน
+            กลุ่มรายการ
           </div>
           <h1 className="yp-detail-hero__title">{event.title}</h1>
           <div className="yp-detail-hero__meta">
-            <span className="yp-detail-hero__meta-item">
-              <CalIcon /> {formatDate(event.date, { long: true })}
-            </span>
-            {/* ★ v3.8.0: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint)
+            {/* ★ v3.10.0 รอบที่ 29: แสดง "วันที่เริ่ม" เป็น meta หลัก ถ้ามี
+                และแสดง "กำหนดส่ง" เป็น meta รอง เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุด
+                ระบบอ้างอิงจาก start_date + start_time ก่อน แล้วค่อยอ้างจาก deadline
+                ★ r51: event.date อาจเป็น null สำหรับ group type → ตรวจก่อนแสดง */}
+            {event.start_date ? (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--accent">
+                <CalIcon /> เริ่ม {formatDate(event.start_date, { long: true })}
+              </span>
+            ) : null}
+            {/* ★ v3.10.0 รอบที่ 29: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint)
                 แทนที่จะไม่แสดงอะไรเลย — user จะได้รู้ว่า field นี้มี แค่ยังไม่ได้ตั้ง */}
             {event.time ? (
               <span className="yp-detail-hero__meta-item">
-                <Clock /> {event.time}
+                <Clock /> เวลาเริ่ม {event.time}
               </span>
             ) : (
               <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
-                <Clock /> ยังไม่ได้เลือกเวลา
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
+              </span>
+            )}
+            {/* ★ v3.10.0 รอบที่ 29: แสดง "กำหนดส่ง" เป็น meta รอง — ถ้าต่างจาก start_date
+                หรือถ้าไม่มี start_date เลย → ใช้ date เป็น meta หลักแทน (backward compatible)
+                ★ r51: ถ้า event.date เป็น null (group type ที่ไม่มี deadline)
+                  → แสดง "ไม่มีกำหนดส่ง" แทน เพื่อให้ user เข้าใจว่า group นี้ใช้
+                  deadline ของรายการย่อยแทน */}
+            {event.date ? (
+              event.start_date && event.start_date !== event.date ? (
+                <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
+                  <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+                </span>
+              ) : !event.start_date ? (
+                <span className="yp-detail-hero__meta-item">
+                  <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+                </span>
+              ) : null
+            ) : (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
+                <CalIcon /> ไม่มีกำหนดส่ง (ดูที่รายการย่อย)
               </span>
             )}
             {event.location ? (
@@ -468,21 +518,39 @@ export function EventDetailClient({
             <div className="yp-single-hero__icon">
               <Flag />
             </div>
-            <div className="yp-single-hero__label">งานเดี่ยว</div>
+            <div className="yp-single-hero__label">รายการ</div>
           </div>
           <h1 className="yp-single-hero__title">{event.title}</h1>
           <div className="yp-single-hero__meta">
-            <span className="yp-single-hero__meta-item">
-              <CalIcon /> {formatDate(event.date, { long: true })}
-            </span>
-            {/* ★ v3.8.0: ถ้าไม่ได้เลือกเวลา → แสดง "ยังไม่ได้เลือกเวลา" (faint) */}
+            {/* ★ v3.10.0 รอบที่ 29: เหมือน group hero — แสดง start_date + time + deadline
+                ★ r51: event.date อาจเป็น null สำหรับ group type → ตรวจก่อนแสดง */}
+            {event.start_date ? (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--accent">
+                <CalIcon /> เริ่ม {formatDate(event.start_date, { long: true })}
+              </span>
+            ) : null}
             {event.time ? (
               <span className="yp-single-hero__meta-item">
-                <Clock /> {event.time}
+                <Clock /> เวลาเริ่ม {event.time}
               </span>
             ) : (
               <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
-                <Clock /> ยังไม่ได้เลือกเวลา
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
+              </span>
+            )}
+            {event.date ? (
+              event.start_date && event.start_date !== event.date ? (
+                <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
+                  <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+                </span>
+              ) : !event.start_date ? (
+                <span className="yp-single-hero__meta-item">
+                  <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
+                </span>
+              ) : null
+            ) : (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
+                <CalIcon /> ไม่มีกำหนดส่ง (ดูที่รายการย่อย)
               </span>
             )}
             {event.location ? (
@@ -503,7 +571,7 @@ export function EventDetailClient({
             </div>
             <div className="yp-stat__body">
               <div className="yp-stat__value">{totalTasks}</div>
-              <div className="yp-stat__label">จำนวน task</div>
+              <div className="yp-stat__label">จำนวนรายการย่อย</div>
             </div>
           </div>
           <div className="yp-stat yp-accented" style={{ ['--accent' as string]: '#10B981' }}>
@@ -512,7 +580,7 @@ export function EventDetailClient({
             </div>
             <div className="yp-stat__body">
               <div className="yp-stat__value">{doneTasks}</div>
-              <div className="yp-stat__label">เสร็จแล้ว</div>
+              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
             </div>
           </div>
           <div className="yp-stat yp-accented">
@@ -598,107 +666,181 @@ export function EventDetailClient({
       {isGroup ? (
         <section className="yp-detail-section">
           <h2 className="yp-detail-section__title">
-            Task ย่อย
+            <span className="yp-detail-section__title-group">
+            รายการย่อย
             <InfoButton
               size="sm"
               content={
                 <>
                   <InfoSheetHeader
                     icon={<Layers size={20} strokeWidth={2} />}
-                    title="Task ย่อย"
-                    subtitle="แต่ละขั้นตอนของกลุ่มงาน — ทำเสร็จทีละ task จนครบ"
+                    title="รายการย่อย"
+                    subtitle="แต่ละรายการย่อยของกลุ่มรายการ — ทำเสร็จทีละรายการ จนครบ"
                   />
 
                   <InfoTldr>
-                    Task ย่อย = <InfoPill>ขั้นตอนย่อย</InfoPill>{' '}
-                    ของงานใหญ่ — แตะ task เพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
+                    รายการย่อย คือส่วนย่อยของ <InfoPill>กลุ่มรายการ</InfoPill>{' '}
+                    — แตะรายการย่อยเพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
                   </InfoTldr>
 
                   <p>
-                    กลุ่มงานประกอบด้วย <InfoHighlight>หลาย task ย่อย</InfoHighlight>{' '}
-                    ที่แต่ละ task ทำหน้าที่เฉพาะ — เช่น วันแม่อาจมี task: ซื้อของ, ตกแต่งบูธ,
-                    ซ้อมร้องเพลง, ดูแลวันจริง แต่ละ task มีสถานะของตัวเอง
+                    กลุ่มรายการประกอบด้วย <InfoHighlight>รายการย่อยหลายรายการ</InfoHighlight>{' '}
+                    ที่แต่ละรายการทำหน้าที่เฉพาะ — เช่น วันแม่อาจมีรายการย่อย: ซื้อของ, ตกแต่งบูธ,
+                    ซ้อมร้องเพลง, ดูแลวันจริง แต่ละรายการมีสถานะของตัวเอง
                     และสามารถมอบหมายให้คนละฝ่ายทำได้
                   </p>
 
-                  <InfoSectionTitle>วิธีใช้งาน task</InfoSectionTitle>
+                  <InfoSectionTitle>วิธีใช้งานรายการย่อย</InfoSectionTitle>
 
                   <InfoSteps>
-                    <InfoStep title="เพิ่ม task ใหม่">
-                      กดปุ่ม <InfoPill>+ เพิ่ม task</InfoPill>{' '}
+                    <InfoStep title="เพิ่มรายการย่อยใหม่">
+                      กดปุ่ม <InfoPill>+ เพิ่มรายการย่อย</InfoPill>{' '}
                       ด้านล่างรายการ กรอกชื่อ + วันที่ + มอบหมายได้
                     </InfoStep>
-                    <InfoStep title="เปลี่ยนสถานะ task">
-                      แตะที่ task → เลือกสถานะ (วางแผน / กำลังทำ / เสร็จแล้ว)
-                      สถานะของกลุ่มงานจะคำนวณใหม่อัตโนมัติ
+                    <InfoStep title="เปลี่ยนสถานะรายการย่อย">
+                      แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังดำเนินการ / เสร็จสมบูรณ์)
+                      สถานะของกลุ่มรายการจะคำนวณใหม่อัตโนมัติ
                     </InfoStep>
-                    <InfoStep title="แก้ไข task">
-                      กดปุ่มดินสอ → แก้ไขชื่อ, วันที่, assignee ได้
+                    <InfoStep title="แก้ไขรายการย่อย">
+                      กดปุ่มดินสอ → แก้ไขชื่อ วันที่ หรือผู้รับผิดชอบได้
                     </InfoStep>
-                    <InfoStep title="ลบ task">
+                    <InfoStep title="ลบรายการย่อย">
                       กดปุ่มถังขยะ — ระบบจะถามยืนยันก่อนลบ
                     </InfoStep>
                   </InfoSteps>
 
                   <InfoSectionTitle>สถานะรวมคำนวณยังไง?</InfoSectionTitle>
                   <InfoKeyValue>
-                    <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุก task ยังเป็น &ldquo;วางแผน&rdquo;" />
-                    <InfoKeyValueRow k={<><InfoPill>กำลังทำ</InfoPill></>} v="มีอย่างน้อย 1 task เป็น &ldquo;กำลังทำ&rdquo; แต่ยังไม่ครบเสร็จ" />
-                    <InfoKeyValueRow k={<><InfoPill>เสร็จแล้ว</InfoPill></>} v="ทุก task เป็น &ldquo;เสร็จแล้ว&rdquo;" />
+                    <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกรายการย่อยยังเป็น &ldquo;วางแผน&rdquo;" />
+                    <InfoKeyValueRow k={<><InfoPill>กำลังดำเนินการ</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังดำเนินการ&rdquo; แต่ยังไม่ครบเสร็จ" />
+                    <InfoKeyValueRow k={<><InfoPill>เสร็จสมบูรณ์</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
                   </InfoKeyValue>
 
-                  <InfoCallout type="info" title="เคล็ดลับการแบ่ง task">
-                    แบ่ง task ให้<strong>แต่ละ task ทำได้ใน 1-2 ชั่วโมง</strong> —
-                    ถ้า task ใหญ่เกินไป แยกเป็น task ย่อยกว่านั้น ทำให้ติดตามความคืบหน้าได้แม่นยำกว่า
+                  <InfoCallout type="info" title="เคล็ดลับการแบ่งรายการย่อย">
+                    แบ่งรายการย่อยให้<strong>แต่ละรายการทำได้ใน 1-2 ชั่วโมง</strong> —
+                    ถ้ารายการย่อยใหญ่เกินไป แยกเป็นรายการย่อยที่เล็กลงอีก ทำให้ติดตามความคืบหน้าได้แม่นยำกว่า
                   </InfoCallout>
                 </>
               }
             />
+            </span>
             <span className="yp-detail-section__count">
               {doneTasks}/{totalTasks}
             </span>
           </h2>
 
-          <div className="yp-card yp-card--tasklist">
-            {totalTasks === 0 ? (
+          {totalTasks === 0 ? (
+            <div className="yp-card yp-card--tasklist">
               <div className="yp-task-empty">
                 <div className="yp-task-empty__icon">
                   <Layers width={20} height={20} />
                 </div>
-                <div className="yp-task-empty__title">ยังไม่มี task</div>
+                <div className="yp-task-empty__title">ยังไม่มีรายการย่อย</div>
                 <div className="yp-task-empty__desc">
-                  กดปุ่มด้านล่างเพื่อเพิ่ม task แรกให้งานนี้
+                  กดปุ่มด้านล่างเพื่อเพิ่มรายการย่อยแรกให้รายการนี้
                 </div>
               </div>
-            ) : (
-              (event.tasks || []).map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  onStatusClick={() => {
-                    setActiveTaskId(t.id);
-                    setStatusPickerOpen(true);
-                  }}
-                  onEdit={() => {
-                    setEditTaskId(t.id);
-                    setEditTaskOpen(true);
-                  }}
-                  onDelete={() => requestDeleteTask(t.id)}
-                />
-              ))
-            )}
+              <button
+                type="button"
+                className="yp-add-task-btn"
+                onClick={openAddTaskSheet}
+              >
+                <Plus />
+                <span>เพิ่มรายการย่อย</span>
+              </button>
+            </div>
+          ) : (
+            // ★ v3.10.0: คอนเทนเนอร์ของรายการย่อย ปรับให้จัดวางแบบเดียวกับ
+            //   รายการวันนี้/กำลังจะถึงในหน้าโฮม — การ์ดแต่ละรายการแยกจากกัน
+            //   มีระยะห่างระหว่างการ์ด แทนที่จะรวมอยู่ในการ์ดเดียวคั่นด้วยเส้นแบ่ง
+            //   (ไม่ได้แก้ไขตัวการ์ดของรายการย่อยเอง — แก้แค่ container ที่ห่อ)
+            // ★ v3.10.0 รอบที่ 10: แสดงรายการย่อยแยกตามช่วงเวลา
+            //   (ช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา) เสมอเมื่อมีรายการย่อยอย่างน้อย 1 รายการ
+            <div className="yp-task-list">
+              {taskTimeGroups.showGroupHeadings ? (
+                <>
+                  <TaskTimeGroup
+                    icon={<Sunrise width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงเช้า"
+                    caption="เริ่มก่อน 12:00 น."
+                    count={taskTimeGroups.morning.length}
+                    tasks={taskTimeGroups.morning}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
 
-            <button
-              type="button"
-              className="yp-add-task-btn"
-              onClick={() => setAddTaskOpen(true)}
-            >
-              <Plus />
-              <span>เพิ่ม task</span>
-            </button>
-          </div>
+                  <TaskTimeGroup
+                    icon={<Sunset width={14} height={14} strokeWidth={2} />}
+                    label="ช่วงบ่าย"
+                    caption="เริ่มตั้งแต่ 12:00 น. เป็นต้นไป"
+                    count={taskTimeGroups.afternoon.length}
+                    tasks={taskTimeGroups.afternoon}
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
 
-          <div className="yp-task-list-hint">แตะ task เพื่อเปลี่ยนสถานะ</div>
+                  <TaskTimeGroup
+                    icon={<CircleDashed width={14} height={14} strokeWidth={2} />}
+                    label="ไม่ระบุเวลา"
+                    caption="ยังไม่ได้กำหนดเวลาเริ่ม"
+                    count={taskTimeGroups.unscheduled.length}
+                    tasks={taskTimeGroups.unscheduled}
+                    muted
+                    onStatusClick={(id) => {
+                      setActiveTaskId(id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={(id) => {
+                      setEditTaskId(id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={requestDeleteTask}
+                  />
+                </>
+              ) : (
+                (event.tasks || []).map((t) => (
+                  <TaskRow
+                    key={t.id}
+                    task={t}
+                    onStatusClick={() => {
+                      setActiveTaskId(t.id);
+                      setStatusPickerOpen(true);
+                    }}
+                    onEdit={() => {
+                      setEditTaskId(t.id);
+                      setEditTaskOpen(true);
+                    }}
+                    onDelete={() => requestDeleteTask(t.id)}
+                  />
+                ))
+              )}
+
+              <button
+                type="button"
+                className="yp-add-task-btn yp-add-task-btn--standalone"
+                onClick={openAddTaskSheet}
+              >
+                <Plus />
+                <span>เพิ่มรายการย่อย</span>
+              </button>
+            </div>
+          )}
+
+          <div className="yp-task-list-hint">แตะรายการย่อยเพื่อเปลี่ยนสถานะ</div>
         </section>
       ) : null}
 
@@ -710,57 +852,32 @@ export function EventDetailClient({
           onClick={() => setManageOpen(true)}
         >
           <Pencil />
-          จัดการงาน
+          จัดการรายการ
         </button>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
           STATUS PICKER SHEET (task)
+          ★ r47: ใช้ shared StatusPickerSheet จาก _shared/ แทน inline JSX
           ═══════════════════════════════════════════════════════════════ */}
-      <BottomSheet
+      <StatusPickerSheet
         open={statusPickerOpen}
         onClose={() => {
           setStatusPickerOpen(false);
           setActiveTaskId(null);
         }}
-        title="สถานะของ task"
+        title="สถานะของรายการย่อย"
         description={activeTask?.title}
-      >
-        <div className="yp-status-picker">
-          {(['todo', 'ongoing', 'done'] as TaskStatus[]).map((s) => {
-            const meta = STATUS_META[s];
-            const isCurrent = activeTask?.status === s;
-            return (
-              <button
-                key={s}
-                type="button"
-                className={`yp-status-picker__option${isCurrent ? ' is-current' : ''}`}
-                style={{ ['--status-color' as string]: meta.color }}
-                onClick={() => handleTaskStatusChange(s)}
-              >
-                <div className="yp-status-picker__icon">
-                  {s === 'done' ? <Check width={16} height={16} /> : s === 'ongoing' ? <RefreshCw width={14} height={14} /> : <Clock width={14} height={14} />}
-                </div>
-                <div className="yp-status-picker__text">
-                  <div className="yp-status-picker__label">{meta.label}</div>
-                  <div className="yp-status-picker__desc">{meta.desc}</div>
-                </div>
-                {isCurrent ? (
-                  <div className="yp-status-picker__check">
-                    <Check width={18} height={18} />
-                  </div>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      </BottomSheet>
+        statuses={['todo', 'ongoing', 'done'] as TaskStatus[]}
+        currentStatus={activeTask?.status}
+        onSelect={(s) => handleTaskStatusChange(s as TaskStatus)}
+      />
 
       {/* ═══════════════════════════════════════════════════════════════
           ADD TASK SHEET (ครบทุก field เหมือน demo)
           ═══════════════════════════════════════════════════════════════ */}
       <AddTaskSheet
-        key={`add-task-${addTaskOpen ? 'open' : 'closed'}`}
+        key={`add-task-${addTaskGen}`}
         open={addTaskOpen}
         onClose={() => setAddTaskOpen(false)}
         event={event}
@@ -777,6 +894,8 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
+                start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
                 tags: payload.tags,
@@ -789,10 +908,10 @@ export function EventDetailClient({
               // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
               addTask(data.task as Task);
               setAddTaskOpen(false);
-              setToast({ msg: 'เพิ่ม task แล้ว', type: 'success' });
+              setToast({ msg: 'เพิ่มรายการย่อยเรียบร้อยแล้ว', type: 'success' });
             }
           } catch (e: any) {
-            setLocalError(`ไม่สามารถเพิ่ม task: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถเพิ่มรายการย่อย: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -827,6 +946,8 @@ export function EventDetailClient({
                     title: payload.title,
                     priority: payload.priority,
                     due_date: payload.dueDate || null,
+                    start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
+                    start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                     estimated_time: payload.estimatedTime,
                     notes: payload.notes,
                     tags: payload.tags,
@@ -849,6 +970,8 @@ export function EventDetailClient({
                 title: payload.title,
                 priority: payload.priority,
                 due_date: payload.dueDate || null,
+                start_date: payload.startDate || null,   // ★ v3.10.0 รอบที่ 29
+                start_time: payload.startTime || null,   // ★ v3.10.0 รอบที่ 9
                 estimated_time: payload.estimatedTime,
                 notes: payload.notes,
                 tags: payload.tags,
@@ -856,9 +979,9 @@ export function EventDetailClient({
 
               setEditTaskOpen(false);
               setEditTaskId(null);
-              setToast({ msg: 'บันทึกการแก้ไขแล้ว', type: 'success' });
+              setToast({ msg: 'บันทึกการแก้ไขเรียบร้อยแล้ว', type: 'success' });
             } catch (e: any) {
-              setLocalError(`ไม่สามารถแก้ไข task: ${e.message || 'unknown error'}`);
+              setLocalError(`ไม่สามารถแก้ไขรายการย่อย: ${e.message || 'unknown error'}`);
             } finally {
               setSubmitting(false);
             }
@@ -885,8 +1008,11 @@ export function EventDetailClient({
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
+                type: patch.type,
                 title: patch.title,
+                // ★ r51: ส่ง date เป็น '' (empty) ถ้า group type → API จะ set null
                 date: patch.date,
+                start_date: patch.start_date,
                 time: patch.time,
                 location: patch.location,
                 description: patch.description,
@@ -899,8 +1025,11 @@ export function EventDetailClient({
 
             // v1.6: optimistic patch — realtime จะ sync ภายหลัง
             patchEvent({
+              type: patch.type,
               title: patch.title,
-              date: patch.date,
+              // ★ r51: group type → date เป็น null (API จะ set null ใน DB)
+              date: patch.date || null,
+              start_date: patch.start_date,
               time: patch.time,
               location: patch.location,
               description: patch.description,
@@ -909,9 +1038,9 @@ export function EventDetailClient({
             });
 
             setEditEventOpen(false);
-            setToast({ msg: 'บันทึกแล้ว', type: 'success' });
+            setToast({ msg: 'บันทึกเรียบร้อยแล้ว', type: 'success' });
           } catch (e: any) {
-            setLocalError(`ไม่สามารถแก้ไขงาน: ${e.message || 'unknown error'}`);
+            setLocalError(`ไม่สามารถแก้ไขรายการ: ${e.message || 'unknown error'}`);
           } finally {
             setSubmitting(false);
           }
@@ -925,7 +1054,7 @@ export function EventDetailClient({
       <BottomSheet
         open={manageOpen}
         onClose={() => setManageOpen(false)}
-        title="จัดการงาน"
+        title="จัดการรายการ"
         description={event.title}
       >
         <div className="yp-manage-sheet">
@@ -934,16 +1063,16 @@ export function EventDetailClient({
             className="yp-manage-sheet__action"
             onClick={() => {
               setManageOpen(false);
-              setTimeout(() => setEditEventOpen(true), 280);
+              setTimeout(() => setEditEventOpen(true), SHEET_CLOSE_DURATION);
             }}
           >
             <div className="yp-manage-sheet__icon">
               <Pencil />
             </div>
             <div className="yp-manage-sheet__body">
-              <div className="yp-manage-sheet__title">แก้ไขงาน</div>
+              <div className="yp-manage-sheet__title">แก้ไขรายการ</div>
               <div className="yp-manage-sheet__desc">
-                เปลี่ยนชื่องาน วันที่ เวลา สถานที่ รายละเอียด สี
+                เปลี่ยนชื่อรายการ วันที่ เวลา สถานที่ รายละเอียด สี
               </div>
             </div>
             <ChevronRight />
@@ -956,16 +1085,16 @@ export function EventDetailClient({
                 className="yp-manage-sheet__action"
                 onClick={() => {
                   setManageOpen(false);
-                  setTimeout(() => setAddTaskOpen(true), 280);
+                  setTimeout(openAddTaskSheet, SHEET_CLOSE_DURATION);
                 }}
               >
                 <div className="yp-manage-sheet__icon">
                   <Plus />
                 </div>
                 <div className="yp-manage-sheet__body">
-                  <div className="yp-manage-sheet__title">เพิ่ม task ย่อย</div>
+                  <div className="yp-manage-sheet__title">เพิ่มรายการย่อย</div>
                   <div className="yp-manage-sheet__desc">
-                    สร้าง task ใหม่ในกลุ่มงานนี้
+                    สร้างรายการย่อยใหม่ในกลุ่มรายการนี้
                   </div>
                 </div>
                 <ChevronRight />
@@ -977,16 +1106,16 @@ export function EventDetailClient({
                   className="yp-manage-sheet__action"
                   onClick={() => {
                     setManageOpen(false);
-                    setTimeout(() => setEditTaskPickerOpen(true), 280);
+                    setTimeout(() => setEditTaskPickerOpen(true), SHEET_CLOSE_DURATION);
                   }}
                 >
                   <div className="yp-manage-sheet__icon">
                     <Pencil />
                   </div>
                   <div className="yp-manage-sheet__body">
-                    <div className="yp-manage-sheet__title">แก้ไข task ย่อย</div>
+                    <div className="yp-manage-sheet__title">แก้ไขรายการย่อย</div>
                     <div className="yp-manage-sheet__desc">
-                      เลือก task ที่ต้องการแก้ไข ({totalTasks} รายการ)
+                      เลือกรายการย่อยที่ต้องการแก้ไข ({totalTasks} รายการ)
                     </div>
                   </div>
                   <ChevronRight />
@@ -1006,12 +1135,12 @@ export function EventDetailClient({
             </div>
             <div className="yp-manage-sheet__body">
               <div className="yp-manage-sheet__title yp-text-danger">
-                ลบงานนี้
+                ลบรายการนี้
               </div>
               <div className="yp-manage-sheet__desc">
                 {isGroup
-                  ? `จะลบ task ทั้งหมด ${totalTasks} รายการด้วย`
-                  : 'จะลบงานนี้ออกจากระบบ'}{' '}
+                  ? `จะลบรายการย่อยทั้งหมด ${totalTasks} รายการด้วย`
+                  : 'จะลบรายการนี้ออกจากระบบ'}{' '}
                 — ไม่สามารถย้อนกลับได้
               </div>
             </div>
@@ -1021,17 +1150,16 @@ export function EventDetailClient({
       </BottomSheet>
 
       {/* ═══════════════════════════════════════════════════════════════
-          EDIT TASK PICKER — แสดงรายการ task ให้เลือกเพื่อแก้ไข
+          EDIT TASK PICKER — แสดงรายการย่อยให้เลือกเพื่อแก้ไข
           ═══════════════════════════════════════════════════════════════ */}
       <BottomSheet
         open={editTaskPickerOpen}
         onClose={() => setEditTaskPickerOpen(false)}
-        title="เลือก task ที่จะแก้ไข"
+        title="เลือกรายการย่อยที่จะแก้ไข"
       >
         <div className="yp-manage-task-picker">
           {(event.tasks || []).map((t) => {
-            const sLabel =
-              t.status === 'done' ? 'เสร็จแล้ว' : t.status === 'ongoing' ? 'กำลังทำ' : 'รอทำ';
+            const sLabel = statusLabel(t.status);
             return (
               <button
                 key={t.id}
@@ -1073,7 +1201,7 @@ export function EventDetailClient({
           setConfirmDeleteTaskOpen(false);
           setDeleteTaskId(null);
         }}
-        title="ลบ task?"
+        title="ลบรายการย่อย?"
         footer={
           <div className="yp-form-actions">
             <button
@@ -1103,7 +1231,7 @@ export function EventDetailClient({
             <AlertTriangle width={20} height={20} />
           </div>
           <div className="yp-confirm-body__text">
-            คุณแน่ใจหรือไม่ว่าต้องการลบ task{' '}
+            คุณแน่ใจหรือไม่ว่าต้องการลบรายการย่อย{' '}
             <strong>“{event.tasks?.find((t) => t.id === deleteTaskId)?.title || ''}”</strong>
             {' '}— ไม่สามารถย้อนกลับได้
           </div>
@@ -1116,7 +1244,7 @@ export function EventDetailClient({
       <BottomSheet
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        title="ลบงานนี้?"
+        title="ลบรายการนี้?"
         description={event.title}
         footer={
           <div className="yp-form-actions">
@@ -1134,7 +1262,7 @@ export function EventDetailClient({
               onClick={handleDelete}
               disabled={submitting}
             >
-              {submitting ? 'กำลังลบ...' : 'ลบงาน'}
+              {submitting ? 'กำลังลบ...' : 'ลบรายการ'}
             </button>
           </div>
         }
@@ -1146,7 +1274,7 @@ export function EventDetailClient({
           <div className="yp-confirm-body__text">
             ลบ <strong>“{event.title}”</strong>
             {isGroup && totalTasks > 0
-              ? ` และ task ทั้งหมด ${totalTasks} รายการ`
+              ? ` และรายการย่อยทั้งหมด ${totalTasks} รายการ`
               : ''}
             {' '}— ไม่สามารถย้อนกลับได้
           </div>
@@ -1163,887 +1291,3 @@ export function EventDetailClient({
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TaskRow — render row ของ task ในกลุ่มงาน (เหมือน demo task-row.js)
-// ═══════════════════════════════════════════════════════════════
-function TaskRow({
-  task,
-  onStatusClick,
-  onEdit,
-  onDelete,
-}: {
-  task: Task;
-  onStatusClick: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  const assignee = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
-  const dueLabel = task.due_date ? relativeDay(task.due_date) : '';
-  const overdue = task.due_date && isPast(task.due_date) && task.status !== 'done';
-  const priority = task.priority || 'medium';
-  const priorityLbl =
-    priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
-  const tags = Array.isArray(task.tags) ? task.tags : [];
-
-  return (
-    <div
-      className={`yp-task-row yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
-      data-task-id={task.id}
-      role="button"
-      tabIndex={0}
-      onClick={onStatusClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onStatusClick();
-        }
-      }}
-      aria-label={`เปลี่ยนสถานะ task: ${task.title}`}
-    >
-      <button
-        type="button"
-        className={`yp-task-status-dot yp-task-status-dot--${task.status}`}
-        aria-label={`เปลี่ยนสถานะ — ${statusLabel(task.status)}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onStatusClick();
-        }}
-        style={{
-          border: '2px solid',
-          background: 'transparent',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-      />
-      <div className="yp-task-row__body">
-        <div className="yp-task-row__title">{task.title}</div>
-        <div className="yp-task-row__meta">
-          <span
-            className={`yp-task-row__chip yp-task-row__status yp-task-row__status--${task.status}`}
-          >
-            {task.status === 'done' ? (
-              <Check width={11} height={11} />
-            ) : task.status === 'ongoing' ? (
-              <RefreshCw width={11} height={11} />
-            ) : (
-              <Clock width={11} height={11} />
-            )}
-            {statusLabel(task.status)}
-          </span>
-
-          {priority !== 'medium' ? (
-            <span
-              className={`yp-task-row__chip yp-task-row__priority is-priority-${priority}`}
-            >
-              {priorityLbl}
-            </span>
-          ) : null}
-
-          {assignee ? (
-            <span className="yp-task-row__chip yp-task-row__chip--assignee">
-              <span className="yp-task-row__avatar">
-                <Avatar
-                  name={assignee.full_name}
-                  color={assignee.color || '#4F46E5'}
-                  size={16}
-                />
-              </span>
-              {assignee.full_name.split(' ')[0]}
-            </span>
-          ) : null}
-
-          {dueLabel ? (
-            <span
-              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
-            >
-              {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
-              <span className="yp-task-row__chip-label">กำหนด</span>
-              {dueLabel}
-            </span>
-          ) : null}
-
-          {task.estimated_time ? (
-            <span className="yp-task-row__chip yp-task-row__chip--est">
-              <Clock width={11} height={11} />
-              <span className="yp-task-row__chip-label">ใช้เวลา</span>
-              {task.estimated_time}
-            </span>
-          ) : null}
-
-          {tags.map((t) => (
-            <span key={t} className="yp-task-row__tag">
-              #{t}
-            </span>
-          ))}
-        </div>
-        {task.notes ? <div className="yp-task-row__notes">{task.notes}</div> : null}
-      </div>
-      <div className="yp-task-row__actions">
-        <button
-          type="button"
-          className="yp-task-row__edit"
-          aria-label="แก้ไข task"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-        >
-          <Pencil />
-        </button>
-        <button
-          type="button"
-          className="yp-task-row__delete"
-          aria-label="ลบ task"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <Trash2 />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// AddTaskSheet — Bottom sheet สำหรับเพิ่ม task (ครบทุก field)
-// ═══════════════════════════════════════════════════════════════
-interface TaskPayload {
-  title: string;
-  priority: TaskPriority;
-  assigneeId: string | null;
-  dueDate: string | null;
-  estimatedTime: string;
-  tags: string[];
-  notes: string;
-}
-
-function AddTaskSheet({
-  open,
-  onClose,
-  event,
-  users,
-  onSubmit,
-  submitting,
-}: {
-  open: boolean;
-  onClose: () => void;
-  event: YPEvent;
-  users: UserProfile[];
-  onSubmit: (payload: TaskPayload) => void;
-  submitting: boolean;
-}) {
-  const [title, setTitle] = React.useState('');
-  const [priority, setPriority] = React.useState<TaskPriority>('medium');
-  const [assigneeId, setAssigneeId] = React.useState<string>('');
-  const [dueDate, setDueDate] = React.useState<string>(event.date || '');
-  const [estimatedTime, setEstimatedTime] = React.useState('');
-  const [tagsStr, setTagsStr] = React.useState('');
-  const [notes, setNotes] = React.useState('');
-  const [err, setErr] = React.useState<string | null>(null);
-
-  // v1.5: รีเซ็ต form โดยใช้ key-prop remount pattern แทน useEffect
-  // (parent component ส่ง key ที่เปลี่ยนเมื่อ open เปลี่ยน → component remount → state กลับสู่ค่าเริ่มต้น)
-
-  const handleSubmit = () => {
-    if (!title.trim()) {
-      setErr('กรุณากรอกชื่อ task');
-      return;
-    }
-    const tags = tagsStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 6);
-    onSubmit({
-      title: title.trim(),
-      priority,
-      assigneeId: assigneeId || null,
-      dueDate: dueDate || null,
-      estimatedTime: estimatedTime.trim(),
-      tags,
-      notes: notes.trim(),
-    });
-  };
-
-  return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title="เพิ่ม task ใหม่"
-      footer={
-        <div className="yp-form-actions">
-          <button
-            type="button"
-            className="yp-btn yp-btn--ghost yp-btn--block"
-            onClick={onClose}
-            disabled={submitting}
-          >
-            ยกเลิก
-          </button>
-          <button
-            type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
-            onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
-          >
-            {submitting ? 'กำลังเพิ่ม...' : (
-              <>
-                <Plus width={16} height={16} />
-                <span className="yp-btn__text-with-icon">เพิ่ม task</span>
-              </>
-            )}
-          </button>
-        </div>
-      }
-    >
-      {/* Parent chip */}
-      <div className="yp-form-modal__parent">
-        <span className="yp-form-modal__parent-label">ในงาน</span>
-        <span
-          className="yp-form-modal__parent-chip"
-          style={{ ['--accent' as string]: event.color || '#4F46E5' }}
-        >
-          {event.type === 'group' ? <Layers width={14} height={14} /> : <Flag width={14} height={14} />}
-          <span>{event.title}</span>
-        </span>
-      </div>
-
-      {err ? (
-        <div
-          style={{
-            background: 'rgba(244, 63, 94, 0.08)',
-            color: '#BE123C',
-            border: '1px solid rgba(244, 63, 94, 0.20)',
-            padding: 'var(--yp-space-3) var(--yp-space-4)',
-            borderRadius: 'var(--yp-radius-sm)',
-            marginBottom: 'var(--yp-space-4)',
-            fontSize: 'var(--yp-text-sm)',
-            fontWeight: 600,
-          }}
-        >
-          {err}
-        </div>
-      ) : null}
-
-      {/* Title */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">ชื่อ task</div>
-        <div className="field">
-          <input
-            id="task-title"
-            type="text"
-            className="yp-input yp-input--lg"
-            required
-            placeholder="เช่น จองหอประชุมและเวที"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={submitting}
-            autoFocus
-          />
-          <div className="field__hint">
-            อธิบายสิ่งที่ต้องทำให้ชัดเจน — จะได้ติดตามง่าย
-          </div>
-        </div>
-      </div>
-
-      {/* Priority */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">ความเร่งด่วน</div>
-        <div className="yp-priority-picker">
-          {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => {
-            const meta = PRIORITY_META[p];
-            return (
-              <button
-                key={p}
-                type="button"
-                className={`yp-priority-option${priority === p ? ' is-selected' : ''}`}
-                onClick={() => setPriority(p)}
-              >
-                <div className={`yp-priority-option__dot ${meta.dotClass}`} />
-                <div className="yp-priority-option__title">{meta.label}</div>
-                <div className="yp-priority-option__desc">{meta.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Assignee + schedule */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-assignee">
-            ผู้รับผิดชอบ
-          </label>
-          <select
-            id="task-assignee"
-            className="yp-select"
-            value={assigneeId}
-            onChange={(e) => setAssigneeId(e.target.value)}
-            disabled={submitting}
-          >
-            <option value="">— ยังไม่ระบุ —</option>
-            {users.map((u) => (
-              <option key={u.auth_uid} value={u.auth_uid}>
-                {u.full_name}
-                {u.role ? ` · ${u.role}` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-due">
-            กำหนดส่ง{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          <input
-            id="task-due"
-            type="date"
-            className="yp-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            disabled={submitting}
-          />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="task-est">
-            เวลาโดยประมาณ{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          {/* ★ v3.8.0: เปลี่ยนจาก text input → select picker
-              กัน user พิมพ์ค่าที่ไม่มาตรฐาน เช่น "20 นาทีๆ" หรือ "2 ชม 30 นา" */}
-          <select
-            id="task-est"
-            className="yp-select"
-            value={estimatedTime}
-            onChange={(e) => setEstimatedTime(e.target.value)}
-            disabled={submitting}
-          >
-            {ESTIMATED_TIME_OPTIONS.map((opt) => (
-              <option key={opt.value || 'none'} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการ task เพื่อประเมินเวลารวม
-          </div>
-        </div>
-      </div>
-
-      {/* Tags */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          หมวด/ป้าย{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <input
-            id="task-tags"
-            type="text"
-            className="yp-input"
-            placeholder="เช่น ด้านเอกสาร, ด้านสถานที่, ด้านการเงิน"
-            value={tagsStr}
-            onChange={(e) => setTagsStr(e.target.value)}
-            disabled={submitting}
-          />
-          <div className="field__hint">
-            คั่นด้วยจุลภาค — จะแสดงเป็น{' '}
-            <span className="yp-text-tag">#ด้านเอกสาร</span>{' '}
-            <span className="yp-text-tag">#ด้านสถานที่</span>{' '}
-            เพื่อกรองและจัดกลุ่ม task
-          </div>
-        </div>
-      </div>
-
-      {/* ★ v3.8.0: เปลี่ยน "หมายเหตุ" → "รายละเอียด" + placeholder ที่เป็นจริง */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          รายละเอียด{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <textarea
-            id="task-notes"
-            className="yp-textarea"
-            placeholder="อธิบายขอบเขตของ task นี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            disabled={submitting}
-            rows={4}
-          />
-        </div>
-      </div>
-    </BottomSheet>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// EditTaskSheet — เหมือน AddTaskSheet แต่ pre-fill ค่าเดิม
-// ═══════════════════════════════════════════════════════════════
-function EditTaskSheet({
-  open,
-  onClose,
-  event,
-  task,
-  users,
-  onSubmit,
-  submitting,
-}: {
-  open: boolean;
-  onClose: () => void;
-  event: YPEvent;
-  task: Task;
-  users: UserProfile[];
-  onSubmit: (payload: TaskPayload) => void;
-  submitting: boolean;
-}) {
-  const [title, setTitle] = React.useState(task.title);
-  const [priority, setPriority] = React.useState<TaskPriority>(task.priority);
-  const [assigneeId, setAssigneeId] = React.useState<string>(
-    task.assignees && task.assignees.length > 0 ? task.assignees[0].auth_uid : ''
-  );
-  const [dueDate, setDueDate] = React.useState<string>(task.due_date || '');
-  const [estimatedTime, setEstimatedTime] = React.useState(task.estimated_time || '');
-  const [tagsStr, setTagsStr] = React.useState(
-    Array.isArray(task.tags) ? task.tags.join(', ') : ''
-  );
-  const [notes, setNotes] = React.useState(task.notes || '');
-  const [err, setErr] = React.useState<string | null>(null);
-
-  // v1.5: รีเซ็ต form โดยใช้ key-prop remount pattern แทน useEffect
-  // (parent ส่ง key={`edit-task-${editTask.id}`} → remount เมื่อ task เปลี่ยน → state เริ่มต้นจาก useState)
-
-  const handleSubmit = () => {
-    if (!title.trim()) {
-      setErr('กรุณากรอกชื่อ task');
-      return;
-    }
-    const tags = tagsStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 6);
-    onSubmit({
-      title: title.trim(),
-      priority,
-      assigneeId: assigneeId || null,
-      dueDate: dueDate || null,
-      estimatedTime: estimatedTime.trim(),
-      tags,
-      notes: notes.trim(),
-    });
-  };
-
-  return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title="แก้ไข task"
-      footer={
-        <div className="yp-form-actions">
-          <button
-            type="button"
-            className="yp-btn yp-btn--ghost yp-btn--block"
-            onClick={onClose}
-            disabled={submitting}
-          >
-            ยกเลิก
-          </button>
-          <button
-            type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
-            onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
-          >
-            {submitting ? 'กำลังบันทึก...' : (
-              <>
-                <Check width={16} height={16} />
-                <span className="yp-text-with-icon-left">บันทึกการแก้ไข</span>
-              </>
-            )}
-          </button>
-        </div>
-      }
-    >
-      {/* Parent chip */}
-      <div className="yp-form-modal__parent">
-        <span className="yp-form-modal__parent-label">ในงาน</span>
-        <span
-          className="yp-form-modal__parent-chip"
-          style={{ ['--accent' as string]: event.color || '#4F46E5' }}
-        >
-          {event.type === 'group' ? <Layers width={14} height={14} /> : <Flag width={14} height={14} />}
-          <span>{event.title}</span>
-        </span>
-      </div>
-
-      {err ? (
-        <div
-          style={{
-            background: 'rgba(244, 63, 94, 0.08)',
-            color: '#BE123C',
-            border: '1px solid rgba(244, 63, 94, 0.20)',
-            padding: 'var(--yp-space-3) var(--yp-space-4)',
-            borderRadius: 'var(--yp-radius-sm)',
-            marginBottom: 'var(--yp-space-4)',
-            fontSize: 'var(--yp-text-sm)',
-            fontWeight: 600,
-          }}
-        >
-          {err}
-        </div>
-      ) : null}
-
-      {/* Title */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">ชื่อ task</div>
-        <div className="field">
-          {/* ★ v3.8.0: เพิ่ม placeholder ที่หายไป (ก่อนหน้านี้ไม่มี placeholder เลย) */}
-          <input
-            id="ed-task-title"
-            type="text"
-            className="yp-input yp-input--lg"
-            required
-            placeholder="เช่น จองหอประชุมและเวที"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={submitting}
-          />
-          <div className="field__hint">
-            อธิบายสิ่งที่ต้องทำให้ชัดเจน — จะได้ติดตามง่าย
-          </div>
-        </div>
-      </div>
-
-      {/* Priority */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">ความเร่งด่วน</div>
-        <div className="yp-priority-picker">
-          {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => {
-            const meta = PRIORITY_META[p];
-            return (
-              <button
-                key={p}
-                type="button"
-                className={`yp-priority-option${priority === p ? ' is-selected' : ''}`}
-                onClick={() => setPriority(p)}
-              >
-                <div className={`yp-priority-option__dot ${meta.dotClass}`} />
-                <div className="yp-priority-option__title">{meta.label}</div>
-                <div className="yp-priority-option__desc">{meta.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Assignee + schedule */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">มอบหมายและกำหนดเวลา</div>
-        <div className="field">
-          <label className="field__label" htmlFor="ed-task-assignee">
-            ผู้รับผิดชอบ
-          </label>
-          <select
-            id="ed-task-assignee"
-            className="yp-select"
-            value={assigneeId}
-            onChange={(e) => setAssigneeId(e.target.value)}
-            disabled={submitting}
-          >
-            <option value="">— ยังไม่ระบุ —</option>
-            {users.map((u) => (
-              <option key={u.auth_uid} value={u.auth_uid}>
-                {u.full_name}
-                {u.role ? ` · ${u.role}` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="ed-task-due">
-            กำหนดส่ง{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          <input
-            id="ed-task-due"
-            type="date"
-            className="yp-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            disabled={submitting}
-          />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor="ed-task-est">
-            เวลาโดยประมาณ{' '}
-            <span className="yp-text-faint-medium">
-              (ไม่บังคับ)
-            </span>
-          </label>
-          {/* ★ v3.8.0: เปลี่ยนจาก text input → select picker
-              กัน user พิมพ์ค่าที่ไม่มาตรฐาน เช่น "20 นาทีๆ" หรือ "2 ชม 30 นา"
-              ถ้าค่าเดิมใน DB ไม่ตรงกับ option → เพิ่ม option ชั่วคราวให้แสดง */}
-          <select
-            id="ed-task-est"
-            className="yp-select"
-            value={getEstimatedTimeSelectValue(estimatedTime)}
-            onChange={(e) => setEstimatedTime(e.target.value)}
-            disabled={submitting}
-          >
-            {ESTIMATED_TIME_OPTIONS.map((opt) => (
-              <option key={opt.value || 'none'} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-            {/* ★ v3.8.0: ถ้าค่าใน DB ไม่ตรง option → เพิ่ม option ชั่วคราว
-                กันข้อมูลเดิมหายไปเมื่อเปิด edit ครั้งแรก */}
-            {estimatedTime &&
-              !ESTIMATED_TIME_OPTIONS.some((o) => o.value === estimatedTime) ? (
-              <option value={estimatedTime}>
-                {estimatedTime} (ค่าเดิม)
-              </option>
-            ) : null}
-          </select>
-          <div className="field__hint">
-            เลือกช่วงเวลาที่ใกล้ที่สุด — จะแสดงในรายการ task เพื่อประเมินเวลารวม
-          </div>
-        </div>
-      </div>
-
-      {/* Tags */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          หมวด/ป้าย{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <input
-            id="ed-task-tags"
-            type="text"
-            className="yp-input"
-            placeholder="เช่น ด้านเอกสาร, ด้านสถานที่, ด้านการเงิน"
-            value={tagsStr}
-            onChange={(e) => setTagsStr(e.target.value)}
-            disabled={submitting}
-          />
-          <div className="field__hint">
-            คั่นด้วยจุลภาค — จะแสดงเป็น{' '}
-            <span className="yp-text-tag">#ด้านเอกสาร</span>{' '}
-            <span className="yp-text-tag">#ด้านสถานที่</span>{' '}
-            เพื่อกรองและจัดกลุ่ม task
-          </div>
-        </div>
-      </div>
-
-      {/* ★ v3.8.0: เปลี่ยน "หมายเหตุ" → "รายละเอียด" + placeholder ที่เป็นจริง */}
-      <div className="yp-form-modal__section">
-        <div className="yp-form-modal__section-title">
-          รายละเอียด{' '}
-          <span className="yp-text-faint-normal">
-            (ไม่บังคับ)
-          </span>
-        </div>
-        <div className="field">
-          <textarea
-            id="ed-task-notes"
-            className="yp-textarea"
-            placeholder="อธิบายขอบเขตของ task นี้ สิ่งที่ต้องทำ หรือหมายเหตุเพิ่มเติม เช่น ต้องประสานงานกับฝ่ายเอกสารก่อนเริ่มงาน"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            disabled={submitting}
-            rows={4}
-          />
-        </div>
-      </div>
-    </BottomSheet>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════
-// EditEventSheet — Bottom sheet สำหรับแก้ไขงาน (เหมือน demo edit.js)
-// ═══════════════════════════════════════════════════════════════
-interface EventPatch {
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  description: string;
-  departmentId: string;
-  color: string;
-}
-
-function EditEventSheet({
-  open,
-  onClose,
-  event,
-  departments,
-  onSubmit,
-  submitting,
-}: {
-  open: boolean;
-  onClose: () => void;
-  event: YPEvent;
-  departments: Department[];
-  onSubmit: (patch: EventPatch) => void;
-  submitting: boolean;
-}) {
-  const [title, setTitle] = React.useState(event.title);
-  const [date, setDate] = React.useState(event.date);
-  const [time, setTime] = React.useState(event.time || '');
-  const [location, setLocation] = React.useState(event.location || '');
-  const [description, setDescription] = React.useState(event.description || '');
-  const [departmentId, setDepartmentId] = React.useState(
-    event.department_id || departments[0]?.id || ''
-  );
-  const [color, setColor] = React.useState(event.color || COLOR_OPTIONS[0]);
-
-  // v1.5: รีเซ็ต form โดยใช้ key-prop remount pattern แทน useEffect
-  // (parent ส่ง key={`edit-event-${open ? 'open' : 'closed'}`} → remount เมื่อ open เปลี่ยน)
-
-  const handleSubmit = () => {
-    onSubmit({
-      title: title.trim() || event.title,
-      date: date || event.date,
-      time,
-      location: location.trim(),
-      description: description.trim(),
-      departmentId,
-      color,
-    });
-  };
-
-  return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title="แก้ไขงาน"
-      footer={
-        <div className="yp-form-actions">
-          <button
-            type="button"
-            className="yp-btn yp-btn--ghost yp-btn--block"
-            onClick={onClose}
-            disabled={submitting}
-          >
-            ยกเลิก
-          </button>
-          <button
-            type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
-            {submitting ? 'กำลังบันทึก...' : 'บันทึก'}
-          </button>
-        </div>
-      }
-    >
-      <div className="field">
-        <label className="field__label" htmlFor="ed-title">ชื่องาน</label>
-        <input
-          id="ed-title"
-          type="text"
-          className="yp-input"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={submitting}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-date">วันที่</label>
-        <input
-          id="ed-date"
-          type="date"
-          className="yp-input"
-          required
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          disabled={submitting}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-time">เวลา</label>
-        <input
-          id="ed-time"
-          type="time"
-          className="yp-input"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          disabled={submitting}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-location">สถานที่</label>
-        <input
-          id="ed-location"
-          type="text"
-          className="yp-input"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          disabled={submitting}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-desc">รายละเอียด</label>
-        <textarea
-          id="ed-desc"
-          className="yp-textarea"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={submitting}
-          rows={4}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label" htmlFor="ed-dept">ฝ่ายที่รับผิดชอบ</label>
-        <select
-          id="ed-dept"
-          className="yp-select"
-          value={departmentId}
-          onChange={(e) => setDepartmentId(e.target.value)}
-          disabled={submitting}
-        >
-          <option value="">— ไม่ระบุ —</option>
-          {departments.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.icon} {d.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="field">
-        <label className="field__label">สีประจำงาน</label>
-        <div className="yp-color-picker">
-          {COLOR_OPTIONS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className={`yp-color-option${color === c ? ' is-selected' : ''}`}
-              style={{ background: c }}
-              onClick={() => setColor(c)}
-              aria-label={`เลือกสี ${c}`}
-              disabled={submitting}
-            />
-          ))}
-        </div>
-      </div>
-    </BottomSheet>
-  );
-}

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Inter } from "next/font/google";
-import "./globals.css";
+import "@/styles/index.css";
 import { Toaster } from "@/components/ui/toaster";
 import { NetworkStatusBanner } from "@/components/framework/network-status-banner";
 
@@ -21,8 +21,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "YP Work · สมองของสภานักเรียน",
   description:
-    "แพลตฟอร์มภายในสำหรับจัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย — สภานักเรียน",
-  keywords: ["YP Work", "สภานักเรียน", "จัดตารางงาน", "student council"],
+    "แพลตฟอร์มภายในสำหรับจัดตารางรายการ กลุ่มรายการ ฝ่ายงาน และรายการย่อย — สภานักเรียน",
+  keywords: ["YP Work", "สภานักเรียน", "จัดตารางรายการ", "student council"],
   authors: [{ name: "YP Work" }],
   icons: {
     icon: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "YP Work · สมองของสภานักเรียน",
-    description: "จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว",
+    description: "จัดตารางรายการ กลุ่มรายการ ฝ่ายงาน และรายการย่อย ในที่เดียว",
     type: "website",
   },
 };

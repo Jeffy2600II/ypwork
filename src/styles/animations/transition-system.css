@@ -1,0 +1,326 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Global Transition System (Page/Card/Sheet) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.13 — Global Transition System
+   ═══════════════════════════════════════════════════════════════
+   ★ Design principle: Everything transitions smoothly
+   - Every element that changes state has a transition
+   - No abrupt changes — always animate
+   - Consistent timing functions across the app
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ v3.7.13: Universal transition for all interactive elements */
+.yp-btn,
+.yp-input,
+.yp-textarea,
+.yp-select,
+.yp-card,
+.yp-stat,
+.yp-event-card,
+.yp-type-option,
+.yp-color-option,
+.yp-priority-option,
+.yp-events-filter__btn,
+.yp-cal-view-btn,
+.yp-cal-nav-btn,
+.yp-cal-today-btn,
+.bottom-nav__item,
+.fab,
+.top-bar__back,
+.top-bar__avatar,
+.yp-window__close,
+.yp-window__handle::before {
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ★ v3.7.13: Smooth opacity transitions for visibility changes */
+.bottom-nav,
+.fab,
+.top-bar {
+  transition-property: transform, opacity, visibility;
+  transition-duration: 280ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ★ v3.7.13: Re-animation container — for filter changes */
+.yp-events-list-container {
+  animation: yp-list-reenter 300ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes yp-list-reenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ★ v3.7.13: Smooth color transition for all text */
+.yp-page-header__title,
+.yp-page-header__subtitle,
+.yp-section-title,
+.yp-text-body,
+.yp-feature-list {
+  transition: color 200ms ease;
+}
+
+/* ── Buttons (all variants) ──
+   Ensures color, shadow, transform, border all transition together.
+   Previously some buttons only transitioned transform, leaving
+   shadow/color to snap. */
+.yp-btn,
+.yp-btn--primary,
+.yp-btn--ghost,
+.yp-btn--danger,
+.yp-btn--block,
+.yp-priority-option,
+.yp-color-option,
+.yp-status-quick__btn,
+.yp-add-task-btn {
+  transition:
+    transform var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish),
+    border-color var(--yp-t-polish),
+    box-shadow var(--yp-t-polish),
+    opacity var(--yp-t-polish);
+}
+
+/* Press feedback for all buttons — quick deceleration */
+.yp-btn:active,
+.yp-priority-option:active,
+.yp-color-option:active,
+.yp-status-quick__btn:active,
+.yp-add-task-btn:active,
+.bottom-nav__item:active,
+.top-bar__back:active,
+.top-bar__avatar:active {
+  transition:
+    transform var(--yp-t-press),
+    background-color var(--yp-t-press),
+    box-shadow var(--yp-t-press);
+}
+
+/* ── Inputs ──
+   Border + box-shadow + background all transition on focus.
+   Previously only border snapped, leaving the indigo focus glow to
+   appear instantly. */
+.yp-input,
+.yp-select,
+.yp-textarea {
+  transition:
+    border-color var(--yp-t-polish),
+    box-shadow var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish);
+}
+
+/* ── Cards ──
+   Smooth shadow + transform on hover. */
+.yp-card,
+.yp-event-card,
+.yp-stat {
+  transition:
+    transform var(--yp-t-polish),
+    box-shadow var(--yp-t-polish),
+    border-color var(--yp-t-polish),
+    background-color var(--yp-t-polish);
+}
+
+/* ── Chips ──
+   Smooth color transitions. */
+.yp-chip,
+.yp-chip-dot,
+.yp-task-row__chip {
+  transition:
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish),
+    border-color var(--yp-t-polish),
+    opacity var(--yp-t-polish);
+}
+
+/* ── Nav items ──
+   Smooth icon/label color shift on active change. */
+.bottom-nav__item,
+.bottom-nav__icon,
+.bottom-nav__label,
+.top-bar__back,
+.top-bar__avatar {
+  transition:
+    color var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    transform var(--yp-t-polish),
+    opacity var(--yp-t-polish);
+}
+
+/* ── Window close button ──
+   Smooth rotation on hover. */
+.yp-window__close,
+.yp-window__close svg {
+  transition:
+    transform var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish);
+}
+
+.yp-priority-option__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--yp-radius-pill);
+  margin-bottom: 2px;
+  transition:
+    transform var(--yp-t-polish),
+    box-shadow var(--yp-t-polish);
+}
+
+
+/* ── Select dropdowns ──
+   Native select already has some transition, but ensure background
+   + border transition too. */
+select.yp-select {
+  transition:
+    background-color var(--yp-t-polish),
+    border-color var(--yp-t-polish),
+    box-shadow var(--yp-t-polish);
+  /* Custom arrow rotation on focus/open (visual hint) */
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem auto;
+}
+
+/* ── Links ──
+   Smooth color transition for all links. */
+a,
+.yp-event-card,
+.yp-event-card * {
+  transition:
+    color var(--yp-t-polish),
+    background-color var(--yp-t-polish);
+}
+
+/* ── Info button / Tooltip triggers ──
+   Smooth scale + opacity on hover. */
+.yp-info-button,
+[role='button'] {
+  transition:
+    transform var(--yp-t-polish),
+    opacity var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish);
+}
+
+/* ── Form modal sections ──
+   Smooth opacity when sheet opens (avoid reflow pop). */
+.yp-form-modal__section,
+.yp-form-modal__parent {
+  transition: opacity var(--yp-t-polish);
+}
+
+.yp-color-option:active {
+  transform: scale(0.88);
+  transition: transform var(--yp-t-press);
+}
+
+
+/* ── Tag chips in task row ──
+   Smooth color transition. */
+.yp-task-row__tag,
+.yp-text-tag {
+  transition:
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish);
+}
+
+/* ── Disabled state ──
+   Smooth opacity transition when disabling/enabling buttons.
+   (Don't set opacity here — existing rules already set 0.5/0.6.
+   This rule only adds the transition so disabled state fades in.) */
+.yp-btn:disabled,
+.yp-input:disabled,
+.yp-select:disabled,
+.yp-textarea:disabled,
+button:disabled {
+  transition: opacity var(--yp-t-polish);
+}
+
+/* ── Form actions (Save/Cancel buttons in sheets) ──
+   Smooth flex layout transition when buttons appear/disappear. */
+.yp-form-actions,
+.yp-form-actions > * {
+  transition:
+    transform var(--yp-t-polish),
+    opacity var(--yp-t-polish);
+}
+
+/* ── Hero meta items (event detail) ──
+   Smooth color/opacity when content changes. */
+.yp-detail-hero__meta-item,
+.yp-single-hero__meta-item {
+  transition:
+    color var(--yp-t-polish),
+    opacity var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    border-color var(--yp-t-polish);
+}
+
+/* ── Task row actions (Edit/Delete buttons) ──
+   Smooth opacity reveal on hover. */
+.yp-task-row__actions,
+.yp-task-row__actions > * {
+  transition:
+    opacity var(--yp-t-polish),
+    transform var(--yp-t-polish),
+    background-color var(--yp-t-polish),
+    color var(--yp-t-polish);
+}
+
+/* ── Section titles ──
+   Smooth color transition. */
+.yp-section-title,
+.yp-detail-section__title,
+.yp-form-modal__section-title,
+.yp-form-card__title,
+.yp-form-card__subtitle {
+  transition: color var(--yp-t-polish);
+}
+
+/* ── Field error / hint text ──
+   Smooth color transition when error appears. */
+.field__error,
+.field__hint,
+.field__label {
+  transition: color var(--yp-t-polish);
+}
+
+/* ── Focus-visible outlines ──
+   Smooth color transition for keyboard nav. */
+*:focus-visible {
+  transition: outline-color var(--yp-t-polish);
+  outline-offset: 2px;
+}
+
+/* ── Backdrop / overlay fades ──
+   Already handled by window framework, but ensure any custom
+   overlay also fades smoothly. */
+.yp-window-root,
+.yp-window-root--sheet,
+.yp-window-root--modal,
+.yp-window-root--fullscreen {
+  transition:
+    opacity var(--yp-t-polish),
+    visibility var(--yp-t-polish);
+}
+
+/* ── Reduced motion: kill all v3.8.0 polish transitions ── */
+

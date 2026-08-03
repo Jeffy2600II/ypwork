@@ -150,7 +150,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
       <section className="yp-profile-stats" aria-label="สรุปภาพรวม">
         <div className="yp-profile-stat">
           <span className="yp-profile-stat__value">{liveStats.deptEvents}</span>
-          <span className="yp-profile-stat__label">งานในฝ่าย</span>
+          <span className="yp-profile-stat__label">รายการในฝ่าย</span>
         </div>
         <div className="yp-profile-stat">
           <span className="yp-profile-stat__value">{liveStats.myTasks}</span>
@@ -158,7 +158,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
         </div>
         <div className="yp-profile-stat yp-profile-stat--success">
           <span className="yp-profile-stat__value">{liveStats.myDone}</span>
-          <span className="yp-profile-stat__label">ทำเสร็จ</span>
+          <span className="yp-profile-stat__label">เสร็จสมบูรณ์</span>
         </div>
         <div className="yp-profile-stat yp-profile-stat--warning">
           <span className="yp-profile-stat__value">{liveStats.myPending}</span>
@@ -303,7 +303,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
             </span>
             <span className="yp-profile-action__text">
               <strong>เกี่ยวกับ YP Work</strong>
-              <small>ระบบจัดการงานสภานักเรียน</small>
+              <small>ระบบจัดการรายการสภานักเรียน</small>
             </span>
             <span className="yp-profile-action__chevron" aria-hidden="true">
               <ChevronRight />

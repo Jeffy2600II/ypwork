@@ -1,0 +1,288 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Native App Polish — v3.10.0-r59 (NEW)
+   ═══════════════════════════════════════════════════════════════
+   ★ r59: Native App Standard Polish — ปรับปรุงทั่วทั้งเว็บให้รู้สึก
+     เหมือน native app มากขึ้น ตามแนวทาง Apple HIG และ Material 3
+
+   หลักการ:
+   1. Smooth scrolling แบบ momentum (iOS-like)
+   2. Tap highlight ที่อ่อนลง — ไม่ดำทึบเหมือนเดิม
+   3. Touch target ขยายเป็น 44px ขั้นต่ำ (Apple HIG)
+   4. Focus ring สวยขึ้น สม่ำเสมอ
+   5. Card transitions นุ่มนวลขึ้น
+   6. Scrollbar styling สำหรับ desktop
+   7. Reduce visual noise — ลดเส้นขอบที่ไม่จำเป็น
+   8. Better text rendering สำหรับ Thai
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Smooth Scrolling ──
+   ★ r59: Native momentum scrolling บน iOS + smooth scroll บน desktop
+   ทำให้การ scroll รู้สึกเหมือน native app ไม่กระตุก */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* ★ r59: ปรับ text rendering สำหรับ Thai ให้คมชัดขึ้น */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* ★ r59: ลด tap highlight color จาก default (ดำทึบ) เป็นโปร่งใส
+     ทำให้ tap บน mobile รู้สึกนุ่มนวลขึ้น เหมือน native app */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 2. Body Touch Target ──
+   ★ r59: ปรับ touch-action ให้รองรับ gesture แบบ native */
+body {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-y: none;
+  /* ★ r59: ใช้ font-variant-emoji เพื่อ emoji ที่สม่ำเสมอ */
+  font-variant-emoji: emoji;
+}
+
+/* ── 3. Native-style Scrollbar (Desktop) ──
+   ★ r59: ทำ scrollbar ให้เล็กละ กลม โค้งมน เหมือน macOS / iOS */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--yp-text-muted, #6E6B8C) 25%, transparent);
+    border-radius: var(--yp-radius-pill);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background 200ms ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--yp-text-muted, #6E6B8C) 45%, transparent);
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--yp-text-muted, #6E6B8C) 25%, transparent) transparent;
+  }
+}
+
+/* ── 4. Universal Focus Ring ──
+   ★ r59: Focus ring สม่ำเสมอทุกองค์ประกอบ สวยขึ้น เหมือน native */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yp-indigo-500, #6366F1) 35%, transparent);
+  border-radius: inherit;
+  transition: box-shadow 150ms var(--yp-ease-standard, ease);
+}
+
+/* ── 5. Card Polish — Native Feel ──
+   ★ r59: ปรับ transition ของ card ทั่วทั้งระบบ ให้นุ่มนวลขึ้น
+   ใช้ cubic-bezier แบบ native iOS */
+.yp-card,
+[class*="yp-today-item"],
+.yp-today-group,
+[class*="yp-event-card"],
+[class*="yp-calendar"] {
+  transition: 
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 6. Native Button Feel ──
+   ★ r59: ปุ่มทุกตัวให้ความรู้สึก tactile เหมือน native
+   - active state มี scale ลงนิดหน่อย
+   - transition นุ่มนวล */
+button,
+[role="button"],
+a[href],
+input[type="submit"],
+input[type="button"] {
+  transition: 
+    transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active:not(:disabled),
+[role="button"]:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ── 7. Touch Target ขั้นต่ำ 44px (Apple HIG) ──
+   ★ r59: ปุ่ม icon-only ที่เล็กกว่า 44px จะขยาย hit area
+   แต่ไม่เปลี่ยน visual size */
+@media (pointer: coarse) {
+  button:not([class*="large"]):not(.fab):not([class*="big"]),
+  [role="button"],
+  .yp-today-item-card__menu,
+  .yp-today-group__detail-btn,
+  .yp-today-item-compact__link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ── 8. Reduce Visual Noise ──
+   ★ r59: ลด border ที่ไม่จำเป็นบน light background
+   ใช้ background tint แทน เพื่อความสะอาดตาแบบ native */
+.yp-today-group,
+.yp-today-item-card,
+.yp-event-card,
+.yp-card {
+  /* ลด border opacity ลงเล็กน้อย เพื่อความสะอาดตา */
+  border-color: color-mix(in srgb, var(--yp-border-subtle, #E5E7EB) 85%, transparent);
+}
+
+/* ── 9. Better Native Spacing on Container ──
+   ★ r59: ปรับ container padding ทั่วทั้งระบบ ให้โล่งขึ้น */
+.yp-page,
+.app-main > main,
+[class*="page-container"] {
+  padding-left: var(--yp-page-pad-x);
+  padding-right: var(--yp-page-pad-x);
+  padding-top: calc(var(--yp-nav-top-h, 52px) + var(--yp-safe-top, 0px) + var(--yp-space-5, 1.5rem));
+  padding-bottom: var(--yp-page-bottom-pad, 120px);
+  max-width: var(--yp-container-max, 1110px);
+  margin: 0 auto;
+}
+
+/* ── 10. Native App Hero Gradient Polish ──
+   ★ r59: เพิ่ม depth ให้ hero ดูเหมือน native widget มากขึ้น */
+.yp-today-hero,
+.yp-today-placeholder__hero,
+.yp-event-detail__hero {
+  /* เพิ่ม subtle inner glow ด้านบน เหมือน iOS widget */
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 14px rgba(49, 46, 129, 0.12),
+    0 1px 3px rgba(79, 70, 229, 0.08);
+}
+
+/* ── 11. Reduce Overlap Visual Noise ──
+   ★ r59: ลด box-shadow ที่ไม่จำเป็น ให้ดูสะอาดตา */
+.yp-today-item-compact:not(:hover),
+.yp-today-group:not(:hover) {
+  box-shadow: none;
+}
+
+/* ── 12. Section Headline Better Hierarchy ──
+   ★ r59: ปรับ letter-spacing ของ section title ให้สมดุลกับ native */
+.yp-today-section__title,
+h2, h3 {
+  letter-spacing: -0.011em;
+}
+
+/* ── 13. Selection Color ──
+   ★ r59: Selection color ที่สวยงาม สม่ำเสมอ */
+::selection {
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 22%, transparent);
+  color: var(--yp-text-strong, #1A1740);
+}
+
+/* ── 14. Better Image Rendering ──
+   ★ r59: รูปภาพคมชัด ไม่ blurred บน retina display */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── 15. Native-style Loading Shimmer ──
+   ★ r59: skeleton loading ที่ดูเหมือน native มากขึ้น */
+.yp-skeleton,
+[class*="skeleton"] {
+  background: linear-gradient(
+    90deg,
+    var(--yp-bg-card-soft, #F5F5F8) 0%,
+    color-mix(in srgb, var(--yp-bg-card-soft, #F5F5F8) 50%, var(--yp-bg-card, #FFFFFF)) 50%,
+    var(--yp-bg-card-soft, #F5F5F8) 100%
+  );
+  background-size: 200% 100%;
+  animation: yp-native-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--yp-radius-md, 42px);
+}
+
+@keyframes yp-native-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 16. Native Bottom Navigation ──
+   ★ r59: ปรับ bottom nav ให้รู้สึกเหมือน native tab bar */
+.bottom-nav {
+  /* เพิ่ม subtle top border ที่โปร่งใส ทำให้ nav ดู separate จาก content */
+  border-top: 1px solid color-mix(in srgb, var(--yp-border-subtle, #E5E7EB) 60%, transparent);
+  /* เพิ่ม backdrop blur เหมือน iOS tab bar */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: color-mix(in srgb, var(--yp-bg-card, #FFFFFF) 88%, transparent);
+}
+
+/* ── 17. Top Bar Native Feel ──
+   ★ r59: Top bar ที่ดูเหมือน native navigation bar */
+.top-bar {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: color-mix(in srgb, var(--yp-bg-card, #FFFFFF) 88%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--yp-border-subtle, #E5E7EB) 50%, transparent);
+}
+
+/* ── 18. Native Input Polish ──
+   ★ r59: Input ที่ดูเหมือน native text field */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: var(--yp-text-base, 1rem);
+  /* ป้องกัน iOS auto-zoom — input font-size ต้อง >= 16px */
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* ── 19. Reduce Layout Shift ──
+   ★ r59: ป้องกัน layout shift ตอนโหลด font */
+html {
+  font-display: swap;
+}
+
+/* ── 20. Native-style Active State ──
+   ★ r59: Active state ที่นุ่มนวล ไม่รุนแรงเกินไป */
+.yp-today-item-card:active:not(.is-done),
+.yp-today-item-compact:active:not(.is-done),
+.yp-event-card:active {
+  transform: scale(0.99);
+  transition: transform 80ms ease;
+}
+
+/* ── 21. Better Code Block Rendering ── */
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--yp-font-mono, 'JetBrains Mono', monospace);
+  font-feature-settings: "liga" 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   END · Native App Polish · v3.10.0-r59
+   ═══════════════════════════════════════════════════════════════ */

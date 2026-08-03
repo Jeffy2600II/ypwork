@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · API · PATCH/DELETE /api/tasks/[id] (v3.8.0)
 // ═══════════════════════════════════════════════════════════════
-// PATCH  — แก้ไข task (title, priority, due_date, estimated_time, notes, tags)
+// PATCH  — แก้ไข task (title, priority, due_date, start_time, estimated_time, notes, tags)
 // DELETE — ลบ task (cascade ลบ assignees ด้วย FK)
 //
 // ★ v3.8.0: เพิ่ม apiCacheHeaders.noStore() ทุก response
@@ -14,6 +14,7 @@ import { apiCacheHeaders } from '@/lib/api/cache';
 
 const VALID_PRIORITIES = ['low', 'medium', 'high'] as const;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;   // ★ v3.10.0 รอบที่ 9: HH:MM
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -79,9 +80,42 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     update.due_date = body.due_date || null;
   }
 
+  // ★ v3.10.0 รอบที่ 29: start_date (YYYY-MM-DD, ไม่บังคับ) — วันที่เริ่มลงมือทำ
+  if (body.start_date !== undefined) {
+    if (body.start_date !== null && (typeof body.start_date !== 'string' || !DATE_RE.test(body.start_date))) {
+      return NextResponse.json(
+        { success: false, error: 'วันที่เริ่มไม่ถูกต้อง' },
+        { status: 400 }
+      );
+    }
+    update.start_date = body.start_date || null;
+  }
+
+  // ★ v3.10.0 รอบที่ 9: start_time (HH:MM) — ไม่บังคับ
+  if (body.start_time !== undefined) {
+    if (body.start_time !== null && (typeof body.start_time !== 'string' || !TIME_RE.test(body.start_time))) {
+      return NextResponse.json(
+        { success: false, error: 'เวลาเริ่มไม่ถูกต้อง' },
+        { status: 400 }
+      );
+    }
+    update.start_time = body.start_time || null;
+  }
+
   if (body.estimated_time !== undefined) update.estimated_time = body.estimated_time || '';
   if (body.notes !== undefined) update.notes = body.notes || '';
   if (body.tags !== undefined) update.tags = Array.isArray(body.tags) ? body.tags : [];
+
+  // ★ v3.10.0 รอบที่ 31: ตรวจสอบกำหนดส่ง >= วันที่เริ่ม (server-side)
+  //   ตรวจเฉพาะเมื่อทั้งสอง field ถูกส่งมาในครั้งเดียวกัน
+  if (update.start_date !== undefined && update.due_date !== undefined) {
+    if (update.start_date && update.due_date && update.due_date < update.start_date) {
+      return NextResponse.json(
+        { success: false, error: 'วันกำหนดส่งต้องไม่น้อยกว่าวันที่เริ่ม' },
+        { status: 400 }
+      );
+    }
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(

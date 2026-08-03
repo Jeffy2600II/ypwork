@@ -103,6 +103,29 @@ export async function middleware(request: NextRequest) {
   // ─────────────────────────────────────────────────────────
   applySecurityHeaders(supabaseResponse);
 
+  // ─────────────────────────────────────────────────────────
+  // 4. ★ v3.10.0 รอบที่ 13: กันหน้าเว็บ (เอกสาร HTML) ถูกแคช
+  //    ที่ CDN/reverse proxy หรือฝั่ง browser เอง
+  //
+  //    ปัญหาที่พบ: ผู้ใช้เจอหน้าที่ค้าง ไม่อัปเดตตามโค้ด/ดีพลอยล่าสุด
+  //    แม้ next.config.ts จะไม่ได้ตั้ง Cache-Control ของหน้าไว้เอง (ปล่อยตาม
+  //    ค่า default ของแต่ละเลเยอร์ระหว่างทาง) — ตัวแปรที่ควบคุมไม่ได้เต็มที่
+  //    จึงอาจทำให้ตัวเอกสาร HTML ถูกเก็บไว้นานเกินคาด
+  //
+  //    วิธีแก้: ระบุ Cache-Control: no-store ตรงๆ ที่ตัวเอกสาร HTML เท่านั้น
+  //    (ไม่แตะ /api/* เพราะแต่ละ endpoint มีนโยบายแคชของ "ข้อมูล" อยู่แล้ว
+  //    ใน src/lib/api/cache.ts เช่น 5s stale-while-revalidate สำหรับ /api/events —
+  //    อันนั้นคือส่วนที่ "อยากแคช" อยู่แล้ว ไม่ต้องไปยุ่ง)
+  //    ผลคือ: ข้อมูล (API) ยังแคชสั้นๆ ตามเดิมเพื่อความเร็ว
+  //           แต่ตัวหน้าเว็บเองจะขอสดใหม่จาก server ทุกครั้ง
+  // ─────────────────────────────────────────────────────────
+  if (!pathname.startsWith('/api/')) {
+    supabaseResponse.headers.set(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, private'
+    );
+  }
+
   return supabaseResponse;
 }
 

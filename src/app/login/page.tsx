@@ -33,6 +33,9 @@ import {
   AlertCircle,
   UserX,
 } from 'lucide-react';
+// ★ r52: PasswordField สำหรับให้ browser รับรู้ password field
+//   และถาม "บันทึกรหัสผ่าน?" หลัง login สำเร็จ
+import { PasswordField } from '@/components/framework';
 import { createClient } from '@/lib/supabase/client';
 import {
   loginStudent,
@@ -379,13 +382,13 @@ export default function LoginPage() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.9.9 · Supabase</span>
+          <span className="yp-auth__demo-badge">v3.10.0 · Supabase</span>
           <h1>
             สมองของ
             <br />
             สภานักเรียน
           </h1>
-          <p>จัดตารางงาน กลุ่มงาน ฝ่ายงาน และ task ย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
+          <p>จัดตารางรายการ กลุ่มรายการ ฝ่ายงาน และรายการย่อย ในที่เดียว — ไม่ลืมอีกต่อไป</p>
         </div>
 
         {/* ── CARD ── */}
@@ -437,7 +440,8 @@ export default function LoginPage() {
           {/* ── STUDENT FORM ── */}
           {mode === 'student' ? (
             <form onSubmit={handleStudentSubmit} noValidate autoComplete="on">
-              {/* National ID */}
+              {/* National ID — ★ r52: autoComplete="username" เพื่อให้ browser
+                  จับคู่กับ student-code (password field) และถามบันทึกรหัสผ่าน */}
               <div className={`field${errors.nationalId ? ' has-error' : ''}`}>
                 <label className="field__label" htmlFor="national-id">
                   เลขบัตรประจำตัวประชาชน<span className="yp-required">*</span>
@@ -456,7 +460,7 @@ export default function LoginPage() {
                     inputMode="numeric"
                     maxLength={17}
                     placeholder="1-1100-50124-56-2"
-                    autoComplete="off"
+                    autoComplete="username"
                     disabled={submitting}
                   />
                 </div>
@@ -465,7 +469,11 @@ export default function LoginPage() {
                 ) : null}
               </div>
 
-              {/* Student Code */}
+              {/* Student Code — ★ r52: ใช้ PasswordField (type="password")
+                  เพื่อให้ browser รับรู้ว่าเป็น password field และถาม
+                  "บันทึกรหัสผ่าน?" หลัง login สำเร็จ
+                  - autoComplete="current-password" = login form
+                  - show/hide toggle ให้ user ดูรหัส 5 หลักได้ */}
               <div className={`field${errors.studentCode ? ' has-error' : ''}`}>
                 <label className="field__label" htmlFor="student-code">
                   รหัสนักเรียน<span className="yp-required">*</span>
@@ -475,15 +483,14 @@ export default function LoginPage() {
                     <GraduationCap className="size-[18px]" strokeWidth={1.8} />
                   </span>
                   {/* ★ v3.8.1: spread studentCodePulse.inputProps for pulse */}
-                  <input
+                  <PasswordField
                     {...studentCodePulse.inputProps}
                     id="student-code"
                     name="student-code"
-                    type="text"
                     inputMode="numeric"
                     maxLength={5}
                     placeholder="38001"
-                    autoComplete="username"
+                    autoComplete="current-password"
                     disabled={submitting}
                   />
                 </div>
@@ -586,7 +593,10 @@ export default function LoginPage() {
             </form>
           ) : (
             <form onSubmit={handleOtherSubmit} noValidate autoComplete="on">
-              {/* Email */}
+              {/* Email — ★ r52: autoComplete="username" เพื่อให้ browser
+                  จับคู่กับ password field และถามบันทึกรหัสผ่าน
+                  (ก่อนหน้านี้ใช้ "email" ซึ่ง browser มองเป็น email
+                  autocomplete dropdown ไม่ใช่ username สำหรับ password manager) */}
               <div className={`field${errors.email ? ' has-error' : ''}`}>
                 <label className="field__label" htmlFor="email">
                   อีเมล<span className="yp-required">*</span>
@@ -603,7 +613,7 @@ export default function LoginPage() {
                     type="email"
                     inputMode="email"
                     placeholder="teacher@school.ac.th"
-                    autoComplete="email"
+                    autoComplete="username"
                     disabled={submitting}
                   />
                 </div>
@@ -612,7 +622,10 @@ export default function LoginPage() {
                 ) : null}
               </div>
 
-              {/* Password */}
+              {/* Password — ★ r52: ใช้ PasswordField (type="password")
+                  เพื่อให้ browser รับรู้ว่าเป็น password field
+                  - autoComplete="current-password" = login form
+                  - show/hide toggle ให้ user ดูรหัสได้ */}
               <div className={`field${errors.password ? ' has-error' : ''}`}>
                 <label className="field__label" htmlFor="password">
                   รหัสผ่าน<span className="yp-required">*</span>
@@ -622,11 +635,10 @@ export default function LoginPage() {
                     <Lock className="size-[18px]" strokeWidth={1.8} />
                   </span>
                   {/* ★ v3.8.1: spread passwordPulse.inputProps for pulse */}
-                  <input
+                  <PasswordField
                     {...passwordPulse.inputProps}
                     id="password"
                     name="password"
-                    type="password"
                     placeholder="••••••••"
                     autoComplete="current-password"
                     disabled={submitting}
@@ -747,7 +759,7 @@ export default function LoginPage() {
 
         {/* ── FOOTER ── */}
         <div className="yp-auth__footer">
-          © 2026 YP Work · แพลตฟอร์มจัดการงานสภานักเรียน · เชื่อมต่อ Supabase
+          © 2026 YP Work · แพลตฟอร์มจัดการรายการสภานักเรียน · เชื่อมต่อ Supabase
         </div>
       </div>
     </div>

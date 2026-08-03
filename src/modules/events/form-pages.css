@@ -1,0 +1,309 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Form Pages (Type/Color Picker Modal, Form Card) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   FORM MODAL (Create event/task) — type picker, color picker
+   ═══════════════════════════════════════════════════════════════ */
+/* ★ v3.6.0: เพิ่ม spacing ให้สบายขึ้น — จาก space-6 → space-7 */
+.yp-form-modal__section {
+  margin-bottom: var(--yp-space-7, 28px);
+}
+
+.yp-form-modal__section-title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--yp-text-muted);
+  margin-bottom: var(--yp-space-3);
+}
+
+.field + .field {
+  margin-top: var(--yp-space-5);
+}
+
+
+.yp-form-modal__section > .field:first-child {
+  margin-top: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   v3.7.8 — yp-form-card: Card wrapper สำหรับ full-page forms
+   ═══════════════════════════════════════════════════════════════
+   ★ ปัญหา: create-event-form (full page) ดูแบน/ไม่มี depth เท่า AddTaskSheet (bottom sheet)
+   ★ วิธีแก้: สร้าง yp-form-card — card wrapper ที่ให้ depth + space เหมือน bottom sheet
+   ★ ใช้กับ: create-event-form, edit-event-form, และ full-page forms อื่นๆ
+   ═══════════════════════════════════════════════════════════════ */
+.yp-form-card {
+  background: var(--yp-bg-card);
+  border-radius: var(--yp-radius-lg);
+  border: 1px solid var(--yp-border-subtle);
+  padding: var(--yp-space-6);
+  box-shadow:
+    0 1px 2px rgba(30, 27, 70, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  margin-bottom: var(--yp-space-4);
+}
+
+/* ★ yp-form-card section — ใช้ spacing เดียวกับ yp-form-modal__section */
+.yp-form-card .yp-form-modal__section:last-child {
+  margin-bottom: 0;
+}
+
+/* ★ yp-form-card header — สำหรับหัวข้อใน card */
+.yp-form-card__header {
+  margin-bottom: var(--yp-space-5);
+  padding-bottom: var(--yp-space-4);
+  border-bottom: 1px solid var(--yp-border-subtle);
+}
+
+/* ★ yp-form-card actions — สำหรับปุ่มด้านล่าง */
+.yp-form-card__actions {
+  display: flex;
+  gap: var(--yp-space-3);
+  margin-top: var(--yp-space-6);
+  padding-top: var(--yp-space-5);
+  border-top: 1px solid var(--yp-border-subtle);
+}
+
+.yp-form-card__actions .yp-btn {
+  flex: 1;
+}
+
+/* ★ yp-form-section — ใช้แทน yp-form-modal__section ในบริบท full-page */
+.yp-form-section {
+  margin-bottom: var(--yp-space-6);
+}
+
+.yp-form-section:last-child {
+  margin-bottom: 0;
+}
+
+.yp-form-section__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: var(--yp-space-3);
+  letter-spacing: 0.01em;
+}
+
+.yp-form-section__title--with-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field__label {
+  display: block;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-heading);
+  margin-bottom: var(--yp-space-2);
+  letter-spacing: 0.025em;
+}
+
+
+.yp-type-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.yp-type-option.is-selected {
+  border: 2px solid var(--yp-indigo-500);
+}
+
+.yp-type-option__icon {
+  width: 40px; height: 40px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  display: grid;
+  place-items: center;
+  font-size: var(--yp-text-base);
+  margin-bottom: var(--yp-space-3);
+  border: 1px solid var(--yp-border-indigo);
+}
+.yp-type-option.is-selected .yp-type-option__icon {
+  background: var(--yp-gradient-brand-flat);
+  color: white;
+  border-color: var(--yp-indigo-600);
+}
+.yp-type-option__icon svg { width: 20px; height: 20px; stroke-width: 2; }
+
+.yp-type-option__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  margin-bottom: 0;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+
+.yp-type-option__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.4;
+  margin-top: 3px;
+}
+
+.yp-color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.yp-color-option.is-selected {
+  box-shadow: 0 0 0 2.5px var(--yp-indigo-500);
+}
+
+/* v1.5: Parent event chip (ใน add-task / edit-task form) — เหมือน demo */
+.yp-form-modal__parent {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  padding: 14px 16px;
+  background: var(--yp-bg-card-soft);
+  border: 1px solid var(--yp-border-subtle);
+  border-radius: var(--yp-radius-sm);
+  margin-bottom: var(--yp-space-5);
+}
+.yp-form-modal__parent-label {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.yp-form-modal__parent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 12px;
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 12%, white);
+  color: var(--accent, var(--yp-indigo-600));
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 25%, transparent);
+  letter-spacing: 0.01em;
+  min-width: 0;
+}
+.yp-form-modal__parent-chip svg {
+  width: 14px; height: 14px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.yp-form-modal__parent-chip span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* v1.5: Priority picker (3 ตัวเลือก low/medium/high) — เหมือน demo */
+.yp-priority-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.yp-priority-option {
+  border: 1.5px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-sm);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: border-color var(--yp-t-fast), background var(--yp-t-fast), box-shadow var(--yp-t-fast), transform var(--yp-t-fast);
+  text-align: center;
+  background: var(--yp-bg-card);
+  box-shadow: var(--yp-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+}
+.yp-priority-option:hover {
+  border-color: var(--yp-border-indigo);
+}
+.yp-priority-option.is-selected {
+  border: 2px solid var(--yp-indigo-500);
+}
+.yp-priority-option__dot.is-low    { background: #10B981; }
+.yp-priority-option__dot.is-medium { background: #6366F1; }
+.yp-priority-option__dot.is-high   { background: #F43F5E; }
+.yp-priority-option__title {
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.yp-priority-option__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  line-height: 1.3;
+  margin-top: 1px;
+}
+
+/* v1.5: textarea สำหรับ notes (override yp-input) */
+/* ★ v3.7.3: merged with v3.6.0 textarea — ใช้ที่เดียวกัน */
+.yp-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: var(--yp-input-padding-y) var(--yp-input-padding-x);
+}
+
+/* v1.5: field__hint — hint text ใต้ input — ★ v3.7.3: moved to form controls section */
+
+/* v1.5: confirm sheet body — used in logout + delete confirms */
+.yp-confirm-body {
+  display: flex;
+  gap: var(--yp-space-4);
+  align-items: flex-start;
+  padding: var(--yp-space-2) 0;
+}
+.yp-confirm-body__icon {
+  width: 44px; height: 44px;
+  border-radius: var(--yp-radius-sm);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+.yp-confirm-body__icon--danger {
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+  border-color: rgba(244, 63, 94, 0.22);
+}
+.yp-confirm-body__icon--warning {
+  background: rgba(245, 158, 11, 0.10);
+  color: #B45309;
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.yp-confirm-body__text {
+  flex: 1;
+  min-width: 0;
+  color: var(--yp-text-body);
+  font-size: var(--yp-text-sm);
+  line-height: 1.55;
+}
+.yp-confirm-body__text strong {
+  color: var(--yp-text-strong);
+}
+
+.yp-form-actions {
+  display: flex;
+  gap: 10px;
+  /* v2.1.0: ปุ่มสองอันสามารถขึ้นบรรทัดใหม่ได้บนจอแคบมาก */
+  flex-wrap: wrap;
+}
+

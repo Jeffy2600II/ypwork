@@ -1,46 +1,21 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · App Shell — v3.9.9
+// YP WORK · App Shell (r50)
 // ═══════════════════════════════════════════════════════════════
-// ★ v3.9.9: Today Dashboard + Session Cache
-//   - ไม่มีการเปลี่ยนแปลงที่ AppShell component โดยตรง
-//   - การเปลี่ยนแปลงอยู่ใน:
-//     - src/lib/utils/session-cache.ts (ใหม่ — cache utility)
-//     - src/lib/hooks/use-realtime.ts (เพิ่ม cache ให้ useRealtimeEvents + useRealtimeEventById)
-//     - src/modules/today/today-client.tsx (แสดง task ย่อยที่ due_date = วันนี้)
-//     - src/modules/today/today-task-card.tsx (ใหม่ — card สำหรับ task ย่อย)
-//     - src/modules/profile/profile-view.tsx (ล้าง cache ตอน logout)
-//
-// ★ v3.9.4: Calendar Redesign + Thailand TZ + Relaxed Patterns
-//   - ไม่มีการเปลี่ยนแปลงที่ AppShell โดยตรง — การแก้ timezone และ
-//     การออกแบบปฏิทินใหม่อยู่ใน src/lib/utils/date.ts และ
-//     src/modules/calendar/calendar-view.tsx
-//
-// ★ v3.9.3: Premium Polish & Patterned Surfaces
-//   - FAB: ยกเลิก hover effect ทั้งหมด (transform + shadow กลับเป็น default)
-//     ให้ feedback เฉพาะ active (press) state เท่านั้น
-//   - ค่า radii ทั้งหมดเพิ่มขึ้น (more rounded curves)
-//   - Page padding เพิ่มขึ้น (ระยะจากขอบซ้าย-ขวา)
-//   - Hero blocks ทั้งหมดถูกยกเครื่องใหม่ด้วย Telegram-style patterns
-//
-// ★ v3.9.2: Native Platform Polish
-//   - FAB: Material 3 Extended FAB (state layer + halo glow + spring press)
-//   - Bottom Nav: Material 3 Navigation Bar (pill indicator behind active icon)
-//   - Top Bar: Apple HIG translucency (saturate 200% + blur 20px)
-//   - Show/Hide: velocity-aware + visibility-hidden when collapsed
-//   - Top Bar scroll state: .is-scrolled class for refined edge shadow
-//
-// ★ v3.9.2 (history): แยกระบบ "แสดง/ซ่อน" (scroll-based, มี animation)
-//   ออกจาก "ปิด/เปิด" (programmatic, ไม่มี animation) อย่างชัดเจน
-//
-//   1. "แสดง/ซ่อน" — useScrollDirection hook + .is-hidden-by-scroll class
-//      → มี animation (scale + fade) ทั้งขาเข้าและขาออก
-//      → เลื่อนลงผ่าน 120px → ซ่อน, เลื่อนขึ้น → แสดง
-//
-//   2. "ปิด/เปิด" — body.yp-window-open .fab (ใน globals.css)
-//      → ไม่มี animation ปิด/เปิดทันที (instant)
-//      → ใช้เมื่อเปิด bottom sheet/window เพื่อกัน user กด FAB ซ้อน
+// ★ r50: ปรับปรุงครั้งใหญ่
+//   1. ใช้ระบบ framework ใหม่ (modular sheet/popup/fab)
+//   2. แก้บั๊ก FAB ไม่ซ่อนตอนเปิด sheet
+//      สาเหตุเดิม: พึ่ง CSS body.yp-window-open .fab เพียงอย่างเดียว
+//      วิธีแก้: ใช้ useIsSheetOpen() เป็น reactive source of truth ใน React
+//              และซ่อน FAB ผ่าน prop แทน CSS class ที่ตอบสนองช้า
+//   3. แก้บั๊ก FAB flash ตอน sheet ปิด
+//      สาเหตุเดิม: หน่วงเวลาของ CSS class กับ useScrollDirection re-evaluation
+//      วิธีแก้: ใช้ useIsSheetOpen() ร่วมกับ useScrollDirection()
+//              ถ้า sheet เปิดอยู่ → FAB ซ่อนแน่นอน (regardless of scroll)
+//              ถ้า sheet ปิด → FAB ตาม scroll direction
+//   4. แยก FAB logic ออกเป็น component ย่อย AppShellFAB
+//      เพื่อรวม state logic ที่เกี่ยวข้องไว้ที่เดียว
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
@@ -57,8 +32,14 @@ import {
 import type { SessionUser } from '@/lib/types';
 import { Avatar } from '@/components/framework/avatar';
 import { useRealtimeSessionUser } from '@/lib/hooks/use-realtime';
-// ★ v3.9.2: useScrollDirection สำหรับระบบ "แสดง/ซ่อน" (มี animation + velocity-aware)
-import { useScrollDirection } from '@/lib/hooks/use-scroll-direction';
+// ★ r50: import จาก framework ใหม่ (modular)
+import {
+  useScrollDirection,
+  useFabAction,
+  FabProvider,
+  useIsSheetOpen,
+} from '@/components/framework';
+import { usePendingDeleteRetry } from '@/lib/core/pending-delete-retry';
 
 export type AppShellActiveNav = 'today' | 'calendar' | 'events' | 'profile';
 
@@ -85,14 +66,12 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { key: 'today',    label: 'หน้าแรก',   href: '/today',    icon: Home },
   { key: 'calendar', label: 'ปฏิทิน',    href: '/calendar', icon: CalendarDays },
-  { key: 'events',   label: 'งาน',       href: '/events',   icon: ListTodo },
+  { key: 'events',   label: 'รายการ',     href: '/events',   icon: ListTodo },
   { key: 'profile',  label: 'โปรไฟล์',   href: '/profile',  icon: UserIcon },
 ];
 
 /**
  * คำนวณ accent-driven gradient stops จาก accent color
- * หากไม่มี accent → default brand indigo → violet
- * หากมี accent → accent + violet mix (เหมือน demo v8.2 event detail)
  */
 function computeTitleVars(accent?: string): {
   from: string;
@@ -102,11 +81,18 @@ function computeTitleVars(accent?: string): {
   if (!accent) {
     return { from: '#4F46E5', to: '#7C3AED', accentVar: '#4F46E5' };
   }
-  // ใช้ accent สำหรับ from + mix กับ violet สำหรับ to (เหมือน demo)
   return { from: accent, to: '#7C3AED', accentVar: accent };
 }
 
-export function AppShell({
+export function AppShell(props: AppShellProps) {
+  return (
+    <FabProvider>
+      <AppShellInner {...props} />
+    </FabProvider>
+  );
+}
+
+function AppShellInner({
   user: initialUser,
   children,
   activeNav,
@@ -116,13 +102,12 @@ export function AppShell({
   title = 'YP Work',
   accent,
 }: AppShellProps) {
-  // v1.8.2: subscribe realtime — ชื่อ/สี/ฝ่าย ของ user เปลี่ยน → avatar และ
-  //   top-bar อัพเดตทันที (admin เปลี่ยนชื่อ, ย้ายฝ่าย, เปลี่ยนสี)
   const { user } = useRealtimeSessionUser(initialUser);
   const router = useRouter();
   const { from, to, accentVar } = computeTitleVars(accent);
 
-  // v1.4: auto showBack เมื่อซ่อน bottom-nav (เหมือน demo route-meta logic)
+  usePendingDeleteRetry();
+
   const effectiveShowBack = showBack || !showBottomNav;
 
   const shellStyle: React.CSSProperties = {
@@ -135,113 +120,245 @@ export function AppShell({
     router.back();
   }, [router]);
 
-  // ★ v3.9.2: ระบบ "แสดง/ซ่อน" (scroll-based) — velocity-aware + visibility-hidden
-  //   เลื่อนลงผ่าน 120px → ซ่อน (scale 0.4 + fade out + visibility hidden)
-  //   เลื่อนขึ้น → แสดง (scale 1 + fade in, spring-like with tiny overshoot)
-  //   ใกล้บน 40px → แสดงเสมอ
-  //   หมายเหตุ: นี่แยกจาก "ปิด/เปิด" (body.yp-window-open) ที่ไม่มี animation
-  const { hidden: fabHidden, isScrolled: topBarScrolled } = useScrollDirection({
-    enabled: showFAB,
-    hideThreshold: 120,
-    showAtTop: 40,
-    scrollStateThreshold: 8,
-  });
-
   return (
     <div className="app-shell" style={shellStyle}>
       {/* ── TOP BAR (fixed) ── */}
-      <header
-        className={`top-bar${topBarScrolled ? ' is-scrolled' : ''}`}
-        role="banner"
-      >
-        <div className="top-bar__left">
-          {effectiveShowBack ? (
-            <button
-              type="button"
-              className="top-bar__back"
-              onClick={handleBack}
-              aria-label="ย้อนกลับ"
-            >
-              <ArrowLeft className="size-5" strokeWidth={2} />
-            </button>
-          ) : null}
-        </div>
-
-        <div
-          className="top-bar__title"
-          title={title}
-        >
-          {title}
-        </div>
-
-        <div className="top-bar__right">
-          <Link
-            href="/profile"
-            className="top-bar__avatar"
-            aria-label={`โปรไฟล์ของ ${user.full_name}`}
-          >
-            <Avatar
-              name={user.full_name}
-              color={user.color}
-              size={32}
-              className="top-bar__avatar-img"
-            />
-          </Link>
-        </div>
-      </header>
+      <TopBar
+        title={title}
+        showBack={effectiveShowBack}
+        onBack={handleBack}
+        user={user}
+      />
 
       {/* ── MAIN CONTENT ── */}
       <main className="app-main" id="app-main">
-        {/* v1.4: animation wrapper อยู่ข้างใน main ไม่ใช่ shell
-            เพื่อไม่ให้ transform บน shell ทำลาย position:fixed ของ FAB/bottom-nav */}
         <div className="yp-shell-content-enter">
           {children}
         </div>
       </main>
 
       {/* ── FAB ── */}
-      {/* ★ v3.9.2: Material 3 Extended FAB — state layer + halo glow + spring press
-          .is-hidden-by-scroll → CSS จะ animate scale 0.4 + fade + visibility hidden
-          ส่วน "ปิด/เปิด" (body.yp-window-open) จัดการใน CSS แยก — ไม่มี animation */}
-      {showFAB ? (
-        <Link
-          href="/events/create"
-          prefetch={true}
-          aria-label="สร้างงานใหม่"
-          className={`fab${fabHidden ? ' is-hidden-by-scroll' : ''}`}
-        >
-          <Plus className="size-5" strokeWidth={2.4} />
-        </Link>
-      ) : null}
+      <AppShellFAB showFAB={showFAB} />
 
       {/* ── BOTTOM NAV / LEFT-RAIL ── */}
-      <nav
-        className={`bottom-nav${showBottomNav ? '' : ' is-hidden'}`}
-        aria-label="นำทางหลัก"
-      >
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeNav === item.key;
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              prefetch={true}
-              className={`bottom-nav__item${isActive ? ' is-active' : ''}`}
-              aria-current={isActive ? 'page' : undefined}
-              aria-label={item.label}
-            >
-              <span className="bottom-nav__icon">
-                <Icon
-                  className="size-5"
-                  strokeWidth={1.8}
-                />
-              </span>
-              <span className="bottom-nav__label">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      <BottomNav activeNav={activeNav} show={showBottomNav} />
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TopBar — แยกออกมาเป็น component ย่อย
+// ═══════════════════════════════════════════════════════════════
+
+function TopBar({
+  title,
+  showBack,
+  onBack,
+  user,
+}: {
+  title: string;
+  showBack: boolean;
+  onBack: () => void;
+  user: { full_name: string; color: string };
+}) {
+  // ★ r50: scroll state สำหรับ top-bar shadow refinement
+  //   ใช้ useScrollDirection แบบ enabled=true เสมอ (เพราะ top-bar แสดงทุกหน้า)
+  const { isScrolled } = useScrollDirection({
+    enabled: true,
+    hideThreshold: 120,
+    showAtTop: 40,
+    scrollStateThreshold: 8,
+  });
+
+  return (
+    <header
+      className={`top-bar${isScrolled ? ' is-scrolled' : ''}`}
+      role="banner"
+    >
+      <div className="top-bar__left">
+        {showBack ? (
+          <button
+            type="button"
+            className="top-bar__back"
+            onClick={onBack}
+            aria-label="ย้อนกลับ"
+          >
+            <ArrowLeft className="size-5" strokeWidth={2} />
+          </button>
+        ) : null}
+      </div>
+
+      <div
+        className="top-bar__title"
+        title={title}
+      >
+        {title}
+      </div>
+
+      <div className="top-bar__right">
+        <Link
+          href="/profile"
+          className="top-bar__avatar"
+          aria-label={`โปรไฟล์ของ ${user.full_name}`}
+        >
+          <Avatar
+            name={user.full_name}
+            color={user.color}
+            size={32}
+            className="top-bar__avatar-img"
+          />
+        </Link>
+      </div>
+    </header>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AppShellFAB — รวม logic ของ FAB ไว้ที่เดียว
+// ═══════════════════════════════════════════════════════════════
+// ★ r50: แยกออกมาเป็น component ย่อยเพื่อ:
+//   - รวม logic ของ FAB ไว้ที่เดียว (action + scroll + sheet-open state)
+//   - ลด complexity ของ AppShellInner
+//   - แก้บั๊ก FAB flash ตอน sheet ปิด
+//
+// ★ r52: แก้บั๊ก FAB ไม่กลับมาแสดงหลัง sheet ปิด
+//   ปัญหาเดิม: เมื่อ sheet ปิด, useScrollDirection มี callback onSheetOpenChange
+//   ที่ re-evaluate scroll position และอาจ set fabHiddenByScroll=true
+//   ทำให้ FAB ไม่กลับมาแสดงแม้ user อยู่ที่ top
+//
+//   วิธีแก้ r52:
+//   1. Track "pre-overlay visibility" — เมื่อ sheet เปิด, จำสถานะ visibility
+//      ของ FAB ก่อนเปิด sheet
+//   2. เมื่อ sheet ปิด, restore FAB ไปยัง pre-overlay visibility state
+//      โดยไม่ขึ้นกับ scroll re-evaluation
+//   3. หลังจากนั้น, useScrollDirection ทำงานปกติ — ถ้า user scroll ลง
+//      FAB ซ่อน, ถ้า scroll ขึ้น FAB แสดง
+//
+// Logic การแสดง FAB (ลำดับ priority):
+//   1. ถ้า action เป็น 'hidden' → ซ่อน (page เป็นคนตั้ง)
+//   2. ถ้า sheet เปิดอยู่ → ซ่อน (priority สูงสุด — กัน user กดซ้อน)
+//   3. ถ้า sheet ปิด และ pre-overlay visible → แสดง (restore)
+//   4. ถ้า scroll ลง → ซ่อน (velocity-aware)
+//   5. ถ้า scroll ขึ้น หรืออยู่ใกล้บน → แสดง
+// ═══════════════════════════════════════════════════════════════
+
+function AppShellFAB({ showFAB }: { showFAB: boolean }) {
+  const fabAction = useFabAction();
+
+  // ★ r50: reactive source of truth — รู้ทันทีที่ sheet เปิด/ปิด
+  const isSheetOpen = useIsSheetOpen();
+
+  // ถ้า action เป็น 'hidden' → บังคับซ่อน FAB แม้ showFAB=true
+  const effectiveShowFAB = showFAB && fabAction.kind !== 'hidden';
+
+  const { hidden: fabHiddenByScroll } = useScrollDirection({
+    enabled: effectiveShowFAB,
+    hideThreshold: 120,
+    showAtTop: 40,
+    scrollStateThreshold: 8,
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ★ r52: FAB visibility logic — simplified
+  //
+  // ปัญหาเดิม (r50/r51): useScrollDirection มี onSheetOpenChange callback
+  //   ที่ re-evaluate scroll position เมื่อ sheet ปิด และเรียก setHidden()
+  //   ทำให้ FAB อาจถูกซ่อนแม้ user อยู่ที่ top
+  //
+  // วิธีแก้ r52: ลบ setHidden() ออกจาก onSheetOpenChange callback ใน
+  //   useScrollDirection (ดูไฟล์นั้น) — ตอนนี้ hidden state ไม่ถูกแก้
+  //   เมื่อ sheet ปิด → FAB กลับสู่สถานะ visibility เดิมทันที
+  //
+  //   เหตุผลที่ใช้ logic ง่าย ๆ ได้: scroll lock ไม่ย้าย scroll position
+  //   (ดู scroll-lock.ts) → เมื่อ sheet ปิด, scroll position เหมือนเดิม
+  //   → fabHiddenByScroll ที่ last scroll event บันทึกไว้ ยังถูกต้อง
+  //   → ไม่ต้อง re-evaluate ใหม่
+  // ═══════════════════════════════════════════════════════════════
+  const fabHidden = isSheetOpen || fabHiddenByScroll;
+
+  if (!effectiveShowFAB) return null;
+
+  // ★ r52: ใช้ class 'is-hidden-by-scroll' สำหรับ scroll-based hide
+  //   และ 'is-hidden-by-overlay' สำหรับ sheet-open hide
+  //   CSS จะจัดการ animation ทั้งสองกรณี
+  const fabClassName = `fab${fabHidden ? ' is-hidden-by-scroll' : ''}${isSheetOpen ? ' is-hidden-by-overlay' : ''}`;
+
+  if (fabAction.kind === 'callback') {
+    return (
+      <button
+        type="button"
+        onClick={fabAction.fn}
+        aria-label="สร้างรายการใหม่"
+        className={fabClassName}
+      >
+        <Plus className="size-5" strokeWidth={2.4} />
+      </button>
+    );
+  }
+
+  const href =
+    fabAction.kind === 'navigate-create-with-date'
+      ? `/events/create?date=${encodeURIComponent(fabAction.date)}`
+      : '/events/create';
+
+  return (
+    <Link
+      href={href}
+      prefetch={true}
+      aria-label="สร้างรายการใหม่"
+      className={fabClassName}
+    >
+      <Plus className="size-5" strokeWidth={2.4} />
+    </Link>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BottomNav — แยกออกมาเป็น component ย่อย
+// ═══════════════════════════════════════════════════════════════
+
+function BottomNav({
+  activeNav,
+  show,
+}: {
+  activeNav?: AppShellActiveNav;
+  show: boolean;
+}) {
+  // ★ r50: reactive — ซ่อน bottom-nav ทันทีที่ sheet เปิด
+  //   ไม่ต้องพึ่ง CSS body.yp-overlay-open--sheet .bottom-nav ที่ตอบสนองช้า
+  const isSheetOpen = useIsSheetOpen();
+
+  // ★ ถ้า sheet เปิดอยู่ → บังคับซ่อน bottom-nav ด้วย class
+  //   CSS จะจัดการ animation (fade + slide down)
+  const navClassName = `bottom-nav${show ? '' : ' is-hidden'}${isSheetOpen ? ' is-hidden-by-overlay' : ''}`;
+
+  return (
+    <nav
+      className={navClassName}
+      aria-label="นำทางหลัก"
+    >
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const isActive = activeNav === item.key;
+        return (
+          <Link
+            key={item.key}
+            href={item.href}
+            prefetch={true}
+            className={`bottom-nav__item${isActive ? ' is-active' : ''}`}
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={item.label}
+          >
+            <span className="bottom-nav__icon">
+              <Icon
+                className="size-5"
+                strokeWidth={1.8}
+              />
+            </span>
+            <span className="bottom-nav__label">{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

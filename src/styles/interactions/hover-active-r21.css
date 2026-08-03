@@ -1,0 +1,689 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Hover & Active Micro-Interactions (r21) — v3.10.0-r68 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   HOVER & ACTIVE STATES (v3.10.0-r68 — micro-interactions restored)
+   ═══════════════════════════════════════════════════════════════
+   ★ r21: คืนค่า hover/active micro-interactions — ลบ transform:none
+   Hover = state layer (bg/shadow/border) + subtle transform
+   Active = scale down 2-5% for tactile press feedback
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── FAB: v3.9.3 — NO hover effect on plus button (per user feedback) ── */
+@media (hover: hover) and (pointer: fine) {
+  .fab:hover {
+    /* ★ v3.9.3: ยกเลิก hover ทั้งหมด — ไม่มี state layer, ไม่มี halo, ไม่มี shadow change
+       FAB อยู่นิ่ง ๆ ตอน hover และให้ feedback เฉพาะตอนกด (active state) */
+    /* ★ r56: ลด hover shadow ลง ~50% ให้ FAB ดูนิ่งขึ้น ไม่ฟุ้ง */
+    box-shadow:
+      0 3px 8px rgba(79, 70, 229, 0.12),
+      0 1px 3px rgba(15, 23, 42, 0.05);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .fab:hover::before {
+    /* ★ v3.9.3: ปิด halo glow บน hover */
+    opacity: 0;
+  }
+}
+
+/* ── Primary button: hover = darker bg + state layer, NO translateY ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-btn--primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5450E8 0%, #8347ED 100%);
+    /* ★ r56: ลด shadow ลง ~45% ให้ปุ่ม primary ดูเบา ไม่ฟุ้ง */
+    box-shadow:
+      0 2px 6px rgba(79, 70, 229, 0.12),
+      0 1px 2px rgba(79, 70, 229, 0.06);
+  }
+  .yp-btn--primary:hover::after {
+    opacity: 1;
+  }
+}
+
+/* ── Ghost button: hover = subtle bg tint, NO motion ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-btn--ghost:hover:not(:disabled) {
+    background: var(--yp-tint-v392-hover);
+    color: var(--yp-text-strong);
+  }
+}
+
+/* ── Danger button: hover = darker bg, NO translateY ── */
+@media (hover: hover) and (pointer: fine) {
+}
+
+/* ── Card hover: NO translateY, just shadow + border ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-card:hover {
+    box-shadow: var(--yp-shadow-md-v39);
+    border-color: var(--yp-border-v39-default);
+  }
+}
+
+/* ── Event card hover: NO translateY, just shadow + border ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-event-card:hover {
+    /* ★ r56: ลด shadow ลง — ใช้ border accent เป็นหลัก ไม่ใช้ shadow หนา */
+    box-shadow:
+      0 1px 3px rgba(30, 27, 70, 0.04),
+      0 1px 2px rgba(30, 27, 70, 0.02);
+    border-color: color-mix(in srgb, var(--accent, #4F46E5) 20%, transparent);
+  }
+  /* Keep accent bar growing — that's a state change, not motion of the card */
+  .yp-event-card:hover::before {
+    top: 0;
+    bottom: 0;
+  }
+  .yp-event-card:hover::after {
+    opacity: 0.10;
+  }
+}
+
+/* ── Stat card hover: NO translateY ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-stat:hover {
+    box-shadow: var(--yp-shadow-sm-v39);
+    border-color: var(--yp-border-v39-default);
+  }
+}
+
+/* ── Top bar back button: hover = bg tint, NO scale ── */
+@media (hover: hover) and (pointer: fine) {
+  .top-bar__back:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--yp-top-accent, var(--yp-indigo-600));
+  }
+}
+
+/* ── Top bar avatar: hover = ring + subtle bg, NO scale ── */
+@media (hover: hover) and (pointer: fine) {
+  .top-bar__avatar:hover {
+    /* ★ r56: ลด shadow ลง — ใช้ ring เป็นตัวบอก hover state แทน shadow หนา */
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.10);
+  }
+}
+
+.yp-color-option:hover {
+  background: var(--yp-tint-v392-hover);
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .yp-color-option.is-selected {
+    box-shadow:
+      0 0 0 2px var(--yp-indigo-500),
+      0 0 0 4px white,
+      0 0 0 6px currentColor;
+  }
+}
+
+/* ── Type option hover: NO translateY ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-type-option:hover {
+    background: var(--yp-tint-v392-hover);
+    border-color: var(--yp-border-v39-default);
+    box-shadow: var(--yp-shadow-xs-v39);
+  }
+  .yp-type-option.is-selected {
+    box-shadow:
+      0 0 0 2px var(--yp-indigo-500),
+      0 1px 3px rgba(99, 102, 241, 0.06);
+  }
+}
+
+/* ── Window close button: hover = color change, NO scale/rotate ── */
+@media (hover: hover) and (pointer: fine) {
+  .yp-window__close:hover {
+    background: rgba(244, 63, 94, 0.08);
+    color: #BE123C;
+    border-color: rgba(244, 63, 94, 0.20);
+  }
+}
+
+/* ── Bottom nav items: hover = bg tint, NO motion ── */
+@media (hover: hover) and (pointer: fine) {
+  .bottom-nav__item:not(.is-active):hover .bottom-nav__icon {
+    background: var(--yp-tint-v392-hover);
+  }
+  .bottom-nav__item:not(.is-active):hover .bottom-nav__icon svg {
+    color: var(--yp-text-secondary);
+  }
+}
+
+/* ── Profile action: hover = bg tint, NO motion ── */
+.yp-profile-action:hover,
+.yp-profile-id__reveal:hover {
+  background: var(--yp-tint-v392-hover);
+}
+
+.yp-info-btn:hover,
+.yp-info-btn:focus-visible {
+  background: var(--yp-info-btn-v392-hover);
+  border-color: rgba(99, 102, 241, 0.32);
+  outline: none;
+}
+
+
+.yp-info-sheet__close:hover {
+  background: rgba(148, 163, 184, 0.24);
+  color: var(--yp-text-heading, #1E293B);
+}
+
+
+.yp-input:focus,
+.yp-textarea:focus,
+.yp-select:focus {
+  /* Softer focus ring — calmer than v3.9.0 */
+  outline: none;
+  border-color: var(--yp-indigo-500);
+  background: white;
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.10),
+    0 1px 2px rgba(99, 102, 241, 0.04);
+  border-radius: var(--yp-radius-control) !important;
+}
+
+
+.input-group:focus-within {
+  border-color: var(--yp-indigo-500);
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.10),
+    0 1px 2px rgba(99, 102, 241, 0.04);
+  border-radius: var(--yp-radius-control) !important;
+}
+
+
+.input-group .yp-input:focus {
+  box-shadow: none;
+  border-radius: 0 !important;
+}
+
+
+/* Calmer focus breathing — softer than v3.8.x */
+@keyframes yp-input-focus-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.10),
+      0 1px 2px rgba(99, 102, 241, 0.04);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(99, 102, 241, 0.14),
+      0 1px 2px rgba(99, 102, 241, 0.06);
+  }
+}
+
+.field > .yp-input:focus,
+.field > .yp-textarea:focus,
+.field > .yp-select:focus {
+  animation: yp-input-focus-breathe 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+
+.yp-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Pill shape (matches our identity) */
+  border-radius: var(--yp-radius-pill);
+  /* Calmer background — less indigo */
+  background: var(--yp-info-btn-v392-bg);
+  border: 1px solid var(--yp-info-btn-v392-border);
+  color: var(--yp-indigo-500, #6366F1);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  /* Smooth transition (no transform) */
+  transition:
+    background-color 180ms var(--yp-ease-m3-standard),
+    border-color 180ms var(--yp-ease-m3-standard),
+    color 180ms var(--yp-ease-m3-standard);
+  line-height: 0;
+  /* Smaller size — less visual weight (Gemini-style) */
+  width: 26px;
+  height: 26px;
+}
+
+
+/* Override the inline style sizing when size='sm' (default) — make it smaller */
+.yp-info-btn[style*="32px"],
+.yp-info-btn[style*="36px"],
+.yp-info-btn[style*="40px"] {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* Icon — slightly smaller to match new button size */
+.yp-info-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+
+.yp-auth .yp-info-btn,
+.yp-auth__hero .yp-info-btn {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.30);
+  color: #FFFFFF;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+
+.yp-auth .yp-info-btn:hover,
+.yp-auth__hero .yp-info-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+
+.yp-form-card__title {
+  font-size: var(--yp-text-lg);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-strong);
+  margin: 0 0 var(--yp-space-1);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Title takes available space, info button sits at end */
+}
+
+
+.yp-form-card__subtitle {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  margin: 0;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+/* When InfoButton is inside subtitle, make it baseline-aligned */
+.yp-form-card__subtitle .yp-info-btn {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.yp-detail-section__title {
+  font-size: var(--yp-h3-size);
+  font-weight: var(--yp-fw-bold);
+  color: color-mix(in srgb, var(--accent, var(--yp-text-heading)) 30%, var(--yp-text-heading));
+  margin-bottom: var(--yp-space-4);
+  /* Title text + optional InfoButton on the left, count badge on the right */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yp-space-3);
+  letter-spacing: 0.005em;
+}
+
+
+/* When InfoButton is inside the title, group it with the text */
+.yp-detail-section__title > :first-child,
+.yp-detail-section__title > .yp-info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ★ v3.10.0 รอบที่ 10: title + InfoButton ต้องอยู่ใน flex item เดียวกัน
+   ก่อนหน้านี้ title text / InfoButton / count เป็น 3 flex children แยกกัน
+   ทำให้ justify-content:space-between ดันปุ่ม (i) ไปอยู่กึ่งกลางระหว่าง
+   title กับ count แทนที่จะติดกับคำว่า "รายการย่อย" ตามที่ตั้งใจ
+   → ห่อ title + InfoButton ไว้ใน .yp-detail-section__title-group เดียว
+     แล้วปล่อยให้ space-between ดันแค่ [group] กับ [count] ออกจากกัน */
+.yp-detail-section__title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.yp-info-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  background: var(--yp-info-sheet-v392-bg);
+  /* Higher radius — matches YP identity */
+  border-radius: 28px 28px 0 0;
+  /* ★ r56: ลด sheet shadow ลง ~40% ให้ sheet ดูเบา ไม่ฟุ้ง */
+  box-shadow:
+    0 -4px 18px rgba(15, 23, 42, 0.08),
+    0 -1px 0 rgba(30, 27, 70, 0.03) inset;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: yp-info-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* safe-area รองรับ iPhone notch / home indicator */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+
+.yp-info-sheet__grip {
+  flex-shrink: 0;
+  width: 36px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(30, 27, 70, 0.15);
+  margin: 10px auto 6px;
+}
+
+
+.yp-info-sheet__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--yp-radius-pill);
+  border: none;
+  background: rgba(30, 27, 70, 0.04);
+  color: var(--yp-text-muted, #64748B);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color 180ms var(--yp-ease-m3-standard),
+    color 180ms var(--yp-ease-m3-standard);
+  z-index: 2;
+}
+
+
+.yp-info-sheet__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 44px 16px 0;
+  border-bottom: 1px solid var(--yp-info-sheet-v392-border);
+  margin-bottom: 18px;
+}
+
+
+.yp-info-sheet__header-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 14px → token (more rounded) */
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(124, 58, 237, 0.10));
+  color: var(--yp-indigo-600, #4F46E5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.yp-info-sheet__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--yp-text-heading, #1E293B);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+
+.yp-info-sheet__subtitle {
+  margin: 3px 0 0;
+  font-size: 0.85rem;
+  color: var(--yp-text-muted, #64748B);
+  line-height: 1.5;
+}
+
+
+.yp-info-sheet__inner p {
+  margin: 0 0 14px;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--yp-text-body, #334155);
+}
+
+
+.yp-info-sheet__section-title {
+  margin: 22px 0 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--yp-indigo-600, #4F46E5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+
+.yp-info-sheet__example {
+  margin: 14px 0;
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 16px → token (more rounded) */
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.10);
+  overflow: hidden;
+}
+
+
+.yp-info-sheet__example-label {
+  padding: 8px 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--yp-indigo-600, #4F46E5);
+  background: rgba(99, 102, 241, 0.08);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+
+.yp-info-sheet__example-body {
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--yp-text-body, #334155);
+}
+
+
+.yp-info-sheet__option {
+  margin: 12px 0;
+  padding: 14px 16px;
+  border-radius: var(--yp-radius-xs);
+  /* v3.9.3: 16px → token (more rounded) */
+  background: rgba(241, 245, 249, 0.5);
+  border-left: 3px solid var(--yp-indigo-500, #6366F1);
+}
+
+
+.yp-info-sheet__option-name {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--yp-text-heading, #1E293B);
+  margin-bottom: 6px;
+}
+
+
+.yp-info-sheet__option-body {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--yp-text-body, #334155);
+}
+
+
+.yp-info-callout {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border-left: 3px solid;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+
+.yp-info-sheet__inner code {
+  font-family: 'Sarasa Mono SC', 'JetBrains Mono', ui-monospace, monospace;
+  background: rgba(99, 102, 241, 0.06);
+  color: var(--yp-indigo-600, #4F46E5);
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.86em;
+}
+
+
+.yp-info-pill {
+  display: inline-block;
+  padding: 2px 9px;
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--yp-indigo-700, #4338CA);
+  border-radius: var(--yp-radius-pill);
+  font-size: 0.80em;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  margin: 0 2px;
+}
+
+
+.yp-info-step__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--yp-radius-pill);
+  background: linear-gradient(135deg, var(--yp-indigo-500, #6366F1), var(--yp-violet-600, #7C3AED));
+  color: white;
+  font-size: 0.80rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* ★ r56: ลด marker shadow ลง ~50% ให้ step marker ดูสะอาด */
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.14);
+}
+
+
+body {
+  transition: background-color 220ms var(--yp-ease-m3-standard);
+  background: #F7F6FB;
+}
+
+
+.yp-card {
+  background: var(--yp-bg-card);
+  border: 1px solid var(--yp-border-v39-subtle);
+  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-card-pad-lg);
+  box-shadow: var(--yp-shadow-sm-v39);
+  /* Calmer hover — less movement */
+  transition:
+    transform 220ms var(--yp-ease-m3-standard),
+    box-shadow 220ms var(--yp-ease-m3-standard),
+    border-color 220ms var(--yp-ease-m3-standard),
+    background-color 220ms var(--yp-ease-m3-standard);
+  position: relative;
+  will-change: transform, box-shadow;
+  animation: yp-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
+}
+
+
+/* Calmer transitions — shorter durations everywhere */
+.yp-btn,
+.yp-btn--primary,
+.yp-btn--ghost,
+.yp-btn--danger,
+.yp-input,
+.yp-textarea,
+.yp-select,
+.yp-card,
+.yp-event-card,
+.yp-stat,
+.yp-type-option,
+.yp-color-option,
+.yp-priority-option,
+.bottom-nav__item,
+.bottom-nav__icon,
+.bottom-nav__label,
+.top-bar__back,
+.top-bar__avatar,
+.fab,
+.yp-info-btn {
+  transition-duration: 180ms;
+  transition-timing-function: var(--yp-ease-m3-standard);
+}
+
+.yp-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 100ms var(--yp-ease-m3-standard);
+}
+
+
+.yp-card:active {
+  transform: scale(0.99);
+  transition: transform 160ms var(--yp-ease-m3-decelerate);
+}
+
+
+.yp-event-card:active {
+  transform: scale(0.982);
+  transition: transform 160ms var(--yp-ease-m3-decelerate);
+}
+
+
+/* ★ v3.10.0 รอบที่ 10: การ์ดรายการย่อย (yp-task-row) ก่อนหน้านี้ไม่มี
+   active/press feedback เลยเวลาแตะเพื่อเปลี่ยนสถานะ — เพิ่มให้นุ่มนวล
+   สอดคล้องกับการ์ดอื่นๆ ทั้งเว็บ */
+.yp-task-row:active {
+  transform: scale(0.985);
+  background: var(--yp-bg-card-soft);
+  transition: transform 160ms var(--yp-ease-m3-decelerate), background 160ms var(--yp-ease-m3-decelerate);
+}
+
+.yp-stat:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--yp-ease-m3-standard);
+}
+
+
+.fab:active {
+  transform: translate3d(0, 0, 0) scale(0.94);
+  box-shadow: var(--yp-fab-shadow-press-v39);
+  transition:
+    transform 100ms var(--yp-ease-m3-standard),
+    box-shadow 100ms var(--yp-ease-m3-standard);
+}
+
+
+.fab:active::before {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
+  transition: opacity 40ms var(--yp-ease-m3-standard);
+}
+
+
+.bottom-nav__item:active .bottom-nav__icon {
+  transform: scale(0.96);
+  transition: transform 100ms var(--yp-ease-m3-standard);
+}
+
+
+.yp-info-btn:active {
+  transform: scale(0.92);
+  background: var(--yp-info-btn-v392-active);
+  transition: transform 100ms var(--yp-ease-m3-standard);
+}
+
+

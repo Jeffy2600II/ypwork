@@ -55,9 +55,12 @@ export function CalendarView({
   const { events: liveEvents } = useRealtimeEvents(initialEvents);
 
   // Events by date map
+  // ★ r51: skip events ที่ไม่มี date (group type ที่ไม่มี deadline)
+  //   เพราะ calendar เป็น view ที่จัดตาม date ถ้าไม่มี date → ไม่มีที่ให้แสดง
   const eventsByDate = React.useMemo(() => {
     const map = new Map<string, YPEvent[]>();
     for (const ev of liveEvents) {
+      if (!ev.date) continue;  // ★ r51: defensive — skip null date
       if (!map.has(ev.date)) map.set(ev.date, []);
       map.get(ev.date)!.push(ev);
     }
@@ -67,17 +70,20 @@ export function CalendarView({
   // ★ v3.9.4: Events for current month only (for list view)
   // เปรียบเทียบ year/month ด้วย string parsing แทน new Date() เพื่อความแม่นยำ
   // (date string YYYY-MM-DD เป็น date-only ไม่มี timezone ambiguity)
+  // ★ r51: skip events ที่ไม่มี date (group type)
   const monthEvents = React.useMemo(() => {
     const targetMonthPrefix = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-`;
     return liveEvents
-      .filter((ev) => ev.date.startsWith(targetMonthPrefix))
-      .sort((a, b) => a.date.localeCompare(b.date));
+      .filter((ev) => ev.date && ev.date.startsWith(targetMonthPrefix))
+      .sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
   }, [liveEvents, viewYear, viewMonth]);
 
   // Group by day
+  // ★ r51: skip events ที่ไม่มี date เช่นเดียวกัน
   const eventsByDay = React.useMemo(() => {
     const map = new Map<string, YPEvent[]>();
     for (const ev of monthEvents) {
+      if (!ev.date) continue;
       if (!map.has(ev.date)) map.set(ev.date, []);
       map.get(ev.date)!.push(ev);
     }
@@ -266,23 +272,23 @@ export function CalendarView({
             </span>
             <span className="yp-cal-legend__item">
               <span className="yp-cal-legend__swatch yp-cal-legend__swatch--dot" />
-              <span>มีงาน</span>
+              <span>มีรายการ</span>
             </span>
           </div>
         </div>
       ) : (
         /* ── LIST VIEW — grouped by day, compact ── */
         <div className="yp-cal-list-v2">
-          {/* ★ v3.9.4: Month summary header — แสดงจำนวนงานทั้งเดือน */}
+          {/* ★ v3.9.4: Month summary header — แสดงจำนวนรายการทั้งเดือน */}
           <div className="yp-cal-list-summary">
-            <span className="yp-cal-list-summary__label">งานในเดือนนี้</span>
+            <span className="yp-cal-list-summary__label">รายการในเดือนนี้</span>
             <span className="yp-cal-list-summary__count">{monthEvents.length}</span>
           </div>
 
           {eventsByDay.length === 0 ? (
             <div className="yp-cal-list-v2__empty">
               <Calendar width={28} height={28} strokeWidth={1.5} />
-              <span>ยังไม่มีงานในเดือนนี้</span>
+              <span>ยังไม่มีรายการในเดือนนี้</span>
             </div>
           ) : (
             eventsByDay.map(([dateStr, dayEvents]) => {
@@ -305,7 +311,7 @@ export function CalendarView({
                       </div>
                       {isTodayDay ? <span className="yp-cal-list-day__today-badge">วันนี้</span> : null}
                     </div>
-                    <span className="yp-cal-list-day__count">{dayEvents.length} งาน</span>
+                    <span className="yp-cal-list-day__count">{dayEvents.length} รายการ</span>
                   </div>
 
                   {/* Event items — ★ v3.9.4: improved card-like layout */}

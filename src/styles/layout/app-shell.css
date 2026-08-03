@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.10.0-r68 (Modular CSS Refactor)
+   ★ r68: ปรับ nav label และ avatar ให้สมดุลกับ type scale ใหม่ที่ใหญ่ขึ้น
+     ปรับ motion tokens ให้ snappier (180ms polish, 100ms press)
+   ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
+     var(--yp-shadow-sm) ที่ปรับใน tokens อยู่แล้ว ไม่ต้องแก้ที่นี่
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · APP SHELL LAYOUT (port จาก demo v8.2)
+   ═══════════════════════════════════════════════════════════════ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* accent-driven title vars (default = brand indigo → violet) */
+  --yp-top-from: #4F46E5;
+  --yp-top-to: #7C3AED;
+  --yp-top-accent: #4F46E5;
+  --yp-top-transition: 420ms var(--yp-ease-emphasized);
+}
+
+.app-main:has(~ .bottom-nav.is-hidden) {
+  padding-bottom: var(--yp-space-6);
+}
+
+/* ★ v3.10.0 รอบที่ 25: เว้นพื้นที่ให้ left-rail เฉพาะหน้าที่ "มีแถบนำทาง
+   จริง ๆ" เท่านั้น — หน้าที่ showBottomNav={false} (เช่นหน้า detail/create)
+   จะไม่มี .bottom-nav แสดงผล (มีแค่ class .is-hidden) จึงไม่ควรเสียพื้นที่
+   ซ้าย 96-120px ไปเปล่า ๆ —ตั้งค่าที่ .app-shell (parent) แทนที่จะตั้งซ้ำ
+   ที่ .app-main กับ .top-bar แยกกัน เพราะ custom property จะสืบทอด
+   (inherit) ลงไปให้ทั้งสองตัวพร้อมกันจากจุดเดียว */
+@media (min-width: 900px) {
+  .app-shell:has(> .bottom-nav.is-hidden) {
+    --yp-left-rail-width: 0px;
+  }
+}
+
+.top-bar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  min-width: 40px;
+}
+
+.top-bar__back:hover {
+  background: color-mix(in srgb, var(--yp-top-accent) 10%, transparent);
+  color: var(--yp-top-accent);
+  transform: scale(1.06);
+}
+
+.top-bar__title {
+  /* ★ r64: text-base → text-sm (15→13px after token change) — top bar title
+     ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.01em;
+  /* v8.2: accent-driven gradient stops — interpolate ผ่าน @property <color> */
+  background: linear-gradient(135deg,
+    var(--yp-top-from) 0%,
+    var(--yp-top-to) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    --yp-top-from var(--yp-top-transition),
+    --yp-top-to var(--yp-top-transition);
+}
+
+.top-bar__back svg {
+  /* ★ r64: ลดจาก 20×20 → 18×18 — back icon ที่เล็กลง ให้สมดุลกับ type scale */
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke var(--yp-t-normal);
+}
+
+.top-bar__avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.top-bar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  min-width: 40px;
+  justify-content: flex-end;
+}
+
+.top-bar__avatar {
+  /* ★ r64: ลดจาก 32×32 → 28×28 — top bar avatar ที่เล็กลง ให้สมดุลกับ type scale */
+  width: 32px; height: 32px;
+  border-radius: var(--yp-radius-pill);
+  display: block;
+  flex-shrink: 0;
+  border: 1.5px solid white;
+  box-shadow: var(--yp-shadow-sm);
+  overflow: hidden;
+  background: var(--yp-bg-card-soft);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--yp-t-fast);
+}
+
+.top-bar__avatar:hover {
+  transform: scale(1.06);
+}
+
+
+.bottom-nav.is-hidden {
+  display: none !important;
+}
+
+
+/* ── DESKTOP: bottom-nav → left-rail (≥900px) ── */
+/* ★ v3.5.0: ปรับปรุง desktop left-rail
+   - กว้างขึ้นเล็กน้อย (92px → 96px)
+   - มี logo/brand area ด้านบน
+   - Active indicator ที่สวยขึ้น (left border + bg)
+   - Larger icons for better touch target
+   - Hover state ที่ชัดเจนขึ้น
+*/
+@media (min-width: 900px) {
+  :root {
+    /* ★ r64: ลดจาก 56px → 50px — desktop top bar ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
+    --yp-nav-top-h: 50px;
+    /* ★ v3.9.7: เปิด left-rail บน desktop — ความกว้าง 96px */
+    --yp-left-rail-width: 96px;
+  }
+
+  .app-shell {
+    flex-direction: row;
+  }
+
+  .app-main {
+    flex: 1;
+    min-width: 0;
+    padding-bottom: var(--yp-space-8);
+    /* ★ v3.9.7: เว้นที่ด้านซ้ายให้ left-rail — ก่อนหน้านี้เนื้อหาทับซ้อนกับ left-rail
+       เพราะ bottom-nav เป็น position:fixed จึงไม่อยู่ใน flex flow */
+    padding-left: var(--yp-left-rail-width);
+  }
+
+  /* ★ v3.9.7: Top-bar ต้องเริ่มหลัง left-rail ด้วย — ก่อนหน้านี้ left:0 ทำให้
+     left-rail ทับส่วนซ้ายของ top-bar (back button / title)
+     ★ v3.10.0 รอบที่ 25: ค่านี้ถูกย้ายไปตั้งท้ายไฟล์แทน (~line 8290) เพราะ
+     .top-bar base rule (มือถือ, left:0) อยู่ท้ายไฟล์กว่าตรงนี้และชนะทับอยู่
+     — ดู comment เต็มตรงนั้น */
+
+  /* ★ v3.10.0 รอบที่ 25: บั๊กสำคัญที่พบระหว่างแก้ไข — .bottom-nav (base
+     rule มือถือ ที่ line ~7681) เป็น unconditional rule ที่อยู่ "ท้ายไฟล์"
+     กว่าบล็อกนี้ ทำให้ property ที่ซ้ำกัน (inset, justify-content,
+     align-items, padding, border-radius, border, background, box-shadow)
+     ชนะทับค่าที่ตั้งไว้ที่นี่เสมอบน desktop — นี่คือสาเหตุจริงที่ปุ่มใน
+     left-rail เคยดู "เรียงเต็มทั่วทั้งแถบ" (justify-content: space-evenly
+     จากมือถือหลุดมาใช้แทน flex-start) และแถบมีมุมโค้งมนผิดที่ (border-radius
+     จากมือถือ) — ย้าย property เหล่านั้นไปตั้งที่บล็อก desktop ตัวท้ายสุด
+     ของไฟล์แทน (หลัง base rule แน่นอน) เหลือไว้ตรงนี้แค่ property ที่ไม่ชน
+     กับ base (width/height/flex-direction/gap) */
+  .bottom-nav {
+    width: 96px;
+    height: 100vh;
+    height: 100dvh;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .bottom-nav__item {
+    width: 100%;
+    padding: 12px 0;
+    min-width: 0;
+    border-radius: var(--yp-radius-md, 14px);
+    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
+                color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bottom-nav__item:hover {
+    background: rgba(99, 102, 241, 0.06);
+    color: var(--yp-indigo-500);
+  }
+
+  .bottom-nav__icon {
+    width: 100%;
+    height: 44px;
+  }
+
+  .bottom-nav__label {
+    /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
+    font-size: var(--yp-text-2xs);
+    text-align: center;
+    line-height: 1;
+    font-weight: var(--yp-fw-medium);
+  }
+
+  /* ★ v3.5.0: Active state ที่สวยขึ้น — pill background + accent border */
+  .bottom-nav__item.is-active {
+    background: var(--yp-bg-indigo-soft);
+    color: var(--yp-indigo-600);
+    position: relative;
+  }
+
+  .bottom-nav__item.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    border-radius: 0 3px 3px 0;
+    background: var(--yp-indigo-600);
+  }
+
+  .fab {
+    bottom: calc(var(--yp-space-5) + var(--yp-safe-bottom));
+    right: calc(var(--yp-space-5) + var(--yp-safe-right));
+  }
+}
+
+/* ★ v3.5.0: Large desktop (≥1280px) — ปรับ left-rail ให้กว้างขึ้น + content max-width */
+@media (min-width: 1280px) {
+  :root {
+    /* ★ v3.9.7: left-rail กว้างขึ้นที่ 1280px+ */
+    --yp-left-rail-width: 108px;
+  }
+
+  .bottom-nav {
+    width: 108px;
+  }
+
+  .bottom-nav__item {
+    padding: 14px 0;
+  }
+
+  .bottom-nav__icon {
+    height: 48px;
+  }
+
+  .bottom-nav__label {
+    /* ★ r64: ลดจาก 12px → 11px — large desktop label */
+    font-size: var(--yp-text-xs);
+  }
+
+  /* ★ v3.5.0: Center content with max-width on large screens
+     ★ v3.9.7: รวม --yp-left-rail-width เข้าไปใน padding-left
+     ก่อนหน้านี้ padding-left ไม่ได้รวม rail width → เนื้อหายังทับ left-rail */
+  .app-main {
+    padding-left: calc(var(--yp-left-rail-width) + var(--yp-space-6, 24px) + var(--yp-safe-left, 0px));
+    padding-right: calc(var(--yp-space-6, 24px) + var(--yp-safe-right, 0px));
+  }
+
+  .yp-page {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}
+
+/* ★ v3.5.0: Extra large desktop (≥1536px) — ใหญ่ขึ้นอีก */
+@media (min-width: 1536px) {
+  :root {
+    /* ★ v3.9.7: left-rail กว้างขึ้นที่ 1536px+ */
+    --yp-left-rail-width: 120px;
+  }
+
+  .bottom-nav {
+    width: 120px;
+  }
+
+  .yp-page {
+    max-width: 1080px;
+  }
+}

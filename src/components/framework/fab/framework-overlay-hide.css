@@ -1,0 +1,77 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Framework r50 — FAB/Bottom Nav Overlay-Hide — v3.10.0-r56 (Modular CSS Refactor)
+   ═══════════════════════════════════════════════════════════════
+   Extracted from globals.css (12,263 lines) into modular files
+   for easier development, faster navigation, and better maintainability.
+   
+   ★ This file is part of the YP Work Design Library system.
+   ★ To modify: edit this file directly — changes apply globally.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 5: FAB / BOTTOM NAV — OVERLAY-HIDE SYSTEM (r50)
+   ═══════════════════════════════════════════════════════════════
+   ★ r50 การแก้ปัญหาสำคัญ:
+
+   ปัญหาเดิม:
+   - ใช้ body.yp-window-open .fab ซ่อน FAB → reactive ช้า
+   - ตอน sheet เปิด: FAB ไม่ซ่อนทันที (CSS class ตอบสนองช้า)
+   - ตอน sheet ปิด: FAB flash ก่อนถูกซ่อนอีกครั้ง
+
+   วิธีแก้ r50:
+   - ใช้ React state (useIsSheetOpen) เป็น source of truth
+   - AppShell ส่ง class 'is-hidden-by-overlay' ให้ FAB/nav ทันทีที่ sheet เปิด
+   - CSS จัดการ animation (fade + slide) ด้วย transition
+   - แยกจาก 'is-hidden-by-scroll' (ที่ใช้สำหรับ scroll-based hide)
+
+   ผลลัพธ์:
+   - FAB ซ่อนทันทีที่ sheet เปิด (no flash)
+   - FAB แสดงทันทีที่ sheet ปิด (no flash)
+   - scroll-based hide ยังทำงานเหมือนเดิม
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── FAB: hidden by overlay (sheet/fullscreen) ── */
+.fab.is-hidden-by-overlay {
+  transform: translateY(150%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 180ms var(--yp-ease-m3-emphasized),
+    opacity 160ms var(--yp-ease-m3-emphasized),
+    visibility 0s,
+    box-shadow 180ms var(--yp-ease-m3-standard);
+  animation: none !important;
+}
+
+/* ── FAB: shown (default state, no overlay, no scroll-hide) ── */
+.fab:not(.is-hidden-by-overlay):not(.is-hidden-by-scroll) {
+  visibility: visible;
+  transition:
+    transform 280ms var(--yp-ease-m3-emphasized),
+    opacity 220ms var(--yp-ease-m3-emphasized),
+    visibility 0s,
+    box-shadow 220ms var(--yp-ease-m3-standard);
+}
+
+/* ── Bottom Nav: hidden by overlay (sheet/fullscreen) ── */
+.bottom-nav.is-hidden-by-overlay {
+  transform: translateY(150%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform 220ms var(--yp-ease-m3-emphasized),
+    opacity 180ms var(--yp-ease-m3-emphasized),
+    visibility 0s;
+  animation: none !important;
+}
+
+/* ── Bottom Nav: shown (default state) ── */
+.bottom-nav:not(.is-hidden-by-overlay) {
+  transition:
+    transform 280ms var(--yp-ease-m3-emphasized),
+    opacity 220ms var(--yp-ease-m3-emphasized),
+    visibility 0s;
+}
+
