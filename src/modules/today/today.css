@@ -285,7 +285,8 @@
 .yp-today-section--panel {
   background: rgba(255, 255, 255, 0.45);
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-hero);
+  /* ★ r68b: ลดความโค้ง local — ไม่แต้ token หลัก ใช้ค่า local ที่นี่ */
+  border-radius: 28px;
   padding: var(--yp-space-5) var(--yp-space-4);
   box-shadow: var(--yp-shadow-xs);
   backdrop-filter: blur(8px);
@@ -380,7 +381,7 @@
    SUB-SECTIONS / TIME SECTIONS (e.g. ช่วงเช้า / ช่วงบ่าย / เมื่อวาน)
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-time-section {
-  margin-bottom: var(--yp-space-6);
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-today-time-section:last-child {
@@ -389,34 +390,38 @@
 
 @media (min-width: 768px) {
   .yp-today-time-section {
-    margin-bottom: var(--yp-space-7);
+    margin-bottom: var(--yp-space-6);
   }
 }
 
+/* ★ r68b: ปรับแบบ time section head ให้สะอาดขึ้น เหมือน meta ในหน้า detail
+   - ไม่มีกล่อง icon ใหญ่ ใช้ icon เล็ก inline แทน
+   - label กับ caption อยู่บรรทัดเดียว คั่นด้วยจุด
+   - count ใช้สีอ่อน ไม่มี border ไม่มี box */
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: var(--yp-space-4);
-  padding-bottom: var(--yp-space-1);
+  gap: var(--yp-space-2);
+  margin-bottom: var(--yp-space-3);
+  padding-bottom: var(--yp-space-2);
+  border-bottom: 1px solid var(--yp-border-subtle);
 }
 
 .yp-today-time-section__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--yp-radius-sm);
-  background: rgba(99, 102, 241, 0.08);
-  color: var(--yp-indigo-600);
+  width: 16px;
+  height: 16px;
+  color: var(--yp-text-muted);
   flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .yp-today-time-section__icon svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2.2;
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
 }
 
 .yp-today-time-section__text {
@@ -424,15 +429,15 @@
   min-width: 0;
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .yp-today-time-section__label {
-  font-size: var(--yp-text-sm);
-  font-weight: var(--yp-fw-bold);
-  color: var(--yp-text-heading);
-  letter-spacing: -0.005em;
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  color: var(--yp-text-secondary);
+  letter-spacing: 0.01em;
   line-height: 1.3;
 }
 
@@ -441,18 +446,22 @@
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-normal);
   line-height: 1.3;
+  opacity: 0.8;
+}
+
+.yp-today-time-section__caption::before {
+  content: '·';
+  margin-right: 5px;
+  opacity: 0.5;
 }
 
 .yp-today-time-section__count {
   font-size: var(--yp-text-2xs);
-  color: var(--yp-text-secondary);
+  color: var(--yp-text-muted);
   font-weight: var(--yp-fw-semibold);
-  background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-default);
-  padding: 2px 9px;
-  border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
   line-height: 1.4;
+  opacity: 0.7;
 }
 
 

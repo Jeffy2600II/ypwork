@@ -111,7 +111,7 @@
 
 .top-bar__avatar {
   /* ★ r64: ลดจาก 32×32 → 28×28 — top bar avatar ที่เล็กลง ให้สมดุลกับ type scale */
-  width: 32px; height: 32px;
+  width: 28px; height: 28px;
   border-radius: var(--yp-radius-pill);
   display: block;
   flex-shrink: 0;
@@ -207,7 +207,7 @@
 
   .bottom-nav__label {
     /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
-    font-size: var(--yp-text-2xs);
+    font-size: 10.5px;
     text-align: center;
     line-height: 1;
     font-weight: var(--yp-fw-medium);
@@ -259,7 +259,7 @@
 
   .bottom-nav__label {
     /* ★ r64: ลดจาก 12px → 11px — large desktop label */
-    font-size: var(--yp-text-xs);
+    font-size: 11px;
   }
 
   /* ★ v3.5.0: Center content with max-width on large screens
