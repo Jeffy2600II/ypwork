@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r68 (Modular CSS Refactor)
+   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r69 (Modular CSS Refactor)
    ★ r68: ปรับ list-item padding ใช้ design tokens แทนค่า hardcoded
      ปรับ motion ให้สมดุลกับ token ใหม่ (180ms polish)
    ═══════════════════════════════════════════════════════════════
@@ -31,7 +31,7 @@
   width: 80px; height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle, var(--accent, var(--yp-indigo-500)) 0%, transparent 70%);
-  opacity: 0.06;
+  opacity: 0.04;
   pointer-events: none;
 }
 
@@ -48,7 +48,7 @@
   place-items: center;
   font-size: var(--yp-text-sm);
   margin-bottom: 2px;
-  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 20%, transparent);
   position: relative;
   z-index: 1;
   /* ★ r56: ลด pill shadow ลง ~50% */
@@ -110,11 +110,9 @@
 
 .yp-empty {
   text-align: center;
-  padding: var(--yp-space-12) var(--yp-space-6);
-  color: var(--yp-text-muted);
-  background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
+  padding: var(--yp-space-10) var(--yp-space-6);
+  color: var(--yp-text-faint);
+  background: transparent;
   max-width: 480px;
   margin-inline: auto;
   position: relative;

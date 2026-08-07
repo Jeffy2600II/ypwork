@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r68
-   ★ r68: REDESIGN & UN-CLUTTER TODAY DASHBOARD
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.10.0-r69
+   ★ r69: REDESIGN & UN-CLUTTER TODAY DASHBOARD (COMPACT HERO)
      - Spacing overhaul: increased separation between overdue / today / upcoming sections
        and between task cards within lists for optimal breathing room.
      - Section panels & headers: distinct, cohesive panel surfaces with subtle background
@@ -110,15 +110,15 @@
     radial-gradient(circle at 88% 12%, rgba(99, 102, 241, 0.20) 0%, transparent 45%),
     radial-gradient(circle at 78% 88%, rgba(124, 58, 237, 0.24) 0%, transparent 52%),
     radial-gradient(circle at 18% 82%, rgba(79, 70, 229, 0.20) 0%, transparent 48%),
-    linear-gradient(135deg, #3B3890 0%, #5652D0 50%, #7653E0 100%);
+    linear-gradient(135deg, #2D2A7A 0%, #4A45B5 40%, #6B4FD8 100%);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
   color: white;
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-6) var(--yp-space-5);
+  padding: var(--yp-space-5) var(--yp-space-4) var(--yp-space-4);
   margin-bottom: var(--yp-space-8);
   box-shadow:
-    0 4px 16px rgba(49, 46, 129, 0.08),
-    0 1px 3px rgba(79, 70, 229, 0.05);
+    0 2px 8px rgba(49, 46, 129, 0.06),
+    0 1px 2px rgba(79, 70, 229, 0.04);
   position: relative;
   overflow: hidden;
   animation: yp-hero-enter var(--yp-hero-enter) both;
@@ -127,7 +127,7 @@
 
 @media (min-width: 768px) {
   .yp-today-hero {
-    padding: var(--yp-space-7) var(--yp-space-7);
+    padding: var(--yp-space-6) var(--yp-space-6) var(--yp-space-5);
     margin-bottom: var(--yp-space-10);
   }
 }
@@ -185,38 +185,22 @@
 .yp-today-hero__date {
   font-size: var(--yp-text-xs);
   opacity: 0.85;
-  margin-bottom: var(--yp-space-5);
+  margin-bottom: var(--yp-space-4);
   letter-spacing: 0.015em;
 }
 
 /* Stat Tiles */
 .yp-today-hero__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--yp-space-3);
+  display: flex;
+  gap: var(--yp-space-2);
   margin-top: var(--yp-space-2);
 }
 
-@media (min-width: 768px) {
-  .yp-today-hero__stats {
-    gap: var(--yp-space-4);
-  }
-}
-
 .yp-today-hero__stat {
-  background: rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--yp-radius-card);
-  padding: var(--yp-space-3) var(--yp-space-3);
+  flex: 1;
+  padding: var(--yp-space-2) var(--yp-space-1);
   text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.20),
-    0 2px 6px rgba(31, 27, 80, 0.06);
-  min-height: 68px;
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -224,12 +208,8 @@
   transition: transform 200ms var(--yp-ease), background 200ms var(--yp-ease);
 }
 
-.yp-today-hero__stat::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center top, rgba(255, 255, 255, 0.22) 0%, transparent 65%);
-  pointer-events: none;
+.yp-today-hero__stat:first-child {
+  border-left: none;
 }
 
 .yp-today-hero__stat-value {
@@ -242,22 +222,12 @@
 
 .yp-today-hero__stat-label {
   font-size: var(--yp-text-2xs);
-  opacity: 0.82;
-  margin-top: 4px;
+  opacity: 0.7;
+  margin-top: 2px;
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.02em;
   word-break: keep-all;
   line-height: 1.3;
-}
-
-@media (min-width: 768px) {
-  .yp-today-hero__stat {
-    padding: var(--yp-space-4) var(--yp-space-3);
-    min-height: 76px;
-  }
-  .yp-today-hero__stat-value {
-    font-size: var(--yp-text-xl);
-  }
 }
 
 
@@ -283,13 +253,12 @@
 
 /* Panel Containers — subtle background tints & distinct surfaces */
 .yp-today-section--panel {
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   /* ★ r68b: ลดความโค้ง local — ไม่แต้ token หลัก ใช้ค่า local ที่นี่ */
   border-radius: 28px;
   padding: var(--yp-space-5) var(--yp-space-4);
-  box-shadow: var(--yp-shadow-xs);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(30, 27, 70, 0.04), 0 1px 2px rgba(30, 27, 70, 0.02);
 }
 
 @media (min-width: 768px) {
@@ -300,7 +269,7 @@
 
 /* Overdue Panel variant — subtle soft rose background tint */
 .yp-today-section--panel:has(.yp-today-section__title--overdue) {
-  background: rgba(254, 242, 242, 0.50);
+  background: color-mix(in srgb, #F43F5E 3%, var(--yp-bg-card));
   border-color: rgba(244, 63, 94, 0.16);
 }
 
@@ -311,7 +280,6 @@
   justify-content: space-between;
   gap: var(--yp-space-3);
   margin-bottom: var(--yp-space-5);
-  padding-bottom: var(--yp-space-2);
 }
 
 @media (min-width: 768px) {
@@ -401,9 +369,9 @@
 .yp-today-time-section__head {
   display: flex;
   align-items: center;
-  gap: var(--yp-space-2);
-  margin-bottom: var(--yp-space-3);
-  padding-bottom: var(--yp-space-2);
+  gap: 8px;
+  margin-bottom: var(--yp-space-4);
+  padding-bottom: var(--yp-space-3);
   border-bottom: 1px solid var(--yp-border-subtle);
 }
 
@@ -411,16 +379,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  color: var(--yp-text-muted);
+  width: 20px;
+  height: 20px;
+  background: color-mix(in srgb, var(--yp-indigo-500) 6%, transparent);
+  border-radius: 6px;
+  color: var(--yp-indigo-500);
   flex-shrink: 0;
-  opacity: 0.7;
 }
 
 .yp-today-time-section__icon svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   stroke-width: 2;
 }
 
@@ -434,10 +403,9 @@
 }
 
 .yp-today-time-section__label {
-  font-size: var(--yp-text-xs);
-  font-weight: var(--yp-fw-semibold);
-  color: var(--yp-text-secondary);
-  letter-spacing: 0.01em;
+  font-size: var(--yp-text-sm);
+  font-weight: var(--yp-fw-bold);
+  color: var(--yp-text-heading);
   line-height: 1.3;
 }
 
@@ -459,9 +427,12 @@
   font-size: var(--yp-text-2xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-semibold);
+  background: var(--yp-bg-card-soft);
+  padding: 1px 8px;
+  border-radius: var(--yp-radius-pill);
   flex-shrink: 0;
   line-height: 1.4;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 
@@ -490,30 +461,28 @@
   border: 1px solid var(--yp-border-default);
   border-radius: var(--yp-radius-card);
   /* Increased internal padding for breathing room */
-  padding: var(--yp-space-5);
+  padding: var(--yp-space-4) var(--yp-space-4) var(--yp-space-3);
   position: relative;
   cursor: pointer;
-  box-shadow: var(--yp-shadow-sm);
+  box-shadow: var(--yp-shadow-xs);
   transition:
-    transform 180ms var(--yp-ease-m3-standard),
-    box-shadow 180ms var(--yp-ease-m3-standard),
-    border-color 180ms var(--yp-ease-m3-standard),
-    background-color 180ms var(--yp-ease-m3-standard);
+    box-shadow 200ms var(--yp-ease),
+    border-color 200ms var(--yp-ease),
+    background-color 200ms var(--yp-ease);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 @media (min-width: 768px) {
   .yp-today-item-card {
-    padding: var(--yp-space-6);
+    padding: var(--yp-space-5) var(--yp-space-5) var(--yp-space-4);
   }
 }
 
 .yp-today-item-card:hover {
-  transform: translateY(-2px);
   border-color: var(--yp-border-indigo);
   box-shadow: var(--yp-shadow-md);
-  background: var(--yp-bg-card);
+  background: var(--yp-bg-card-soft);
 }
 
 .yp-today-item-card:focus-visible {
@@ -523,7 +492,7 @@
 
 /* Subitem variant — left accent bar & soft background tint */
 .yp-today-item-card.is-subitem {
-  border-left: 3.5px solid var(--accent, var(--yp-indigo-500));
+  border-left: 3px solid var(--accent, var(--yp-indigo-500));
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 3.5%, var(--yp-bg-card));
 }
 
@@ -533,7 +502,7 @@
 }
 
 .yp-today-item-card.is-done {
-  opacity: 0.65;
+  opacity: 0.55;
   background: var(--yp-bg-card-soft);
 }
 
@@ -553,7 +522,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-2);
-  margin-bottom: var(--yp-space-3);
+  margin-bottom: var(--yp-space-2);
   min-height: 22px;
 }
 
@@ -737,13 +706,12 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: var(--yp-space-4);
+  margin-top: var(--yp-space-3);
 }
 
 @media (min-width: 768px) {
   .yp-today-item-card__badges {
     gap: 8px;
-    margin-top: var(--yp-space-4);
   }
 }
 
@@ -754,9 +722,8 @@
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-secondary);
-  padding: 3px 10px;
+  padding: 3px 8px;
   background: var(--yp-bg-card-soft);
-  border: 1px solid var(--yp-border-subtle);
   border-radius: var(--yp-radius-pill);
   white-space: nowrap;
   letter-spacing: 0;

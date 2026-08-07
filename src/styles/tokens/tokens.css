@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r68 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r69 (Modular CSS Refactor)
    ★ r68: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
      soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
      ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
@@ -53,12 +53,12 @@
      (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
      พื้นผิวคนละชั้น) ปรับพื้นหลังหน้าให้เข้มขึ้นเล็กน้อยเพื่อให้การ์ดขาว
      ดูมีน้ำหนัก มั่นคง แยกชั้นชัดเจนขึ้น โดยไม่กระทบสีการ์ด/สีตัวอักษรเดิม */
-  --yp-bg-page:        #EFEDF9;
+  --yp-bg-page:        #F2F0FB;
   --yp-bg-card:        #FFFFFF;
   /* ★ r68: warm up card-soft เล็กน้อย #FAF9FE → #FAF8FC — ให้รู้สึกอบอุ่น
      นุ่มนวลขึ้นเวลา hover/subitem tint ไม่เย็นจัดเกินไป ตามแนวทาง
      Archive Tune / Apple Music ที่ใช้ surface tint โทนอุ่น */
-  --yp-bg-card-soft:   #FAF8FC;
+  --yp-bg-card-soft:   #F8F6FC;
   --yp-bg-elevated:    #FFFFFF;
   --yp-bg-indigo-soft: #EEF2FF;
   --yp-bg-overlay:     rgba(30, 27, 70, 0.55);
@@ -266,9 +266,9 @@
      ให้ความรู้สึก "soft นิ่ง สะอาด" ตามแนวทาง Archive Tune / Linear /
      Apple HIG ที่เลือกใช้ surface tint + warm bg เป็นตัวสร้าง depth หลัก
      แทน shadow หนา */
-  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.015);
-  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.015), 0 1px 3px rgba(30, 27, 70, 0.022);
-  --yp-shadow-md: 0 1px 3px rgba(30, 27, 70, 0.022), 0 2px 6px rgba(30, 27, 70, 0.03);
+  --yp-shadow-xs: 0 1px 2px rgba(30, 27, 70, 0.025);
+  --yp-shadow-sm: 0 1px 2px rgba(30, 27, 70, 0.025), 0 1px 4px rgba(30, 27, 70, 0.030);
+  --yp-shadow-md: 0 2px 4px rgba(30, 27, 70, 0.030), 0 4px 12px rgba(30, 27, 70, 0.040);
   --yp-shadow-lg: 0 2px 4px rgba(30, 27, 70, 0.03), 0 4px 12px rgba(30, 27, 70, 0.03);
   --yp-shadow-indigo: 0 1px 3px rgba(79, 70, 229, 0.03), 0 2px 8px rgba(79, 70, 229, 0.038);
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
