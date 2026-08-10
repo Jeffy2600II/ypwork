@@ -75,6 +75,8 @@ import { TaskRow } from './task-row';
 import { AddTaskSheet } from './add-task-sheet';
 import { EditTaskSheet } from './edit-task-sheet';
 import { EditEventSheet } from './edit-event-sheet';
+// ★ r2: scroll lock สำหรับ loading overlay
+import { lockScroll, unlockScroll } from '@/components/framework/shared/scroll-lock';
 
 export function EventDetailClient({
   event: initialEvent,
@@ -261,8 +263,12 @@ export function EventDetailClient({
     setLocalError(null);
     deletingRef.current = true;
 
+    // ★ r2: ล็อค scroll พื้นหลังก่อนแสดง overlay — กันหน้าเว็บเลื่อนได้
+    lockScroll();
+
     // ★ v3.6.0: แสดง loading overlay ทันที — user เห็น feedback ภายใน 1 frame
-    //   ก่อนหน้านี้ไม่มี visual feedback ระหว่าง navigation
+    // ★ r2: เปลี่ยนข้อความจาก "กำลังกลับสู่รายการ..." เป็น "กำลังลบรายการ..."
+    //   เพื่อให้สื่อถึงสิ่งที่กำลังเกิดขึ้นจริง
     const overlay = document.createElement('div');
     overlay.id = 'yp-nav-loading';
     overlay.style.cssText = `
@@ -275,11 +281,19 @@ export function EventDetailClient({
     overlay.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
         <div style="width:40px;height:40px;border-radius:50%;border:3px solid rgba(99,102,241,0.2);border-top-color:#4F46E5;animation:yp-spin 700ms linear infinite;"></div>
-        <div style="font-size:14px;font-weight:600;color:#4F46E5;letter-spacing:0.02em;">กำลังกลับสู่รายการ...</div>
+        <div style="font-size:14px;font-weight:600;color:#4F46E5;letter-spacing:0.02em;">กำลังลบรายการ...</div>
       </div>
       <style>@keyframes yp-spin{to{transform:rotate(360deg)}}@keyframes yp-fade-in{from{opacity:0}to{opacity:1}}</style>
     `;
     document.body.appendChild(overlay);
+
+    // ★ r2: Safety cleanup — ถ้า navigation ล้มเหลว ให้ลบ overlay และ unlock scroll
+    //   หลัง 5 วินาที (ไม่ควรใช้เวลานานขนาดนั้น แต่กันค้าง)
+    const cleanupTimeout = setTimeout(() => {
+      const el = document.getElementById('yp-nav-loading');
+      if (el) el.remove();
+      unlockScroll();
+    }, 5000);
 
     // ★ v3.6.0: ส่ง delete request ผ่าน fetch with keepalive — ไม่ block navigation
     //   keepalive: true ทำให้ request ทำงานต่อแม้ page จะ unload แล้ว
@@ -330,19 +344,37 @@ export function EventDetailClient({
       console.error('[event-detail] delete fetch throw:', err);
     }
 
-    // ★ v3.6.0: Hard navigation ด้วย window.location.replace
-    //   เร็วกว่า router.replace สำหรับหน้าที่เปลี่ยนข้อมูล เพราะ:
-    //   - ไม่ต้อง serialize/deserialize RSC payload
-    //   - browser จัดการ native navigation (optimized)
-    //   - server stream HTML ตรงๆ
-    //   ใช้ requestAnimationFrame เพื่อให้ overlay paint ก่อน navigation
+    // ★ r2: นำทางกลับหน้าก่อนหน้า แทนที่จะไป /events เสมอ
+    //   ถ้าผู้ใช้มาจาก /today → กลับไป /today
+    //   ถ้าผู้ใช้มาจาก /calendar → กลับไป /calendar
+    //   ถ้าไม่มี history → fallback ไป /events
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        try {
-          window.location.replace('/events');
-        } catch {
-          window.location.href = '/events';
+        if (window.history.length > 1) {
+          // มี history → กลับหน้าก่อนหน้า
+          window.history.back();
+        } else {
+          // ไม่มี history → ไป /events
+          try {
+            window.location.replace('/events');
+          } catch {
+            window.location.href = '/events';
+          }
         }
+        // ★ r2: ถ้าหลัง 2.5s ยังอยู่หน้าเดิม → navigation ล้มเหลว → cleanup
+        setTimeout(() => {
+          const el = document.getElementById('yp-nav-loading');
+          if (el) {
+            el.remove();
+            unlockScroll();
+            // Fallback: ไป /events เป็นทางสุดท้าย
+            try {
+              window.location.replace('/events');
+            } catch {
+              window.location.href = '/events';
+            }
+          }
+        }, 2500);
       });
     });
   };
