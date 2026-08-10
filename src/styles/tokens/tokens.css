@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.0-r69 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.10.1-r1 (Modular CSS Refactor)
    ★ r68: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
      soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
      ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
@@ -421,6 +421,14 @@
   --yp-dur-v39-sm: 150ms;
   --yp-dur-v39-md: 220ms;
   --yp-dur-v39-lg: 300ms;
+  /* ★ r70: iOS HIG + Material 3 standardized animation tokens */
+  --yp-dur-popup: 180ms;        /* Dropdown/popup open */
+  --yp-dur-popup-close: 140ms;  /* Dropdown/popup close (faster) */
+  --yp-dur-sheet-open: 320ms;  /* Bottom sheet open (Material 3) */
+  --yp-dur-sheet-close: 260ms; /* Bottom sheet close (faster) */
+  --yp-ease-ios: cubic-bezier(0.32, 0.72, 0, 1);  /* iOS standard easing */
+  --yp-ease-menu: cubic-bezier(0.2, 0, 0.2, 1);   /* Material 3 menu easing */
+  --yp-dur-hover: 200ms;        /* Standard hover transition */
   /* State layer opacities (Material 3 spec) */
   --yp-state-hover: 0.08;
   --yp-state-focus: 0.10;

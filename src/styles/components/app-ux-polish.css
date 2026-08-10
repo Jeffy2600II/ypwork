@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App-like UX & Micro-Polish — v3.10.0-r68
+   YP WORK · App-like UX & Micro-Polish — v3.10.1-r1
    ★ r68: Refined app interactions, focus feedback, network status,
      and touch behavior driven by Design Tokens.
    ═══════════════════════════════════════════════════════════════
@@ -112,7 +112,6 @@ button[class*='yp-']:focus-visible {
     transition: transform 180ms var(--yp-ease-standard), box-shadow 180ms var(--yp-ease-standard);
   }
   .yp-event-card:hover {
-    transform: translateY(-2px);
     box-shadow: var(--yp-shadow-md);
   }
 }

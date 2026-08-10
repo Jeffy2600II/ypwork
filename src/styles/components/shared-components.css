@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.0-r69 (Modular CSS Refactor)
+   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.10.1-r1 (Modular CSS Refactor)
    ★ r68: ปรับ list-item padding ใช้ design tokens แทนค่า hardcoded
      ปรับ motion ให้สมดุลกับ token ใหม่ (180ms polish)
    ═══════════════════════════════════════════════════════════════
@@ -181,7 +181,6 @@
 }
 
 .yp-list-item:hover {
-  transform: translateY(-1px);
   background: var(--yp-bg-card-soft);
 }
 
@@ -245,7 +244,6 @@
    ★ r56: ลด hover shadow ลง ~50% */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    transform: translateY(-2px);
     box-shadow:
       0 2px 6px rgba(30, 27, 70, 0.04),
       0 4px 12px rgba(30, 27, 70, 0.03);

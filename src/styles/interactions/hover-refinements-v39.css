@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover Refinements v3.9.x (Cards, Buttons, Nav) — v3.10.0-r68 (Modular CSS Refactor)
+   YP WORK · Hover Refinements v3.9.x (Cards, Buttons, Nav) — v3.10.1-r1
+   ★ r70: ลด hover lift — primary button ไม่ยก ใช้ shadow+bg เท่านั้น (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -15,7 +16,7 @@
     box-shadow:
       0 2px 6px rgba(79, 70, 229, 0.12),
       0 1px 2px rgba(79, 70, 229, 0.06);
-    transform: translateY(-1px);
+    /* ★ r70: ลด hover lift — ใช้ shadow + bg เท่านั้น ไม่ยก */
   }
   .yp-btn--primary:hover::after {
     opacity: 1;

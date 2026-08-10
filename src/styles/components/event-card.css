@@ -62,7 +62,6 @@
     border-color: color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
     /* ★ r56: ลด hover shadow ลง ~50% — ใช้ border accent เป็นหลัก */
     box-shadow: 0 1px 4px color-mix(in srgb, var(--accent, #4F46E5) 5%, transparent);
-    transform: translateY(-1px);
   }
 
   .yp-event-card:hover::after {
