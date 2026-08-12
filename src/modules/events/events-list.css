@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Events List (Filter, Group) — v3.10.1-r2 (Modular CSS Refactor)
+   YP WORK · Events List (Filter, Group) — v3.11.0-r1 (Modular CSS Refactor)
    ★ r68: ปรับ group label จาก text-2xs (11px) เป็น text-xs (12px) ให้อ่านง่ายขึ้น
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -49,3 +49,51 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r1: Task Filter (event detail page)
+   ปุ่มกรองรายการย่อยตามช่วงเวลา (ทั้งหมด / เลยกำหนด / วันนี้ / กำลังจะถึง)
+   ═══════════════════════════════════════════════════════════════ */
+.yp-task-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--yp-space-5);
+  overflow-x: auto;
+  padding: 4px 0 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+.yp-task-filter::-webkit-scrollbar { display: none; }
+
+.yp-task-filter__btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--yp-radius-pill);
+  border: 1.5px solid var(--yp-border-default);
+  background: var(--yp-bg-card);
+  color: var(--yp-text-secondary);
+  font-size: var(--yp-text-xs);
+  font-weight: var(--yp-fw-semibold);
+  cursor: pointer;
+  transition: all 180ms var(--yp-ease-out);
+  white-space: nowrap;
+}
+.yp-task-filter__btn:hover {
+  background: var(--yp-bg-card-soft);
+  border-color: var(--yp-border-indigo);
+  color: var(--yp-indigo-600);
+}
+.yp-task-filter__btn.is-active {
+  background: var(--yp-indigo-600);
+  border-color: var(--yp-indigo-600);
+  color: white;
+  font-weight: var(--yp-fw-bold);
+}
+.yp-task-filter__btn.is-active:hover {
+  background: var(--yp-indigo-700);
+  border-color: var(--yp-indigo-700);
+}

@@ -5,6 +5,8 @@
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · EventCard (shared component — ใช้ใน list, day)
 // ═══════════════════════════════════════════════════════════════
+// ★ v3.11.0 r1: เพิ่ม filter prop และ append เป็น query parameter ใน href
+//
 // ★ v3.10.0 รอบที่ 29: อ้างอิงจาก "วันที่เริ่ม" แทน "วันกำหนดส่ง" เพื่อให้ผู้ใช้
 //   เห็นว่า "จะเริ่มทำตอนไหน" ก่อน แล้วค่อยเห็น "กำหนดส่งเมื่อไหร่" — ลดความ
 //   กดดันจากการเห็นแค่ deadline แต่ไม่เห็นจุดเริ่มต้น ถ้ามี start_date จะแสดง
@@ -49,6 +51,7 @@ export interface EventCardProps {
   event: YPEvent;
   /** optional extra meta parts ที่จะแสดงต่อท้าย (เช่น "ฉัน 2 task") */
   extraMeta?: string[];
+  filter?: 'overdue' | 'today' | 'upcoming';
 }
 
 // ★ v3.10.0 รอบที่ 26: Badge สำหรับแสดงวันนี้/พรุ่งนี้/เลยกำหนด
@@ -74,7 +77,7 @@ function DateBadge({ date }: { date: string | null }) {
   return null;
 }
 
-export function EventCard({ event, extraMeta = [] }: EventCardProps) {
+export function EventCard({ event, extraMeta = [], filter }: EventCardProps) {
   const accent = event.color || '#4F46E5';
   const isGroup = event.type === 'group';
   const totalTasks = event.tasks?.length || 0;
@@ -125,7 +128,7 @@ export function EventCard({ event, extraMeta = [] }: EventCardProps) {
 
   return (
     <Link
-      href={`/events/${event.id}`}
+      href={filter ? `/events/${event.id}?filter=${filter}` : `/events/${event.id}`}
       className="yp-event-card"
       style={{ ['--accent' as string]: accent }}
       aria-label={`รายการ: ${event.title}`}

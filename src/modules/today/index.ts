@@ -25,6 +25,7 @@ export {
   buildDateClusters,
   formatFullDateCaption,
   buildTimeGroups,
+  categorizeEventsIntoSections,
 } from './today-helpers';
 export { sortByPriorityTimeTitle, sortByDatePriorityTimeTitle } from './today-sorting';
 export { formatScheduleLabel, formatCardTimeDisplay } from './today-format';

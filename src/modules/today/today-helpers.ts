@@ -174,3 +174,70 @@ export function buildTimeGroups(items: TimelineItem[]) {
   }
   return { morning, afternoon, unscheduled };
 }
+
+/**
+ * ★ v3.11.0 r1: Categorize EVENTS into 3 sections.
+ * A single event can appear in MULTIPLE sections simultaneously.
+ * For group events, each sub-task is checked individually —
+ * if any sub-task is overdue, the group appears in 'overdue'.
+ * If any sub-task is due today, the group also appears in 'today'.
+ * Done sub-tasks are skipped (don't contribute to any section).
+ * For standalone events, uses the event's own dates.
+ */
+export function categorizeEventsIntoSections(
+  events: YPEvent[],
+  todayStr: string,
+): { overdue: YPEvent[]; today: YPEvent[]; upcoming: YPEvent[] } {
+  const overdue = new Set<YPEvent>();
+  const todaySet = new Set<YPEvent>();
+  const upcoming = new Set<YPEvent>();
+
+  for (const ev of events) {
+    if (ev.type === 'group') {
+      const tasks = ev.tasks || [];
+      if (tasks.length === 0) {
+        // Empty group — use event dates
+        const effectiveStart = getEffectiveStartDate(ev);
+        const effectiveDue = getEffectiveDueDate(ev);
+        const isDone = resolveEventStatus(ev) === 'done';
+        const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+        if (ctx === 'overdue') overdue.add(ev);
+        else if (ctx === 'today') todaySet.add(ev);
+        else if (ctx === 'upcoming') upcoming.add(ev);
+      } else {
+        // Check each sub-task individually
+        for (const t of tasks) {
+          if (t.status === 'done') continue;
+          const effectiveStart = getEffectiveTaskStartDate(t, ev);
+          const effectiveDue = getEffectiveTaskDueDate(t, ev);
+          const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, false);
+          if (ctx === 'overdue') overdue.add(ev);
+          else if (ctx === 'today') todaySet.add(ev);
+          else if (ctx === 'upcoming') upcoming.add(ev);
+        }
+      }
+    } else {
+      // Standalone task event
+      const effectiveStart = getEffectiveStartDate(ev);
+      const effectiveDue = getEffectiveDueDate(ev);
+      const isDone = ev.status === 'done';
+      const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+      if (ctx === 'overdue') overdue.add(ev);
+      else if (ctx === 'today') todaySet.add(ev);
+      else if (ctx === 'upcoming') upcoming.add(ev);
+    }
+  }
+
+  // Sort each section by effective start date
+  const sortByDate = (a: YPEvent, b: YPEvent) => {
+    const aDate = getEffectiveStartDate(a) || '9999-99-99';
+    const bDate = getEffectiveStartDate(b) || '9999-99-99';
+    return aDate.localeCompare(bDate);
+  };
+
+  return {
+    overdue: [...overdue].sort(sortByDate),
+    today: [...todaySet].sort(sortByDate),
+    upcoming: [...upcoming].sort(sortByDate),
+  };
+}
