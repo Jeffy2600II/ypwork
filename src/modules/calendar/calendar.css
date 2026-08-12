@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Calendar Module (Grid View, List View) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Calendar Module (Grid View, List View) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r65: soft shadows + soft view toggle active state — เน้น soft ตามแนวทางรอบ 65
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -647,3 +647,12 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ev-color, #4F46E5) 8%, transparent);
 }
 
+/* ★ v3.11.0 r2: Module consistency — same transition standard as platform */
+.yp-card,
+.yp-stat,
+[class*="__card"],
+[class*="__item"] {
+  transition-property: background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}

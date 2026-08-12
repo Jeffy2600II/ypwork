@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Accessibility — prefers-reduced-motion (WCAG 2.2) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Accessibility — prefers-reduced-motion (WCAG 2.2) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -78,3 +78,43 @@
    • เพิ่ม safety net: ให้ .yp-page ที่ไม่ได้อยู่ในหน้าที่ซ่อน bottom-nav
      (เช่น today/calendar/events/profile/about) มี padding-bottom เพิ่มขึ้น
      จากค่า default ของ .yp-page ใหม่ที่เรากำหนด
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Consistent Focus Rings — stable, accessible, modern
+   ทุก interactive element มี focus ring ที่สม่ำเสมอกัน
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Unified focus-visible ring — consistent across all interactive elements */
+*:focus-visible {
+  outline: 2px solid var(--yp-indigo-500);
+  outline-offset: 2px;
+  border-radius: var(--yp-radius-sm);
+  transition: outline 120ms var(--yp-ease-standard);
+}
+
+/* Remove default outline only when focus-visible is supported */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Specific elements — ensure consistent focus treatment */
+.yp-btn:focus-visible,
+.yp-event-card:focus-visible,
+.bottom-nav__item:focus-visible,
+.fab:focus-visible,
+.yp-task-filter__btn:focus-visible,
+.yp-events-filter__btn:focus-visible {
+  outline: 2px solid var(--yp-indigo-500);
+  outline-offset: 2px;
+}
+
+/* ★ v3.11.0 r2: Smooth scroll behavior — stable scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

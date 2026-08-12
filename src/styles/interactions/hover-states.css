@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover States (pointer:fine) — v3.11.0-r1
-   ★ r70: ลด hover lift — FAB ใช้ scale เล็ก แทน translateY — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Hover States (pointer:fine) — v3.11.0-r2
+   ★ r70: ลด hover lift — FAB ใช้ scale เล็ก แทน translateY — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -58,3 +58,77 @@
 }
 
 /* Material 3 FAB entrance — calmer (no rotate) */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Unified Hover States — stable, consistent, no lift
+   หลักการ: hover ไม่ยกการ์ด/องค์ประกอบ — ใช้ background tint + border แทน
+   ═══════════════════════════════════════════════════════════════ */
+@media (hover: hover) and (pointer: fine) {
+  /* ★ v3.11.0 r2: Card hover — NO translateY, just shadow + border (user preference) */
+  .yp-card:hover,
+  .yp-event-card:hover,
+  .yp-stat:hover {
+    box-shadow: var(--yp-shadow-md);
+    border-color: var(--yp-border-indigo);
+  }
+
+  /* Button hover — consistent feedback */
+  .yp-btn:hover {
+    box-shadow: var(--yp-shadow-sm);
+  }
+
+  .yp-btn--primary:hover,
+  .yp-btn--gradient:hover {
+    box-shadow: var(--yp-shadow-indigo);
+  }
+
+  /* Filter button hover — consistent tint */
+  .yp-events-filter__btn:hover,
+  .yp-task-filter__btn:hover {
+    background: var(--yp-bg-card-soft);
+    border-color: var(--yp-border-indigo);
+    color: var(--yp-indigo-600);
+  }
+
+  /* Nav item hover — consistent tint, no lift */
+  .bottom-nav__item:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  /* Top bar avatar — subtle scale, no lift */
+  .top-bar__avatar:hover {
+    transform: scale(1.06);
+  }
+
+  /* Top bar back button — subtle tint, no lift */
+  .top-bar__back:hover {
+    background: color-mix(in srgb, var(--yp-top-accent) 10%, transparent);
+    color: var(--yp-top-accent);
+  }
+
+  /* Popup menu item — consistent hover */
+  .yp-today-item-card__popup-item:hover {
+    background: var(--yp-bg-card-soft);
+    color: var(--yp-text-heading);
+  }
+  .yp-today-item-card__popup-item:hover svg {
+    color: var(--yp-indigo-600);
+  }
+}
+
+/* ★ v3.11.0 r2: Press feedback — unified across all interactive elements */
+.yp-btn:active,
+.yp-event-card:active,
+.yp-stat:active,
+.yp-task-filter__btn:active,
+.yp-events-filter__btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* Nav press — slightly different, more subtle */
+.bottom-nav__item:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
+}

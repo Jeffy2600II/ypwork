@@ -865,8 +865,8 @@
     padding: 12px 0;
     min-width: 0;
     border-radius: var(--yp-radius-md, 14px);
-    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 180ms var(--yp-ease-standard),
+                color 180ms var(--yp-ease-standard);
   }
 
   .bottom-nav__item:hover {
@@ -1017,9 +1017,9 @@
   color: var(--yp-text-strong);
   letter-spacing: 0.1px;
   min-height: var(--yp-input-min-height);
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard),
+              background-color 180ms var(--yp-ease-standard);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -6034,7 +6034,7 @@
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 220ms var(--yp-ease-emphasized-decel),
     visibility 220ms;
   display: flex;
   align-items: flex-end;
@@ -6059,7 +6059,7 @@
   max-height: 92vh;
   max-height: 92dvh;
   transform: translate3d(0, 100%, 0);
-  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 360ms var(--yp-ease-emphasized-decel);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.18);
@@ -6097,7 +6097,7 @@
 
 /* ── CLOSING STATE (close only) — smooth decel ── */
 .sheet.is-closing {
-  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 320ms var(--yp-ease-emphasized-decel);
   will-change: transform;
 }
 
@@ -6126,7 +6126,7 @@
   border-radius: 9999px;
   background: var(--yp-border-strong, #cbd5e1);
   opacity: 0.32;
-  transition: transform 180ms cubic-bezier(0.32, 0.72, 0, 1),
+  transition: transform 180ms var(--yp-ease-emphasized-decel),
               opacity 180ms ease;
   transform-origin: center;
 }
@@ -6380,7 +6380,7 @@
   max-height: 100dvh;
   border-radius: 0;
   transform: translate3d(0, 100%, 0);
-  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 320ms var(--yp-ease-emphasized-decel);
   padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
            calc(16px + var(--yp-safe-bottom, 0px));
 }
@@ -6391,7 +6391,7 @@
 }
 
 .yp-window--fullscreen.is-closing {
-  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 280ms var(--yp-ease-emphasized-decel);
 }
 
 .yp-window--fullscreen.is-bare {
@@ -6408,7 +6408,7 @@
   max-height: 100dvh;
   border-radius: var(--yp-radius-lg, 28px) 0 0 var(--yp-radius-lg, 28px);
   transform: translate3d(100%, 0, 0);
-  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 320ms var(--yp-ease-emphasized-decel);
   padding: calc(var(--yp-safe-top, 0px) + 16px) var(--yp-space-5, 20px)
            calc(16px + var(--yp-safe-bottom, 0px));
   box-shadow: -8px 0 32px rgba(15, 23, 42, 0.18);
@@ -6426,7 +6426,7 @@
 }
 
 .yp-window--sidepanel.is-closing {
-  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 280ms var(--yp-ease-emphasized-decel);
 }
 
 /* ── SIZE VARIANTS (apply per type) ── */
@@ -6649,10 +6649,10 @@
 
   /* ★ v3.5.0: Desktop — close button hover state ที่ชัดเจนขึ้น */
   .yp-window__close {
-    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 180ms var(--yp-ease-standard),
+                color 180ms var(--yp-ease-standard),
+                border-color 180ms var(--yp-ease-standard),
+                transform 120ms var(--yp-ease-standard);
   }
 
   .yp-window__close:hover {
@@ -7571,7 +7571,7 @@ img,
 .top-bar__avatar,
 .yp-card {
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: transform 0.12s var(--yp-ease-standard),
               background-color 0.15s ease,
               box-shadow 0.15s ease;
 }
@@ -7625,13 +7625,13 @@ img,
   height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
   padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
   background: #FFFFFF;
-  box-shadow: 0 1px 0 var(--yp-border-subtle);
+  box-shadow: 0 1px 0 var(--yp-border-default);
   z-index: var(--yp-z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  animation: yp-top-bar-in 280ms ease-out both;
+  animation: yp-top-bar-in 300ms var(--yp-ease-emphasized-decel) both;
 }
 
 
@@ -7661,7 +7661,7 @@ img,
 .yp-events-filter__btn,
 .yp-type-option,
 .bottom-nav__item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s var(--yp-ease-standard);
 }
 
 /* ★ v3.4.0: Native-style input focus */
@@ -7716,7 +7716,7 @@ img,
 @media (hover: hover) and (pointer: fine) {
   .fab {
     transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow 220ms var(--yp-ease-standard);
     box-shadow:
       0 8px 24px rgba(79, 70, 229, 0.32),
       0 2px 8px rgba(15, 23, 42, 0.16);
@@ -7738,7 +7738,7 @@ img,
 @media (hover: hover) and (pointer: fine) {
   .yp-card {
     transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 220ms var(--yp-ease-standard),
                 border-color 220ms ease;
   }
 
@@ -7769,7 +7769,7 @@ img,
   }
 
   .top-bar__avatar {
-    transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 180ms var(--yp-ease-standard);
   }
 
   .top-bar__avatar:hover {
@@ -7925,8 +7925,8 @@ img,
   border: 2px solid white;
   box-shadow: 0 0 0 1.5px var(--yp-border-subtle);
   cursor: pointer;
-  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
 }
 
 
@@ -7935,8 +7935,8 @@ img,
   border-radius: var(--yp-radius-md);
   padding: var(--yp-space-4);
   cursor: pointer;
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
   text-align: left;
   background: var(--yp-bg-card);
   box-shadow: var(--yp-shadow-xs);
@@ -9085,8 +9085,8 @@ textarea {
   background: var(--yp-bg-card);
   overflow: hidden;
   /* ★ v3.6.0: transition ที่ลื่นไหลขึ้น */
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
   position: relative;
 }
 
@@ -9162,7 +9162,7 @@ textarea {
 .yp-auth .yp-input,
 .yp-auth .yp-textarea {
   transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms var(--yp-ease-standard),
     caret-color 220ms cubic-bezier(0.2, 0, 0, 1),
     border-color 220ms cubic-bezier(0.2, 0, 0, 1),
     box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
@@ -9188,7 +9188,7 @@ textarea {
    so the addon + input both pulse together. */
 .yp-auth .input-group {
   transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms var(--yp-ease-standard),
     border-color 220ms cubic-bezier(0.2, 0, 0, 1),
     box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
   transform-origin: left center;
@@ -9212,7 +9212,8 @@ textarea {
    เพื่อบอกความต่างจากสถานะปกติ (แทนที่จะพึ่งความทึบที่เพิ่มขึ้นแบบเดิม) */
 .top-bar.is-scrolled {
   background: #FFFFFF;
-  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.10), 0 4px 12px -6px rgba(30, 27, 70, 0.10);
+  /* ★ v3.11.0 r2: Softer, more stable scrolled shadow */
+  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.08), 0 2px 8px -4px rgba(30, 27, 70, 0.06);
 }
 
 /* ── v3.9.2 FAB — Material 3 state layer + เอกลักษณ์ความโค้งมนเดิม ── */
@@ -9390,8 +9391,8 @@ body.yp-sheet-open .fab {
   border-radius: var(--yp-radius-lg);
   border: none;
   transition:
-    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
-    opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
+    transform 260ms var(--yp-ease-emphasized-decel),
+    opacity 220ms var(--yp-ease-emphasized-decel);
 }
 
 
@@ -10222,7 +10223,7 @@ body.yp-sheet-open .bottom-nav {
      ตอนนี้เปลี่ยนไปใช้พื้นหลังทึบแสงแล้ว ไม่มีจุดไหนอ้างอิงตัวแปรนี้อีก */
   /* ── TRANSITIONS ── */
   --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
-  --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-ease-standard: var(--yp-ease-standard);
   --yp-ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
   --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
   --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
@@ -10306,7 +10307,7 @@ body.yp-sheet-open .bottom-nav {
   --sidebar-border: var(--yp-border-default);
   --sidebar-ring: var(--yp-focus-ring);
   --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
-  --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-t-press: 180ms var(--yp-ease-standard);
   --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
   /* Calmer shadows — opacity reduced 25% from v3.8.x */
   --yp-shadow-xs-v39: 0 1px 3px rgba(30, 27, 70, 0.05);
@@ -11278,9 +11279,9 @@ html {
     user-select: none;
     text-decoration: none;
     color: var(--yp-text-secondary);
-    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 180ms var(--yp-ease-standard),
+                color 180ms var(--yp-ease-standard),
+                transform 180ms var(--yp-ease-standard);
   }
 
   /* ★ Hover บน desktop — ใช้ mouse จึงเน้น feedback ชัดขึ้น */
@@ -11350,7 +11351,7 @@ html {
     text-overflow: ellipsis;
     max-width: 100%;
     color: var(--yp-text-secondary);
-    transition: color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color 180ms var(--yp-ease-standard);
   }
 
   /* ★ Active label — indigo-600 + semibold */

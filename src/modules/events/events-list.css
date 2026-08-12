@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Events List (Filter, Group) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Events List (Filter, Group) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r68: ปรับ group label จาก text-2xs (11px) เป็น text-xs (12px) ให้อ่านง่ายขึ้น
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -23,16 +23,31 @@
   overscroll-behavior-x: contain;
 }
 .yp-events-filter::-webkit-scrollbar { display: none; }
+/* ★ v3.11.0 r2: Consistent filter button transitions */
+.yp-events-filter__btn {
+  transition: background-color 180ms var(--yp-ease-standard),
+              border-color 180ms var(--yp-ease-standard),
+              color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
+}
+
 .yp-events-filter__btn:hover {
   background: var(--yp-bg-card-soft);
   border-color: var(--yp-border-indigo);
   color: var(--yp-indigo-600);
 }
 
+/* ★ v3.11.0 r2: Press feedback — stable, consistent */
+.yp-events-filter__btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
 .yp-events-group {
   margin-bottom: var(--yp-space-7);
 }
 
+/* ★ v3.11.0 r2: Consistent group label — same treatment as section titles */
 .yp-events-group__label {
   position: sticky;
   top: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
@@ -40,12 +55,14 @@
   padding: var(--yp-space-3) 0;
   /* ★ r64: text-xs → text-2xs (11px) — group label ที่เล็กลง */
   font-size: var(--yp-text-2xs);
-  font-weight: var(--yp-fw-extrabold);
+  font-weight: var(--yp-fw-bold);
   text-transform: uppercase;
   color: var(--yp-text-secondary);
   margin-bottom: var(--yp-space-4);
   z-index: 1;
   letter-spacing: 0.09em;
+  /* ★ v3.11.0 r2: Smooth transition for sticky state */
+  transition: color 200ms var(--yp-ease-standard);
 }
 
 /* ═══════════════════════════════════════════════════════════════

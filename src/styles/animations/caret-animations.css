@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Custom Caret + Input Focus Animations — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Custom Caret + Input Focus Animations — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -82,8 +82,8 @@ textarea {
   background: var(--yp-bg-card);
   overflow: hidden;
   /* ★ v3.6.0: transition ที่ลื่นไหลขึ้น */
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
   position: relative;
 }
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global Transition System (Page/Card/Sheet) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Global Transition System (Page/Card/Sheet) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -324,3 +324,50 @@ button:disabled {
 
 /* ── Reduced motion: kill all v3.8.0 polish transitions ── */
 
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Unified Transition System
+   มาตรฐานเดียวกันทั่วทั้งเว็บ — อ้างอิง Material 3 + iOS HIG
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Consistent color transitions across interactive elements */
+.yp-event-card,
+.yp-task-filter__btn,
+.yp-events-filter__btn,
+.yp-btn,
+.yp-type-option,
+.yp-color-option,
+.yp-stat,
+.yp-card,
+.yp-chip {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}
+
+/* ★ Consistent list re-enter animation */
+.yp-events-list-container,
+.yp-today-list-container {
+  animation: yp-list-reenter 280ms var(--yp-ease-emphasized-decel) both;
+}
+
+@keyframes yp-list-reenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ★ v3.11.0 r2: Stable reduced motion — respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

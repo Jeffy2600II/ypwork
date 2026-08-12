@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r68: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
      soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
      ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
@@ -277,7 +277,7 @@
      ตอนนี้เปลี่ยนไปใช้พื้นหลังทึบแสงแล้ว ไม่มีจุดไหนอ้างอิงตัวแปรนี้อีก */
   /* ── TRANSITIONS ── */
   --yp-ease:          cubic-bezier(0.2, 0.9, 0.2, 1);
-  --yp-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-ease-standard: var(--yp-ease-standard);
   --yp-ease-bounce:   cubic-bezier(0.34, 1.56, 0.64, 1);
   --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
   --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
@@ -285,10 +285,13 @@
   --yp-t-fast:   150ms var(--yp-ease-standard);
   --yp-t-normal: 260ms var(--yp-ease);
   --yp-t-slow:   400ms var(--yp-ease);
-  --yp-hero-enter:    600ms var(--yp-ease-decel);
+  /* ★ v3.11.0 r2: Smoother hero entrance */
+  --yp-hero-enter:    500ms var(--yp-ease-emphasized-decel);
   --yp-hero-stagger:  80ms;
-  --yp-card-enter:    380ms var(--yp-ease-decel);
-  --yp-page-enter: 420ms var(--yp-ease-emphasized-decel);
+  /* ★ v3.11.0 r2: Smoother card entrance */
+  --yp-card-enter:    420ms var(--yp-ease-emphasized-decel);
+  /* ★ v3.11.0 r2: Slower, more stable page entrance */
+  --yp-page-enter: 500ms var(--yp-ease-emphasized-decel);
   /* ── LAYOUT ── */
   --yp-container-max:  1110px;
   --yp-container-md:   860px;
@@ -379,7 +382,7 @@
   --sidebar-border: var(--yp-border-default);
   --sidebar-ring: var(--yp-focus-ring);
   --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
-  --yp-t-press: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yp-t-press: 180ms var(--yp-ease-standard);
   --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
   /* Calmer shadows — opacity reduced 25% from v3.8.x
      ★ v3.10.0 รอบที่ 56: ลดลงอีก เพื่อให้ดูเบาสบายตา
@@ -426,7 +429,7 @@
   --yp-dur-popup-close: 140ms;  /* Dropdown/popup close (faster) */
   --yp-dur-sheet-open: 320ms;  /* Bottom sheet open (Material 3) */
   --yp-dur-sheet-close: 260ms; /* Bottom sheet close (faster) */
-  --yp-ease-ios: cubic-bezier(0.32, 0.72, 0, 1);  /* iOS standard easing */
+  --yp-ease-ios: var(--yp-ease-emphasized-decel);  /* iOS standard easing */
   --yp-ease-menu: cubic-bezier(0.2, 0, 0.2, 1);   /* Material 3 menu easing */
   --yp-dur-hover: 200ms;        /* Standard hover transition */
   /* State layer opacities (Material 3 spec) */

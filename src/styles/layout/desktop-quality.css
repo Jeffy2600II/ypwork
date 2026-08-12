@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Desktop Left-Rail Quality + Cross-Device Padding (r24) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Desktop Left-Rail Quality + Cross-Device Padding (r24) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -66,15 +66,15 @@
     user-select: none;
     text-decoration: none;
     color: var(--yp-text-secondary);
-    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 200ms var(--yp-ease-standard),
+                color 200ms var(--yp-ease-standard);
   }
 
   /* ★ Hover บน desktop — ใช้ mouse จึงเน้น feedback ชัดขึ้น */
   .bottom-nav__item:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(99, 102, 241, 0.06);
     color: var(--yp-indigo-500);
+    border-radius: var(--yp-radius-md);
   }
 
   /* ★ Active state — gradient left border + soft bg + indigo text */
@@ -92,7 +92,7 @@
     top: 50%;
     transform: translateY(-50%);
     width: 4px;
-    height: 32px;
+    height: 36px;
     border-radius: 0 4px 4px 0;
     background: linear-gradient(to bottom, #5B50F0, #7C3AED);
   }
@@ -138,7 +138,7 @@
     text-overflow: ellipsis;
     max-width: 100%;
     color: var(--yp-text-secondary);
-    transition: color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color 200ms var(--yp-ease-standard);
   }
 
   /* ★ Active label — indigo-600 + semibold */

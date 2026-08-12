@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Toast Component — v3.11.0-r1
+   YP WORK · Toast Component — v3.11.0-r2
    ★ r68: Token-based toast styling with soft depth, clean typography,
      and responsive floating placement.
    ═══════════════════════════════════════════════════════════════
@@ -62,4 +62,43 @@
 
 .yp-toast--warning {
   background: var(--yp-amber-500, #F59E0B);
+}
+
+/* ★ v3.11.0 r2: Stable toast transition — consistent with platform */
+.yp-toast {
+  transition-property: transform, opacity, background-color, box-shadow;
+  transition-duration: 300ms;
+  transition-timing-function: var(--yp-ease-emphasized-decel);
+}
+
+/* Smooth toast entrance */
+.yp-toast.is-entering {
+  animation: yp-toast-enter 300ms var(--yp-ease-emphasized-decel) both;
+}
+
+@keyframes yp-toast-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Smooth toast exit */
+.yp-toast.is-exiting {
+  animation: yp-toast-exit 200ms var(--yp-ease-standard) both;
+}
+
+@keyframes yp-toast-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
 }

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.11.0-r1
+   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.11.0-r2
    ★ r68: Modernized form controls with unified soft token language:
      - Full token integration (--yp-input-*, --yp-radius-control, --yp-bg-card, --yp-border-*)
      - Soft focus glow (--yp-focus-ring) and subtle hover feedback
@@ -71,9 +71,9 @@
   letter-spacing: -0.005em;
   min-height: var(--yp-input-min-height);
   box-shadow: var(--yp-shadow-xs);
-  transition: border-color var(--yp-t-fast),
-              box-shadow var(--yp-t-fast),
-              background-color var(--yp-t-fast);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard),
+              background-color 180ms var(--yp-ease-standard);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -155,7 +155,7 @@
   border-radius: var(--yp-radius-control);
   background: var(--yp-bg-card);
   overflow: hidden;
-  transition: border-color var(--yp-t-fast), box-shadow var(--yp-t-fast);
+  transition: border-color 180ms var(--yp-ease-standard), box-shadow 180ms var(--yp-ease-standard);
 }
 
 .input-group:hover:not(:focus-within) {

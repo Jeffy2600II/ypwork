@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Desktop Left-Rail Override (End-of-File Cascade Fix — r25) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Desktop Left-Rail Override (End-of-File Cascade Fix — r25) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -69,12 +69,14 @@
     padding: calc(var(--yp-safe-top) + var(--yp-space-5)) var(--yp-space-2) var(--yp-space-4);
     border-radius: 0;
     border: none;
-    border-right: 1px solid var(--yp-border-subtle);
-    background: #FFFFFF;
-    box-shadow: 1px 0 0 rgba(30, 27, 70, 0.03);
+    border-right: 1px solid var(--yp-border-default);
+    /* ★ v3.11.0 r2: Subtle warm tint instead of pure white — matches page bg warmth */
+    background: var(--yp-bg-card);
+    box-shadow: 1px 0 0 rgba(30, 27, 70, 0.04);
   }
 
   /* Active indicator — pill on left side (Material 3 Navigation Rail) */
+  /* ★ v3.11.0 r2: Taller, more visible active indicator — stable, confident */
   .bottom-nav__item.is-active::before {
     content: '';
     position: absolute;
@@ -82,17 +84,46 @@
     top: 50%;
     transform: translateY(-50%);
     width: 4px;
-    height: 32px;
+    height: 36px;
     border-radius: 0 4px 4px 0;
     background: linear-gradient(to bottom, #5B50F0, #7C3AED);
   }
 
   /* Pill behind active icon — desktop — ใช้ pill radius เดิม */
   .bottom-nav__item.is-active .bottom-nav__icon {
-    background: rgba(99, 102, 241, 0.12);
+    background: rgba(99, 102, 241, 0.14);
     border-radius: var(--yp-radius-pill);
+  }
+
+  /* ★ v3.11.0 r2: Desktop hover consistency — smooth, stable hover transitions */
+  .bottom-nav__item {
+    transition: background-color 200ms var(--yp-ease-standard),
+                color 200ms var(--yp-ease-standard);
+  }
+
+  .bottom-nav__item:hover {
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: var(--yp-radius-md);
   }
 }
 
 /* ── v3.9.2 REDUCED MOTION — kill all v3.9.2 animations ── */
 
+/* ★ v3.11.0 r2: Desktop rail transition consistency */
+.bottom-nav__item {
+  transition: background-color 200ms var(--yp-ease-standard),
+              color 200ms var(--yp-ease-standard);
+}
+
+/* Stable rail hover — consistent tint */
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .bottom-nav__item:hover {
+    background: rgba(99, 102, 241, 0.06);
+    border-radius: var(--yp-radius-md);
+  }
+  
+  .bottom-nav__item:active {
+    transform: scale(0.96);
+    transition-duration: 80ms;
+  }
+}

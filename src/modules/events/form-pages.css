@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Pages (Type/Color Picker Modal, Form Card) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Form Pages (Type/Color Picker Modal, Form Card) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -307,3 +307,18 @@
   flex-wrap: wrap;
 }
 
+/* ★ v3.11.0 r2: Form page consistency — stable transitions */
+.yp-form-card,
+.yp-type-option,
+.yp-color-option {
+  transition-property: background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}
+
+/* ★ Consistent press feedback */
+.yp-type-option:active,
+.yp-color-option:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}

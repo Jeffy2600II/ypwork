@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Popup Menu (3-Dot Menu Button) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Popup Menu (3-Dot Menu Button) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -27,17 +27,30 @@
   padding: 4px;
   z-index: 4;
   transform-origin: top right;
-  animation: yp-today-popup-enter 150ms var(--yp-ease-m3-decelerate);
+  animation: yp-today-popup-enter 180ms var(--yp-ease-emphasized-decel);
 }
 
+/* ★ v3.11.0 r2: Smoother popup entrance — subtle, premium, no jank */
 @keyframes yp-today-popup-enter {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-4px);
+    transform: scale(0.96) translateY(-2px);
   }
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+/* ★ v3.11.0 r2: Add exit animation for dropdown — premium close behavior */
+@keyframes yp-today-popup-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
   }
 }
 
@@ -56,7 +69,7 @@
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  transition: background 100ms var(--yp-ease-m3-standard), color 100ms var(--yp-ease-m3-standard);
+  transition: background 180ms var(--yp-ease-standard), color 180ms var(--yp-ease-standard);
 }
 
 .yp-today-item-card__popup-item:hover {

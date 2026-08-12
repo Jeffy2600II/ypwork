@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Micro-Interactions (Active:scale, Tap Highlight, Haptic) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Micro-Interactions (Active:scale, Tap Highlight, Haptic) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -26,7 +26,7 @@
 .top-bar__avatar,
 .yp-card {
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: transform 0.12s var(--yp-ease-standard),
               background-color 0.15s ease,
               box-shadow 0.15s ease;
 }
@@ -116,7 +116,7 @@
 .yp-events-filter__btn,
 .yp-type-option,
 .bottom-nav__item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s var(--yp-ease-standard);
 }
 
 /* ★ v3.4.0: Native-style input focus */
@@ -158,3 +158,58 @@
   100% { background-position: -200% 0; }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Unified Micro-Interactions
+   มาตรฐานเดียวกันสำหรับทุก interactive element — Android Material 3 + iOS HIG
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Consistent press scale — all buttons, cards, chips */
+.yp-btn:active,
+.yp-event-card:active,
+.yp-stat:active,
+.yp-task-filter__btn:active,
+.yp-events-filter__btn:active,
+.yp-type-option:active,
+.yp-color-option:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* Smaller press scale for nav items — more subtle */
+.bottom-nav__item:active,
+.fab:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
+}
+
+/* Consistent hover transitions — all interactive elements use same timing */
+.yp-btn,
+.yp-event-card,
+.yp-stat,
+.yp-task-filter__btn,
+.yp-events-filter__btn,
+.yp-type-option,
+.yp-color-option {
+  transition-property: background-color, border-color, box-shadow, transform, color;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}
+
+/* ★ v3.11.0 r2: Stable ripple-like feedback on press (visual only) */
+.yp-btn::after,
+.yp-event-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(99, 102, 241, 0.04);
+  opacity: 0;
+  transition: opacity 120ms var(--yp-ease-standard);
+  pointer-events: none;
+}
+
+.yp-btn:active::after,
+.yp-event-card:active::after {
+  opacity: 1;
+  transition-duration: 60ms;
+}

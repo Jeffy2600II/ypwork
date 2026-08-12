@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hero Pattern Backgrounds (Mesh Gradient + SVG Patterns) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Hero Pattern Backgrounds (Mesh Gradient + SVG Patterns) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -111,4 +111,13 @@
     pointer-events: none;
     z-index: 0;
   }
+}
+
+/* ★ v3.11.0 r2: Hero pattern consistency — stable rendering */
+.yp-today-hero,
+.yp-detail-hero {
+  transition: opacity 200ms var(--yp-ease-standard);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }

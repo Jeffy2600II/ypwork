@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Shared Components (Stat Grid, Empty State, List Item, Progress, Avatar Group) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r68: ปรับ list-item padding ใช้ design tokens แทนค่า hardcoded
      ปรับ motion ให้สมดุลกับ token ใหม่ (180ms polish)
    ═══════════════════════════════════════════════════════════════
@@ -271,4 +271,43 @@
 }
 .yp-avatar-group .yp-avatar + .yp-avatar {
   margin-left: -10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Shared Components Consistency
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Consistent card transitions */
+.yp-card,
+.yp-stat {
+  transition-property: background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}
+
+/* Card hover — NO translateY, just shadow + border */
+@media (hover: hover) and (pointer: fine) {
+  .yp-card:hover {
+    box-shadow: var(--yp-shadow-md);
+    border-color: var(--yp-border-indigo);
+  }
+  
+  .yp-stat:hover {
+    box-shadow: var(--yp-shadow-sm);
+    border-color: var(--yp-border-indigo);
+  }
+}
+
+/* Press feedback */
+.yp-card:active,
+.yp-stat:active {
+  transform: scale(0.98);
+  transition-duration: 80ms;
+}
+
+/* Focus ring — consistent across all shared components */
+.yp-card:focus-visible,
+.yp-stat:focus-visible {
+  outline: 2px solid var(--yp-indigo-500);
+  outline-offset: 2px;
 }

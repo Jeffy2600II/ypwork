@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Polish v3.5.0 (Top Bar, FAB Hover, Nav Loading) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Design Polish v3.5.0 (Top Bar, FAB Hover, Nav Loading) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -22,7 +22,7 @@
 @media (hover: hover) and (pointer: fine) {
   .fab {
     transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow 220ms var(--yp-ease-standard);
     box-shadow:
       0 4px 12px rgba(79, 70, 229, 0.16),
       0 1px 3px rgba(15, 23, 42, 0.07);
@@ -45,7 +45,7 @@
 @media (hover: hover) and (pointer: fine) {
   .yp-card {
     transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 220ms var(--yp-ease-standard),
                 border-color 220ms ease;
   }
 
@@ -76,7 +76,7 @@
   }
 
   .top-bar__avatar {
-    transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 180ms var(--yp-ease-standard);
   }
 
   .top-bar__avatar:hover {
@@ -236,8 +236,8 @@
   border: 2px solid white;
   box-shadow: 0 0 0 1.5px var(--yp-border-subtle);
   cursor: pointer;
-  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
 }
 
 
@@ -246,8 +246,8 @@
   border-radius: var(--yp-radius-md);
   padding: var(--yp-space-4);
   cursor: pointer;
-  transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 180ms var(--yp-ease-standard),
+              box-shadow 180ms var(--yp-ease-standard);
   text-align: left;
   background: var(--yp-bg-card);
   box-shadow: var(--yp-shadow-xs);

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card Animations v3.9 (Stagger, List) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Event Card Animations v3.9 (Stagger, List) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -194,4 +194,29 @@
   z-index: var(--yp-window-z, 18000);
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Stable Event Card Animations — consistent, smooth
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Consistent card entrance — same easing as page entrance */
+.yp-event-card {
+  animation-timing-function: var(--yp-ease-emphasized-decel);
+  animation-duration: 380ms;
+}
+
+/* Staggered card entrance — stable, not jarring */
+.yp-event-card:nth-child(1) { animation-delay: 0ms; }
+.yp-event-card:nth-child(2) { animation-delay: 33ms; }
+.yp-event-card:nth-child(3) { animation-delay: 66ms; }
+.yp-event-card:nth-child(4) { animation-delay: 99ms; }
+.yp-event-card:nth-child(5) { animation-delay: 132ms; }
+.yp-event-card:nth-child(6) { animation-delay: 165ms; }
+
+/* Reduced motion — no stagger */
+@media (prefers-reduced-motion: reduce) {
+  .yp-event-card {
+    animation: none;
+  }
 }

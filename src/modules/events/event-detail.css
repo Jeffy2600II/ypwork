@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Event Detail Page (Hero, Accent-Driven Surface) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r65: soft hero shadow + soft accent tint + warm up gradient — เน้น soft
      ตามแนวทางรอบ 65 โดย "ห้ามแตะ" ค่า border-radius
    ═══════════════════════════════════════════════════════════════
@@ -745,3 +745,17 @@
 }
 .yp-status-picker__check svg { width: 18px; height: 18px; stroke-width: 2.5; }
 
+/* ★ v3.11.0 r2: Detail page consistency — stable transitions */
+.yp-detail-hero,
+.yp-card,
+.yp-task-list,
+.yp-task-empty {
+  transition-property: background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}
+
+/* Task list stable transitions */
+.yp-task-list {
+  animation: yp-list-reenter 280ms var(--yp-ease-emphasized-decel) both;
+}

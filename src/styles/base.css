@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Base Styles (@layer base) — v3.11.0-r1
+   YP WORK · Base Styles (@layer base) — v3.11.0-r2
    ★ r68: Unified design token system for base elements, headings, paragraphs,
      and text selection for cohesive cross-platform typography & layout.
    ═══════════════════════════════════════════════════════════════
@@ -115,4 +115,32 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Stable Base Rendering — consistent foundation
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Smooth font rendering across the platform */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Consistent image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Prevent layout shift on scroll — stable scrollbar */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Consistent default transition for all interactive elements */
+a, button, input, select, textarea {
+  transition-duration: 180ms;
+  transition-timing-function: var(--yp-ease-standard);
 }

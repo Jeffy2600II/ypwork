@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Character Reveal/Delete Animations (Login/Register) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Character Reveal/Delete Animations (Login/Register) — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -30,7 +30,7 @@
 .yp-auth .yp-input,
 .yp-auth .yp-textarea {
   transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms var(--yp-ease-standard),
     caret-color 220ms cubic-bezier(0.2, 0, 0, 1),
     border-color 220ms cubic-bezier(0.2, 0, 0, 1),
     box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
@@ -56,7 +56,7 @@
    so the addon + input both pulse together. */
 .yp-auth .input-group {
   transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms var(--yp-ease-standard),
     border-color 220ms cubic-bezier(0.2, 0, 0, 1),
     box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
   transform-origin: left center;

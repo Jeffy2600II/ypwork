@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r68: ใช้ motion tokens ใหม่ (180ms polish, 100ms press) สำหรับ transitions
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -36,3 +36,34 @@
   stroke-linejoin: round;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Button Transition Consistency
+   มาตรฐานเดียวกันสำหรับทุกปุ่ม — 200ms hover, 80ms press
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Consistent base transition for all buttons */
+.yp-btn {
+  transition: background-color 200ms var(--yp-ease-standard),
+              border-color 200ms var(--yp-ease-standard),
+              box-shadow 200ms var(--yp-ease-standard),
+              color 200ms var(--yp-ease-standard),
+              transform 160ms var(--yp-ease-standard),
+              opacity 200ms var(--yp-ease-standard);
+}
+
+/* Consistent press feedback — all button variants */
+.yp-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* Consistent hover timing */
+@media (hover: hover) and (pointer: fine) {
+  .yp-btn--danger:hover:not(:disabled) {
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.12);
+  }
+  
+  .yp-btn--gradient:hover:not(:disabled) {
+    box-shadow: 0 2px 12px rgba(79, 70, 229, 0.18);
+  }
+}

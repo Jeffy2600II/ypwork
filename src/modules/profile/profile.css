@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Profile Page (Stats, Settings) — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Profile Page (Stats, Settings) — v3.11.0-r2 (Modular CSS Refactor)
    ★ r65: soft hero shadow + soft avatar shadow + warm up hero glow — เน้น soft
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -452,3 +452,12 @@
 }
 .yp-profile-footer p { margin: 0; }
 
+/* ★ v3.11.0 r2: Module consistency — same transition standard as platform */
+.yp-card,
+.yp-stat,
+[class*="__card"],
+[class*="__item"] {
+  transition-property: background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: var(--yp-ease-standard);
+}

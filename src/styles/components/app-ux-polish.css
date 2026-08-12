@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App-like UX & Micro-Polish — v3.11.0-r1
+   YP WORK · App-like UX & Micro-Polish — v3.11.0-r2
    ★ r68: Refined app interactions, focus feedback, network status,
      and touch behavior driven by Design Tokens.
    ═══════════════════════════════════════════════════════════════
@@ -170,4 +170,69 @@ img,
 .yp-avatar,
 .yp-info-sheet__header-icon {
   contain: layout style paint;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Platform Stability & Consistency
+   มาตรฐานเดียวกันทั่วทั้งเว็บ — อ้างอิง Android Material 3 + iOS HIG
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ★ Consistent scroll behavior across all scrollable areas */
+.yp-page,
+.app-main {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ★ Consistent text rendering — smooth, optimized */
+.yp-page,
+.yp-card,
+.yp-event-card,
+.yp-today-hero {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ★ Consistent tap highlight — none on interactive elements */
+.yp-btn,
+.yp-event-card,
+.yp-card,
+.bottom-nav__item,
+.fab,
+.yp-task-filter__btn,
+.yp-events-filter__btn,
+.yp-today-item-card__popup-item,
+.yp-type-option,
+.yp-color-option {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ★ Stable placeholder color across all inputs */
+.yp-input::placeholder,
+.yp-textarea::placeholder {
+  color: var(--yp-text-faint);
+  font-weight: var(--yp-fw-normal);
+  opacity: 1;
+}
+
+/* ★ Consistent selection color */
+::selection {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--yp-indigo-700);
+}
+
+::moz-selection {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--yp-indigo-700);
+}
+
+/* ★ Smooth color transitions on all text — stable feel */
+.yp-event-card__title,
+.yp-event-card__meta-item,
+.yp-card__title,
+.yp-detail-hero__title,
+.yp-detail-hero__meta-item {
+  transition: color 200ms var(--yp-ease-standard);
 }

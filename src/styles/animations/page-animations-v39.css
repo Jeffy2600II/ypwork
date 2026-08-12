@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Page/Shell/Card Animations v3.9 — v3.11.0-r1 (Modular CSS Refactor)
+   YP WORK · Page/Shell/Card Animations v3.9 — v3.11.0-r2 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -19,4 +19,35 @@
   animation: yp-page-in-v39 320ms var(--yp-ease-m3-emphasized) both;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Stable Page Animations — consistent, smooth
+   ═══════════════════════════════════════════════════════════════ */
 
+/* Page entrance — smoother, more stable */
+.yp-page-enter {
+  animation: yp-page-in-v39 320ms var(--yp-ease-emphasized-decel) both;
+}
+
+/* Page exit — smooth fade + slight scale */
+.yp-page-exit {
+  animation: yp-page-out-v39 200ms var(--yp-ease-standard) both;
+}
+
+@keyframes yp-page-out-v39 {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* Reduced motion — no page animation */
+@media (prefers-reduced-motion: reduce) {
+  .yp-page-enter,
+  .yp-page-exit {
+    animation: none;
+  }
+}

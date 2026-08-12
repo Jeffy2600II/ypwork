@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Skeleton Loader — v3.11.0-r1
+   YP WORK · Skeleton Loader — v3.11.0-r2
    ★ r68: Token-driven soft loading shimmer matching warm card surface
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css into modular files
@@ -19,11 +19,33 @@
     var(--yp-bg-card-soft, #FAF8FC) 100%
   );
   background-size: 200% 100%;
-  animation: yp-skeleton-shimmer 1.4s var(--yp-ease-standard, cubic-bezier(0.4, 0, 0.2, 1)) infinite;
+  animation: yp-skeleton-shimmer 1.4s var(--yp-ease-standard, var(--yp-ease-standard)) infinite;
   border-radius: var(--yp-radius-sm, 34px);
 }
 
 @keyframes yp-skeleton-shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Stable Skeleton Loading — smooth, consistent
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Smooth skeleton fade-in */
+.yp-skeleton,
+[class*="skeleton"] {
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--yp-ease-standard);
+  background-size: 200% 100%;
+}
+
+/* Reduced motion — static skeleton */
+@media (prefers-reduced-motion: reduce) {
+  .yp-skeleton,
+  [class*="skeleton"] {
+    animation: none;
+    background: var(--yp-bg-card-soft);
+  }
 }

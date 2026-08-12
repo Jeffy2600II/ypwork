@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.11.0-r1
+   YP WORK · Today Module (Placeholder, Hero, Sections, Timeline, Item Card, Compact) — v3.11.0-r2
    ★ r69: REDESIGN & UN-CLUTTER TODAY DASHBOARD (COMPACT HERO)
      - Spacing overhaul: increased separation between overdue / today / upcoming sections
        and between task cards within lists for optimal breathing room.
@@ -1391,4 +1391,67 @@
 
 .yp-card-detail__cta:hover {
   opacity: 0.95;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Stable Hero Entrance — consistent, smooth, no jank
+   ═══════════════════════════════════════════════════════════════ */
+.yp-hero-enter {
+  animation: yp-hero-stable-enter 500ms var(--yp-ease-emphasized-decel) both;
+}
+
+@keyframes yp-hero-stable-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yp-hero-enter {
+    animation: none;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ v3.11.0 r2: Today Section Consistency
+   ปรับส่วนต่างๆ ของหน้า Today ให้สม่ำเสมอกับทั้งระบบ
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Section title — same treatment as events-group__label */
+.yp-today-section__title {
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.01em;
+  transition: color 200ms var(--yp-ease-standard);
+}
+
+/* Section panel — consistent with card system */
+.yp-today-section {
+  transition: opacity 200ms var(--yp-ease-standard);
+}
+
+/* Empty state — consistent treatment */
+.yp-today-empty {
+  transition: opacity 200ms var(--yp-ease-standard);
+}
+
+/* ★ v3.11.0 r2: Stable list transitions — no jank on filter change */
+.yp-today-list-container {
+  animation: yp-list-reenter 280ms var(--yp-ease-emphasized-decel) both;
+}
+
+@keyframes yp-list-reenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
