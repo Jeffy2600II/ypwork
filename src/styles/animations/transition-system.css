@@ -227,10 +227,11 @@ a,
   transition: opacity var(--yp-t-polish);
 }
 
-.yp-color-option:active {
-  transform: scale(0.88);
+/* Fixed scale(0.88) bug — updated to var(--yp-press-scale, 0.98) and commented out (canonical press transform handled in hover-active-r21.css) */
+/* .yp-color-option:active {
+  transform: scale(var(--yp-press-scale, 0.98));
   transition: transform var(--yp-t-press);
-}
+} */
 
 
 /* ── Tag chips in task row ──

@@ -382,7 +382,7 @@ export default function LoginPage() {
 
         {/* ── HERO ── */}
         <div className="yp-auth__hero">
-          <span className="yp-auth__demo-badge">v3.10.0 · Supabase</span>
+          <span className="yp-auth__demo-badge">v3.11.0 · Supabase</span>
           <h1>
             สมองของ
             <br />

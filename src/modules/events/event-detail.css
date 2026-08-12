@@ -533,7 +533,7 @@
 .yp-task-time-group__caption {
   /* ★ v3.10.0 รอบที่ 38: ลดขนาดเป็น 11px และจาง (text-faint)
      ★ r64: ลดจาก 11px → 10.5px */
-  font-size: 10.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
   color: var(--yp-text-faint);
   margin-top: 0;
   line-height: 1.3;
@@ -544,7 +544,7 @@
      border-radius) → ตัวเลขเล็ก inline สีจาง
      ★ r64: ลดจาก 11px → 10.5px */
   margin-left: auto;
-  font-size: 10.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
   font-weight: var(--yp-fw-medium);
   color: var(--yp-text-faint);
   background: transparent;

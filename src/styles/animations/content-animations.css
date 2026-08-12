@@ -157,39 +157,24 @@
 }
 
 
-.yp-btn--danger:active:not(:disabled) {
-  transform: scale(var(--yp-press-scale-btn, 0.97));  /* ★ v3.11.0 r3: Softer */
-  box-shadow:
-    0 2px 6px rgba(244, 63, 94, 0.16),
-    0 1px 2px rgba(244, 63, 94, 0.08);
-}
-
-.yp-btn--ghost:active:not(:disabled) {
-  transform: scale(var(--yp-press-scale-btn, 0.97));  /* ★ v3.11.0 r3: Softer */
-  background: rgba(30, 27, 70, 0.06);
-}
-
-/* ★ v3.7.10: Chubbier type option active */
-.yp-type-option:active {
-  transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0 r3: Softer */
-}
+/* v3.11.0 r4: Removed duplicate press states — canonical versions in hover-active-r21.css */
 
 /* r19: ลบ old v3.7.10 FAB active squishy — ถูก v3.9.3 calmer FAB press (line ~10636) ทับแล้ว */
 
 
 /* ★ v3.7.10: Bottom nav item active — squishy */
 .bottom-nav__item:active {
-  transform: scale(0.96);
+  transform: scale(var(--yp-press-scale-nav, 0.96));  /* v3.11.0 r4: Token-based */
 }
 
 .yp-window__close:active {
-  transform: scale(0.88);
+  transform: scale(var(--yp-press-scale-nav, 0.96));  /* v3.11.0 r4: Was 0.88 — too aggressive */
 }
 
 
 /* ★ v3.7.10: Filter button active — squishy */
 .yp-events-filter__btn:active {
-  transform: scale(0.97);
+  transform: scale(var(--yp-press-scale, 0.98));  /* v3.11.0 r4: Token-based */
 }
 
 /* ★ v3.7.10: Priority option active — squishy */

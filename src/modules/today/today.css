@@ -844,7 +844,7 @@
   z-index: 100;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);  /* v3.11.0 r4: 16px - more rounded */
   box-shadow: var(--yp-shadow-lg);
   padding: 4px;
   min-width: 140px;
@@ -1383,7 +1383,7 @@
   color: white;
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);  /* v3.11.0 r4: 16px - more rounded */
   text-decoration: none;
   box-shadow: var(--yp-shadow-indigo);
   transition: opacity 150ms var(--yp-ease);
