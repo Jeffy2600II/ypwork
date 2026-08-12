@@ -10,7 +10,7 @@
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    box-shadow: var(--yp-shadow-sm);
+    box-shadow: var(--yp-shadow-sm-v39);
     border-color: var(--yp-border-v39-default);
   }
 }

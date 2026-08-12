@@ -189,7 +189,7 @@
     box-shadow 220ms var(--yp-ease-m3-standard),
     border-color 220ms var(--yp-ease-m3-standard);
   min-height: 110px;
-  box-shadow: var(--yp-shadow-xs);
+  box-shadow: var(--yp-shadow-xs-v39);
 }
 
 

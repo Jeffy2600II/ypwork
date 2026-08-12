@@ -62,7 +62,7 @@
 /* ── Card hover: NO translateY, just shadow + border ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    box-shadow: var(--yp-shadow-md);
+    box-shadow: var(--yp-shadow-md-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -89,7 +89,7 @@
 /* ── Stat card hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    box-shadow: var(--yp-shadow-sm);
+    box-shadow: var(--yp-shadow-sm-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -130,7 +130,7 @@
   .yp-type-option:hover {
     background: var(--yp-tint-v392-hover);
     border-color: var(--yp-border-v39-default);
-    box-shadow: var(--yp-shadow-xs);
+    box-shadow: var(--yp-shadow-xs-v39);
   }
   .yp-type-option.is-selected {
     box-shadow:
@@ -546,7 +546,7 @@
   background: rgba(99, 102, 241, 0.08);
   color: var(--yp-indigo-700, #4338CA);
   border-radius: var(--yp-radius-pill);
-  font-size: var(--yp-text-xs);  /* v3.11.0 r4: token */
+  font-size: 0.80em;
   font-weight: 600;
   line-height: 1.6;
   letter-spacing: 0.01em;
@@ -587,7 +587,7 @@ body {
   border: 1px solid var(--yp-border-v39-subtle);
   border-radius: var(--yp-radius-lg);
   padding: var(--yp-card-pad-lg);
-  box-shadow: var(--yp-shadow-sm);
+  box-shadow: var(--yp-shadow-sm-v39);
   /* Calmer hover — less movement */
   transition:
     transform 220ms var(--yp-ease-m3-standard),

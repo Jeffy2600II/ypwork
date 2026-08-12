@@ -329,11 +329,11 @@
      ในการ์ดมีที่หายใจมากขึ้น การ์ดไม่ "แน่น" เกิน แต่ลดพอประมาณ
      ไม่ใช่ทำให้การ์ดดูโหลงเตี้ย ค่านี้ถูก override เป็น 1.25rem บนจอ ≥768px
      ใน tokens-responsive.css อยู่แล้ว */
-  --yp-card-pad:    1rem;       /* v3.11.0 r4: 16px - more generous */
-  --yp-card-pad-lg: 1.5rem;     /* v3.11.0 r4: 24px - desktop */
-  --yp-section-gap: 2rem;       /* v3.11.0 r4: 32px - more breathing room */
-  --yp-content-gap: 1.25rem;    /* v3.11.0 r4: 20px */
-  --yp-stack-gap:   1rem;       /* v3.11.0 r4: 16px */
+  --yp-card-pad:    1.0625rem;
+  --yp-card-pad-lg: 1.625rem;
+  --yp-section-gap: 1.75rem;
+  --yp-content-gap: 1.125rem;
+  --yp-stack-gap:   0.75rem;
   /* ── Z-INDEX ── */
   --yp-z-sticky:  100;
   --yp-z-fab:     200;
@@ -353,7 +353,7 @@
   --yp-h3-size: clamp(1.00rem, 0.95rem + 0.3vw, 1.18rem);   /* ~16px - 18.8px responsive */
   --yp-lead-size: clamp(0.9375rem, 0.90rem + 0.2vw, 1.0625rem); /* ~15px - 17px responsive */
   /* shadcn compat */
-  --radius: 0.75rem;  /* v3.11.0 r4: 12px - M3 Medium, matches --yp-radius-md */
+  --radius: 0.625rem;
   --background: var(--yp-bg-page);
   --foreground: var(--yp-text-body);
   --card: var(--yp-bg-card);
@@ -391,36 +391,29 @@
      มองไม่เห็น ให้ความรู้สึก "นิ่ง สะอาด" ตามแนวทาง Linear/Apple */
   /* ★ r68: soft v39 shadows ลงอีก ~15% — ให้สอดคล้องกับ --yp-shadow-*
      ด้านบนที่ลดลง ความสม่ำเสมอของ soft feel ทั้งระบบ */
-  --yp-shadow-xs-v39: 0 0 0 1px rgba(30, 27, 70, 0.05), 0 1px 2px rgba(30, 27, 70, 0.03);  /* v3.11.0 r4: 3-layer */
-  --yp-shadow-sm-v39: 0 0 0 1px rgba(30, 27, 70, 0.06), 0 1px 3px rgba(30, 27, 70, 0.04), 0 1px 2px rgba(30, 27, 70, 0.02);  /* v3.11.0 r4 */
-  --yp-shadow-md-v39: 0 0 0 1px rgba(30, 27, 70, 0.07), 0 4px 12px -2px rgba(30, 27, 70, 0.06), 0 2px 4px rgba(30, 27, 70, 0.03);  /* v3.11.0 r4 */
-  --yp-shadow-lg-v39: 0 0 0 1px rgba(30, 27, 70, 0.08), 0 8px 24px -4px rgba(30, 27, 70, 0.08), 0 4px 8px rgba(30, 27, 70, 0.04);  /* v3.11.0 r4 */
-  --yp-shadow-xl-v39: 0 0 0 1px rgba(30, 27, 70, 0.10), 0 12px 32px -4px rgba(30, 27, 70, 0.10), 0 6px 12px rgba(30, 27, 70, 0.05);  /* v3.11.0 r4 */
+  --yp-shadow-xs-v39: 0 1px 2px rgba(30, 27, 70, 0.015);
+  --yp-shadow-sm-v39: 0 1px 2px rgba(30, 27, 70, 0.015), 0 1px 2px rgba(30, 27, 70, 0.012);
+  --yp-shadow-md-v39: 0 1px 4px rgba(30, 27, 70, 0.022), 0 1px 2px rgba(30, 27, 70, 0.012);
+  --yp-shadow-lg-v39: 0 2px 6px rgba(30, 27, 70, 0.028), 0 1px 2px rgba(30, 27, 70, 0.016);
+  --yp-shadow-xl-v39: 0 4px 10px rgba(30, 27, 70, 0.032), 0 2px 4px rgba(30, 27, 70, 0.016);
   /* FAB shadow — Material 3 tonal elevation (3-layer)
      ★ v3.10.0 รอบที่ 56: ลด opacity ทุกชั้นลง ~40%
      ★ v3.10.0 รอบที่ 64: ลด alpha ลงอีก ~25% — FAB ยังเด่นแต่ไม่ "หนัก" */
   /* ★ r68: FAB shadows ลด alpha ลงอีก ~15% — FAB ยังเด่นแต่ soft ขึ้น
      ไม่ "หนักหน่วง" เวลามองบนมือถือ */
   --yp-fab-shadow-v39:
-    0 0 0 1px rgba(79, 70, 229, 0.10),
-    0 4px 12px -2px rgba(79, 70, 229, 0.12),
-    0 2px 4px rgba(79, 70, 229, 0.06);  /* v3.11.0 r4: Premium FAB shadow */
+    0 2px 6px rgba(79, 70, 229, 0.07),
+    0 1px 3px rgba(79, 70, 229, 0.04),
+    0 1px 1px rgba(15, 23, 42, 0.025);
   --yp-fab-shadow-hover-v39:
-    0 0 0 1px rgba(79, 70, 229, 0.12),
-    0 8px 24px -4px rgba(79, 70, 229, 0.15),
-    0 4px 8px rgba(79, 70, 229, 0.08),
-    0 0 0 8px rgba(99, 102, 241, 0.06);  /* v3.11.0 r4: Premium hover */
+    0 4px 12px rgba(79, 70, 229, 0.085),
+    0 2px 4px rgba(79, 70, 229, 0.045),
+    0 1px 1px rgba(15, 23, 42, 0.025),
+    0 0 0 6px rgba(99, 102, 241, 0.05);
   --yp-fab-shadow-press-v39:
-    0 0 0 1px rgba(79, 70, 229, 0.08),
-    0 2px 6px rgba(79, 70, 229, 0.06),
-    0 1px 2px rgba(79, 70, 229, 0.04);  /* v3.11.0 r4: Premium press */
-  /* v3.11.0 r4: Semantic shadow tokens - clean names for new design system */
-  --yp-shadow-xs:  0 0 0 1px rgba(30, 27, 70, 0.05), 0 1px 2px rgba(30, 27, 70, 0.03);
-  --yp-shadow-sm:  0 0 0 1px rgba(30, 27, 70, 0.06), 0 1px 3px rgba(30, 27, 70, 0.04), 0 1px 2px rgba(30, 27, 70, 0.02);
-  --yp-shadow-md:  0 0 0 1px rgba(30, 27, 70, 0.07), 0 4px 12px -2px rgba(30, 27, 70, 0.06), 0 2px 4px rgba(30, 27, 70, 0.03);
-  --yp-shadow-lg:  0 0 0 1px rgba(30, 27, 70, 0.08), 0 8px 24px -4px rgba(30, 27, 70, 0.08), 0 4px 8px rgba(30, 27, 70, 0.04);
-  --yp-shadow-xl:  0 0 0 1px rgba(30, 27, 70, 0.10), 0 12px 32px -4px rgba(30, 27, 70, 0.10), 0 6px 12px rgba(30, 27, 70, 0.05);
-
+    0 1px 4px rgba(79, 70, 229, 0.05),
+    0 1px 1px rgba(79, 70, 229, 0.035),
+    0 1px 1px rgba(15, 23, 42, 0.018);
   /* Material 3 motion tokens */
   --yp-ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
   --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);

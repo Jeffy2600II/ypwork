@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Library Manifest — v3.11.0-r4
+   YP WORK · Design Library Manifest — v3.11.0-r2
    ═══════════════════════════════════════════════════════════════
    
    This is the central manifest that imports ALL modular CSS files
@@ -66,7 +66,6 @@
 
 /* ── PHASE 2: Default Root Variables (MUST come first for cascade) ── */
 @import "./tokens/root-default.css";
-@import "./tokens/tokens.css";
 
 /* ── PHASE 3: Tailwind Theme Bridge ── */
 @import "./tokens/theme-tailwind.css";
@@ -185,20 +184,29 @@
 /* ── PHASE 40: Event Card Animations v3.9 ── */
 @import "./animations/event-card-animations.css";
 
-/* ── PHASE 41: Hover/Active r21 (Consolidated Interactions File) ── */
+/* ── PHASE 41: Hover/Active r21 ── */
 @import "./interactions/hover-active-r21.css";
+
+/* ── PHASE 42: Polish v3.9 ── */
+@import "./interactions/polish-v39.css";
 
 /* ── PHASE 43: Hover Refinements v3.9.x ── */
 @import "./interactions/hover-refinements-v39.css";
 
+/* ── PHASE 44: Polish Layer ── */
+@import "./interactions/polish-layer.css";
+
 /* ═══════════════════════════════════════════════════════════════
-   PHASE 47+: CASCADE-CRITICAL LATE OVERRIDES
+   PHASE 46+: CASCADE-CRITICAL LATE OVERRIDES
    ═══════════════════════════════════════════════════════════════
    These MUST come after ALL base rules because CSS cascade 
    uses source order — later rules win when specificity is equal.
    
    ★ DO NOT move these earlier in the import chain! ★
    ═══════════════════════════════════════════════════════════════ */
+
+/* ── PHASE 46: Main Design Tokens ── */
+@import "./tokens/tokens.css";
 
 /* ── PHASE 47: Desktop Left-Rail Override (r25 cascade fix) ── */
 @import "./layout/desktop-rail-override.css";

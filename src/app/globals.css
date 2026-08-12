@@ -7628,8 +7628,8 @@ img,
   height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
   padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
   background: #FFFFFF;
-  /* ★ v3.11.0 r4: Premium shadow system — subtle elevation */
-  box-shadow: var(--yp-shadow-sm);
+  /* ★ v3.11.0 r3: Subtle shadow instead of hard border — more modern */
+  box-shadow: 0 1px 3px rgba(30, 27, 70, 0.04), 0 0 0 1px rgba(30, 27, 70, 0.03);
   z-index: var(--yp-z-sticky);
   display: flex;
   align-items: center;
@@ -9521,7 +9521,7 @@ body.yp-sheet-open .bottom-nav {
 
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    box-shadow: var(--yp-shadow-md);
+    box-shadow: var(--yp-shadow-md-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -9776,13 +9776,13 @@ body.yp-sheet-open .bottom-nav {
     box-shadow 220ms var(--yp-ease-m3-standard),
     border-color 220ms var(--yp-ease-m3-standard);
   min-height: 110px;
-  box-shadow: var(--yp-shadow-xs);
+  box-shadow: var(--yp-shadow-xs-v39);
 }
 
 
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    box-shadow: var(--yp-shadow-sm);
+    box-shadow: var(--yp-shadow-sm-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -10438,7 +10438,7 @@ body.yp-sheet-open .bottom-nav {
 /* ── Card hover: NO translateY, just shadow + border ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    box-shadow: var(--yp-shadow-md);
+    box-shadow: var(--yp-shadow-md-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -10464,7 +10464,7 @@ body.yp-sheet-open .bottom-nav {
 /* ── Stat card hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    box-shadow: var(--yp-shadow-sm);
+    box-shadow: var(--yp-shadow-sm-v39);
     border-color: var(--yp-border-v39-default);
   }
 }
@@ -10505,7 +10505,7 @@ body.yp-sheet-open .bottom-nav {
   .yp-type-option:hover {
     background: var(--yp-tint-v392-hover);
     border-color: var(--yp-border-v39-default);
-    box-shadow: var(--yp-shadow-xs);
+    box-shadow: var(--yp-shadow-xs-v39);
   }
   .yp-type-option.is-selected {
     box-shadow:
@@ -10960,7 +10960,7 @@ body {
   border: 1px solid var(--yp-border-v39-subtle);
   border-radius: var(--yp-radius-lg);
   padding: var(--yp-card-pad-lg);
-  box-shadow: var(--yp-shadow-sm);
+  box-shadow: var(--yp-shadow-sm-v39);
   /* Calmer hover — less movement */
   transition:
     transform 220ms var(--yp-ease-m3-standard),

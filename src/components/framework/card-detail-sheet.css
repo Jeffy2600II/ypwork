@@ -498,7 +498,7 @@
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
+  font-size: 11px;
   margin-right: -2px;
 }
 .yp-task-row__chip--due .yp-task-row__chip-label { color: var(--yp-text-muted); }
