@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r3 (Modular CSS Refactor)
    ★ r68: เพิ่มความ soft ทั้งระบบอีกระดับ — soft shadows, warm surface,
      soft borders, soft hover tints — โดย "ห้ามแตะ" ค่า border-radius
      ทั้งหมดตาม constraint ของรอบนี้ ปรับเฉพาะสิ่งที่ทำให้รู้สึกนุ่มนิ่ม
@@ -282,15 +282,15 @@
   --yp-ease-decel:    cubic-bezier(0, 0, 0.2, 1);
   --yp-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --yp-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --yp-t-fast:   150ms var(--yp-ease-standard);
+  --yp-t-fast:   180ms var(--yp-ease-standard);  /* ★ v3.11.0 r3: Slightly longer for softness */
   --yp-t-normal: 260ms var(--yp-ease);
   --yp-t-slow:   400ms var(--yp-ease);
-  /* ★ v3.11.0 r2: Smoother hero entrance */
+  /* ★ v3.11.0 r3: Smoother hero entrance */
   --yp-hero-enter:    500ms var(--yp-ease-emphasized-decel);
   --yp-hero-stagger:  80ms;
-  /* ★ v3.11.0 r2: Smoother card entrance */
+  /* ★ v3.11.0 r3: Smoother card entrance */
   --yp-card-enter:    420ms var(--yp-ease-emphasized-decel);
-  /* ★ v3.11.0 r2: Slower, more stable page entrance */
+  /* ★ v3.11.0 r3: Slower, more stable page entrance */
   --yp-page-enter: 500ms var(--yp-ease-emphasized-decel);
   /* ── LAYOUT ── */
   --yp-container-max:  1110px;
@@ -310,7 +310,7 @@
      ใน top bar ดูไม่ "แน่นเกิน" เมื่อขนาดตัวอักษรเล็กลง และเพิ่ม
      พื้นที่เนื้อหาด้านบนได้อีกเล็กน้อย */
   --yp-nav-bottom-h:   72px;
-  --yp-nav-top-h:      44px;
+  --yp-nav-top-h:      48px;  /* ★ v3.11.0 r3: Slightly taller for larger title text */
   --yp-page-pad-x:     1.125rem;
   /* v3.9.3: +0.25rem จาก 0.875rem — เว้นระยะจากขอบซ้าย-ขวามากขึ้น */
   --yp-fab-size:       56px;
@@ -381,9 +381,9 @@
   --sidebar-accent-foreground: var(--yp-indigo-600);
   --sidebar-border: var(--yp-border-default);
   --sidebar-ring: var(--yp-focus-ring);
-  --yp-t-polish: 220ms cubic-bezier(0.2, 0, 0, 1);
-  --yp-t-press: 180ms var(--yp-ease-standard);
-  --yp-t-exit: 200ms cubic-bezier(0.4, 0, 1, 1);
+  --yp-t-polish: 240ms var(--yp-ease-standard);  /* ★ v3.11.0 r3: Smoother hover polish */
+  --yp-t-press: 220ms var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer press — deceleration easing, 220ms */
+  --yp-t-exit: 240ms var(--yp-ease-m3-accelerate);  /* ★ v3.11.0 r3: Smoother exit */
   /* Calmer shadows — opacity reduced 25% from v3.8.x
      ★ v3.10.0 รอบที่ 56: ลดลงอีก เพื่อให้ดูเบาสบายตา
      เห็นเงานิดหน่อยพอให้รู้สึกว่ามี layer แต่ไม่ฟุ้ง
@@ -419,6 +419,13 @@
   --yp-ease-m3-emphasized: cubic-bezier(0.3, 0, 0, 1);
   --yp-ease-m3-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
   --yp-ease-m3-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  /* ★ v3.11.0 r3: Press scale tokens — subtle, not jarring */
+  --yp-press-scale: 0.98;       /* Cards, buttons, chips */
+  --yp-press-scale-nav: 0.96;   /* Nav items, FAB */
+  --yp-press-scale-btn: 0.97;   /* Primary buttons */
+  --yp-press-duration: 220ms;   /* Press down — slow enough to feel */
+  --yp-press-return: 280ms;     /* Release back — smooth return */
+
   /* Standardized durations */
   --yp-dur-v39-xs: 100ms;
   --yp-dur-v39-sm: 150ms;

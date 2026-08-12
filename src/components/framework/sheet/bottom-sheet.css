@@ -195,7 +195,7 @@
 }
 
 .sheet__close:active {
-  transform: scale(0.94);
+  transform: scale(0.97);
 }
 
 .sheet__close svg {
@@ -664,7 +664,7 @@
   }
 
   .yp-window__close:active {
-    transform: scale(0.92);
+    transform: scale(0.96);
   }
 }
 

@@ -320,5 +320,5 @@
 .yp-type-option:active,
 .yp-color-option:active {
   transform: scale(0.97);
-  transition-duration: 80ms;
+  transition-duration: 150ms;
 }

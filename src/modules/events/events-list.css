@@ -40,7 +40,7 @@
 /* ★ v3.11.0 r2: Press feedback — stable, consistent */
 .yp-events-filter__btn:active {
   transform: scale(0.97);
-  transition-duration: 80ms;
+  transition-duration: 150ms;
 }
 
 .yp-events-group {

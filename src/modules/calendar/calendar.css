@@ -70,7 +70,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.yp-cal-view-btn:active { transform: scale(0.92); }
+.yp-cal-view-btn:active { transform: scale(0.96); }
 
 /* ── NAV BAR ── */
 .yp-cal-nav-bar {
@@ -100,7 +100,7 @@
   background: var(--yp-bg-indigo-soft);
 }
 
-.yp-cal-nav-btn:active { transform: scale(0.92); }
+.yp-cal-nav-btn:active { transform: scale(0.96); }
 
 .yp-cal-today-btn {
   /* ★ r64: ลด padding 8px 16px → 6px 13px — today button ที่เล็กลง */

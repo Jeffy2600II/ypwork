@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.11.0-r3 (Modular CSS Refactor)
    ★ r68: ปรับ nav label และ avatar ให้สมดุลกับ type scale ใหม่ที่ใหญ่ขึ้น
      ปรับ motion tokens ให้ snappier (180ms polish, 100ms press)
    ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
@@ -51,17 +51,21 @@
 }
 
 .top-bar__back:hover {
-  background: color-mix(in srgb, var(--yp-top-accent) 10%, transparent);
+  /* ★ v3.11.0 r3: Smoother hover — softer tint */
+  background: color-mix(in srgb, var(--yp-top-accent) 8%, transparent);
   color: var(--yp-top-accent);
-  transform: scale(1.06);
+  transform: scale(1.04);
+  transition: background-color 260ms var(--yp-ease-emphasized-decel),
+              color 260ms var(--yp-ease-emphasized-decel),
+              transform 260ms var(--yp-ease-emphasized-decel);
 }
 
 .top-bar__title {
-  /* ★ r64: text-base → text-sm (15→13px after token change) — top bar title
-     ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
-  font-size: var(--yp-text-sm);
+  /* ★ v3.11.0 r3: Larger, more readable title — 15px, better letter-spacing
+     ก่อนหน้านี้ 13px เล็กเกินไป อ่านยาก ปรับเป็น 15px สมดุลกับ mobile header มาตรฐาน */
+  font-size: var(--yp-text-base, 0.9375rem);
   font-weight: var(--yp-fw-bold);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   /* v8.2: accent-driven gradient stops — interpolate ผ่าน @property <color> */
   background: linear-gradient(135deg,
     var(--yp-top-from) 0%,
@@ -80,9 +84,9 @@
 }
 
 .top-bar__back svg {
-  /* ★ r64: ลดจาก 20×20 → 18×18 — back icon ที่เล็กลง ให้สมดุลกับ type scale */
-  width: 18px;
-  height: 18px;
+  /* ★ v3.11.0 r3: 20×20 — standard touch target, not too small */
+  width: 20px;
+  height: 20px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -110,8 +114,8 @@
 }
 
 .top-bar__avatar {
-  /* ★ r64: ลดจาก 32×32 → 28×28 — top bar avatar ที่เล็กลง ให้สมดุลกับ type scale */
-  width: 28px; height: 28px;
+  /* ★ v3.11.0 r3: 32×32 — standard avatar size, better visual balance */
+  width: 32px; height: 32px;
   border-radius: var(--yp-radius-pill);
   display: block;
   flex-shrink: 0;
@@ -124,7 +128,9 @@
 }
 
 .top-bar__avatar:hover {
-  transform: scale(1.06);
+  /* ★ v3.11.0 r3: Smoother hover */
+  transform: scale(1.04);
+  transition: transform 260ms var(--yp-ease-emphasized-decel);
 }
 
 
@@ -144,7 +150,7 @@
 @media (min-width: 900px) {
   :root {
     /* ★ r64: ลดจาก 56px → 50px — desktop top bar ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
-    --yp-nav-top-h: 50px;
+    --yp-nav-top-h: 52px;  /* ★ v3.11.0 r3: Slightly taller for larger title text */
     /* ★ v3.9.7: เปิด left-rail บน desktop — ความกว้าง 96px */
     --yp-left-rail-width: 96px;
   }
@@ -191,12 +197,14 @@
     padding: 12px 0;
     min-width: 0;
     border-radius: var(--yp-radius-md, 14px);
-    transition: background 180ms var(--yp-ease-standard),
-                color 180ms var(--yp-ease-standard);
+    /* ★ v3.11.0 r3: Smoother transition */
+    transition: background 260ms var(--yp-ease-emphasized-decel),
+                color 260ms var(--yp-ease-emphasized-decel);
   }
 
   .bottom-nav__item:hover {
-    background: rgba(99, 102, 241, 0.06);
+    /* ★ v3.11.0 r3: Subtler hover */
+    background: rgba(99, 102, 241, 0.05);
     color: var(--yp-indigo-500);
   }
 
@@ -206,8 +214,8 @@
   }
 
   .bottom-nav__label {
-    /* ★ r64: ลดจาก 11.5px → 10.5px — bottom nav label ที่เล็กลง */
-    font-size: 10.5px;
+    /* ★ v3.11.0 r3: 11.5px — slightly larger for readability */
+    font-size: 11.5px;
     text-align: center;
     line-height: 1;
     font-weight: var(--yp-fw-medium);
@@ -227,9 +235,10 @@
     top: 50%;
     transform: translateY(-50%);
     width: 3px;
-    height: 24px;
+    height: 28px;
     border-radius: 0 3px 3px 0;
     background: var(--yp-indigo-600);
+    transition: height 260ms var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Smooth indicator */
   }
 
   .fab {
@@ -258,8 +267,8 @@
   }
 
   .bottom-nav__label {
-    /* ★ r64: ลดจาก 12px → 11px — large desktop label */
-    font-size: 11px;
+    /* ★ v3.11.0 r3: 12px — standard desktop label */
+    font-size: 12px;
   }
 
   /* ★ v3.5.0: Center content with max-width on large screens
@@ -295,7 +304,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: App Shell Consistency
+   ★ v3.11.0 r3: App Shell Consistency
    ═══════════════════════════════════════════════════════════════ */
 
 /* Smooth main content area transitions */

@@ -69,8 +69,8 @@ body.yp-sheet-open .fab {
   border-radius: var(--yp-radius-lg);
   border: none;
   transition:
-    transform 280ms var(--yp-ease-emphasized-decel),
-    opacity 240ms var(--yp-ease-emphasized-decel);
+    transform 320ms var(--yp-ease-emphasized-decel),
+    opacity 280ms var(--yp-ease-emphasized-decel);
 }
 
 
@@ -84,8 +84,8 @@ body.yp-sheet-open .fab {
   display: grid;
   place-items: center;
   transition:
-    background-color 200ms var(--yp-ease-standard),
-    transform 200ms var(--yp-ease-standard);
+    background-color 260ms var(--yp-ease-emphasized-decel),
+    transform 260ms var(--yp-ease-emphasized-decel);
   background: transparent;
 }
 

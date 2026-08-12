@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover & Active Micro-Interactions (r21) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Hover & Active Micro-Interactions (r21) — v3.11.0-r3 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -9,7 +9,7 @@
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
-   HOVER & ACTIVE STATES (v3.11.0-r2 — micro-interactions restored)
+   HOVER & ACTIVE STATES (v3.11.0-r3 — micro-interactions restored)
    ═══════════════════════════════════════════════════════════════
    ★ r21: คืนค่า hover/active micro-interactions — ลบ transform:none
    Hover = state layer (bg/shadow/border) + subtle transform
@@ -626,20 +626,20 @@ body {
 }
 
 .yp-btn:active:not(:disabled) {
-  transform: scale(0.97);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  transform: scale(var(--yp-press-scale-btn, 0.97));
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer press */
 }
 
 
 .yp-card:active {
-  transform: scale(0.99);
-  transition: transform 160ms var(--yp-ease-m3-decelerate);
+  transform: scale(var(--yp-press-scale, 0.98));
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 
 .yp-event-card:active {
-  transform: scale(0.982);
-  transition: transform 160ms var(--yp-ease-m3-decelerate);
+  transform: scale(var(--yp-press-scale, 0.98));
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 
@@ -647,22 +647,23 @@ body {
    active/press feedback เลยเวลาแตะเพื่อเปลี่ยนสถานะ — เพิ่มให้นุ่มนวล
    สอดคล้องกับการ์ดอื่นๆ ทั้งเว็บ */
 .yp-task-row:active {
-  transform: scale(0.985);
+  transform: scale(var(--yp-press-scale, 0.98));
   background: var(--yp-bg-card-soft);
-  transition: transform 160ms var(--yp-ease-m3-decelerate), background 160ms var(--yp-ease-m3-decelerate);
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel),
+              background var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 .yp-stat:active {
-  transform: scale(0.97);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  transform: scale(var(--yp-press-scale, 0.98));
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 
 .fab:active {
-  transform: translate3d(0, 0, 0) scale(0.94);
+  transform: translate3d(0, 0, 0) scale(0.97);
   box-shadow: var(--yp-fab-shadow-press-v39);
   transition:
-    transform 100ms var(--yp-ease-m3-standard),
+    transform 150ms var(--yp-ease-m3-standard),
     box-shadow 100ms var(--yp-ease-m3-standard);
 }
 
@@ -675,15 +676,15 @@ body {
 
 
 .bottom-nav__item:active .bottom-nav__icon {
-  transform: scale(0.96);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  transform: scale(var(--yp-press-scale, 0.98));
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 
 .yp-info-btn:active {
-  transform: scale(0.92);
+  transform: scale(var(--yp-press-scale, 0.98));
   background: var(--yp-info-btn-v392-active);
-  transition: transform 100ms var(--yp-ease-m3-standard);
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
 }
 
 

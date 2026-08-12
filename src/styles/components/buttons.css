@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Buttons (Primary, Ghost, Danger, Block) — v3.11.0-r3 (Modular CSS Refactor)
    ★ r68: ใช้ motion tokens ใหม่ (180ms polish, 100ms press) สำหรับ transitions
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
@@ -37,7 +37,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Button Transition Consistency
+   ★ v3.11.0 r3: Button Transition Consistency
    มาตรฐานเดียวกันสำหรับทุกปุ่ม — 200ms hover, 80ms press
    ═══════════════════════════════════════════════════════════════ */
 
@@ -53,8 +53,8 @@
 
 /* Consistent press feedback — all button variants */
 .yp-btn:active:not(:disabled) {
-  transform: scale(0.97);
-  transition-duration: 80ms;
+  transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0 r3: Softer */
+  transition-duration: var(--yp-press-duration, 220ms);
 }
 
 /* Consistent hover timing */

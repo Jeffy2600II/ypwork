@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Global Transition System (Page/Card/Sheet) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Global Transition System (Page/Card/Sheet) — v3.11.0-r3 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Extracted from globals.css (12,263 lines) into modular files
    for easier development, faster navigation, and better maintainability.
@@ -58,7 +58,7 @@
 @keyframes yp-list-reenter {
   0% {
     opacity: 0;
-    transform: scale(0.97);
+    transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0 r3: Softer */
   }
   100% {
     opacity: 1;
@@ -97,7 +97,7 @@
     opacity var(--yp-t-polish);
 }
 
-/* Press feedback for all buttons — quick deceleration */
+/* ★ v3.11.0 r3: Press feedback — soft deceleration, not jarring */
 .yp-btn:active,
 .yp-priority-option:active,
 .yp-color-option:active,
@@ -107,9 +107,9 @@
 .top-bar__back:active,
 .top-bar__avatar:active {
   transition:
-    transform var(--yp-t-press),
-    background-color var(--yp-t-press),
-    box-shadow var(--yp-t-press);
+    transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel),
+    background-color var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel),
+    box-shadow var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);
 }
 
 /* ── Inputs ──
@@ -325,7 +325,7 @@ button:disabled {
 /* ── Reduced motion: kill all v3.8.0 polish transitions ── */
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Unified Transition System
+   ★ v3.11.0 r3: Unified Transition System
    มาตรฐานเดียวกันทั่วทั้งเว็บ — อ้างอิง Material 3 + iOS HIG
    ═══════════════════════════════════════════════════════════════ */
 
@@ -353,7 +353,7 @@ button:disabled {
 @keyframes yp-list-reenter {
   0% {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0 r3: Softer */
   }
   100% {
     opacity: 1;
@@ -361,7 +361,7 @@ button:disabled {
   }
 }
 
-/* ★ v3.11.0 r2: Stable reduced motion — respect user preferences */
+/* ★ v3.11.0 r3: Stable reduced motion — respect user preferences */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -198,7 +198,7 @@
   font-weight: var(--yp-fw-semibold);
   text-decoration: none;
   cursor: pointer;
-  transition: background 150ms var(--yp-ease-m3-standard), transform 100ms var(--yp-ease-m3-standard);
+  transition: background 150ms var(--yp-ease-m3-standard), transform 150ms var(--yp-ease-m3-standard);
 }
 
 .yp-card-detail__cta:hover {

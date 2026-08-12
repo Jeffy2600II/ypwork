@@ -274,7 +274,7 @@
 /* Stable press — subtle scale down */
 .yp-event-card:active {
   transform: scale(0.99);
-  transition-duration: 100ms;
+  transition-duration: 150ms;
 }
 
 /* ★ v3.11.0 r2: Event card meta consistency — all meta items same treatment */

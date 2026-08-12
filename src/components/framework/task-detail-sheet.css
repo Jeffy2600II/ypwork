@@ -39,7 +39,7 @@
 }
 
 .yp-info-sheet__close:active {
-  transform: scale(0.92);
+  transform: scale(0.96);
 }
 
 /* v3.1.0: yp-info-sheet__inner ใช้ใน Window Framework — Window จัด padding แล้ว
