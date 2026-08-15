@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · v3.9.2 Polish Layer — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · v3.9.2 Polish Layer — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -9,10 +9,10 @@
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
-   v3.9.2 — REDUCED MOTION + v3.11.0 r2: Comprehensive stability
+   v3.9.2 — REDUCED MOTION + v3.11.0-r5: Comprehensive stability
    ═══════════════════════════════════════════════════════════════ */
 
-/* ★ v3.11.0 r2: Respect reduced motion — disable all animations */
+/* ★ v3.11.0-r5: Respect reduced motion — disable all animations */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -24,7 +24,7 @@
   }
 }
 
-/* ★ v3.11.0 r2: Stable hover for reduced motion — no transforms */
+/* ★ v3.11.0-r5: Stable hover for reduced motion — no transforms */
 @media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
   .yp-card:hover,
   .yp-event-card:hover,

@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Premium Component Polish v3.9 — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Premium Component Polish v3.9 — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -38,11 +38,11 @@
 
 
 .bottom-nav:not(.is-hidden) {
-  animation: yp-bottom-nav-in-v39 380ms var(--yp-ease-m3-emphasized) both;
+  animation: yp-bottom-nav-in 380ms var(--yp-ease-m3-emphasized) both;
 }
 
 
-@keyframes yp-bottom-nav-in-v39 {
+@keyframes yp-bottom-nav-in {
   0% {
     opacity: 0;
     transform: translateY(20px);
@@ -80,8 +80,8 @@ body.yp-sheet-open .bottom-nav {
 
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    box-shadow: var(--yp-shadow-md-v39);
-    border-color: var(--yp-border-v39-default);
+    box-shadow: var(--yp-shadow-md);
+    border-color: var(--yp-border-default);
   }
 }
 

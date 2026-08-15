@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Character Reveal/Delete Animations (Login/Register) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Character Reveal/Delete Animations (Login/Register) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -75,11 +75,11 @@
 /* ── Reduced motion: disable character pulse + caret breathe ── */
 
 /* ── v3.9.2 TOP BAR ── */
-/* ★ v3.10.0 รอบที่ 25: ลบ backdrop-filter (เบลอ) ทั้งหมด — ใช้พื้นหลัง
-   ทึบแสงปกติแทน ตอนเลื่อนหน้าจอลง ใช้สีขาวล้วน + เงาเข้มขึ้นเล็กน้อย
-   เพื่อบอกความต่างจากสถานะปกติ (แทนที่จะพึ่งความทึบที่เพิ่มขึ้นแบบเดิม) */
+/* ★ v3.11.0 r5: Glass effect for scrolled top bar */
 .top-bar.is-scrolled {
-  background: #FFFFFF;
+  background: rgba(255, 255, 255, 0.82); /* v3.11.0 r5: Glass effect */
+  backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
+  -webkit-backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
   box-shadow: 0 1px 0 rgba(30, 27, 70, 0.10), 0 4px 12px -6px rgba(30, 27, 70, 0.10);
 }
 
@@ -88,8 +88,8 @@
      v3.9.2 ลดเหลือ 18px ตาม Material 3 spec แต่ทำให้ FAB ดูเหมือนปุ่มเว็บทั่วไป */
 .fab {
   /* Size — slightly larger for Material 3 compliance */
-  width: var(--yp-fab-size-v39);
-  height: var(--yp-fab-size-v39);
+  width: var(--yp-fab-size);
+  height: var(--yp-fab-size);
   /* ★ v3.9.2: คืนค่าความโค้งมนเดิมของ YP Work (40px = --yp-radius-md) */
   border-radius: var(--yp-radius-md);
   /* Background — refined gradient with deeper saturation */
@@ -101,7 +101,7 @@
   display: grid;
   place-items: center;
   /* Material 3 tonal elevation (3-layer shadow) */
-  box-shadow: var(--yp-fab-shadow-v39);
+  box-shadow: var(--yp-fab-shadow);
   /* Subtle inner highlight for "polished" feel */
   border: 1px solid rgba(255, 255, 255, 0.14);
   /* Position */
@@ -127,7 +127,7 @@
   user-select: none;
   opacity: 1;
   /* Replace entrance animation — no rotate (more modern, calmer) */
-  animation: yp-fab-in-v39 420ms var(--yp-ease-m3-emphasized) backwards;
+  animation: yp-fab-in 420ms var(--yp-ease-m3-emphasized) backwards;
 }
 
 /* Material 3 state layer — replaces :hover box-shadow stacking */

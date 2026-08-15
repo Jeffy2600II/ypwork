@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Micro-Interactions (Active:scale, Tap Highlight, Haptic) — v3.11.0-r3 (Modular CSS Refactor)
+   YP WORK · Micro-Interactions (Active:scale, Tap Highlight, Haptic) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -31,7 +31,7 @@
               box-shadow 0.15s ease;
 }
 
-/* ★ v3.11.0 r3: Press state — subtle 2% scale with soft deceleration */
+/* ★ v3.11.0-r5: Press state — subtle 2% scale with soft deceleration */
 .yp-btn:active:not(:disabled),
 .yp-type-option:active,
 .yp-color-option:active,
@@ -51,7 +51,7 @@
   outline: none;
 }
 
-@keyframes yp-page-in-v3710 {
+@keyframes yp-page-in-alt {
   0% {
     opacity: 0;
     transform: translateY(8px) scale(0.97);
@@ -81,14 +81,17 @@
   right: 0;
   height: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
   padding: var(--yp-safe-top) var(--yp-page-pad-x) 0;
-  background: #FFFFFF;
-  box-shadow: 0 1px 0 var(--yp-border-subtle);
+  /* v3.11.0 r5: Glass effect — frosted glass top bar */
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 1px 0 rgba(30, 27, 70, 0.06);
   z-index: var(--yp-z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--yp-space-3);
-  animation: yp-top-bar-in 340ms var(--yp-ease-emphasized-decel) both;  /* ★ v3.11.0 r3: Smoother */
+  animation: yp-top-bar-in 340ms var(--yp-ease-emphasized-decel) both;
 }
 
 
@@ -103,7 +106,7 @@
   }
 }
 
-@keyframes yp-card-in-v3710 {
+@keyframes yp-card-in-alt {
   0% {
     opacity: 0;
     transform: scale(0.92) translateY(8px);
@@ -161,11 +164,11 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r3: Unified Micro-Interactions
+   ★ v3.11.0-r5: Unified Micro-Interactions
    มาตรฐานเดียวกันสำหรับทุก interactive element — Android Material 3 + iOS HIG
    ═══════════════════════════════════════════════════════════════ */
 
-/* ★ v3.11.0 r3: Consistent soft press — all interactive elements */
+/* ★ v3.11.0-r5: Consistent soft press — all interactive elements */
 .yp-btn:active,
 .yp-event-card:active,
 .yp-stat:active,
@@ -178,7 +181,7 @@
   transition-timing-function: var(--yp-ease-emphasized-decel);
 }
 
-/* ★ v3.11.0 r3: Nav items — slightly more press but slower */
+/* ★ v3.11.0-r5: Nav items — slightly more press but slower */
 .bottom-nav__item:active,
 .fab:active {
   transform: scale(var(--yp-press-scale-nav, 0.96));
@@ -199,7 +202,7 @@
   transition-timing-function: var(--yp-ease-standard);
 }
 
-/* ★ v3.11.0 r3: Stable ripple-like feedback on press (visual only) */
+/* ★ v3.11.0-r5: Stable ripple-like feedback on press (visual only) */
 .yp-btn::after,
 .yp-event-card::after {
   content: '';
@@ -208,12 +211,12 @@
   border-radius: inherit;
   background: rgba(99, 102, 241, 0.04);
   opacity: 0;
-  transition: opacity 180ms var(--yp-ease-standard);  /* ★ v3.11.0 r3: Smoother ripple */
+  transition: opacity 180ms var(--yp-ease-standard);  /* ★ v3.11.0-r5: Smoother ripple */
   pointer-events: none;
 }
 
 .yp-btn:active::after,
 .yp-event-card:active::after {
   opacity: 1;
-  transition-duration: 100ms;  /* ★ v3.11.0 r3: Slightly slower ripple in */
+  transition-duration: 100ms;  /* ★ v3.11.0-r5: Slightly slower ripple in */
 }

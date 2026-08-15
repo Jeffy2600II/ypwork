@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card + Page Container + Date Badge — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Event Card + Page Container + Date Badge — v3.11.0-r5 (Modular CSS Refactor)
    ★ r68: ขยาย icon กลับ 42×42 (จาก 38) และ svg 20×20 ให้สมดุลกับ type scale ใหม่
      ปรับ date badge และ chip ขนาดเล็กให้อ่านง่ายขึ้น (10px จาก 9.5px)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -169,7 +169,7 @@
    ให้สมดุลกับ type scale ใหม่ */
 .yp-event-card__date-badge {
   display: inline-block;
-  font-size: 9.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   font-weight: var(--yp-fw-bold);
   padding: 2px 7px;
   border-radius: var(--yp-radius-pill);
@@ -234,7 +234,7 @@
    ★ r64: ลด padding 2px 8px → 1px 7px, font-size 10px → 9.5px, gap 4px → 3px */
 .yp-chip--sm {
   padding: 1px 7px;
-  font-size: 9.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   gap: 3px;
 }
 
@@ -253,7 +253,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Event Card Stability & Consistency
+   ★ v3.11.0-r5: Event Card Stability & Consistency
    ═══════════════════════════════════════════════════════════════ */
 
 /* Consistent transition — same timing as all other cards */
@@ -263,7 +263,7 @@
   transition-timing-function: var(--yp-ease-standard);
 }
 
-/* ★ v3.11.0 r2: Stable hover — NO translateY, just shadow + border (user preference) */
+/* ★ v3.11.0-r5: Stable hover — NO translateY, just shadow + border (user preference) */
 @media (hover: hover) and (pointer: fine) {
   .yp-event-card:hover {
     box-shadow: var(--yp-shadow-md);
@@ -277,7 +277,7 @@
   transition-duration: 150ms;
 }
 
-/* ★ v3.11.0 r2: Event card meta consistency — all meta items same treatment */
+/* ★ v3.11.0-r5: Event card meta consistency — all meta items same treatment */
 .yp-event-card__meta-item {
   transition: color 200ms var(--yp-ease-standard);
 }

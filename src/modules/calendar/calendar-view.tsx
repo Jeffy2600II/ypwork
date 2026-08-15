@@ -193,18 +193,18 @@ export function CalendarView({
 
       {/* ── CALENDAR VIEW ── */}
       {viewMode === 'calendar' ? (
-        <div className="yp-cal-grid-v2">
+        <div className="yp-cal-grid">
           {/* Weekday headers */}
-          <div className="yp-cal-weekdays-v2">
+          <div className="yp-cal-weekdays">
             {THAI_DAYS_SHORT.map((d, i) => (
-              <div key={d} className={`yp-cal-weekday-v2${i === 0 || i === 6 ? ' is-weekend' : ''}`}>
+              <div key={d} className={`yp-cal-weekday${i === 0 || i === 6 ? ' is-weekend' : ''}`}>
                 {d}
               </div>
             ))}
           </div>
 
           {/* Day grid */}
-          <div className="yp-cal-days-v2">
+          <div className="yp-cal-days">
             {cells.map((c) => {
               const dayEvents = eventsByDate.get(c.dateStr) || [];
               const isTodayCell = c.dateStr === todayStr;
@@ -212,7 +212,7 @@ export function CalendarView({
               const isWeekend = c.weekday === 0 || c.weekday === 6;
 
               const classes = [
-                'yp-cal-day-v2',
+                'yp-cal-day',
                 c.other ? 'is-other' : '',
                 isTodayCell ? 'is-today' : '',
                 isWeekend && !c.other ? 'is-weekend' : '',
@@ -227,18 +227,18 @@ export function CalendarView({
 
               const content = (
                 <>
-                  <span className="yp-cal-day-v2__num">{c.day}</span>
+                  <span className="yp-cal-day__num">{c.day}</span>
                   {hasEvents ? (
-                    <span className="yp-cal-day-v2__dots">
+                    <span className="yp-cal-day__dots">
                       {dayEvents.slice(0, 3).map((ev) => (
                         <span
                           key={ev.id}
-                          className="yp-cal-day-v2__dot"
+                          className="yp-cal-day__dot"
                           style={{ background: ev.color || '#4F46E5' }}
                         />
                       ))}
                       {dayEvents.length > 3 ? (
-                        <span className="yp-cal-day-v2__more">+{dayEvents.length - 3}</span>
+                        <span className="yp-cal-day__more">+{dayEvents.length - 3}</span>
                       ) : null}
                     </span>
                   ) : null}
@@ -278,7 +278,7 @@ export function CalendarView({
         </div>
       ) : (
         /* ── LIST VIEW — grouped by day, compact ── */
-        <div className="yp-cal-list-v2">
+        <div className="yp-cal-list">
           {/* ★ v3.9.4: Month summary header — แสดงจำนวนรายการทั้งเดือน */}
           <div className="yp-cal-list-summary">
             <span className="yp-cal-list-summary__label">รายการในเดือนนี้</span>
@@ -286,7 +286,7 @@ export function CalendarView({
           </div>
 
           {eventsByDay.length === 0 ? (
-            <div className="yp-cal-list-v2__empty">
+            <div className="yp-cal-list__empty">
               <Calendar width={28} height={28} strokeWidth={1.5} />
               <span>ยังไม่มีรายการในเดือนนี้</span>
             </div>

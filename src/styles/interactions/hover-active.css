@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover & Active Micro-Interactions (r21) — v3.11.0-r3 (Modular CSS Refactor)
+   YP WORK · Hover & Active Micro-Interactions (r21) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -9,7 +9,7 @@
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
 /* ═══════════════════════════════════════════════════════════════
-   HOVER & ACTIVE STATES (v3.11.0-r3 — micro-interactions restored)
+   HOVER & ACTIVE STATES (v3.11.0-r5 — micro-interactions restored)
    ═══════════════════════════════════════════════════════════════
    ★ r21: คืนค่า hover/active micro-interactions — ลบ transform:none
    Hover = state layer (bg/shadow/border) + subtle transform
@@ -50,7 +50,7 @@
 /* ── Ghost button: hover = subtle bg tint, NO motion ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-btn--ghost:hover:not(:disabled) {
-    background: var(--yp-tint-v392-hover);
+    background: var(--yp-tint-hover);
     color: var(--yp-text-strong);
   }
 }
@@ -62,8 +62,8 @@
 /* ── Card hover: NO translateY, just shadow + border ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-card:hover {
-    box-shadow: var(--yp-shadow-md-v39);
-    border-color: var(--yp-border-v39-default);
+    box-shadow: var(--yp-shadow-md);
+    border-color: var(--yp-border-default);
   }
 }
 
@@ -89,8 +89,8 @@
 /* ── Stat card hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-stat:hover {
-    box-shadow: var(--yp-shadow-sm-v39);
-    border-color: var(--yp-border-v39-default);
+    box-shadow: var(--yp-shadow-sm);
+    border-color: var(--yp-border-default);
   }
 }
 
@@ -112,7 +112,7 @@
 }
 
 .yp-color-option:hover {
-  background: var(--yp-tint-v392-hover);
+  background: var(--yp-tint-hover);
 }
 
 
@@ -128,9 +128,9 @@
 /* ── Type option hover: NO translateY ── */
 @media (hover: hover) and (pointer: fine) {
   .yp-type-option:hover {
-    background: var(--yp-tint-v392-hover);
-    border-color: var(--yp-border-v39-default);
-    box-shadow: var(--yp-shadow-xs-v39);
+    background: var(--yp-tint-hover);
+    border-color: var(--yp-border-default);
+    box-shadow: var(--yp-shadow-xs);
   }
   .yp-type-option.is-selected {
     box-shadow:
@@ -151,7 +151,7 @@
 /* ── Bottom nav items: hover = bg tint, NO motion ── */
 @media (hover: hover) and (pointer: fine) {
   .bottom-nav__item:not(.is-active):hover .bottom-nav__icon {
-    background: var(--yp-tint-v392-hover);
+    background: var(--yp-tint-hover);
   }
   .bottom-nav__item:not(.is-active):hover .bottom-nav__icon svg {
     color: var(--yp-text-secondary);
@@ -161,12 +161,12 @@
 /* ── Profile action: hover = bg tint, NO motion ── */
 .yp-profile-action:hover,
 .yp-profile-id__reveal:hover {
-  background: var(--yp-tint-v392-hover);
+  background: var(--yp-tint-hover);
 }
 
 .yp-info-btn:hover,
 .yp-info-btn:focus-visible {
-  background: var(--yp-info-btn-v392-hover);
+  background: var(--yp-info-btn-hover);
   border-color: rgba(99, 102, 241, 0.32);
   outline: none;
 }
@@ -235,8 +235,8 @@
   /* Pill shape (matches our identity) */
   border-radius: var(--yp-radius-pill);
   /* Calmer background — less indigo */
-  background: var(--yp-info-btn-v392-bg);
-  border: 1px solid var(--yp-info-btn-v392-border);
+  background: var(--yp-info-btn-bg);
+  border: 1px solid var(--yp-info-btn-border);
   color: var(--yp-indigo-500, #6366F1);
   cursor: pointer;
   padding: 0;
@@ -357,7 +357,7 @@
   width: 100%;
   max-width: 480px;
   max-height: 92vh;
-  background: var(--yp-info-sheet-v392-bg);
+  background: var(--yp-info-sheet-bg);
   /* Higher radius — matches YP identity */
   border-radius: 28px 28px 0 0;
   /* ★ r56: ลด sheet shadow ลง ~40% ให้ sheet ดูเบา ไม่ฟุ้ง */
@@ -410,7 +410,7 @@
   align-items: center;
   gap: 14px;
   padding: 4px 44px 16px 0;
-  border-bottom: 1px solid var(--yp-info-sheet-v392-border);
+  border-bottom: 1px solid var(--yp-info-sheet-border);
   margin-bottom: 18px;
 }
 
@@ -523,7 +523,7 @@
 .yp-info-callout {
   margin: 14px 0;
   padding: 14px 16px;
-  border-radius: 16px;
+  border-radius: var(--yp-radius-md, 16px);  /* v3.11.0 r5: token-based */
   border-left: 3px solid;
   font-size: 0.88rem;
   line-height: 1.65;
@@ -535,7 +535,7 @@
   background: rgba(99, 102, 241, 0.06);
   color: var(--yp-indigo-600, #4F46E5);
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
   font-size: 0.86em;
 }
 
@@ -546,7 +546,7 @@
   background: rgba(99, 102, 241, 0.08);
   color: var(--yp-indigo-700, #4338CA);
   border-radius: var(--yp-radius-pill);
-  font-size: 0.80em;
+  font-size: var(--yp-text-xs);  /* v3.11.0-r5: token */
   font-weight: 600;
   line-height: 1.6;
   letter-spacing: 0.01em;
@@ -583,11 +583,12 @@ body {
 
 
 .yp-card {
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-v39-subtle);
-  border-radius: var(--yp-radius-lg);
+  /* v3.11.0 r5: Premium card — gradient bg, higher radius, visible shadow */
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-xl);
   padding: var(--yp-card-pad-lg);
-  box-shadow: var(--yp-shadow-sm-v39);
+  box-shadow: var(--yp-shadow-md);
   /* Calmer hover — less movement */
   transition:
     transform 220ms var(--yp-ease-m3-standard),
@@ -596,7 +597,7 @@ body {
     background-color 220ms var(--yp-ease-m3-standard);
   position: relative;
   will-change: transform, box-shadow;
-  animation: yp-card-in-v39 280ms var(--yp-ease-m3-emphasized) both;
+  animation: yp-card-in 280ms var(--yp-ease-m3-emphasized) both;
 }
 
 
@@ -627,19 +628,19 @@ body {
 
 .yp-btn:active:not(:disabled) {
   transform: scale(var(--yp-press-scale-btn, 0.97));
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer press */
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer press */
 }
 
 
 .yp-card:active {
   transform: scale(var(--yp-press-scale, 0.98));
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 
 .yp-event-card:active {
   transform: scale(var(--yp-press-scale, 0.98));
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 
@@ -650,18 +651,18 @@ body {
   transform: scale(var(--yp-press-scale, 0.98));
   background: var(--yp-bg-card-soft);
   transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel),
-              background var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+              background var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 .yp-stat:active {
   transform: scale(var(--yp-press-scale, 0.98));
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 
 .fab:active {
   transform: translate3d(0, 0, 0) scale(0.97);
-  box-shadow: var(--yp-fab-shadow-press-v39);
+  box-shadow: var(--yp-fab-shadow-press);
   transition:
     transform 150ms var(--yp-ease-m3-standard),
     box-shadow 100ms var(--yp-ease-m3-standard);
@@ -677,14 +678,14 @@ body {
 
 .bottom-nav__item:active .bottom-nav__icon {
   transform: scale(var(--yp-press-scale, 0.98));
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 
 .yp-info-btn:active {
   transform: scale(var(--yp-press-scale, 0.98));
-  background: var(--yp-info-btn-v392-active);
-  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Softer */
+  background: var(--yp-info-btn-active);
+  transition: transform var(--yp-press-duration, 220ms) var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Softer */
 }
 
 

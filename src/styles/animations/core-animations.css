@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Core Animations (hero-enter, page-in, title-swap) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Core Animations (hero-enter, page-in, title-swap) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -11,13 +11,13 @@
 /* ═══════════════════════════════════════════════════════════════
    ANIMATIONS
    ═══════════════════════════════════════════════════════════════ */
-/* ★ v3.11.0 r2: Smoother hero entrance — less travel, more stable */
+/* ★ v3.11.0-r5: Smoother hero entrance — less travel, more stable */
 @keyframes yp-hero-enter {
   from { opacity: 0; transform: translateY(8px) scale(0.99); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ★ v3.11.0 r2: Smoother page entrance — subtle, stable */
+/* ★ v3.11.0-r5: Smoother page entrance — subtle, stable */
 @keyframes yp-page-in {
   from { opacity: 0; transform: translateY(6px) scale(0.995); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -32,7 +32,7 @@
   animation: yp-hero-enter var(--yp-hero-enter) both;
 }
 
-/* ★ v3.11.0 r2: Reduced motion — respect user preferences for stability */
+/* ★ v3.11.0-r5: Reduced motion — respect user preferences for stability */
 @media (prefers-reduced-motion: reduce) {
   .yp-hero-enter,
   .yp-page-enter {

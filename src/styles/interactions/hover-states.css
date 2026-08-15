@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Hover States (pointer:fine) — v3.11.0-r2
-   ★ r70: ลด hover lift — FAB ใช้ scale เล็ก แทน translateY — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Hover States (pointer:fine) — v3.11.0-r5
+   ★ r70: ลด hover lift — FAB ใช้ scale เล็ก แทน translateY — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -12,7 +12,7 @@
 @media (hover: hover) and (pointer: fine) {
   .fab:hover {
     transform: scale(1.02);
-    box-shadow: var(--yp-fab-shadow-hover-v39);
+    box-shadow: var(--yp-fab-shadow-hover);
     border-color: rgba(255, 255, 255, 0.20);
   }
   .fab:hover::before {
@@ -61,11 +61,11 @@
 
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Unified Hover States — stable, consistent, no lift
+   ★ v3.11.0-r5: Unified Hover States — stable, consistent, no lift
    หลักการ: hover ไม่ยกการ์ด/องค์ประกอบ — ใช้ background tint + border แทน
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: hover) and (pointer: fine) {
-  /* ★ v3.11.0 r2: Card hover — NO translateY, just shadow + border (user preference) */
+  /* ★ v3.11.0-r5: Card hover — NO translateY, just shadow + border (user preference) */
   .yp-card:hover,
   .yp-event-card:hover,
   .yp-stat:hover {
@@ -117,18 +117,18 @@
   }
 }
 
-/* ★ v3.11.0 r2: Press feedback — unified across all interactive elements */
+/* ★ v3.11.0-r5: Press feedback — unified across all interactive elements */
 .yp-btn:active,
 .yp-event-card:active,
 .yp-stat:active,
 .yp-task-filter__btn:active,
 .yp-events-filter__btn:active {
-  transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0 r3 */
+  transform: scale(var(--yp-press-scale, 0.98));  /* ★ v3.11.0-r5 */
   transition-duration: var(--yp-press-duration, 220ms);
 }
 
 /* Nav press — slightly different, more subtle */
 .bottom-nav__item:active {
-  transform: scale(var(--yp-press-scale-nav, 0.96));  /* ★ v3.11.0 r3 */
+  transform: scale(var(--yp-press-scale-nav, 0.96));  /* ★ v3.11.0-r5 */
   transition-duration: var(--yp-press-duration, 220ms);
 }

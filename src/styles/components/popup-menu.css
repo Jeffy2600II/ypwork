@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Popup Menu (3-Dot Menu Button) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Popup Menu (3-Dot Menu Button) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -19,18 +19,17 @@
   top: calc(18px + 24px + 4px);
   right: 18px;
   min-width: 180px;
-  background: var(--yp-bg-card);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-md);
-  /* ★ r56: ลด popup menu shadow ลง ~50% */
-  box-shadow: 0 2px 8px rgba(30, 27, 70, 0.06), 0 1px 2px rgba(30, 27, 70, 0.04);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5: Premium gradient */
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-lg, 20px);
+  box-shadow: var(--yp-shadow-lg);  /* v3.11.0 r5: Visible elevated shadow */
   padding: 4px;
   z-index: 4;
   transform-origin: top right;
   animation: yp-today-popup-enter 180ms var(--yp-ease-emphasized-decel);
 }
 
-/* ★ v3.11.0 r2: Smoother popup entrance — subtle, premium, no jank */
+/* ★ v3.11.0-r5: Smoother popup entrance — subtle, premium, no jank */
 @keyframes yp-today-popup-enter {
   from {
     opacity: 0;
@@ -42,7 +41,7 @@
   }
 }
 
-/* ★ v3.11.0 r2: Add exit animation for dropdown — premium close behavior */
+/* ★ v3.11.0-r5: Add exit animation for dropdown — premium close behavior */
 @keyframes yp-today-popup-exit {
   from {
     opacity: 1;

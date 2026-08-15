@@ -1,9 +1,9 @@
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Status Chips (Planning/Todo/Ongoing/Done/Overdue) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Status Chips (Planning/Todo/Ongoing/Done/Overdue) — v3.11.0-r5 (Modular CSS Refactor)
    ★ r65: ลด alpha ของ chip backgrounds และ borders ลง ~15% — chip soft ขึ้น
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -28,7 +28,7 @@
     letter-spacing: 0.02em;
     border: 1px solid transparent;
   
-  /* ★ v3.11.0 r2: Consistent chip transitions — smooth, stable */
+  /* ★ v3.11.0-r5: Consistent chip transitions — smooth, stable */
   .yp-chip {
     transition: background-color 180ms var(--yp-ease-standard),
                 border-color 180ms var(--yp-ease-standard),
@@ -66,7 +66,7 @@
     border-color: rgba(244, 63, 94, 0.26);
   }
 
-  /* ★ v3.11.0 r2: Consistent chip transitions — smooth, stable */
+  /* ★ v3.11.0-r5: Consistent chip transitions — smooth, stable */
   .yp-chip {
     transition: background-color 180ms var(--yp-ease-standard),
                 border-color 180ms var(--yp-ease-standard),

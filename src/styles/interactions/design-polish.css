@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Polish v3.5.0 (Top Bar, FAB Hover, Nav Loading) — v3.11.0-r3 (Modular CSS Refactor)
+   YP WORK · Design Polish v3.5.0 (Top Bar, FAB Hover, Nav Loading) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -76,7 +76,7 @@
   }
 
   .top-bar__avatar {
-    /* ★ v3.11.0 r3: Smoother transition */
+    /* ★ v3.11.0-r5: Smoother transition */
     transition: transform 260ms var(--yp-ease-emphasized-decel);
   }
 

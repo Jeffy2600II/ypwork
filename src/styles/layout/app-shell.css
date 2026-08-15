@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.11.0-r3 (Modular CSS Refactor)
+   YP WORK · App Shell Layout (Shell, Top Bar, Bottom Nav, Desktop Rail) — v3.11.0-r5 (Modular CSS Refactor)
    ★ r68: ปรับ nav label และ avatar ให้สมดุลกับ type scale ใหม่ที่ใหญ่ขึ้น
      ปรับ motion tokens ให้ snappier (180ms polish, 100ms press)
    ★ r65: สืบทอด soft feel จาก tokens ที่ลด shadow ลงอีก — app-shell ใช้
      var(--yp-shadow-sm) ที่ปรับใน tokens อยู่แล้ว ไม่ต้องแก้ที่นี่
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -25,6 +25,13 @@
   --yp-top-to: #7C3AED;
   --yp-top-accent: #4F46E5;
   --yp-top-transition: 420ms var(--yp-ease-emphasized);
+}
+
+/* ★ v3.11.0 r5: Glass effect for top bar */
+.top-bar {
+  background: rgba(255, 255, 255, 0.82); /* v3.11.0 r5: Glass effect */
+  backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
+  -webkit-backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
 }
 
 .app-main:has(~ .bottom-nav.is-hidden) {
@@ -51,7 +58,7 @@
 }
 
 .top-bar__back:hover {
-  /* ★ v3.11.0 r3: Smoother hover — softer tint */
+  /* ★ v3.11.0-r5: Smoother hover — softer tint */
   background: color-mix(in srgb, var(--yp-top-accent) 8%, transparent);
   color: var(--yp-top-accent);
   transform: scale(1.04);
@@ -61,7 +68,7 @@
 }
 
 .top-bar__title {
-  /* ★ v3.11.0 r3: Larger, more readable title — 15px, better letter-spacing
+  /* ★ v3.11.0-r5: Larger, more readable title — 15px, better letter-spacing
      ก่อนหน้านี้ 13px เล็กเกินไป อ่านยาก ปรับเป็น 15px สมดุลกับ mobile header มาตรฐาน */
   font-size: var(--yp-text-base, 0.9375rem);
   font-weight: var(--yp-fw-bold);
@@ -84,7 +91,7 @@
 }
 
 .top-bar__back svg {
-  /* ★ v3.11.0 r3: 20×20 — standard touch target, not too small */
+  /* ★ v3.11.0-r5: 20×20 — standard touch target, not too small */
   width: 20px;
   height: 20px;
   stroke: currentColor;
@@ -114,7 +121,7 @@
 }
 
 .top-bar__avatar {
-  /* ★ v3.11.0 r3: 32×32 — standard avatar size, better visual balance */
+  /* ★ v3.11.0-r5: 32×32 — standard avatar size, better visual balance */
   width: 32px; height: 32px;
   border-radius: var(--yp-radius-pill);
   display: block;
@@ -128,7 +135,7 @@
 }
 
 .top-bar__avatar:hover {
-  /* ★ v3.11.0 r3: Smoother hover */
+  /* ★ v3.11.0-r5: Smoother hover */
   transform: scale(1.04);
   transition: transform 260ms var(--yp-ease-emphasized-decel);
 }
@@ -150,7 +157,7 @@
 @media (min-width: 900px) {
   :root {
     /* ★ r64: ลดจาก 56px → 50px — desktop top bar ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
-    --yp-nav-top-h: 52px;  /* ★ v3.11.0 r3: Slightly taller for larger title text */
+    --yp-nav-top-h: 52px;  /* ★ v3.11.0-r5: Slightly taller for larger title text */
     /* ★ v3.9.7: เปิด left-rail บน desktop — ความกว้าง 96px */
     --yp-left-rail-width: 96px;
   }
@@ -197,13 +204,13 @@
     padding: 12px 0;
     min-width: 0;
     border-radius: var(--yp-radius-md, 14px);
-    /* ★ v3.11.0 r3: Smoother transition */
+    /* ★ v3.11.0-r5: Smoother transition */
     transition: background 260ms var(--yp-ease-emphasized-decel),
                 color 260ms var(--yp-ease-emphasized-decel);
   }
 
   .bottom-nav__item:hover {
-    /* ★ v3.11.0 r3: Subtler hover */
+    /* ★ v3.11.0-r5: Subtler hover */
     background: rgba(99, 102, 241, 0.05);
     color: var(--yp-indigo-500);
   }
@@ -214,7 +221,7 @@
   }
 
   .bottom-nav__label {
-    /* ★ v3.11.0 r3: 11.5px — slightly larger for readability */
+    /* ★ v3.11.0-r5: 11.5px — slightly larger for readability */
     font-size: 11.5px;
     text-align: center;
     line-height: 1;
@@ -238,7 +245,7 @@
     height: 28px;
     border-radius: 0 3px 3px 0;
     background: var(--yp-indigo-600);
-    transition: height 260ms var(--yp-ease-emphasized-decel);  /* ★ v3.11.0 r3: Smooth indicator */
+    transition: height 260ms var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Smooth indicator */
   }
 
   .fab {
@@ -267,7 +274,7 @@
   }
 
   .bottom-nav__label {
-    /* ★ v3.11.0 r3: 12px — standard desktop label */
+    /* ★ v3.11.0-r5: 12px — standard desktop label */
     font-size: 12px;
   }
 
@@ -304,7 +311,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r3: App Shell Consistency
+   ★ v3.11.0-r5: App Shell Consistency
    ═══════════════════════════════════════════════════════════════ */
 
 /* Smooth main content area transitions */

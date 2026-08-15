@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Pages (Type/Color Picker Modal, Form Card) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Form Pages (Type/Color Picker Modal, Form Card) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -307,7 +307,7 @@
   flex-wrap: wrap;
 }
 
-/* ★ v3.11.0 r2: Form page consistency — stable transitions */
+/* ★ v3.11.0-r5: Form page consistency — stable transitions */
 .yp-form-card,
 .yp-type-option,
 .yp-color-option {

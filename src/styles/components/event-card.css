@@ -2,7 +2,7 @@
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -13,13 +13,12 @@
      ★ v3.9.3: Premium card — accent-tinted with subtle pattern overlay ── */
   .yp-event-card {
     display: block;
-    /* ★ v3.9.3: Layered background — soft accent wash + base card color
-       ทำให้การ์ดมี "characteristic" ที่สัมพันธ์กับ accent ของงาน */
+    /* v3.11.0 r5: Premium card — accent wash + gradient base */
     background:
       radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent) 0%, transparent 50%),
-      var(--yp-bg-card);
-    border: 1px solid var(--yp-border-subtle);
-    border-radius: var(--yp-radius-lg);     /* v3.9.3: md → lg สำหรับการ์ดที่โค้งมนกว่า */
+      linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);
+    border: 1px solid var(--yp-border-default);
+    border-radius: var(--yp-radius-xl);     /* v3.11.0 r5: Premium radius */
     padding: var(--yp-space-6) var(--yp-space-5);
     cursor: pointer;
     transition:
@@ -29,9 +28,7 @@
       transform 180ms var(--yp-ease-standard);
     position: relative;
     overflow: hidden;
-    /* ★ r56: ลด base shadow ลง ~50% ให้การ์ดดูสะอาด ไม่ฟุ้ง */
-    box-shadow:
-      0 1px 2px rgba(30, 27, 70, 0.03);
+    box-shadow: var(--yp-shadow-sm);  /* v3.11.0 r5: Visible but clean */
     -webkit-tap-highlight-color: transparent;
   }
 

@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · App-like UX & Micro-Polish — v3.11.0-r2
+   YP WORK · App-like UX & Micro-Polish — v3.11.0-r5
    ★ r68: Refined app interactions, focus feedback, network status,
      and touch behavior driven by Design Tokens.
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
 
    ★ This file is part of the YP Work Design Library system.
@@ -117,7 +117,7 @@ button[class*='yp-']:focus-visible {
 }
 
 /* ── PAGE TRANSITIONS & ANIMATIONS ── */
-@keyframes yp-page-fade-in-v3 {
+@keyframes yp-page-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
@@ -174,7 +174,7 @@ img,
 
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Platform Stability & Consistency
+   ★ v3.11.0-r5: Platform Stability & Consistency
    มาตรฐานเดียวกันทั่วทั้งเว็บ — อ้างอิง Android Material 3 + iOS HIG
    ═══════════════════════════════════════════════════════════════ */
 

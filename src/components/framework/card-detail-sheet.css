@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    YP WORK · Card Detail Sheet (r44 Bottom Sheet Content) — v3.10.0-r56 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -498,7 +498,7 @@
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  font-size: 11px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
   margin-right: -2px;
 }
 .yp-task-row__chip--due .yp-task-row__chip-label { color: var(--yp-text-muted); }

@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Accessibility — prefers-reduced-motion (WCAG 2.2) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Accessibility — prefers-reduced-motion (WCAG 2.2) — v3.11.0-r5 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -80,7 +80,7 @@
      จากค่า default ของ .yp-page ใหม่ที่เรากำหนด
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r2: Consistent Focus Rings — stable, accessible, modern
+   ★ v3.11.0-r5: Consistent Focus Rings — stable, accessible, modern
    ทุก interactive element มี focus ring ที่สม่ำเสมอกัน
    ═══════════════════════════════════════════════════════════════ */
 
@@ -108,7 +108,7 @@
   outline-offset: 2px;
 }
 
-/* ★ v3.11.0 r2: Smooth scroll behavior — stable scrolling */
+/* ★ v3.11.0-r5: Smooth scroll behavior — stable scrolling */
 html {
   scroll-behavior: smooth;
 }

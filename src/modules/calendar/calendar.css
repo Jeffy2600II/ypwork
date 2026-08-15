@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Calendar Module (Grid View, List View) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Calendar Module (Grid View, List View) — v3.11.0-r5 (Modular CSS Refactor)
    ★ r65: soft shadows + soft view toggle active state — เน้น soft ตามแนวทางรอบ 65
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -82,7 +82,7 @@
 
 .yp-cal-nav-btn {
   width: 36px; height: 36px;
-  border-radius: var(--yp-radius-xs);
+  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   color: var(--yp-text-body);
@@ -105,7 +105,7 @@
 .yp-cal-today-btn {
   /* ★ r64: ลด padding 8px 16px → 6px 13px — today button ที่เล็กลง */
   padding: 6px 13px;
-  border-radius: var(--yp-radius-xs);
+  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   color: var(--yp-text-body);
@@ -132,19 +132,17 @@
    - Cells ภายในใช้รัศมีน้อย (8px) ตามมาตรฐาน calendar
    - สัดส่วนที่สมดุล ไม่แน่นเกินไป
    ═══════════════════════════════════════════════════════════════ */
-.yp-cal-grid-v2 {
+.yp-cal-grid {
+  /* v3.11.0 r5: Premium calendar grid */
   background:
-    linear-gradient(180deg, var(--yp-bg-card) 0%, var(--yp-bg-card-soft) 100%);
-  border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
+    linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);
+  border: 1px solid var(--yp-border-default);
+  border-radius: var(--yp-radius-xl);
   /* ★ v3.9.5: ลด horizontal padding บนมือถือ (0.75rem → 0.5rem)
      เพื่อให้ cells มีพื้นที่มากขึ้น และลดโอกาส overflow */
   padding: var(--yp-space-4) var(--yp-space-2) var(--yp-space-3);
   /* ★ r56: ลด calendar grid shadow ลง ~50% ทำให้ดูเบา ไม่ฟุ้ง */
-  box-shadow:
-    0 1px 2px rgba(30, 27, 70, 0.03),
-    0 1px 4px rgba(30, 27, 70, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  box-shadow: var(--yp-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.80);
   /* ★ v3.9.5: ป้องกัน grid overflow บนมือถือ
      - max-width: 100% กัน container กว้างเกิน parent
      - overflow: hidden เป็น safety net (clip ถ้ามี content ล้น)
@@ -155,12 +153,12 @@
 }
 
 @media (min-width: 640px) {
-  .yp-cal-grid-v2 {
+  .yp-cal-grid {
     padding: var(--yp-space-4) var(--yp-space-3) var(--yp-space-3);
   }
 }
 
-.yp-cal-weekdays-v2 {
+.yp-cal-weekdays {
   display: grid;
   /* ★ v3.9.5: minmax(0, 1fr) แทน 1fr — ป้องกัน grid overflow บนมือถือ
      1fr เดิม = minmax(auto, 1fr) ซึ่งทำให้คอลัมน์ขยายตามเนื้อหา
@@ -171,7 +169,7 @@
   border-bottom: 1px solid var(--yp-border-subtle);
 }
 
-.yp-cal-weekday-v2 {
+.yp-cal-weekday {
   /* ★ v3.9.5: min-width: 0 + overflow hidden กัน content ผลัก grid ให้กว้างเกิน */
   min-width: 0;
   overflow: hidden;
@@ -180,16 +178,16 @@
   padding: var(--yp-space-2) 0;
   text-align: center;
   /* ★ r64: ลดจาก 11px → 10.5px — weekday header ที่เล็กลง */
-  font-size: 10.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-.yp-cal-weekday-v2.is-weekend { color: var(--yp-rose-400); }
+.yp-cal-weekday.is-weekend { color: var(--yp-rose-400); }
 
-.yp-cal-days-v2 {
+.yp-cal-days {
   display: grid;
   /* ★ v3.9.5: minmax(0, 1fr) แทน 1fr — ป้องกัน grid overflow บนมือถือ */
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -200,12 +198,12 @@
    ใช้รัศมี 10px ที่น้อยกว่า container เพราะ calendar cells
    ไม่จำเป็นต้องโค้งมนมาก — มาตรฐาน Apple/Google ใช้ 8-12px
    ★ v3.9.5: min-width: 0 + overflow hidden — กัน cell content ผลัก grid overflow */
-.yp-cal-day-v2 {
+.yp-cal-day {
   aspect-ratio: 1 / 1;
   min-height: 44px;
   min-width: 0;           /* ★ v3.9.5: อนุญาตให้แคบลงต่ำกว่า min-content */
   padding: 5px 3px;
-  border-radius: 10px;
+  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: token-based */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -221,43 +219,43 @@
 }
 
 @media (min-width: 640px) {
-  .yp-cal-day-v2 {
+  .yp-cal-day {
     min-height: 60px;
     padding: 8px 6px;
     gap: 4px;
   }
 }
 
-.yp-cal-day-v2:hover { background: var(--yp-bg-card-soft); }
-.yp-cal-day-v2.is-other { opacity: 0.35; }
-.yp-cal-day-v2.is-other:hover { background: transparent; }
-.yp-cal-day-v2.is-weekend .yp-cal-day-v2__num { color: var(--yp-rose-400); }
+.yp-cal-day:hover { background: var(--yp-bg-card-soft); }
+.yp-cal-day.is-other { opacity: 0.35; }
+.yp-cal-day.is-other:hover { background: transparent; }
+.yp-cal-day.is-weekend .yp-cal-day__num { color: var(--yp-rose-400); }
 
 /* ★ v3.9.4: Today cell — Apple Calendar style
    solid indigo bg + white text ที่โดดเด่นชัดเจน
    ใช้ gradient เล็กน้อยเพื่อ depth
    ★ r56: ลด today cell shadow ลง ~55% */
-.yp-cal-day-v2.is-today {
+.yp-cal-day.is-today {
   background: linear-gradient(135deg, var(--yp-indigo-600) 0%, var(--yp-violet-600) 100%);
   box-shadow:
     0 2px 6px rgba(79, 70, 229, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
-.yp-cal-day-v2.is-today .yp-cal-day-v2__num {
+.yp-cal-day.is-today .yp-cal-day__num {
   color: white;
   font-weight: var(--yp-fw-extrabold);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
-.yp-cal-day-v2.is-today:hover {
+.yp-cal-day.is-today:hover {
   background: linear-gradient(135deg, var(--yp-indigo-700) 0%, var(--yp-violet-700) 100%);
   /* ★ v3.9.5: ลด scale จาก 1.02 เป็น 1.01 — กัน visual overflow บนมือถือ
      ที่ cell แคบ ๆ scale 1.02 ทำให้ขอบเลยกรอบ */
   transform: scale(1.01);
 }
 
-.yp-cal-day-v2__num {
+.yp-cal-day__num {
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-body);
@@ -267,12 +265,12 @@
 }
 
 @media (min-width: 640px) {
-  .yp-cal-day-v2__num {
+  .yp-cal-day__num {
     font-size: var(--yp-text-base);
   }
 }
 
-.yp-cal-day-v2__dots {
+.yp-cal-day__dots {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,20 +284,20 @@
 /* ★ v3.9.4: Event dots — ใหญ่ขึ้นเล็กน้อยเพื่อให้มองเห็นชัด
    ★ v3.9.5: เล็กลงบนมือถือ (5px) เพื่อประหยัดพื้นที่
    ★ r56: ลด dot shadow ลง ~50% */
-.yp-cal-day-v2__dot {
+.yp-cal-day__dot {
   width: 5px; height: 5px;
   border-radius: 50%;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--yp-shadow-xs);  /* v3.11.0 r5 */
   flex-shrink: 0;
 }
 
 @media (min-width: 640px) {
-  .yp-cal-day-v2__dot {
+  .yp-cal-day__dot {
     width: 6px; height: 6px;
   }
 }
 
-.yp-cal-day-v2__more {
+.yp-cal-day__more {
   font-size: 9px;
   color: var(--yp-text-faint);
   font-weight: var(--yp-fw-bold);
@@ -310,13 +308,13 @@
 
 /* ── Today dot color override ──
    ★ r56: ลด shadow ใน today dot ลง ~50% */
-.yp-cal-day-v2.is-today .yp-cal-day-v2__dot {
+.yp-cal-day.is-today .yp-cal-day__dot {
   background: white;
   opacity: 0.9;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.10);
 }
 
-.yp-cal-day-v2.is-today .yp-cal-day-v2__more {
+.yp-cal-day.is-today .yp-cal-day__more {
   color: rgba(255, 255, 255, 0.85);
 }
 
@@ -337,7 +335,7 @@
   align-items: center;
   gap: 5px;
   /* ★ r64: ลดจาก 11px → 10.5px — legend text ที่เล็กลง */
-  font-size: 10.5px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.01em;
@@ -347,7 +345,7 @@
   display: inline-block;
   width: 14px;
   height: 14px;
-  border-radius: 4px;
+  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
   border: 1px solid var(--yp-border-default);
 }
 
@@ -383,7 +381,7 @@
    - Day header ที่มี hierarchy ชัดเจน
    - Event items ที่อ่านง่าย สบายตา
    ═══════════════════════════════════════════════════════════════ */
-.yp-cal-list-v2 {
+.yp-cal-list {
   display: flex;
   flex-direction: column;
   gap: var(--yp-space-4);
@@ -424,7 +422,7 @@
   letter-spacing: -0.01em;
 }
 
-.yp-cal-list-v2__empty {
+.yp-cal-list__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -438,7 +436,7 @@
   border-radius: var(--yp-radius-lg);
 }
 
-.yp-cal-list-v2__empty svg {
+.yp-cal-list__empty svg {
   color: var(--yp-text-faint);
 }
 
@@ -457,7 +455,7 @@
   gap: var(--yp-space-3);
   padding: var(--yp-space-3) var(--yp-space-4);
   background: var(--yp-bg-card-soft);
-  border-radius: var(--yp-radius-xs);
+  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
   border: 1px solid var(--yp-border-subtle);
 }
 
@@ -505,7 +503,7 @@
 }
 
 .yp-cal-list-day__weekday-short {
-  font-size: 11px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   color: var(--yp-text-faint);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.04em;
@@ -523,7 +521,7 @@
   border-radius: var(--yp-radius-pill);
   background: var(--yp-indigo-600);
   color: white;
-  font-size: 10px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   font-weight: var(--yp-fw-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -564,7 +562,7 @@
   text-decoration: none;
   color: inherit;
   transition: background 150ms, transform 120ms, box-shadow 150ms;
-  border-radius: var(--yp-radius-xs);
+  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   -webkit-tap-highlight-color: transparent;
@@ -590,7 +588,7 @@
 .yp-cal-list-event__bar {
   width: 4px;
   align-self: stretch;
-  border-radius: 4px;
+  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
   background: var(--ev-color, #4F46E5);
   flex-shrink: 0;
   min-height: 36px;
@@ -628,7 +626,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--yp-text-2xs);  /* v3.11.0-r5: token */
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   line-height: 1.3;
@@ -647,7 +645,7 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ev-color, #4F46E5) 8%, transparent);
 }
 
-/* ★ v3.11.0 r2: Module consistency — same transition standard as platform */
+/* ★ v3.11.0-r5: Module consistency — same transition standard as platform */
 .yp-card,
 .yp-stat,
 [class*="__card"],

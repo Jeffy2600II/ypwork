@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Events List (Filter, Group) — v3.11.0-r2 (Modular CSS Refactor)
+   YP WORK · Events List (Filter, Group) — v3.11.0-r5 (Modular CSS Refactor)
    ★ r68: ปรับ group label จาก text-2xs (11px) เป็น text-xs (12px) ให้อ่านง่ายขึ้น
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css (12,263 lines) into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
    
    ★ This file is part of the YP Work Design Library system.
@@ -23,7 +23,7 @@
   overscroll-behavior-x: contain;
 }
 .yp-events-filter::-webkit-scrollbar { display: none; }
-/* ★ v3.11.0 r2: Consistent filter button transitions */
+/* ★ v3.11.0-r5: Consistent filter button transitions */
 .yp-events-filter__btn {
   transition: background-color 180ms var(--yp-ease-standard),
               border-color 180ms var(--yp-ease-standard),
@@ -37,7 +37,7 @@
   color: var(--yp-indigo-600);
 }
 
-/* ★ v3.11.0 r2: Press feedback — stable, consistent */
+/* ★ v3.11.0-r5: Press feedback — stable, consistent */
 .yp-events-filter__btn:active {
   transform: scale(0.97);
   transition-duration: 150ms;
@@ -47,7 +47,7 @@
   margin-bottom: var(--yp-space-7);
 }
 
-/* ★ v3.11.0 r2: Consistent group label — same treatment as section titles */
+/* ★ v3.11.0-r5: Consistent group label — same treatment as section titles */
 .yp-events-group__label {
   position: sticky;
   top: calc(var(--yp-nav-top-h) + var(--yp-safe-top));
@@ -61,14 +61,14 @@
   margin-bottom: var(--yp-space-4);
   z-index: 1;
   letter-spacing: 0.09em;
-  /* ★ v3.11.0 r2: Smooth transition for sticky state */
+  /* ★ v3.11.0-r5: Smooth transition for sticky state */
   transition: color 200ms var(--yp-ease-standard);
 }
 
 /* ═══════════════════════════════════════════════════════════════
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0 r1: Task Filter (event detail page)
+   ★ v3.11.0-r5: Task Filter (event detail page)
    ปุ่มกรองรายการย่อยตามช่วงเวลา (ทั้งหมด / เลยกำหนด / วันนี้ / กำลังจะถึง)
    ═══════════════════════════════════════════════════════════════ */
 .yp-task-filter {

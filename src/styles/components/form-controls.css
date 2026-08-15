@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.11.0-r2
+   YP WORK · Form Controls (Field, Input, Textarea, Select) — v3.11.0-r5
    ★ r68: Modernized form controls with unified soft token language:
      - Full token integration (--yp-input-*, --yp-radius-control, --yp-bg-card, --yp-border-*)
      - Soft focus glow (--yp-focus-ring) and subtle hover feedback
      - Consistent label, hint, and error states across all app screens
    ═══════════════════════════════════════════════════════════════
-   Extracted from globals.css into modular files
+   Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
 
    ★ This file is part of the YP Work Design Library system.
