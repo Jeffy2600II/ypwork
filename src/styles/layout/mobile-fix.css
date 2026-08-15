@@ -8,7 +8,7 @@
    ★ This file is part of the YP Work Design Library system.
    ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
-   ═══════════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════
    หมายเหตุ: การแก้ไขส่วนที่ 1 ทำใน @media (max-width: 899px) เพื่อจำกัดเฉพาะ
    มือถือ ส่วนการแก้ไขส่วนที่ 2 ทำแบบ global เพราะทุกขนาดหน้าจอต้องเว้นที่
    ให้ bottom-nav / left-rail

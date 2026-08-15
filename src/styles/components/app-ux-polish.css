@@ -223,7 +223,7 @@ img,
   color: var(--yp-indigo-700);
 }
 
-::moz-selection {
+::-moz-selection {
   background: rgba(99, 102, 241, 0.12);
   color: var(--yp-indigo-700);
 }
