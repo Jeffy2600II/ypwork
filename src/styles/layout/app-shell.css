@@ -203,7 +203,7 @@
     width: 100%;
     padding: 12px 0;
     min-width: 0;
-    border-radius: var(--yp-radius-md, 20px);
+    border-radius: var(--yp-radius-md, 38px);
     /* ★ v3.11.0-r5: Smoother transition */
     transition: background 260ms var(--yp-ease-emphasized-decel),
                 color 260ms var(--yp-ease-emphasized-decel);

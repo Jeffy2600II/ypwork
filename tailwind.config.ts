@@ -53,10 +53,13 @@ const config: Config = {
   			}
   		},
   		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
+			xs: 'var(--yp-radius-xs)',
+			sm: 'var(--yp-radius-sm)',
+			md: 'var(--yp-radius-md)',
+			lg: 'var(--yp-radius-lg)',
+			xl: 'var(--yp-radius-xl)',
+			'2xl': 'var(--yp-radius-2xl)'
+		}
   	}
   },
   plugins: [tailwindcssAnimate],

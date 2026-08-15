@@ -63,7 +63,7 @@ body.yp-sheet-open .fab {
   backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
   -webkit-backdrop-filter: blur(20px) saturate(180%); /* v3.11.0 r5: Glass effect */
   box-shadow: 0 -4px 24px rgba(30, 27, 70, 0.12), 0 0 0 1px rgba(30, 27, 70, 0.06); /* v3.11.0 r5: Glass effect */
-  border-radius: var(--yp-radius-xl, 32px); /* v3.11.0 r5: Glass effect */
+  border-radius: var(--yp-radius-xl, 66px); /* v3.11.0 r5: Glass effect */
   border: 1px solid rgba(255, 255, 255, 0.5); /* v3.11.0 r5: Glass effect */
   transition:
     transform 320ms var(--yp-ease-emphasized-decel),

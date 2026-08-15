@@ -136,7 +136,7 @@
   width: 100%;
   max-width: 560px;
   max-height: 92dvh;
-  border-radius: var(--yp-radius-lg, 24px) var(--yp-radius-lg, 24px) 0 0;
+  border-radius: var(--yp-radius-lg, 50px) var(--yp-radius-lg, 50px) 0 0;
   transform: translate3d(0, 100%, 0);
   /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--sheet ใน WINDOW TRANSITIONS) */
   /* ★ v3.7.9: Deeper layered shadow ที่ดูมีมิติ */
@@ -161,7 +161,7 @@
   width: 100%;
   max-width: 480px;
   max-height: 88dvh;
-  border-radius: var(--yp-radius-lg, 24px);
+  border-radius: var(--yp-radius-lg, 50px);
   transform: translate3d(0, 24px, 0) scale(0.94);
   opacity: 0;
   /* transition ประกาศรวมไว้ที่บล็อกท้ายไฟล์ (ดู .yp-window--modal ใน WINDOW TRANSITIONS) */

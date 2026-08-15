@@ -46,7 +46,7 @@
 .sheet {
   position: relative;
   background: var(--yp-bg-card, #fff);
-  border-radius: var(--yp-radius-2xl, 40px) var(--yp-radius-2xl, 40px) 0 0;
+  border-radius: var(--yp-radius-xl, 66px) var(--yp-radius-xl, 66px) 0 0;
   width: 100%;
   max-width: 560px;
   max-height: 92vh;
@@ -175,7 +175,7 @@
 .sheet__close {
   width: 36px;
   height: 36px;
-  border-radius: var(--yp-radius-sm, 16px);
+  border-radius: var(--yp-radius-sm, 28px);
   display: grid;
   place-items: center;
   background: var(--yp-bg-card-soft, #f5f4fb);
@@ -267,7 +267,7 @@
   }
 
   .sheet {
-    border-radius: var(--yp-radius-2xl, 40px);
+    border-radius: var(--yp-radius-xl, 66px);
     transform: translate3d(0, 20px, 0) scale(0.98);
     max-width: 520px;
   }
@@ -401,7 +401,7 @@
   height: 100dvh;
   max-height: 100vh;
   max-height: 100dvh;
-  border-radius: var(--yp-radius-lg, 24px) 0 0 var(--yp-radius-lg, 24px);
+  border-radius: var(--yp-radius-lg, 50px) 0 0 var(--yp-radius-lg, 50px);
   transform: translate3d(100%, 0, 0);
   transition: transform 340ms var(--yp-ease-emphasized-decel);
   /* ★ r70: Material 3 standard sheet timing */
@@ -412,7 +412,7 @@
 }
 
 .yp-window-root--sidepanel.is-side-left .yp-window--sidepanel {
-  border-radius: 0 var(--yp-radius-lg, 24px) var(--yp-radius-lg, 24px) 0;
+  border-radius: 0 var(--yp-radius-lg, 50px) var(--yp-radius-lg, 50px) 0;
   transform: translate3d(-100%, 0, 0);
   /* ★ r56: ลด side panel shadow ลง ~45% */
   box-shadow: 4px 0 18px rgba(15, 23, 42, 0.10);
@@ -502,7 +502,7 @@
 .yp-window__close {
   width: 36px;
   height: 36px;
-  border-radius: var(--yp-radius-sm, 16px);
+  border-radius: var(--yp-radius-sm, 28px);
   display: grid;
   place-items: center;
   background: var(--yp-bg-card-soft, #f5f4fb);
@@ -585,7 +585,7 @@
   }
 
   .yp-window--sheet.is-popup-mode {
-    border-radius: var(--yp-radius-lg, 24px);
+    border-radius: var(--yp-radius-lg, 50px);
     transform: translate3d(0, 24px, 0) scale(0.96);
     max-width: 560px;
     /* ★ r56: ลด popup shadow ลง ~45% */
@@ -618,8 +618,8 @@
   }
 
   .yp-window--sheet.is-popup-mode .yp-window__footer {
-    border-bottom-left-radius: var(--yp-radius-lg, 24px);
-    border-bottom-right-radius: var(--yp-radius-lg, 24px);
+    border-bottom-left-radius: var(--yp-radius-lg, 50px);
+    border-bottom-right-radius: var(--yp-radius-lg, 50px);
     padding-bottom: var(--yp-space-4, 16px);
   }
 

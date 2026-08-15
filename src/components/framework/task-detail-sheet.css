@@ -511,7 +511,7 @@
 .yp-help-section {
   background: var(--yp-bg-card-soft, #F8FAFC);
   border: 1px solid var(--yp-border, rgba(0,0,0,0.06));
-  border-radius: var(--yp-radius-md, 12px);
+  border-radius: var(--yp-radius-md, 38px);
   padding: 14px 16px;
 }
 

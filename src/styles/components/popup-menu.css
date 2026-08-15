@@ -21,7 +21,7 @@
   min-width: 180px;
   background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5: Premium gradient */
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-lg, 24px);
+  border-radius: var(--yp-radius-lg, 50px);
   box-shadow: var(--yp-shadow-lg);  /* v3.11.0 r5: Visible elevated shadow */
   padding: 4px;
   z-index: 4;
