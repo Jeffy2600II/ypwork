@@ -62,7 +62,7 @@
   width: 100%;
   padding: var(--yp-input-padding-y) var(--yp-input-padding-x);
   border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
-  border-radius: var(--yp-radius-control);
+  border-radius: var(--yp-radius-md);
   background: var(--yp-bg-card);
   font-family: inherit;
   font-size: var(--yp-input-font-size);
@@ -152,7 +152,7 @@
   display: flex;
   align-items: center;
   border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
-  border-radius: var(--yp-radius-control);
+  border-radius: var(--yp-radius-md);
   background: var(--yp-bg-card);
   overflow: hidden;
   transition: border-color 180ms var(--yp-ease-standard), box-shadow 180ms var(--yp-ease-standard);

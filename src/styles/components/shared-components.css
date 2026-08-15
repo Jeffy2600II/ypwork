@@ -38,8 +38,8 @@
 /* ★ v3.7.10: Chubby icon — bigger, more rounded, centered
    ★ v3.9.3: More rounded (var instead of 12px fixed) */
 .yp-stat__icon {
-  width: 42px; height: 42px;
-  border-radius: var(--yp-radius-xs);
+  width: 44px; height: 44px;
+  border-radius: var(--yp-radius-sm);
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 14%, var(--yp-bg-card)) 0%,
     color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, rgba(124, 58, 237, 0.12)) 100%);
@@ -130,9 +130,9 @@
 }
 
 .yp-empty__icon {
-  width: 72px; height: 72px;
+  width: 76px; height: 76px;
   margin: 0 auto var(--yp-space-5);
-  border-radius: var(--yp-radius-sm);
+  border-radius: var(--yp-radius-md);
   background: linear-gradient(135deg, var(--yp-bg-indigo-soft) 0%, rgba(124, 58, 237, 0.10) 100%);
   border: 1px solid var(--yp-border-indigo);
   display: grid;
@@ -191,9 +191,9 @@
 .yp-list-item + .yp-list-item { margin-top: var(--yp-stack-gap); }
 
 .yp-list-item__icon {
-  flex: 0 0 40px;
-  width: 40px; height: 40px;
-  border-radius: var(--yp-radius-sm);
+  flex: 0 0 44px;
+  width: 44px; height: 44px;
+  border-radius: var(--yp-radius-md);
   background: rgba(99, 102, 241, 0.10);
   color: var(--yp-indigo-600);
   display: grid;

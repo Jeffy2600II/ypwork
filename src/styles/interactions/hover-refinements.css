@@ -99,7 +99,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: rgba(99, 102, 241, 0.12);
-  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
+  border-radius: var(--yp-radius-xs, 12px);  /* v3.11.0 r5 */
   transition: background 220ms var(--yp-ease-m3-standard);
   border: 2px solid transparent;
   background-clip: content-box;

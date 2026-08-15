@@ -61,7 +61,7 @@
     width: 100%;
     padding: 12px 4px;
     min-width: 0;
-    border-radius: var(--yp-radius-md, 14px);
+    border-radius: var(--yp-radius-md, 20px);
     cursor: pointer;
     user-select: none;
     text-decoration: none;

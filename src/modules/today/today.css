@@ -256,7 +256,7 @@
   background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5 */
   border: 1px solid var(--yp-border-default);
   /* ★ r68b: ลดความโค้ง local — ไม่แต้ token หลัก ใช้ค่า local ที่นี่ */
-  border-radius: var(--yp-radius-xl, 28px);  /* v3.11.0 r5: token-based */
+  border-radius: var(--yp-radius-xl, 32px);  /* v3.11.0 r5: token-based */
   padding: var(--yp-space-5) var(--yp-space-4);
   box-shadow: var(--yp-shadow-md);  /* v3.11.0 r5: Visible shadow */
 }
@@ -382,7 +382,7 @@
   width: 20px;
   height: 20px;
   background: color-mix(in srgb, var(--yp-indigo-500) 6%, transparent);
-  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
+  border-radius: var(--yp-radius-xs, 12px);  /* v3.11.0 r5 */
   color: var(--yp-indigo-500);
   flex-shrink: 0;
 }

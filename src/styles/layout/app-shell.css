@@ -203,7 +203,7 @@
     width: 100%;
     padding: 12px 0;
     min-width: 0;
-    border-radius: var(--yp-radius-md, 14px);
+    border-radius: var(--yp-radius-md, 20px);
     /* ★ v3.11.0-r5: Smoother transition */
     transition: background 260ms var(--yp-ease-emphasized-decel),
                 color 260ms var(--yp-ease-emphasized-decel);
@@ -243,7 +243,7 @@
     transform: translateY(-50%);
     width: 3px;
     height: 28px;
-    border-radius: 0 3px 3px 0;
+    border-radius: 0 6px 6px 0;
     background: var(--yp-indigo-600);
     transition: height 260ms var(--yp-ease-emphasized-decel);  /* ★ v3.11.0-r5: Smooth indicator */
   }

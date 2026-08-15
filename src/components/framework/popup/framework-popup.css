@@ -54,7 +54,7 @@
   width: 100%;
   max-width: 480px;
   max-height: 88dvh;
-  border-radius: var(--yp-radius-lg, 28px);
+  border-radius: var(--yp-radius-lg, 24px);
   transform: translate3d(0, 24px, 0) scale(0.94);
   opacity: 0;
   transition:
@@ -133,7 +133,7 @@
   height: 36px;
   display: grid;
   place-items: center;
-  border-radius: var(--yp-radius-md, 12px);
+  border-radius: var(--yp-radius-md, 20px);
   background: transparent;
   border: none;
   cursor: pointer;

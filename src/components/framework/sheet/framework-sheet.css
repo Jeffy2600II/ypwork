@@ -82,7 +82,7 @@
   width: 100%;
   max-width: 560px;
   max-height: 92dvh;
-  border-radius: var(--yp-radius-lg, 28px) var(--yp-radius-lg, 28px) 0 0;
+  border-radius: var(--yp-radius-lg, 24px) var(--yp-radius-lg, 24px) 0 0;
   /* ★ r50: default transform — อยู่ล่าง viewport */
   transform: translate3d(0, 100%, 0);
   /* ★ r50: ใช้ ease-emphasized ตลอด — ลื่นไหลเหมือนกันทั้ง open/close */
@@ -198,7 +198,7 @@
   height: 36px;
   display: grid;
   place-items: center;
-  border-radius: var(--yp-radius-md, 12px);
+  border-radius: var(--yp-radius-md, 20px);
   background: transparent;
   border: none;
   cursor: pointer;

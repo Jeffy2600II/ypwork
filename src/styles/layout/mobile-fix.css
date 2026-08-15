@@ -52,7 +52,7 @@ html {
     gap: 2px;
     flex: 1 1 0;
     min-width: 0;
-    border-radius: var(--yp-radius-md, 14px);
+    border-radius: var(--yp-radius-md, 20px);
     cursor: pointer;
     user-select: none;
     text-decoration: none;

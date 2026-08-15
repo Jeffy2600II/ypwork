@@ -82,7 +82,7 @@
 
 .yp-cal-nav-btn {
   width: 36px; height: 36px;
-  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
+  border-radius: var(--yp-radius-sm, 16px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   color: var(--yp-text-body);
@@ -105,7 +105,7 @@
 .yp-cal-today-btn {
   /* ★ r64: ลด padding 8px 16px → 6px 13px — today button ที่เล็กลง */
   padding: 6px 13px;
-  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
+  border-radius: var(--yp-radius-sm, 16px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-default);
   color: var(--yp-text-body);
@@ -203,7 +203,7 @@
   min-height: 44px;
   min-width: 0;           /* ★ v3.9.5: อนุญาตให้แคบลงต่ำกว่า min-content */
   padding: 5px 3px;
-  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: token-based */
+  border-radius: var(--yp-radius-sm, 16px);  /* v3.11.0 r5: token-based */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -345,7 +345,7 @@
   display: inline-block;
   width: 14px;
   height: 14px;
-  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
+  border-radius: var(--yp-radius-xs, 12px);  /* v3.11.0 r5 */
   border: 1px solid var(--yp-border-default);
 }
 
@@ -455,7 +455,7 @@
   gap: var(--yp-space-3);
   padding: var(--yp-space-3) var(--yp-space-4);
   background: var(--yp-bg-card-soft);
-  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
+  border-radius: var(--yp-radius-sm, 16px);  /* v3.11.0 r5: More rounded */
   border: 1px solid var(--yp-border-subtle);
 }
 
@@ -562,7 +562,7 @@
   text-decoration: none;
   color: inherit;
   transition: background 150ms, transform 120ms, box-shadow 150ms;
-  border-radius: var(--yp-radius-sm, 12px);  /* v3.11.0 r5: More rounded */
+  border-radius: var(--yp-radius-sm, 16px);  /* v3.11.0 r5: More rounded */
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
   -webkit-tap-highlight-color: transparent;
@@ -588,7 +588,7 @@
 .yp-cal-list-event__bar {
   width: 4px;
   align-self: stretch;
-  border-radius: var(--yp-radius-xs, 8px);  /* v3.11.0 r5 */
+  border-radius: var(--yp-radius-xs, 12px);  /* v3.11.0 r5 */
   background: var(--ev-color, #4F46E5);
   flex-shrink: 0;
   min-height: 36px;

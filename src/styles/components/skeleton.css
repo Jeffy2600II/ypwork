@@ -20,7 +20,7 @@
   );
   background-size: 200% 100%;
   animation: yp-skeleton-shimmer 1.4s var(--yp-ease-standard, var(--yp-ease-standard)) infinite;
-  border-radius: var(--yp-radius-sm, 34px);
+  border-radius: var(--yp-radius-sm, 16px);
 }
 
 @keyframes yp-skeleton-shimmer {

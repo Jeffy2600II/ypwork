@@ -113,7 +113,7 @@
   height: 36px;
   display: grid;
   place-items: center;
-  border-radius: var(--yp-radius-md, 12px);
+  border-radius: var(--yp-radius-md, 20px);
   background: transparent;
   border: none;
   cursor: pointer;

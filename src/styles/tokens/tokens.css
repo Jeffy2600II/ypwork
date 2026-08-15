@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r5 (Modular CSS Refactor)
-   ★ v3.11.0-r5 Round 5: Major visual overhaul — visible shadow elevation, higher border radii, modern background
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r8 (High-Radius Design Elevation)
+   ★ v3.11.0-r8 Round 8: High border radius elevation — softer shadows, friendlier curves, premium feel
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -70,9 +70,9 @@
      0.08→0.06, strong 0.14→0.11) เพื่อให้ผิวหน้าดู soft ขึ้น ตาม
      แนวทางของ Apple HIG / Linear ที่ใช้เส้นขอบบางจนแทบมองไม่เห็น
      แล้วใช้ surface tint เป็นตัวสร้าง hierarchy แทน */
-  --yp-border-subtle:   rgba(79, 70, 229, 0.06);  /* v3.11.0 r5: More visible */
-  --yp-border-default:  rgba(79, 70, 229, 0.08);
-  --yp-border-strong:   rgba(30, 27, 70, 0.14);
+  --yp-border-subtle:   rgba(79, 70, 229, 0.05);
+  --yp-border-default:  rgba(79, 70, 229, 0.07);
+  --yp-border-strong:   rgba(30, 27, 70, 0.12);
   /* ★ r68: soft indigo borders — ลด alpha ลงอีกเล็กน้อย ให้รู้สึกนุ่มนิ่ม
      สบายตาขึ้น เส้นขอบ indigo ที่จางลงจะทำให้ "ความโค้ง" ที่เราคงไว้
      ดูสบายตามากขึ้น เพราะเส้นขอบหนา/เข้มจะดู "แข็ง" และทำให้ความโค้ง
@@ -142,17 +142,17 @@
   --yp-space-12: 3.25rem;
   --yp-space-16: 4.25rem;
   --yp-space-20: 5.25rem;
-  /* ── BORDER RADIUS ── v3.9.3: โค้งมนมากขึ้นอีกระดับ
-     (research: Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
+  /* ── BORDER RADIUS ── v3.9.3: โค้งมนสูงมากขึ้น — premium friendly feel
+     (research: Ko-fi, Linear, Vercel, Apple Vision Pro, Telegram — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
      ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
-  --yp-radius-xs:   10px;
-  --yp-radius-sm:   12px;
-  --yp-radius-md:   16px;
-  --yp-radius-lg:   20px;
-  --yp-radius-xl:   28px;
-  --yp-radius-2xl:  32px;
+  --yp-radius-xs:   12px;
+  --yp-radius-sm:   16px;
+  --yp-radius-md:   20px;
+  --yp-radius-lg:   24px;
+  --yp-radius-xl:   32px;
+  --yp-radius-2xl:  40px;
   --yp-radius-pill: 999px;
-  --yp-radius-control: var(--yp-radius-md);
+  --yp-radius-control: var(--yp-radius-lg);
   --yp-radius-card:    var(--yp-radius-xl);  /* v3.11.0 r5: Premium card radius */
   --yp-radius-panel:   var(--yp-radius-md);
   --yp-radius-hero:    var(--yp-radius-xl);
@@ -257,11 +257,11 @@
      ให้ความรู้สึก "soft นิ่ง สะอาด" ตามแนวทาง Archive Tune / Linear /
      Apple HIG ที่เลือกใช้ surface tint + warm bg เป็นตัวสร้าง depth หลัก
      แทน shadow หนา */
-  --yp-shadow-xs: 0 1px 3px rgba(30, 27, 70, 0.08), 0 1px 2px rgba(30, 27, 70, 0.06);
-  --yp-shadow-sm: 0 2px 8px rgba(30, 27, 70, 0.08), 0 1px 3px rgba(30, 27, 70, 0.06);
-  --yp-shadow-md: 0 4px 16px rgba(30, 27, 70, 0.10), 0 2px 6px rgba(30, 27, 70, 0.06);
-  --yp-shadow-lg: 0 8px 32px rgba(30, 27, 70, 0.12), 0 4px 12px rgba(30, 27, 70, 0.08);
-  --yp-shadow-xl: 0 16px 48px rgba(30, 27, 70, 0.16), 0 8px 20px rgba(30, 27, 70, 0.10);
+  --yp-shadow-xs: 0 1px 3px rgba(30, 27, 70, 0.07), 0 1px 2px rgba(30, 27, 70, 0.05);
+  --yp-shadow-sm: 0 2px 8px rgba(30, 27, 70, 0.07), 0 1px 3px rgba(30, 27, 70, 0.05);
+  --yp-shadow-md: 0 4px 16px rgba(30, 27, 70, 0.09), 0 2px 6px rgba(30, 27, 70, 0.05);
+  --yp-shadow-lg: 0 8px 32px rgba(30, 27, 70, 0.11), 0 4px 12px rgba(30, 27, 70, 0.07);
+  --yp-shadow-xl: 0 16px 48px rgba(30, 27, 70, 0.14), 0 8px 20px rgba(30, 27, 70, 0.09);
   --yp-shadow-indigo: 0 1px 3px rgba(79, 70, 229, 0.10), 0 2px 8px rgba(79, 70, 229, 0.08);  /* v3.11.0 r5: Visible */
   --yp-shadow-focus: 0 0 0 3px var(--yp-focus-ring);
   /* ★ v3.10.0 รอบที่ 25: ลบ --yp-glass-grain ออก — เคยใช้ทำลาย noise texture

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Tailwind v4 Theme Bridge (@theme inline) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Tailwind v4 Theme Bridge (@theme inline) — v3.11.0-r8 (High-Radius Design Elevation)
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -30,8 +30,10 @@
   --color-border: var(--yp-border-default);
   --color-input: var(--yp-border-default);
   --color-ring: var(--yp-focus-ring);
+  --radius-xs: var(--yp-radius-xs);
   --radius-sm: var(--yp-radius-sm);
   --radius-md: var(--yp-radius-md);
   --radius-lg: var(--yp-radius-lg);
   --radius-xl: var(--yp-radius-xl);
+  --radius-2xl: var(--yp-radius-2xl);
 }

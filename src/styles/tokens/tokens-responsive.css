@@ -18,8 +18,8 @@
   :root {
     /* Spacing scale-up */
     --yp-page-pad-x:   1.75rem;
-    --yp-card-pad:     1.25rem;     /* v3.11.0 r5: 20px tablet */
-    --yp-card-pad-lg:  2rem;        /* 32px tablet */
+    --yp-card-pad:     1.375rem;     /* r8: 22px tablet */
+    --yp-card-pad-lg:  2.125rem;     /* r8: 34px tablet */
     --yp-section-gap:  2.5rem;      /* 40px tablet */
     --yp-stack-gap:    0.875rem;    /* 14px tablet */
     --yp-space-8:      2.5rem;
@@ -44,7 +44,7 @@
   :root {
     /* Spacing scale-up */
     --yp-page-pad-x:   2rem;
-    --yp-card-pad:     1.5rem;      /* v3.11.0 r5: 24px desktop */
+    --yp-card-pad:     1.625rem;     /* r8: 26px desktop */
     --yp-card-pad-lg:  2.25rem;     /* 36px desktop */
     --yp-section-gap:  2.75rem;     /* 44px desktop */
     --yp-stack-gap:    1rem;        /* 16px desktop */
@@ -70,8 +70,8 @@
   :root {
     /* Spacing scale-up */
     --yp-page-pad-x:   2.25rem;
-    --yp-card-pad:     1.625rem;    /* v3.11.0 r5: 26px widescreen */
-    --yp-card-pad-lg:  2.5rem;      /* 40px widescreen */
+    --yp-card-pad:     1.75rem;     /* r8: 28px widescreen */
+    --yp-card-pad-lg:  2.625rem;     /* r8: 42px widescreen */
     --yp-section-gap:  3rem;        /* 48px widescreen */
 
     /* v3.11.0 r5: Typography scale-up (Widescreen) */
