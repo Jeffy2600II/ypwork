@@ -2,11 +2,12 @@
 
 /**
  * ============================================================
- * YP WORK - Event Detail - TaskTimeGroup (r48)
+ * YP WORK - Event Detail - TaskTimeGroup
  * ============================================================
  * ส่วนย่อยของรายการย่อยที่แบ่งตามช่วงเวลา (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา)
  * - มีป้ายชื่อ + คำอธิบายสั้นๆ ให้ผู้ใช้เห็นชัดเจนว่ากลุ่มนี้หมายถึงอะไร
  * - ภายในมี list ของ TaskRow
+ * Round 10: Removed onStatusClick (status system deleted)
  * ============================================================
  */
 
@@ -14,11 +15,6 @@ import * as React from 'react';
 import type { Task } from '@/lib/types';
 import { TaskRow } from './task-row';
 
-// ═══════════════════════════════════════════════════════════════
-// TaskTimeGroup — ★ v3.10.0 รอบที่ 11: ส่วนย่อยของรายการย่อยที่แบ่งตาม
-//   ช่วงเวลา (ช่วงเช้า/ช่วงบ่าย/ไม่ระบุเวลา) — มีทั้งป้ายชื่อ + คำอธิบายสั้นๆ
-//   ให้ผู้ใช้เห็นชัดเจนว่ากลุ่มนี้หมายถึงอะไร ไม่ใช่แค่หัวข้อลอยๆ
-// ═══════════════════════════════════════════════════════════════
 export function TaskTimeGroup({
   icon,
   label,
@@ -26,7 +22,6 @@ export function TaskTimeGroup({
   count,
   tasks,
   muted = false,
-  onStatusClick,
   onEdit,
   onDelete,
 }: {
@@ -36,7 +31,6 @@ export function TaskTimeGroup({
   count: number;
   tasks: Task[];
   muted?: boolean;
-  onStatusClick: (taskId: string) => void;
   onEdit: (taskId: string) => void;
   onDelete: (taskId: string) => void;
 }) {
@@ -61,7 +55,6 @@ export function TaskTimeGroup({
           <TaskRow
             key={t.id}
             task={t}
-            onStatusClick={() => onStatusClick(t.id)}
             onEdit={() => onEdit(t.id)}
             onDelete={() => onDelete(t.id)}
           />
@@ -70,4 +63,3 @@ export function TaskTimeGroup({
     </div>
   );
 }
-

@@ -356,7 +356,6 @@ export function EventDetailClient({
       setEditTaskPickerOpen(false);
       setDeleteTaskId(null);
       setEditTaskId(null);
-      setActiveTaskId(null);
 
       setToast({ msg: 'ลบรายการย่อยเรียบร้อยแล้ว', type: 'success' });
     } catch (e: any) {
@@ -419,11 +418,6 @@ export function EventDetailClient({
       showGroupHeadings: tasks.length > 0,
     };
   }, [filteredTasks]);
-
-  const activeTask =
-    activeTaskId != null
-      ? event?.tasks?.find((t) => t.id === activeTaskId) || null
-      : null;
 
   const editTask =
     editTaskId != null
