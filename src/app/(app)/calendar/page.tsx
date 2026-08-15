@@ -56,7 +56,6 @@ export default async function CalendarPage() {
     location: e.location ?? '',
     description: e.description ?? '',
     department_id: e.department_id ?? null,
-    status: e.status,
     color: e.color ?? '#4F46E5',
     created_by: e.created_by ?? null,
     created_at: e.created_at,

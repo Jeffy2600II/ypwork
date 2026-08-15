@@ -51,31 +51,25 @@ export async function GET(request: NextRequest) {
 
     const myTaskIds = ((myAssigneesResult.data as any[]) || []).map((a) => a.task_id);
     let myTasks = 0;
-    let myDone = 0;
-    let myPending = 0;
 
     if (myTaskIds.length > 0) {
       const { data: myTasksRaw } = await guard.adminClient
         .from('ypwork_tasks')
-        .select('id, status')
+        .select('id')
         .in('id', myTaskIds);
 
       myTasks = myTasksRaw?.length || 0;
-      myDone = myTasksRaw?.filter((t: any) => t.status === 'done').length || 0;
-      myPending = myTasks - myDone;
     }
 
-    const completionRate = myTasks > 0 ? Math.round((myDone / myTasks) * 100) : 0;
 
     return NextResponse.json({
       success: true,
       stats: {
         deptEvents,
         myTasks,
-        myDone,
-        myPending,
-        completionRate,
-      },
+  
+  
+        },
     }, { status: 200, headers: apiCacheHeaders.list() });
   } catch (err) {
     console.error('[/api/profile/stats GET] exception:', err);

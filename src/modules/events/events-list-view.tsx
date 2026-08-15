@@ -15,7 +15,6 @@ import { EventCard } from '@/modules/events/event-card';
 import {
   isPast,
   isToday,
-  resolveEventStatus,
   THAI_MONTHS,
 } from '@/lib/utils/date';
 import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
@@ -64,7 +63,7 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
       // ★ r51: ข้าม events ที่ไม่มี date (group type ที่ไม่มี deadline)
       //   เพราะไม่สามารถ overdue ได้
       return sorted.filter(
-        (e) => e.date && isPast(e.date) && !isToday(e.date) && resolveEventStatus(e) !== 'done'
+        (e) => e.date && isPast(e.date) && !isToday(e.date)
       );
     }
     return sorted;

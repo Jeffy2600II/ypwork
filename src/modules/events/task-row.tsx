@@ -11,9 +11,9 @@
  */
 
 import * as React from 'react';
-import { AlertTriangle, Calendar as CalIcon, Check, Clock, Flag, Layers, MoreHorizontal, Pencil, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, Calendar as CalIcon, Clock, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import type { Task } from '@/lib/types';
-import { relativeDay, isPast, priorityLabel, statusLabel } from '@/lib/utils/date';
+import { relativeDay, isPast, priorityLabel } from '@/lib/utils/date';
 import { Avatar } from '@/components/framework/avatar';
 
 // ═══════════════════════════════════════════════════════════════
@@ -24,18 +24,16 @@ import { Avatar } from '@/components/framework/avatar';
 // ═══════════════════════════════════════════════════════════════
 export function TaskRow({
   task,
-  onStatusClick,
   onEdit,
   onDelete,
 }: {
   task: Task;
-  onStatusClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) {
   const assignee = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
   const dueLabel = task.due_date ? relativeDay(task.due_date) : '';
-  const overdue = task.due_date && isPast(task.due_date) && task.status !== 'done';
+  const overdue = task.due_date && isPast(task.due_date);
   const priority = task.priority || 'medium';
   const priorityLbl =
     priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
@@ -56,39 +54,14 @@ export function TaskRow({
 
   return (
     <div
-      className={`yp-task-row yp-cursor-pointer${task.status === 'done' ? ' is-done' : ''}`}
+      className={`yp-task-row yp-cursor-pointer`}
       data-task-id={task.id}
-      role="button"
-      tabIndex={0}
-      onClick={onStatusClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onStatusClick();
-        }
-      }}
-      aria-label={`เปลี่ยนสถานะรายการย่อย: ${task.title}`}
+      aria-label={`รายการย่อย: ${task.title}`}
     >
-      {/* ★ v3.10.0 รอบที่ 42: ลบ status dot มุมซ้ายบนออก ตามคำขอผู้ใช้ —
-         status chip ใน meta row ก็บอกสถานะอยู่แล้ว ไม่ต้องมี indicator
-         ซ้ำซ้อน แตะที่ row ทั้งแถวก็เปลี่ยนสถานะได้เหมือนเดิม (onClick
-         ผูกอยู่กับ root ของ .yp-task-row ด้านบนอยู่แล้ว) */}
+
       <div className="yp-task-row__body">
         <div className="yp-task-row__title">{task.title}</div>
         <div className="yp-task-row__meta">
-          <span
-            className={`yp-task-row__chip yp-task-row__status yp-task-row__status--${task.status}`}
-          >
-            {task.status === 'done' ? (
-              <Check width={11} height={11} />
-            ) : task.status === 'ongoing' ? (
-              <RefreshCw width={11} height={11} />
-            ) : (
-              <Clock width={11} height={11} />
-            )}
-            {statusLabel(task.status)}
-          </span>
-
           {priority !== 'medium' ? (
             <span
               className={`yp-task-row__chip yp-task-row__priority is-priority-${priority}`}

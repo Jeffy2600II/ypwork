@@ -4,8 +4,6 @@
 // YP WORK - Event Detail Client Island (r48 — modular split)
 // ============================================================
 // จัดการ interactive parts ของ event detail page:
-// - Task toggle (click row → เปิด status picker)
-// - Status change (single event) via status-quick buttons
 // - Manage sheet (edit event / add task / edit task / delete)
 // - Orchestrates: TaskTimeGroup, AddTaskSheet, EditTaskSheet, EditEventSheet
 //
@@ -23,13 +21,11 @@ import {
   MapPin,
   Layers,
   Flag,
-  Check,
   Pencil,
   Trash2,
   Plus,
   ChevronRight,
   AlertTriangle,
-  RefreshCw,
   Sunrise,
   Sunset,
   CircleDashed,
@@ -37,19 +33,15 @@ import {
 import type {
   YPEvent,
   Task,
-  TaskStatus,
   TaskPriority,
-  EventStatus,
   Department,
   UserProfile,
 } from '@/lib/types';
 import {
   formatDate,
   relativeDay,
-  statusLabel,
   priorityLabel,
   isPast,
-  eventProgress,
   getLocalTodayStr,
 } from '@/lib/utils/date';
 // ★ v3.11.0 r1: สำหรับ filter รายการย่อยในหน้ารายละเอียด
@@ -63,9 +55,6 @@ import { useRealtimeEventById } from '@/lib/hooks/use-realtime';
 import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoHighlight, InfoTldr } from '@/components/ui/info-button';
 // ★ r47: shared timing constants — กัน magic numbers กระจัดกระจาย
 import { SHEET_CLOSE_DURATION, TOAST_AUTO_DISMISS, REACT_COMMIT_DURATION } from '@/lib/core/sheet-timing';
-// ★ r47: ใช้ shared STATUS_META + StatusPickerSheet จาก _shared/
-import { STATUS_META } from '@/modules/_shared/status-meta';
-import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
 // ★ r48: imports จาก split files
 import {
   PRIORITY_META,
@@ -114,8 +103,6 @@ export function EventDetailClient({
   const [toast, setToast] = React.useState<{ msg: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   // ── Sheet open states ──
-  const [statusPickerOpen, setStatusPickerOpen] = React.useState(false);
-  const [activeTaskId, setActiveTaskId] = React.useState<string | null>(null);
   const [manageOpen, setManageOpen] = React.useState(false);
   const [addTaskOpen, setAddTaskOpen] = React.useState(false);
   // ★ v3.10.0 รอบที่ 55: แก้บั๊ก close animation "jump" ของ AddTaskSheet
@@ -191,56 +178,7 @@ export function EventDetailClient({
   // ACTIONS
   // ═══════════════════════════════════════════════════════════════
 
-  // ── Patch task status (local + DB) ──
-  const handleTaskStatusChange = async (newStatus: TaskStatus) => {
-    if (!activeTaskId || !event) return;
-    const taskId = activeTaskId;
-    const oldStatus = event.tasks?.find((t) => t.id === taskId)?.status;
-    setStatusPickerOpen(false);
-    setActiveTaskId(null);
 
-    // v1.6: Optimistic update via patchTask from realtime hook
-    patchTask(taskId, { status: newStatus });
-
-    try {
-      // v3.2.0: ใช้ API route แทน direct Supabase write (bypass RLS)
-      const res = await fetch(`/api/tasks/${taskId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
-
-      setToast({ msg: 'เปลี่ยนสถานะรายการย่อยเรียบร้อยแล้ว', type: 'success' });
-      // Realtime will sync from server — no need to refetch
-    } catch (e: any) {
-      // revert on error
-      if (oldStatus) patchTask(taskId, { status: oldStatus });
-      setLocalError(`ไม่สามารถอัพเดตสถานะ: ${e.message || 'unknown error'}`);
-    }
-  };
-
-  // ── Patch event status (single event) ──
-  const handleEventStatusChange = async (newStatus: EventStatus) => {
-    if (!event) return;
-    const oldStatus = event.status;
-    patchEvent({ status: newStatus });
-
-    try {
-      // v3.2.0: ใช้ API route แทน direct Supabase write (bypass RLS)
-      const res = await fetch(`/api/events/${event.id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
-    } catch (e: any) {
-      patchEvent({ status: oldStatus });
-      setLocalError(`ไม่สามารถอัพเดตสถานะรายการ: ${e.message || 'unknown error'}`);
-    }
-  };
 
   // v1.6: reloadEvent ย้ายไปใช้ useRealtimeEventById (reload ภายใน hook)
   // ไม่ต้องเขียนเองที่นี่ — เรียก reload() จาก hook ถ้าต้องการ force-refresh
@@ -268,8 +206,6 @@ export function EventDetailClient({
     setEditTaskOpen(false);
     setEditTaskPickerOpen(false);
     setAddTaskOpen(false);
-    setStatusPickerOpen(false);
-    setActiveTaskId(null);
     setEditTaskId(null);
     setDeleteTaskId(null);
     setLocalError(null);
@@ -436,15 +372,12 @@ export function EventDetailClient({
   };
 
   const totalTasks = event?.tasks?.length || 0;
-  const doneTasks = event?.tasks?.filter((t) => t.status === 'done').length || 0;
-  const progress = eventProgress(event?.tasks || []);
 
   // ★ v3.11.0 r1: กรองรายการย่อยตาม filter (overdue/today/upcoming/all)
   const filteredTasks = React.useMemo(() => {
     const tasks = event?.tasks || [];
     if (!isGroup || taskFilter === 'all') return tasks;
     return tasks.filter((t) => {
-      if (t.status === 'done') return true; // แสดง done tasks เสมอ
       const effectiveStart = getEffectiveTaskStartDate(t, event!);
       const effectiveDue = getEffectiveTaskDueDate(t, event!);
       if (!effectiveStart || !effectiveDue) return false;
@@ -629,24 +562,7 @@ export function EventDetailClient({
               <div className="yp-stat__label">จำนวนรายการย่อย</div>
             </div>
           </div>
-          <div className="yp-stat yp-accented" style={{ ['--accent' as string]: '#10B981' }}>
-            <div className="yp-stat__icon">
-              <Check width={18} height={18} />
-            </div>
-            <div className="yp-stat__body">
-              <div className="yp-stat__value">{doneTasks}</div>
-              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
-            </div>
-          </div>
-          <div className="yp-stat yp-accented">
-            <div className="yp-stat__icon">
-              <Clock width={18} height={18} />
-            </div>
-            <div className="yp-stat__body">
-              <div className="yp-stat__value">{progress}%</div>
-              <div className="yp-stat__label">ความคืบหน้า</div>
-            </div>
-          </div>
+
           <div
             className="yp-stat yp-accented"
             style={{ ['--accent' as string]: department?.color || '#4F46E5' }}
@@ -669,28 +585,6 @@ export function EventDetailClient({
         <section className="yp-detail-section">
           <h2 className="yp-detail-section__title">รายละเอียด</h2>
           <div className="yp-detail-desc">{event.description}</div>
-        </section>
-      ) : null}
-
-      {/* ── STATUS QUICK (single event) ── */}
-      {!isGroup ? (
-        <section className="yp-detail-section">
-          <h2 className="yp-detail-section__title">
-            สถานะปัจจุบัน
-          </h2>
-          <div className="yp-status-quick">
-            {(['todo', 'ongoing', 'done'] as EventStatus[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`yp-status-quick__btn${event.status === s ? ` is-active is-${s}` : ''}`}
-                onClick={() => handleEventStatusChange(s)}
-              >
-                <div className={`yp-status-quick__dot is-${s}`} />
-                <span>{statusLabel(s)}</span>
-              </button>
-            ))}
-          </div>
         </section>
       ) : null}
 
@@ -773,7 +667,7 @@ export function EventDetailClient({
 
                   <InfoTldr>
                     รายการย่อย คือส่วนย่อยของ <InfoPill>กลุ่มรายการ</InfoPill>{' '}
-                    — แตะรายการย่อยเพื่อเปลี่ยนสถานะ สถานะรวมคำนวณอัตโนมัติ
+                    — แต่ละรายการแยกตามภาระงานและสามารถมอบหมายให้คนละฝ่ายทำได้
                   </InfoTldr>
 
                   <p>
@@ -790,10 +684,6 @@ export function EventDetailClient({
                       กดปุ่ม <InfoPill>+ เพิ่มรายการย่อย</InfoPill>{' '}
                       ด้านล่างรายการ กรอกชื่อ + วันที่ + มอบหมายได้
                     </InfoStep>
-                    <InfoStep title="เปลี่ยนสถานะรายการย่อย">
-                      แตะที่รายการย่อย → เลือกสถานะ (วางแผน / กำลังดำเนินการ / เสร็จสมบูรณ์)
-                      สถานะของกลุ่มรายการจะคำนวณใหม่อัตโนมัติ
-                    </InfoStep>
                     <InfoStep title="แก้ไขรายการย่อย">
                       กดปุ่มดินสอ → แก้ไขชื่อ วันที่ หรือผู้รับผิดชอบได้
                     </InfoStep>
@@ -802,12 +692,6 @@ export function EventDetailClient({
                     </InfoStep>
                   </InfoSteps>
 
-                  <InfoSectionTitle>สถานะรวมคำนวณยังไง?</InfoSectionTitle>
-                  <InfoKeyValue>
-                    <InfoKeyValueRow k={<><InfoPill>วางแผน</InfoPill></>} v="ทุกรายการย่อยยังเป็น &ldquo;วางแผน&rdquo;" />
-                    <InfoKeyValueRow k={<><InfoPill>กำลังดำเนินการ</InfoPill></>} v="มีอย่างน้อย 1 รายการย่อยเป็น &ldquo;กำลังดำเนินการ&rdquo; แต่ยังไม่ครบเสร็จ" />
-                    <InfoKeyValueRow k={<><InfoPill>เสร็จสมบูรณ์</InfoPill></>} v="ทุกรายการย่อยเป็น &ldquo;เสร็จสมบูรณ์&rdquo;" />
-                  </InfoKeyValue>
 
                   <InfoCallout type="info" title="เคล็ดลับการแบ่งรายการย่อย">
                     แบ่งรายการย่อยให้<strong>แต่ละรายการทำได้ใน 1-2 ชั่วโมง</strong> —
@@ -818,7 +702,7 @@ export function EventDetailClient({
             />
             </span>
             <span className="yp-detail-section__count">
-              {doneTasks}/{totalTasks}
+              {totalTasks} รายการ
             </span>
           </h2>
 
@@ -872,10 +756,6 @@ export function EventDetailClient({
                     caption="เริ่มก่อน 12:00 น."
                     count={taskTimeGroups.morning.length}
                     tasks={taskTimeGroups.morning}
-                    onStatusClick={(id) => {
-                      setActiveTaskId(id);
-                      setStatusPickerOpen(true);
-                    }}
                     onEdit={(id) => {
                       setEditTaskId(id);
                       setEditTaskOpen(true);
@@ -889,10 +769,6 @@ export function EventDetailClient({
                     caption="เริ่มตั้งแต่ 12:00 น. เป็นต้นไป"
                     count={taskTimeGroups.afternoon.length}
                     tasks={taskTimeGroups.afternoon}
-                    onStatusClick={(id) => {
-                      setActiveTaskId(id);
-                      setStatusPickerOpen(true);
-                    }}
                     onEdit={(id) => {
                       setEditTaskId(id);
                       setEditTaskOpen(true);
@@ -907,10 +783,6 @@ export function EventDetailClient({
                     count={taskTimeGroups.unscheduled.length}
                     tasks={taskTimeGroups.unscheduled}
                     muted
-                    onStatusClick={(id) => {
-                      setActiveTaskId(id);
-                      setStatusPickerOpen(true);
-                    }}
                     onEdit={(id) => {
                       setEditTaskId(id);
                       setEditTaskOpen(true);
@@ -923,10 +795,6 @@ export function EventDetailClient({
                   <TaskRow
                     key={t.id}
                     task={t}
-                    onStatusClick={() => {
-                      setActiveTaskId(t.id);
-                      setStatusPickerOpen(true);
-                    }}
                     onEdit={() => {
                       setEditTaskId(t.id);
                       setEditTaskOpen(true);
@@ -947,7 +815,6 @@ export function EventDetailClient({
             </div>
           )}
 
-          <div className="yp-task-list-hint">แตะรายการย่อยเพื่อเปลี่ยนสถานะ</div>
         </section>
       ) : null}
 
@@ -962,23 +829,6 @@ export function EventDetailClient({
           จัดการรายการ
         </button>
       </section>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          STATUS PICKER SHEET (task)
-          ★ r47: ใช้ shared StatusPickerSheet จาก _shared/ แทน inline JSX
-          ═══════════════════════════════════════════════════════════════ */}
-      <StatusPickerSheet
-        open={statusPickerOpen}
-        onClose={() => {
-          setStatusPickerOpen(false);
-          setActiveTaskId(null);
-        }}
-        title="สถานะของรายการย่อย"
-        description={activeTask?.title}
-        statuses={['todo', 'ongoing', 'done'] as TaskStatus[]}
-        currentStatus={activeTask?.status}
-        onSelect={(s) => handleTaskStatusChange(s as TaskStatus)}
-      />
 
       {/* ═══════════════════════════════════════════════════════════════
           ADD TASK SHEET (ครบทุก field เหมือน demo)
@@ -1266,7 +1116,7 @@ export function EventDetailClient({
       >
         <div className="yp-manage-task-picker">
           {(event.tasks || []).map((t) => {
-            const sLabel = statusLabel(t.status);
+
             return (
               <button
                 key={t.id}
@@ -1280,15 +1130,10 @@ export function EventDetailClient({
                   }, 280);
                 }}
               >
-                <div
-                  className={`yp-task-status-dot yp-task-status-dot--${t.status}`}
-                  aria-hidden="true"
-                />
                 <div className="yp-manage-task-picker__body">
                   <div className="yp-manage-task-picker__title">{t.title}</div>
                   <div className="yp-manage-task-picker__meta">
-                    {sLabel}
-                    {t.priority === 'high' ? ' · เร่งด่วน' : ''}
+                    {t.priority === 'high' ? 'เร่งด่วน' : 'ปกติ'}
                     {t.due_date ? ' · มีกำหนด' : ''}
                   </div>
                 </div>

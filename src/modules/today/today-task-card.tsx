@@ -14,10 +14,7 @@
 import Link from 'next/link';
 import { CheckSquare, CornerDownRight } from 'lucide-react';
 import type { Task, YPEvent } from '@/lib/types';
-import {
-  statusLabel,
-  statusChipClass,
-} from '@/lib/utils/date';
+
 
 export interface TodayTaskCardProps {
   task: Task;
@@ -53,10 +50,7 @@ export function TodayTaskCard({ task, parentEvent }: TodayTaskCardProps) {
           </div>
         </div>
 
-        <span className={`yp-chip ${statusChipClass(task.status)}`}>
-          <span className="yp-chip-dot" aria-hidden="true" />
-          {statusLabel(task.status)}
-        </span>
+
       </div>
     </Link>
   );

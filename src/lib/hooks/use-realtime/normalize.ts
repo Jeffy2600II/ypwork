@@ -26,7 +26,6 @@ export function normalizeEvent(e: RawEvent): YPEvent {
     location: e.location ?? '',
     description: e.description ?? '',
     department_id: e.department_id ?? null,
-    status: e.status,
     color: e.color ?? '#4F46E5',
     created_by: e.created_by ?? null,
     created_at: e.created_at,
@@ -48,7 +47,6 @@ export function normalizeTask(t: RawTask): Task {
     due_date: t.due_date ?? null,
     start_time: t.start_time ?? null,
     start_date: t.start_date ?? null,
-    status: t.status,
     priority: t.priority,
     estimated_time: t.estimated_time ?? '',
     notes: t.notes ?? '',
@@ -63,10 +61,10 @@ export function normalizeTask(t: RawTask): Task {
 // Fields to SELECT for events (shared between fetchEvents and realtime reload)
 export const EVENT_FIELDS = `
   id, type, title, date, start_date, end_date, time, location, description,
-  department_id, status, color, created_by, created_at, updated_at,
+  department_id, color, created_by, created_at, updated_at,
   department:departments ( id, name, color, icon, description ),
   tasks:ypwork_tasks (
-    id, event_id, title, due_date, start_date, start_time, status, priority,
+    id, event_id, title, due_date, start_date, start_time, priority,
     estimated_time, notes, tags, sort_order, created_at, updated_at
   )
 `;

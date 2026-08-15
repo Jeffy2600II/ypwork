@@ -16,9 +16,6 @@ export interface Department {
 /** ประเภทงาน */
 export type EventType = 'group' | 'task';
 
-/** สถานะงาน */
-export type EventStatus = 'planning' | 'todo' | 'ongoing' | 'done';
-
 /** งาน */
 export interface YPEvent {
   id: string;
@@ -52,7 +49,6 @@ export interface YPEvent {
   location: string;
   description: string;
   department_id: string | null;
-  status: EventStatus;
   color: string;
   created_by: string | null;
   created_at?: string;
@@ -62,9 +58,6 @@ export interface YPEvent {
   tasks?: Task[];
   members?: EventMember[];
 }
-
-/** สถานะ task */
-export type TaskStatus = 'todo' | 'ongoing' | 'done';
 
 /** ลำดับความสำคัญ */
 export type TaskPriority = 'low' | 'medium' | 'high';
@@ -83,7 +76,6 @@ export interface Task {
    *    due_date คือ "ส่งเมื่อไหร่" เพื่อให้ระบบอ้างอิงจากจุดเริ่มต้น
    *    แทนที่จะอ้างแค่จุดสิ้นสุด ทำให้ผู้ใช้เห็นภาพรวมของงานมากขึ้น */
   start_date: string | null;
-  status: TaskStatus;
   priority: TaskPriority;
   estimated_time: string;
   notes: string;

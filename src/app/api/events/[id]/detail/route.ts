@@ -126,7 +126,6 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       location: e.location ?? '',
       description: e.description ?? '',
       department_id: e.department_id ?? null,
-      status: e.status,
       color: e.color ?? '#4F46E5',
       created_by: e.created_by ?? null,
       created_at: e.created_at,
@@ -143,7 +142,6 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
         due_date: t.due_date ?? null,
         start_time: t.start_time ?? null,   // ★ v3.10.0 รอบที่ 9
         start_date: t.start_date ?? null,   // ★ v3.10.0 รอบที่ 29
-        status: t.status,
         priority: t.priority,
         estimated_time: t.estimated_time ?? '',
         notes: t.notes ?? '',

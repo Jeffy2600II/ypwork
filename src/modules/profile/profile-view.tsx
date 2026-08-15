@@ -4,7 +4,7 @@
 // YP WORK · Profile View (client component — v1.8.2 realtime)
 // v1.5: เปลี่ยน logout confirmation จาก custom dialog → BottomSheet
 // v1.8: subscribe realtime — stats และ department อัพเดตทันทีเมื่อ DB เปลี่ยน
-//       (เช่น admin เปลี่ยนฝ่ายของ user, task status เปลี่ยน, assignee เปลี่ยน)
+//       (เช่น admin เปลี่ยนฝ่ายของ user, assignee เปลี่ยน)
 // v1.8.2: เพิ่ม useRealtimeSessionUser — ชื่อ/สี/ฝ่าย ของ user อัพเดต live
 //         (admin เปลี่ยนชื่อ หรือย้ายฝ่าย ผู้ใช้เห็นทันทีในหน้าโปรไฟล์)
 // ═══════════════════════════════════════════════════════════════
@@ -156,39 +156,8 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
           <span className="yp-profile-stat__value">{liveStats.myTasks}</span>
           <span className="yp-profile-stat__label">Task รับผิดชอบ</span>
         </div>
-        <div className="yp-profile-stat yp-profile-stat--success">
-          <span className="yp-profile-stat__value">{liveStats.myDone}</span>
-          <span className="yp-profile-stat__label">เสร็จสมบูรณ์</span>
-        </div>
-        <div className="yp-profile-stat yp-profile-stat--warning">
-          <span className="yp-profile-stat__value">{liveStats.myPending}</span>
-          <span className="yp-profile-stat__label">ค้างทำ</span>
-        </div>
-      </section>
 
-      {/* ── PROGRESS ── */}
-      {liveStats.myTasks > 0 ? (
-        <section className="yp-profile-progress" aria-label="อัตราความคืบหน้า">
-          <div className="yp-profile-progress__head">
-            <span className="yp-profile-progress__label">อัตราความคืบหน้า</span>
-            <span className="yp-profile-progress__pct">
-              {liveStats.completionRate}%
-            </span>
-          </div>
-          <div
-            className="yp-progress"
-            role="progressbar"
-            aria-valuenow={liveStats.completionRate}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div
-              className="yp-progress__fill"
-              style={{ width: `${liveStats.completionRate}%` }}
-            />
-          </div>
-        </section>
-      ) : null}
+      </section>
 
       {/* ── ACCOUNT INFO ── */}
       <section

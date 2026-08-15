@@ -17,9 +17,6 @@ import { fetchEvents, fetchEventById } from './fetch';
 export interface ProfileStats {
   deptEvents: number;
   myTasks: number;
-  myDone: number;
-  myPending: number;
-  completionRate: number;
 }
 
 async function fetchProfileStats(
@@ -81,7 +78,7 @@ export function useRealtimeProfileStats(
     try {
       channel = supabase
         .channel(`ypwork-profile-${userAuthUid}`)
-        // task changes → myTasks/myDone/myPending/completionRate เปลี่ยน
+        // task changes → myTasks count may change
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'ypwork_tasks' },

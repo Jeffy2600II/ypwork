@@ -193,7 +193,6 @@ export async function POST(request: NextRequest) {
       location,
       description,
       department_id,
-      status: 'todo',
       color,
       created_by: guard.userAuthUid,
     });

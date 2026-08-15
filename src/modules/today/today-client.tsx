@@ -13,12 +13,7 @@
 
 import * as React from 'react';
 import {
-  AlertCircle,
-  Calendar as CalIcon,
   Flag,
-  Check,
-  Clock,
-  Layers,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import type {
@@ -37,7 +32,6 @@ import {
   getTimeGreeting,
   getLocalTodayStr,
   getThailandTodayParts,
-  resolveEventStatus,
   THAI_DAYS,
   THAI_MONTHS,
 } from '@/lib/utils/date';
@@ -55,7 +49,7 @@ export function TodayClient({
   user: SessionUser;
   dept: Department | null;
   deptMembers: UserProfile[];
-  deptStats: { total: number; done: number; ongoing: number; overdue: number };
+  deptStats: { total: number };
 }) {
   // ── Realtime hooks ──
   const { events } = useRealtimeEvents(initialEvents);
@@ -87,12 +81,11 @@ export function TodayClient({
   // ── Categorize events into 3 sections ──
   // ★ v3.11.0 r1: ใช้ categorizeEventsIntoSections แทน timeline items
   //   กลุ่มรายการสามารถปรากฏในหลาย section พร้อมกันได้
-  const { overdue, today: todayEvents, upcoming } = React.useMemo(
+  const { today: todayEvents, upcoming } = React.useMemo(
     () => categorizeEventsIntoSections(events, todayStr),
     [events, todayStr],
   );
 
-  const overdueCount = overdue.length;
   const todayCount = todayEvents.length;
   const upcomingCount = upcoming.length;
 
@@ -102,16 +95,8 @@ export function TodayClient({
     const deptEvents = events.filter((e) => e.department_id === dept.id);
     return {
       total: deptEvents.length,
-      done: deptEvents.filter((e) => resolveEventStatus(e) === 'done').length,
-      ongoing: deptEvents.filter((e) => {
-        const s = resolveEventStatus(e);
-        return s === 'ongoing' || s === 'planning';
-      }).length,
-      overdue: deptEvents.filter(
-        (e) => (e.date ?? '') < todayStr && resolveEventStatus(e) !== 'done',
-      ).length,
     };
-  }, [events, dept, todayStr, initialDeptStats]);
+  }, [events, dept, initialDeptStats]);
 
   // ── MAIN RENDER ──
 
@@ -136,34 +121,10 @@ export function TodayClient({
               </div>
               <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
             </div>
-            <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">
-                {overdueCount}
-              </div>
-              <div className="yp-today-hero__stat-label">เลยกำหนด</div>
-            </div>
+
           </div>
         </div>
       </div>
-
-      {/* ── OVERDUE ── */}
-      {overdueCount > 0 ? (
-        <section className="yp-today-section yp-today-section--panel">
-          <div className="yp-today-section__head">
-            <h2 className="yp-today-section__title yp-today-section__title--overdue">
-              รายการที่เลยกำหนด
-            </h2>
-            <span className="yp-today-section__count yp-today-section__count--overdue">
-              {overdueCount} รายการ
-            </span>
-          </div>
-          <div className="yp-today-event-list">
-            {overdue.map((ev) => (
-              <EventCard key={ev.id} event={ev} filter="overdue" />
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {/* ── TODAY ── */}
       <section className="yp-today-section yp-today-section--panel">
@@ -237,36 +198,6 @@ export function TodayClient({
               </div>
               <div className="yp-stat__value">{deptStats.total}</div>
               <div className="yp-stat__label">รายการทั้งหมด</div>
-            </div>
-            <div
-              className="yp-stat"
-              style={{ ['--accent' as string]: '#10B981' }}
-            >
-              <div className="yp-stat__icon">
-                <Check width={18} height={18} />
-              </div>
-              <div className="yp-stat__value">{deptStats.done}</div>
-              <div className="yp-stat__label">เสร็จสมบูรณ์</div>
-            </div>
-            <div
-              className="yp-stat"
-              style={{ ['--accent' as string]: dept.color }}
-            >
-              <div className="yp-stat__icon">
-                <Clock width={18} height={18} />
-              </div>
-              <div className="yp-stat__value">{deptStats.ongoing}</div>
-              <div className="yp-stat__label">กำลังดำเนินการ</div>
-            </div>
-            <div
-              className="yp-stat"
-              style={{ ['--accent' as string]: '#F43F5E' }}
-            >
-              <div className="yp-stat__icon">
-                <AlertCircle width={18} height={18} />
-              </div>
-              <div className="yp-stat__value">{deptStats.overdue}</div>
-              <div className="yp-stat__label">เลยกำหนด</div>
             </div>
           </div>
           <div className="yp-card">

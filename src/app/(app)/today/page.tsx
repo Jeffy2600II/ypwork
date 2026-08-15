@@ -60,7 +60,7 @@ export default async function TodayPage() {
   // ── Department overview (ถ้ามี) ──
   let dept: Department | null = null;
   let deptMembers: UserProfile[] = [];
-  const deptStats = { total: 0, done: 0, ongoing: 0, overdue: 0 };
+  const deptStats = { total: 0 };
 
   if (deptRaw.data && user.department_id) {
     const d: any = deptRaw.data;

@@ -17,7 +17,7 @@
  */
 
 import type { YPEvent, Task } from '@/lib/types';
-import { THAI_DAYS, THAI_MONTHS, resolveEventStatus } from '@/lib/utils/date';
+import { THAI_DAYS, THAI_MONTHS } from '@/lib/utils/date';
 // ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
 import {
   getEffectiveStartDate,
@@ -43,7 +43,6 @@ export function buildStandaloneEventItem(
     id: `ev-${ev.id}`,
     startTime: ev.time || null,
     title: ev.title,
-    status: ev.type === 'group' ? resolveEventStatus(ev) : ev.status,
     accent: ev.color || '#4F46E5',
     parentEvent: ev.type === 'group' ? ev : null,
     task: null,
@@ -72,7 +71,6 @@ export function buildTaskItem(
     id: `task-${t.id}`,
     startTime: t.start_time || ev.time || null,
     title: t.title,
-    status: t.status,
     accent: ev.color || '#4F46E5',
     parentEvent: ev,
     task: t,
@@ -110,17 +108,13 @@ export function categorizeByDates(
   effectiveStart: string | null,
   effectiveDue: string | null,
   todayStr: string,
-  isDone: boolean,
 ): ItemDateContext | null {
-  // ★ r51: ถ้าไม่มี effectiveDue → ใช้ effectiveStart แทน (defensive)
-  //   กรณีนี้เกิดขึ้นเฉพาะ group ที่ไม่มี date แต่มี start_date
-  //   ถ้าไม่มีทั้งสอง → คืน null (skip)
   const due = effectiveDue ?? effectiveStart;
   if (!due || !effectiveStart) return null;
 
-  if (due < todayStr && !isDone) return 'overdue';
+  if (due < todayStr) return 'overdue';
   if (effectiveStart <= todayStr && due >= todayStr) return 'today';
-  if (effectiveStart > todayStr && !isDone) return 'upcoming';
+  if (effectiveStart > todayStr) return 'upcoming';
   return null;
 }
 
@@ -196,32 +190,26 @@ export function categorizeEventsIntoSections(
     if (ev.type === 'group') {
       const tasks = ev.tasks || [];
       if (tasks.length === 0) {
-        // Empty group — use event dates
         const effectiveStart = getEffectiveStartDate(ev);
         const effectiveDue = getEffectiveDueDate(ev);
-        const isDone = resolveEventStatus(ev) === 'done';
-        const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+        const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
         if (ctx === 'overdue') overdue.add(ev);
         else if (ctx === 'today') todaySet.add(ev);
         else if (ctx === 'upcoming') upcoming.add(ev);
       } else {
-        // Check each sub-task individually
         for (const t of tasks) {
-          if (t.status === 'done') continue;
           const effectiveStart = getEffectiveTaskStartDate(t, ev);
           const effectiveDue = getEffectiveTaskDueDate(t, ev);
-          const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, false);
+          const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
           if (ctx === 'overdue') overdue.add(ev);
           else if (ctx === 'today') todaySet.add(ev);
           else if (ctx === 'upcoming') upcoming.add(ev);
         }
       }
     } else {
-      // Standalone task event
       const effectiveStart = getEffectiveStartDate(ev);
       const effectiveDue = getEffectiveDueDate(ev);
-      const isDone = ev.status === 'done';
-      const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr, isDone);
+      const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
       if (ctx === 'overdue') overdue.add(ev);
       else if (ctx === 'today') todaySet.add(ev);
       else if (ctx === 'upcoming') upcoming.add(ev);

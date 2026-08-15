@@ -12,32 +12,20 @@
 
 import * as React from 'react';
 import {
-  AlertCircle,
   AlertTriangle,
   Calendar as CalIcon,
   Flag,
-  Check,
   Clock,
   Layers,
-  Sunrise,
-  Sunset,
-  CircleDashed,
-  ChevronRight,
-  RefreshCw,
-  ArrowUpRight,
   MoreHorizontal,
   Users,
-  Eye,
   MapPin,
-  User as UserIcon,
   Timer,
   CornerDownRight,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
-import { STATUS_META } from '@/modules/_shared/status-meta';
-import { StatusPickerSheet } from '@/modules/_shared/status-picker-sheet';
-import { relativeDay, statusLabel } from '@/lib/utils/date';
+import { relativeDay } from '@/lib/utils/date';
 import type { TimelineItem } from './today-types';
 import { PRIORITY_LBL } from './today-types';
 import { formatScheduleLabel, formatCardTimeDisplay } from './today-format';
@@ -70,7 +58,6 @@ import { formatScheduleLabel, formatCardTimeDisplay } from './today-format';
 
 export function TodayItemCard({
   item,
-  onOpenStatusPicker,
   todayStr,
   isMenuOpen,
   onOpenMenu,
@@ -78,7 +65,6 @@ export function TodayItemCard({
   onViewMore,
 }: {
   item: TimelineItem;
-  onOpenStatusPicker: (item: TimelineItem) => void;
   todayStr: string;
   isMenuOpen: boolean;
   onOpenMenu: (item: TimelineItem) => void;
@@ -97,18 +83,9 @@ export function TodayItemCard({
 
   return (
     <div
-      className={`yp-today-item-card${isSubItem ? ' is-subitem' : ''}${item.status === 'done' ? ' is-done' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
+      className={`yp-today-item-card${isSubItem ? ' is-subitem' : ''}${isMenuOpen ? ' is-menu-open' : ''}`}
       style={{ ['--accent' as string]: accent }}
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpenStatusPicker(item)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onOpenStatusPicker(item);
-        }
-      }}
-      aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''} — ${statusLabel(item.status)} — แตะเพื่อเลือกสถานะ`}
+      aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''}`}
     >
       {/* ── Body ── */}
       <div className="yp-today-item-card__body">
@@ -190,28 +167,13 @@ export function TodayItemCard({
 
         {/* Row 4: Badges (status, priority, location, etc.) */}
         <div className="yp-today-item-card__badges">
-          {/* Status / Overdue badge */}
+          {/* Overdue badge (date-based — no status) */}
           {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
             <span className="yp-today-item-card__badge yp-today-item-card__badge--overdue">
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ — badge ที่บรรจุ relative-day label ควรเล็กที่สุด */}
               <AlertTriangle width={10} height={10} />
               เลยกำหนด {relativeDay(item.itemDate)}
             </span>
-          ) : (
-            <span
-              className={`yp-today-item-card__badge yp-today-item-card__badge--status yp-today-item-card__badge--${item.status}`}
-            >
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
-              {item.status === 'done' ? (
-                <Check width={10} height={10} />
-              ) : item.status === 'ongoing' ? (
-                <RefreshCw width={10} height={10} />
-              ) : (
-                <Clock width={10} height={10} />
-              )}
-              {statusLabel(item.status)}
-            </span>
-          )}
+          ) : null}
 
           {/* Priority badge (skip medium) */}
           {priority !== 'medium' ? (

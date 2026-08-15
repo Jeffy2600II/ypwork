@@ -132,8 +132,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       .insert({
         event_id: eventId,
         title: title.trim(),
-        status: 'todo',
-        priority: finalPriority,
+          priority: finalPriority,
         due_date: due_date || null,
         start_date: start_date || null,   // ★ v3.10.0 รอบที่ 29
         start_time: start_time || null,   // ★ v3.10.0 รอบที่ 9

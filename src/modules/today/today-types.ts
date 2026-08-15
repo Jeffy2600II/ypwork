@@ -6,8 +6,6 @@
 import type {
   YPEvent,
   Task,
-  TaskStatus,
-  EventStatus,
   Department,
   UserProfile,
   SessionUser,
@@ -18,10 +16,8 @@ export interface TodayClientProps {
   user: SessionUser;
   dept: Department | null;
   deptMembers: UserProfile[];
-  deptStats: { total: number; done: number; ongoing: number; overdue: number };
+  deptStats: { total: number };
 }
-
-// ★ r47: STATUS_META ย้ายไป _shared/status-meta.ts แล้ว — ใช้ร่วมกับ event-detail
 
 export const PRIORITY_LBL: Record<string, string> = {
   high: 'เร่งด่วน',
@@ -34,7 +30,6 @@ export interface TimelineItem {
   id: string;
   startTime: string | null;
   title: string;
-  status: TaskStatus | EventStatus;
   accent: string;
   parentEvent: YPEvent | null;
   task: Task | null;
