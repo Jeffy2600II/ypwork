@@ -2,23 +2,19 @@
 
 /**
  * ============================================================
- * YP WORK - Today Module - Helpers (r51 — aerospace refactor)
+ * YP WORK - Today Module - Helpers
  * ============================================================
  * Item builders + categorization engine
  * - buildStandaloneEventItem, buildTaskItem
  * - categorizeByDates, buildDateClusters, formatFullDateCaption, buildTimeGroups
  *
- * ★ r51 changes:
- *   - ใช้ getEffectiveStartDate / getEffectiveDueDate / getEffectiveTaskStartDate
- *     / getEffectiveTaskDueDate จาก event-date.ts (single source of truth)
- *   - ทุก function รองรับ null date (group type ที่ไม่มี deadline)
- *   - categorizeByDates ไม่ crash เมื่อ effectiveStart/effectiveDue เป็น null
+ * Round 12: Removed 'overdue' category — no status system.
+ *   Past-due items now appear in 'today' section.
  * ============================================================
  */
 
 import type { YPEvent, Task } from '@/lib/types';
 import { THAI_DAYS, THAI_MONTHS } from '@/lib/utils/date';
-// ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
 import {
   getEffectiveStartDate,
   getEffectiveDueDate,
@@ -51,12 +47,10 @@ export function buildStandaloneEventItem(
     assigneeColor: null,
     priority: 'medium',
     estimatedTime: null,
-    // ★ r51: ใช้ getEffectiveDueDate — อาจเป็น null สำหรับ group
     dueDate: getEffectiveDueDate(ev),
     location: ev.location || null,
     eventTime: ev.time || null,
     dateContext,
-    // ★ r51: ใช้ getEffectiveStartDate — อาจเป็น null สำหรับ group ที่ไม่มี date เลย
     itemDate: getEffectiveStartDate(ev),
   };
 }
@@ -79,13 +73,10 @@ export function buildTaskItem(
     assigneeColor: t.assignees?.[0]?.color || null,
     priority: t.priority || 'medium',
     estimatedTime: t.estimated_time || null,
-    // ★ r51: ใช้ getEffectiveTaskDueDate — fallback chain: task.due_date → parent.date
     dueDate: getEffectiveTaskDueDate(t, ev),
     location: ev.location || null,
     eventTime: ev.time || null,
     dateContext,
-    // ★ r51: ใช้ getEffectiveTaskStartDate — fallback chain:
-    //   task.start_date → parent.start_date → parent.date
     itemDate: getEffectiveTaskStartDate(t, ev),
   };
 }
@@ -96,13 +87,11 @@ export function buildTaskItem(
 
 /**
  * Decide which section a item belongs to based on effectiveStart / effectiveDue.
- *   - overdue:  effectiveDue < today && not done
- *   - today:    effectiveStart ≤ today ≤ effectiveDue
- *   - upcoming: effectiveStart > today && not done
- *   - null:     done item in past or future, OR null dates (cannot categorize)
+ *   - today:    effectiveStart ≤ today ≤ effectiveDue, OR due date is in the past (still relevant)
+ *   - upcoming: effectiveStart > today
+ *   - null:     null dates (cannot categorize)
  *
- * ★ r51: ถ้า effectiveStart หรือ effectiveDue เป็น null → คืน null (skip)
- *   เพราะไม่สามารถ categorize ได้ (group ที่ไม่มี date เลยจะถูก skip)
+ * Round 12: Past-due items now return 'today' instead of 'overdue'.
  */
 export function categorizeByDates(
   effectiveStart: string | null,
@@ -112,18 +101,17 @@ export function categorizeByDates(
   const due = effectiveDue ?? effectiveStart;
   if (!due || !effectiveStart) return null;
 
-  if (due < todayStr) return 'overdue';
+  // Past-due items are still relevant → show in 'today' section
+  if (due < todayStr) return 'today';
   if (effectiveStart <= todayStr && due >= todayStr) return 'today';
   if (effectiveStart > todayStr) return 'upcoming';
   return null;
 }
 
-/** Group items by itemDate for date-cluster sections
- *  ★ r51: items ที่มี itemDate เป็น null จะถูกข้าม (defensive) */
+/** Group items by itemDate for date-cluster sections */
 export function buildDateClusters(items: TimelineItem[]): DateCluster[] {
   const clusters: DateCluster[] = [];
   for (const item of items) {
-    // ★ r51: skip items ที่ไม่มี itemDate
     if (!item.itemDate) continue;
     const dateKey = item.itemDate;
     const last = clusters[clusters.length - 1];
@@ -170,19 +158,15 @@ export function buildTimeGroups(items: TimelineItem[]) {
 }
 
 /**
- * ★ v3.11.0 r1: Categorize EVENTS into 3 sections.
+ * Categorize EVENTS into 2 sections (today / upcoming).
  * A single event can appear in MULTIPLE sections simultaneously.
- * For group events, each sub-task is checked individually —
- * if any sub-task is overdue, the group appears in 'overdue'.
- * If any sub-task is due today, the group also appears in 'today'.
- * Done sub-tasks are skipped (don't contribute to any section).
- * For standalone events, uses the event's own dates.
+ * For group events, each sub-task is checked individually.
+ * Round 12: Removed 'overdue' section — no status system.
  */
 export function categorizeEventsIntoSections(
   events: YPEvent[],
   todayStr: string,
-): { overdue: YPEvent[]; today: YPEvent[]; upcoming: YPEvent[] } {
-  const overdue = new Set<YPEvent>();
+): { today: YPEvent[]; upcoming: YPEvent[] } {
   const todaySet = new Set<YPEvent>();
   const upcoming = new Set<YPEvent>();
 
@@ -193,16 +177,14 @@ export function categorizeEventsIntoSections(
         const effectiveStart = getEffectiveStartDate(ev);
         const effectiveDue = getEffectiveDueDate(ev);
         const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
-        if (ctx === 'overdue') overdue.add(ev);
-        else if (ctx === 'today') todaySet.add(ev);
+        if (ctx === 'today') todaySet.add(ev);
         else if (ctx === 'upcoming') upcoming.add(ev);
       } else {
         for (const t of tasks) {
           const effectiveStart = getEffectiveTaskStartDate(t, ev);
           const effectiveDue = getEffectiveTaskDueDate(t, ev);
           const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
-          if (ctx === 'overdue') overdue.add(ev);
-          else if (ctx === 'today') todaySet.add(ev);
+          if (ctx === 'today') todaySet.add(ev);
           else if (ctx === 'upcoming') upcoming.add(ev);
         }
       }
@@ -210,13 +192,11 @@ export function categorizeEventsIntoSections(
       const effectiveStart = getEffectiveStartDate(ev);
       const effectiveDue = getEffectiveDueDate(ev);
       const ctx = categorizeByDates(effectiveStart, effectiveDue, todayStr);
-      if (ctx === 'overdue') overdue.add(ev);
-      else if (ctx === 'today') todaySet.add(ev);
+      if (ctx === 'today') todaySet.add(ev);
       else if (ctx === 'upcoming') upcoming.add(ev);
     }
   }
 
-  // Sort each section by effective start date
   const sortByDate = (a: YPEvent, b: YPEvent) => {
     const aDate = getEffectiveStartDate(a) || '9999-99-99';
     const bDate = getEffectiveStartDate(b) || '9999-99-99';
@@ -224,7 +204,6 @@ export function categorizeEventsIntoSections(
   };
 
   return {
-    overdue: [...overdue].sort(sortByDate),
     today: [...todaySet].sort(sortByDate),
     upcoming: [...upcoming].sort(sortByDate),
   };

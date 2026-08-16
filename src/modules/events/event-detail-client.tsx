@@ -14,7 +14,7 @@
 // ============================================================
 
 import * as React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   Calendar as CalIcon,
   Clock,
@@ -42,13 +42,7 @@ import {
   relativeDay,
   priorityLabel,
   isPast,
-  getLocalTodayStr,
 } from '@/lib/utils/date';
-// ★ v3.11.0 r1: สำหรับ filter รายการย่อยในหน้ารายละเอียด
-import {
-  getEffectiveTaskStartDate,
-  getEffectiveTaskDueDate,
-} from '@/lib/utils/event-date';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { Avatar } from '@/components/framework/avatar';
 import { useRealtimeEventById } from '@/lib/hooks/use-realtime';
@@ -80,13 +74,6 @@ export function EventDetailClient({
   departments = [],
 }: EventDetailClientProps) {
   const router = useRouter();
-  // ★ v3.11.0 r1: Filter รายการย่อยตามช่วงเวลา (overdue/today/upcoming)
-  const searchParams = useSearchParams();
-  const [taskFilter, setTaskFilter] = React.useState<'all' | 'overdue' | 'today' | 'upcoming'>(
-    (searchParams.get('filter') as 'overdue' | 'today' | 'upcoming' | null) || 'all'
-  );
-  const todayStr = getLocalTodayStr();
-
   // v1.6: useRealtimeEventById — subscribe changes แบบ realtime
   // event state อัพเดตอัตโนมัติเมื่อมีใครแก้ไข/เพิ่ม/ลบใน DB
   const {
@@ -372,25 +359,9 @@ export function EventDetailClient({
 
   const totalTasks = event?.tasks?.length || 0;
 
-  // ★ v3.11.0 r1: กรองรายการย่อยตาม filter (overdue/today/upcoming/all)
-  const filteredTasks = React.useMemo(() => {
-    const tasks = event?.tasks || [];
-    if (!isGroup || taskFilter === 'all') return tasks;
-    return tasks.filter((t) => {
-      const effectiveStart = getEffectiveTaskStartDate(t, event!);
-      const effectiveDue = getEffectiveTaskDueDate(t, event!);
-      if (!effectiveStart || !effectiveDue) return false;
-      if (taskFilter === 'overdue') return effectiveDue < todayStr;
-      if (taskFilter === 'today') return effectiveStart <= todayStr && effectiveDue >= todayStr;
-      if (taskFilter === 'upcoming') return effectiveStart > todayStr;
-      return true;
-    });
-  }, [event?.tasks, isGroup, taskFilter, todayStr, event]);
-
   // ★ v3.10.0 รอบที่ 10: แบ่งรายการย่อยเป็นช่วงเช้า / ช่วงบ่าย / ไม่ระบุเวลา
-  //   ★ v3.11.0 r1: ใช้ filteredTasks แทน event?.tasks ทั้งหมด
   const taskTimeGroups = React.useMemo(() => {
-    const tasks = filteredTasks;
+    const tasks = event?.tasks || [];
     const morning: Task[] = [];
     const afternoon: Task[] = [];
     const unscheduled: Task[] = [];
@@ -417,7 +388,7 @@ export function EventDetailClient({
       unscheduled,
       showGroupHeadings: tasks.length > 0,
     };
-  }, [filteredTasks]);
+  }, [event?.tasks]);
 
   const editTask =
     editTaskId != null
@@ -605,44 +576,6 @@ export function EventDetailClient({
         </section>
       ) : null}
 
-      {/* ★ v3.11.0 r1: Filter รายการย่อย — แสดงในหน้ารายละเอียดกลุ่มรายการเสมอ */}
-      {isGroup && totalTasks > 0 ? (
-        <div className="yp-task-filter" role="tablist">
-          <button
-            type="button"
-            className={`yp-task-filter__btn${taskFilter === 'all' ? ' is-active' : ''}`}
-            onClick={() => setTaskFilter('all')}
-            aria-pressed={taskFilter === 'all'}
-          >
-            ทั้งหมด
-          </button>
-          <button
-            type="button"
-            className={`yp-task-filter__btn${taskFilter === 'overdue' ? ' is-active' : ''}`}
-            onClick={() => setTaskFilter('overdue')}
-            aria-pressed={taskFilter === 'overdue'}
-          >
-            เลยกำหนด
-          </button>
-          <button
-            type="button"
-            className={`yp-task-filter__btn${taskFilter === 'today' ? ' is-active' : ''}`}
-            onClick={() => setTaskFilter('today')}
-            aria-pressed={taskFilter === 'today'}
-          >
-            วันนี้
-          </button>
-          <button
-            type="button"
-            className={`yp-task-filter__btn${taskFilter === 'upcoming' ? ' is-active' : ''}`}
-            onClick={() => setTaskFilter('upcoming')}
-            aria-pressed={taskFilter === 'upcoming'}
-          >
-            กำลังจะถึง
-          </button>
-        </div>
-      ) : null}
-
       {/* ── TASK LIST (group only) ── */}
       {isGroup ? (
         <section className="yp-detail-section">
@@ -719,20 +652,6 @@ export function EventDetailClient({
                 <Plus />
                 <span>เพิ่มรายการย่อย</span>
               </button>
-            </div>
-          ) : filteredTasks.length === 0 && taskFilter !== 'all' ? (
-            <div className="yp-card yp-card--tasklist">
-              <div className="yp-task-empty">
-                <div className="yp-task-empty__icon">
-                  <CircleDashed width={20} height={20} />
-                </div>
-                <div className="yp-task-empty__title">
-                  ไม่มีรายการย่อยในช่วง{taskFilter === 'overdue' ? 'ที่เลยกำหนด' : taskFilter === 'today' ? 'วันนี้' : 'ที่กำลังจะถึง'}
-                </div>
-                <div className="yp-task-empty__desc">
-                  เปลี่ยนตัวกรองเป็น &ldquo;ทั้งหมด&rdquo; เพื่อดูรายการย่อยทั้งหมด
-                </div>
-              </div>
             </div>
           ) : (
             // ★ v3.10.0: คอนเทนเนอร์ของรายการย่อย ปรับให้จัดวางแบบเดียวกับ

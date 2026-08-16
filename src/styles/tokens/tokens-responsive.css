@@ -69,7 +69,7 @@
 @media (min-width: 1280px) {
   :root {
     /* Spacing scale-up */
-    --yp-page-pad-x:   2.25rem;
+    --yp-page-pad-x:   2.5rem;        /* Governance: 40px widescreen */
     --yp-card-pad:     1.75rem;     /* r8: 28px widescreen */
     --yp-card-pad-lg:  2.625rem;     /* r8: 42px widescreen */
     --yp-section-gap:  3rem;        /* 48px widescreen */

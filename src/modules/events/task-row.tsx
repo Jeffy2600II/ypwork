@@ -2,26 +2,21 @@
 
 /**
  * ============================================================
- * YP WORK - Event Detail - TaskRow (r48)
+ * YP WORK - Event Detail - TaskRow
  * ============================================================
  * Row ของรายการย่อยในกลุ่มรายการ (task row ใน event detail)
  * - แสดง title, assignee, due/start dates, priority, tags
- * - ปุ่ม status / edit / delete
+ * - ปุ่ม edit / delete
+ * Round 12: Removed overdue styling — no status system.
  * ============================================================
  */
 
 import * as React from 'react';
-import { AlertTriangle, Calendar as CalIcon, Clock, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Calendar as CalIcon, Clock, Pencil, Trash2 } from 'lucide-react';
 import type { Task } from '@/lib/types';
-import { relativeDay, isPast, priorityLabel } from '@/lib/utils/date';
+import { relativeDay, priorityLabel } from '@/lib/utils/date';
 import { Avatar } from '@/components/framework/avatar';
 
-// ═══════════════════════════════════════════════════════════════
-// TaskRow — render row ของรายการย่อยในกลุ่มรายการ (เหมือน demo task-row.js)
-//   ★ v3.10.0 รอบที่ 29: เพิ่ม chip "เริ่ม ..." สำหรับแสดง start_date
-//     ถ้า start_date มีและต่างจาก due_date → แสดง chip "เริ่ม ..." ก่อน chip "กำหนด ..."
-//     ถ้า start_date เท่ากับ due_date หรือไม่มี → ไม่ต้องแสดงซ้ำ แสดงแค่ "กำหนด ..." ตามเดิม
-// ═══════════════════════════════════════════════════════════════
 export function TaskRow({
   task,
   onEdit,
@@ -33,23 +28,13 @@ export function TaskRow({
 }) {
   const assignee = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
   const dueLabel = task.due_date ? relativeDay(task.due_date) : '';
-  const overdue = task.due_date && isPast(task.due_date);
   const priority = task.priority || 'medium';
   const priorityLbl =
     priority === 'high' ? 'เร่งด่วน' : priority === 'low' ? 'ไม่เร่ง' : 'ปกติ';
   const tags = Array.isArray(task.tags) ? task.tags : [];
 
-  // ★ v3.10.0 รอบที่ 29: คำนวณ chip "เริ่ม ..." ถ้า start_date มีและต่างจาก due_date
-  //   ถ้า start_date เท่ากับ due_date → แสดงแค่ chip เดียว เพื่อกันซ้ำซ้อน
-  //   ถ้า start_date มี แต่ due_date ไม่มี → แสดง chip "เริ่ม ..." แทน "กำหนด ..."
   const startLabel = task.start_date ? relativeDay(task.start_date) : '';
   const showStartChip = !!startLabel && startLabel !== dueLabel;
-
-  // ★ v3.10.0 รอบที่ 42: BUG FIX — เดิมถ้ามี start_time จะแสดง chip
-  //   "เวลาเริ่ม 18:00" โดยไม่บอกว่าเป็นวันไหน ผู้ใช้แจ้งว่าเห็นแค่ตัวเลข
-  //   เวลาแล้วไม่รู้ว่าหมายถึงวันนี้หรือพรุ่งนี้ — แก้โดยรวมวันที่เข้าไปด้วย
-  //   เสมอ: ใช้ start_date ถ้ามี ถ้าไม่มีให้ใช้ due_date แทน (วันที่ใกล้เคียง
-  //   ที่สุดที่ระบบรู้จัก) แล้วแสดงเป็น chip เดียว "เริ่ม {วัน} {เวลา} น."
   const startDayForTime = startLabel || dueLabel;
 
   return (
@@ -83,9 +68,6 @@ export function TaskRow({
             </span>
           ) : null}
 
-          {/* ★ v3.10.0 รอบที่ 42: chip "เริ่ม" รวมวัน+เวลาไว้ด้วยกันเสมอ
-             ถ้ามี start_time → แสดงวัน + เวลา (ไม่ให้เวลาลอยโดยไม่มีวัน)
-             ถ้ามีแค่ start_date (ไม่มีเวลา) และต่างจาก due_date → แสดงแค่วัน */}
           {task.start_time ? (
             <span className="yp-task-row__chip yp-task-row__chip--start">
               <Clock width={11} height={11} />
@@ -101,10 +83,8 @@ export function TaskRow({
           ) : null}
 
           {dueLabel ? (
-            <span
-              className={`yp-task-row__chip yp-task-row__chip--due${overdue ? ' is-overdue' : ''}`}
-            >
-              {overdue ? <AlertTriangle width={11} height={11} /> : <CalIcon width={11} height={11} />}
+            <span className="yp-task-row__chip yp-task-row__chip--due">
+              <CalIcon width={11} height={11} />
               <span className="yp-task-row__chip-label">กำหนดส่ง</span>
               {dueLabel}
             </span>
@@ -153,4 +133,3 @@ export function TaskRow({
     </div>
   );
 }
-

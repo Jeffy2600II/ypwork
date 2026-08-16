@@ -154,7 +154,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
         </div>
         <div className="yp-profile-stat">
           <span className="yp-profile-stat__value">{liveStats.myTasks}</span>
-          <span className="yp-profile-stat__label">Task รับผิดชอบ</span>
+          <span className="yp-profile-stat__label">รายการย่อยที่รับผิดชอบ</span>
         </div>
 
       </section>

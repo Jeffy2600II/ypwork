@@ -1,34 +1,28 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Events List View (v1.6 — realtime)
+// YP WORK · Events List View
 // ═══════════════════════════════════════════════════════════════
-// แสดง filter 5 แบบ + group by month (พ.ศ.)
-// filter state เปลี่ยน → re-render เฉพาะ list (ไม่ re-create page shell)
-// v1.6: subscribe Supabase Realtime — list อัพเดตทันทีเมื่อมีการ
-// เพิ่ม/แก้ไข/ลบ events หรือ tasks โดยไม่ต้อง refresh
+// แสดง filter 4 แบบ + group by month (พ.ศ.)
+// Round 12: Removed 'overdue' filter — no status system.
 // ═══════════════════════════════════════════════════════════════
 
 import * as React from 'react';
 import type { YPEvent, SessionUser } from '@/lib/types';
 import { EventCard } from '@/modules/events/event-card';
 import {
-  isPast,
-  isToday,
   THAI_MONTHS,
 } from '@/lib/utils/date';
 import { useRealtimeEvents } from '@/lib/hooks/use-realtime';
-// ★ r51: ใช้ shared helpers จาก event-date.ts (single source of truth)
 import { getEventSortKey, getEventMonthGroupKey } from '@/lib/utils/event-date';
 
-type FilterKey = 'all' | 'group' | 'task' | 'mine' | 'overdue';
+type FilterKey = 'all' | 'group' | 'task' | 'mine';
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'ทั้งหมด' },
   { key: 'group', label: 'กลุ่มรายการ' },
   { key: 'task', label: 'รายการ' },
   { key: 'mine', label: 'ที่ฉันมีส่วนร่วม' },
-  { key: 'overdue', label: 'เลยกำหนด' },
 ];
 
 export interface EventsListViewProps {
@@ -39,12 +33,9 @@ export interface EventsListViewProps {
 export function EventsListView({ events: initialEvents, user }: EventsListViewProps) {
   const [filter, setFilter] = React.useState<FilterKey>('all');
 
-  // v1.6: subscribe realtime
   const { events } = useRealtimeEvents(initialEvents);
 
   const filtered = React.useMemo(() => {
-    // ★ r51: ใช้ getEventSortKey() — group ที่ไม่มี date จะใช้ '9999-99-99'
-    //   ทำให้ .localeCompare() ไม่พัง และไปอยู่ท้าย list
     const sorted = [...events].sort((a, b) =>
       getEventSortKey(a).localeCompare(getEventSortKey(b))
     );
@@ -59,13 +50,6 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
         )
       );
     }
-    if (filter === 'overdue') {
-      // ★ r51: ข้าม events ที่ไม่มี date (group type ที่ไม่มี deadline)
-      //   เพราะไม่สามารถ overdue ได้
-      return sorted.filter(
-        (e) => e.date && isPast(e.date) && !isToday(e.date)
-      );
-    }
     return sorted;
   }, [events, filter, user.auth_uid]);
 
@@ -73,7 +57,6 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
   const groups = React.useMemo(() => {
     const map = new Map<string, YPEvent[]>();
     for (const ev of filtered) {
-      // ★ r51: ใช้ getEventMonthGroupKey() — group ที่ไม่มี date จะใช้ key "ไม่มีกำหนดการ"
       const key = getEventMonthGroupKey(ev);
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(ev);
@@ -81,8 +64,6 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
     return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
-  // ★ r51: format month label — ถ้า key เป็น "YYYY-MM" → แปลงเป็น "เดือน พ.ศ."
-  //   ถ้า key เป็น "ไม่มีกำหนดการ" → ใช้ label ตรง ๆ
   const formatMonthLabel = (key: string): string => {
     if (key === 'ไม่มีกำหนดการ') return key;
     const [y, m] = key.split('-');
@@ -94,7 +75,7 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
 
   return (
     <div className="yp-page yp-page-enter">
-      {/* ── PAGE HEADER ── */}
+      {/* PAGE HEADER */}
       <div className="yp-page-header">
         <div className="yp-page-header__eyebrow">รายการ</div>
         <h1 className="yp-page-header__title">รายการทั้งหมด</h1>
@@ -103,7 +84,7 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
         </p>
       </div>
 
-      {/* ── FILTER ── */}
+      {/* FILTER */}
       <div className="yp-events-filter" role="tablist">
         {FILTERS.map((f) => (
           <button
@@ -118,7 +99,7 @@ export function EventsListView({ events: initialEvents, user }: EventsListViewPr
         ))}
       </div>
 
-      {/* ── LIST ── ★ v3.7.13: key-based remount on filter change for re-animation */}
+      {/* LIST */}
       {groups.length === 0 ? (
         <div className="yp-empty">
           <div className="yp-empty__icon" aria-hidden="true">

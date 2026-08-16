@@ -1,14 +1,17 @@
-// Path:    src/modules/events/event-card.tsx
-// Purpose: การ์ดสรุปรายการ 1 ชิ้น ใช้แสดงในหน้ารายการ (EventsListView) และหน้าอื่น
-//          ที่ต้องแสดงรายการ/กลุ่มรายการแบบย่อ
-// Used by: EventsListView (src/modules/events/events-list-view.tsx)
-// ═══════════════════════════════════════════════════════════════
-// YP WORK · EventCard (shared component — ใช้ใน list, day)
-// Round 10: Removed all status references (no more status tracking)
-// ═══════════════════════════════════════════════════════════════
+'use client';
 
+/**
+ * ============================================================
+ * YP WORK - Event Card
+ * ============================================================
+ * Card สำหรับแสดง 1 รายการใน list view และ today dashboard
+ * Round 12: Removed overdue badge — no status system.
+ * ============================================================
+ */
+
+import * as React from 'react';
+import { ChevronRight, Flag, Layers } from 'lucide-react';
 import Link from 'next/link';
-import { Layers, Flag, ChevronRight } from 'lucide-react';
 import type { YPEvent } from '@/lib/types';
 import {
   relativeDay,
@@ -19,7 +22,7 @@ import { getEffectiveStartDate } from '@/lib/utils/event-date';
 export interface EventCardProps {
   event: YPEvent;
   extraMeta?: string[];
-  filter?: 'overdue' | 'today' | 'upcoming';
+  filter?: 'today' | 'upcoming';
 }
 
 function DateBadge({ date }: { date: string | null }) {
@@ -34,9 +37,6 @@ function DateBadge({ date }: { date: string | null }) {
   }
   if (diffDays === 1) {
     return <span className="yp-event-card__date-badge yp-event-card__date-badge--tomorrow">พรุ่งนี้</span>;
-  }
-  if (diffDays < 0) {
-    return <span className="yp-event-card__date-badge yp-event-card__date-badge--overdue">เลยกำหนด</span>;
   }
   return null;
 }

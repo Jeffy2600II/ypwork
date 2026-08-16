@@ -2,17 +2,18 @@
 
 /**
  * ============================================================
- * YP WORK - Today Module - TodayItemCard (r48)
+ * YP WORK - Today Module - TodayItemCard
  * ============================================================
  * Card สำหรับแสดง 1 รายการใน Today dashboard
- * - 4-Row Layout (r46): metadata → title → parent → badges
+ * - 4-Row Layout: metadata → title → parent → badges
  * - Subtask Clarity: left accent bar + tinted bg + "↳ รายการย่อย" label
+ *
+ * Round 12: Removed overdue badge — no status system.
  * ============================================================
  */
 
 import * as React from 'react';
 import {
-  AlertTriangle,
   Calendar as CalIcon,
   Flag,
   Clock,
@@ -22,39 +23,13 @@ import {
   MapPin,
   Timer,
   CornerDownRight,
+  Eye,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
-import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { relativeDay } from '@/lib/utils/date';
 import type { TimelineItem } from './today-types';
 import { PRIORITY_LBL } from './today-types';
-import { formatScheduleLabel, formatCardTimeDisplay } from './today-format';
-
-// MODULE 7: TODAY ITEM CARD (v3.10.0-r68 — 4-Row Layout + Subtask Clarity + Soft Feel)
-// ═══════════════════════════════════════════════════════════════
-//
-// Card layout (TOP → BOTTOM):
-//
-//  Row 1: [↳ รายการย่อย*]            [🕐 เวลา] [•••]     *subtask เท่านั้น
-//         ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─      (faint hairline)
-//  Row 2: 🔷 ชื่องาน (Title — พระเอก ใหญ่ เด่น)            *icon = subtask เท่านั้น
-//  Row 3: 👥 จากกลุ่ม: XXX  (รายการย่อยเท่านั้น)
-//  Row 4: [🔴 เลยกำหนด] [🟡 รอเริ่ม] [📍 สถานที่]
-//
-//  ★ r46: Subtask vs Standalone Clarity
-//    - Subtask: left accent bar + tinted bg + "↳ รายการย่อย" label +
-//               prominent Layers icon (16px, accent color)
-//    - Standalone: clean white card, no left bar, no label, no title icon
-//
-//  ★ r46: Row Breathing — margin-top ระหว่างบรรทัดเพิ่มขึ้น
-//    - Row 1 → Row 2: 12px (was 2px) + faint hairline divider
-//    - Row 2 → Row 3:  8px (was 4px)
-//    - Row 3 → Row 4: 14px (was 8px)
-//    - Card padding: 18px (was 16px)
-//
-//  ★ ไม่มีเส้น Divider หนา — ใช้ Padding/Spacing จัดกลุ่มข้อมูล
-//  ★ เวลาใน Row 1 ไม่โดดเด่น ไม่มีกรอบแคปซูล
-// ═══════════════════════════════════════════════════════════════
+import { formatCardTimeDisplay } from './today-format';
 
 export function TodayItemCard({
   item,
@@ -72,13 +47,11 @@ export function TodayItemCard({
   onViewMore: (item: TimelineItem) => void;
 }) {
   const accent = item.accent;
-  const isOverdue = item.dateContext === 'overdue';
   const isUpcoming = item.dateContext === 'upcoming';
   const priority = item.priority || 'medium';
   const priorityLbl = PRIORITY_LBL[priority] || 'ปกติ';
   const isSubItem = !!item.parentEvent && !!item.task;
 
-  // Row 1: Time display (subtle, no capsule)
   const timeDisplay = formatCardTimeDisplay(item, todayStr);
 
   return (
@@ -87,25 +60,16 @@ export function TodayItemCard({
       style={{ ['--accent' as string]: accent }}
       aria-label={`${item.title}${isSubItem ? ' (รายการย่อย)' : ''}`}
     >
-      {/* ── Body ── */}
       <div className="yp-today-item-card__body">
-        {/* Row 1: Subtask label (left) + Time + Menu (right) */}
+        {/* Row 1: Subtask label + Time + Menu */}
         <div className="yp-today-item-card__top-row">
-          {/* ★ r46: Subtask label — explicit text identifier
-              แสดงเฉพาะรายการย่อย — ทำให้ user รู้ทันทีว่าเป็น subtask
-              ใช้ไอคอน CornerDownRight + ข้อความ "รายการย่อย"
-              สี accent ของ parent event เพื่อเชื่อมโยงกับพ่อแม่ */}
           {isSubItem ? (
             <span className="yp-today-item-card__subtag">
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               <CornerDownRight width={10} height={10} strokeWidth={2.5} />
               รายการย่อย
             </span>
           ) : (
             <span className="yp-today-item-card__type-tag">
-              {/* ★ r46: Standalone indicator — ใช้ icon เดียวบอกประเภท
-                  (Flag = standalone task, Layers = subtask)
-                  ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               <Flag width={10} height={10} strokeWidth={2.5} />
               รายการหลัก
             </span>
@@ -114,7 +78,6 @@ export function TodayItemCard({
           <div className="yp-today-item-card__top-right">
             {timeDisplay ? (
               <span className="yp-today-item-card__time">
-                {/* ★ r64: ลด icon จาก 12×12 → 11×11 ให้สมดุลกับ type scale ใหม่ */}
                 <Clock width={11} height={11} />
                 {timeDisplay}
               </span>
@@ -131,17 +94,15 @@ export function TodayItemCard({
                 else onOpenMenu(item);
               }}
             >
-              {/* ★ r64: ลด icon จาก 16×16 → 15×15 ให้สมดุลกับ type scale ใหม่ */}
               <MoreHorizontal width={15} height={15} />
             </button>
           </div>
         </div>
 
-        {/* Row 2: Title (hero — large, prominent, with type icon) */}
+        {/* Row 2: Title */}
         <div className="yp-today-item-card__title">
           {isSubItem ? (
             <Layers
-              /* ★ r64: ลด icon จาก 16×16 → 14×14 ให้สมดุลกับ title text ที่เล็กลง */
               width={14}
               height={14}
               strokeWidth={2.25}
@@ -154,7 +115,6 @@ export function TodayItemCard({
         {/* Row 3: From group (sub-items only) */}
         {isSubItem && item.parentEvent ? (
           <div className="yp-today-item-card__group">
-            {/* ★ r64: ลด icon จาก 12×12 → 11×11 ให้สมดุลกับ type scale ใหม่ */}
             <Users width={11} height={11} />
             <span className="yp-today-item-card__group-label">
               จากกลุ่ม:
@@ -165,17 +125,8 @@ export function TodayItemCard({
           </div>
         ) : null}
 
-        {/* Row 4: Badges (status, priority, location, etc.) */}
+        {/* Row 4: Badges (priority, location, estimated time, assignee, upcoming date) */}
         <div className="yp-today-item-card__badges">
-          {/* Overdue badge (date-based — no status) */}
-          {isOverdue && item.itemDate && item.itemDate !== todayStr ? (
-            <span className="yp-today-item-card__badge yp-today-item-card__badge--overdue">
-              <AlertTriangle width={10} height={10} />
-              เลยกำหนด {relativeDay(item.itemDate)}
-            </span>
-          ) : null}
-
-          {/* Priority badge (skip medium) */}
           {priority !== 'medium' ? (
             <span
               className={`yp-today-item-card__badge yp-today-item-card__badge--priority is-priority-${priority}`}
@@ -184,25 +135,20 @@ export function TodayItemCard({
             </span>
           ) : null}
 
-          {/* Location badge */}
           {item.location ? (
             <span className="yp-today-item-card__badge">
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               <MapPin width={10} height={10} />
               {item.location}
             </span>
           ) : null}
 
-          {/* Estimated time badge */}
           {item.estimatedTime ? (
             <span className="yp-today-item-card__badge">
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               <Timer width={10} height={10} />
               {item.estimatedTime}
             </span>
           ) : null}
 
-          {/* Assignee badge */}
           {item.assigneeName ? (
             <span className="yp-today-item-card__badge yp-today-item-card__badge--assignee">
               {item.assigneeColor ? (
@@ -216,13 +162,11 @@ export function TodayItemCard({
             </span>
           ) : null}
 
-          {/* Upcoming date badge (only if no time display in Row 1) */}
           {isUpcoming &&
           item.itemDate &&
           item.itemDate !== todayStr &&
           !timeDisplay ? (
             <span className="yp-today-item-card__badge">
-              {/* ★ r64: ลด icon จาก 11×11 → 10×10 ให้สมดุลกับ type scale ใหม่ */}
               <CalIcon width={10} height={10} />
               จะเริ่ม {relativeDay(item.itemDate)}
             </span>
@@ -230,7 +174,7 @@ export function TodayItemCard({
         </div>
       </div>
 
-      {/* ── Popup menu ── */}
+      {/* Popup menu */}
       {isMenuOpen ? (
         <>
           <div
@@ -251,7 +195,6 @@ export function TodayItemCard({
                 onViewMore(item);
               }}
             >
-              {/* ★ r64: ลด icon จาก 14×14 → 13×13 ให้สมดุลกับ type scale ใหม่ */}
               <Eye width={13} height={13} />
               ดูเพิ่มเติม
             </button>

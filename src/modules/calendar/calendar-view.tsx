@@ -151,7 +151,7 @@ export function CalendarView({
       <div className="yp-page-header">
         <div className="yp-cal-header-row">
           <div className="yp-cal-header-row__title">
-            <div className="yp-page-header__eyebrow">ปฏิทินกิจกรรม</div>
+            <div className="yp-page-header__eyebrow">ปฏิทินรายการ</div>
             <h1 className="yp-page-header__title">{THAI_MONTHS[viewMonth]} {viewYear + 543}</h1>
           </div>
           {/* View toggle */}
