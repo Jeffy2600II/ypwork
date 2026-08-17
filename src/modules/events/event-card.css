@@ -30,7 +30,8 @@
 }
 
 /* ── Event card sub-parts (uses .yp-event-card from above) ── */
-.yp-event-card + .yp-event-card { margin-top: var(--yp-space-4); }
+/* Round 13: margin-top moved to the "Card proportions" override block below
+   (restored to R10/R11 spacing) — removed the duplicate rule that was here. */
 
 /* ★ v3.9.9: TodayTaskCard — ใช้ .yp-event-card เป็น base แล้วเพิ่ม badge "จาก:" */
 .yp-today-task-card {
@@ -190,11 +191,7 @@
   border: 1px solid color-mix(in srgb, var(--yp-indigo-500, #6366F1) 20%, transparent);
 }
 
-.yp-event-card__date-badge--overdue {
-  background: color-mix(in srgb, var(--yp-danger-500, #F43F5E) 14%, transparent);
-  color: var(--yp-danger-500, #F43F5E);
-  border: 1px solid color-mix(in srgb, var(--yp-danger-500, #F43F5E) 20%, transparent);
-}
+/* Round 13: removed --overdue variant — no status system (see Round 12) */
 
 /* ═══════════════════════════════════════════════════════════════
    ★ v3.10.0 รอบที่ 32: Status Breakdown (แทน Subtask Preview เดิม)
@@ -229,6 +226,33 @@
   gap: 5px;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ★ Round 13: Task Count Badge (was unstyled raw text since R11)
+   ═══════════════════════════════════════════════════════════════
+   Accent-tinted pill — same visual language as .yp-event-card__date-badge
+   (pill shape, tinted background, bordered). Indented 54px to align under
+   the title text, matching .yp-event-card__breakdown's alignment rule. */
+.yp-event-card__task-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--yp-space-3);
+  margin-left: 54px;
+  padding: 3px 10px;
+  border-radius: var(--yp-radius-pill);
+  background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
+  color: var(--accent, var(--yp-indigo-600));
+  font-size: var(--yp-text-2xs);
+  font-weight: var(--yp-fw-bold);
+  letter-spacing: 0.01em;
+  border: 1px solid color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 16%, transparent);
+}
+
+.yp-event-card__task-count svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
 /* ★ chip ขนาดเล็ก — ใช้ต่อยอดจาก .yp-chip เดิม (สีต่อสถานะใช้ของเดิมทั้งหมด
    ไม่สร้างสีซ้ำ เพื่อให้ทุกหน้าที่มี status chip ใช้โทนสีเดียวกันเป๊ะๆ)
    ★ r64: ลด padding 2px 8px → 1px 7px, font-size 10px → 9.5px, gap 4px → 3px */
@@ -261,6 +285,31 @@
   transition-property: background-color, border-color, box-shadow, transform, opacity;
   transition-duration: 200ms;
   transition-timing-function: var(--yp-ease-standard);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ Round 13: Card proportions restored close to R10/R11
+   ═══════════════════════════════════════════════════════════════
+   Round 12 realigned --yp-space-* and --yp-radius-* to the governance
+   4px grid, which is correct for the design system as a whole — but it
+   shrank this card's padding (26/22px → 24/20px) and, more noticeably,
+   its corner radius (66px → 52px). On a card this size the radius drop
+   reads as a visible proportion change, not just a subtle refinement.
+
+   Fix: override at the component level (NOT in tokens.css — the token
+   scale itself stays governance-compliant for every other control).
+   - Padding: explicit values matching the pre-R12 rendered padding.
+   - Radius: 60px — close to the legacy 66px but slightly tamed, so the
+     card reads as "high-radius, native app" without tipping into an
+     overly blobby stadium shape at this width.
+   - List rhythm: restored the pre-R12 gap between stacked cards. */
+.yp-event-card {
+  padding: 1.625rem 1.375rem;   /* 26px / 22px — matches R10/R11 */
+  border-radius: 60px;
+}
+
+.yp-event-card + .yp-event-card {
+  margin-top: 1.0625rem;   /* 17px — matches R10/R11 */
 }
 
 /* ★ v3.11.0-r5: Stable hover — NO translateY, just shadow + border (user preference) */

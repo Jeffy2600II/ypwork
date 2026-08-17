@@ -6,6 +6,9 @@
  * ============================================================
  * Card สำหรับแสดง 1 รายการใน list view และ today dashboard
  * Round 12: Removed overdue badge — no status system.
+ * Round 13: Redesigned task-count as an accent-tinted pill badge (was
+ *   unstyled raw text since R11) — now matches the date-badge/chip
+ *   visual language used elsewhere on this card.
  * ============================================================
  */
 
@@ -100,6 +103,7 @@ export function EventCard({ event, extraMeta = [], filter }: EventCardProps) {
 
       {isGroup && totalTasks > 0 ? (
         <div className="yp-event-card__task-count">
+          <Layers width={11} height={11} strokeWidth={2.25} />
           {totalTasks} รายการย่อย
         </div>
       ) : null}
