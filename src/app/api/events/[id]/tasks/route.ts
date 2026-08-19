@@ -141,7 +141,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
         tags: Array.isArray(tags) ? tags : [],
         sort_order: count || 0,
       })
-      .select('id, event_id, title, due_date, start_date, start_time, status, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
+      .select('id, event_id, title, due_date, start_date, start_time, priority, estimated_time, notes, tags, sort_order, created_at, updated_at')
       .limit(1)
       .maybeSingle();
 

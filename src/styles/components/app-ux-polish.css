@@ -45,7 +45,6 @@
 
 /* ── SMOOTH PRESS FEEDBACK FOR INTERACTIVE ELEMENTS ── */
 .yp-btn,
-.yp-status-quick__btn,
 .yp-type-option,
 .yp-add-task-btn,
 .yp-event-card,
@@ -63,7 +62,6 @@ button[class*='yp-'] {
 
 /* Active state for buttons — subtle app-like tactile press */
 .yp-btn:active:not(:disabled),
-.yp-status-quick__btn:active,
 .yp-type-option:active,
 .yp-add-task-btn:active {
   transform: scale(0.97);
@@ -71,7 +69,6 @@ button[class*='yp-'] {
 
 /* Smooth focus ring — soft indigo halo */
 .yp-btn:focus-visible,
-.yp-status-quick__btn:focus-visible,
 .yp-type-option:focus-visible,
 .yp-input:focus-visible,
 .yp-select:focus-visible,

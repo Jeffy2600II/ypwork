@@ -188,7 +188,7 @@
     transform 220ms var(--yp-ease-m3-standard),
     box-shadow 220ms var(--yp-ease-m3-standard),
     border-color 220ms var(--yp-ease-m3-standard);
-  min-height: 110px;
+  min-height: 88px;
   box-shadow: var(--yp-shadow-xs);
 }
 

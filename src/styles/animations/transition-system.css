@@ -86,7 +86,6 @@
 .yp-btn--block,
 .yp-priority-option,
 .yp-color-option,
-.yp-status-quick__btn,
 .yp-add-task-btn {
   transition:
     transform var(--yp-t-polish),
@@ -101,7 +100,6 @@
 .yp-btn:active,
 .yp-priority-option:active,
 .yp-color-option:active,
-.yp-status-quick__btn:active,
 .yp-add-task-btn:active,
 .bottom-nav__item:active,
 .top-bar__back:active,
