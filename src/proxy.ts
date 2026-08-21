@@ -9,7 +9,7 @@ import {
 } from '@/lib/security';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Middleware (v3.4.1)
+// YP WORK · Proxy (v3.4.1)
 // ═══════════════════════════════════════════════════════════════
 // Pipeline:
 //   1. Apply security headers to every response
@@ -35,7 +35,7 @@ import {
 //   - เพิ่ม COEP + CORP same-site
 // ═══════════════════════════════════════════════════════════════
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip = getClientIp(request);
 
