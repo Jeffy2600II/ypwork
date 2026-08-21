@@ -129,6 +129,7 @@ export function ProfileView({ user: initialUser, department, stats }: ProfileVie
             name={user.full_name}
             color={accent}
             size={96}
+            imageSrc={user.profile_image_url || undefined}
           />
         </div>
         <h1 id="profile-hero-title" className="yp-profile-hero__name">

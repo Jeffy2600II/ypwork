@@ -27,7 +27,7 @@
 
 .yp-confirm-dialog {
   background: var(--yp-bg-card);
-  border-radius: var(--yp-radius-xl);
+  border-radius: var(--yp-radius-2xl);
   border: 1px solid var(--yp-border-subtle);
   /* ★ r56: ลด confirm dialog shadow ลง ~50% */
   box-shadow: 0 12px 24px rgba(30, 27, 70, 0.09);

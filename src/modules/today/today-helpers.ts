@@ -5,12 +5,11 @@
  * YP WORK - Today Module - Helpers
  * ============================================================
  * Item builders + categorization engine
- * - buildStandaloneEventItem, buildTaskItem
- * - categorizeByDates, buildDateClusters, formatFullDateCaption, buildTimeGroups
  *
- * Round 18: Enhanced categorization with 5 natural date sections:
- *   overdue, today, tomorrow, this week, next week
- * Uses natural Thai language labels for better UX communication.
+ * Round 19: Redesigned date sections — no overdue state.
+ * Shows what's happening now and what's coming, grouped by
+ * natural time proximity. No "เลยกำหนด" status — the system
+ * doesn't have enough data to confirm that as a real status.
  * ============================================================
  */
 
@@ -88,7 +87,6 @@ export function buildTaskItem(
 
 /**
  * Decide which section an item belongs to based on effectiveStart / effectiveDue.
- * Round 18: Enhanced with 5 natural date categories.
  */
 export function categorizeByDates(
   effectiveStart: string | null,
@@ -154,13 +152,15 @@ export function buildTimeGroups(items: TimelineItem[]) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MODULE 4: ENHANCED EVENT CATEGORIZATION (Round 18)
+// MODULE 4: EVENT CATEGORIZATION (Round 19)
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Date section keys — ordered by urgency.
+ * Date section keys — ordered by time proximity.
+ * Round 19: No overdue section. Past-due items are shown in "today"
+ * since the system cannot confirm they are truly "overdue" as a status.
  */
-export type TodaySectionKey = 'overdue' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek';
+export type TodaySectionKey = 'today' | 'soon' | 'tomorrow' | 'upcoming' | 'later';
 
 /**
  * Calculate days difference between two date strings.
@@ -175,8 +175,8 @@ function daysBetween(todayStr: string, targetStr: string): number {
 }
 
 /**
- * Categorize EVENTS into 5 natural date sections.
- * Round 18: Enhanced with overdue, tomorrow, this week, next week.
+ * Categorize EVENTS into natural date sections.
+ * Round 19: No overdue state. Items with past dates are shown in "today".
  * A single event can appear in MULTIPLE sections simultaneously.
  * For group events, each sub-task is checked individually.
  */
@@ -184,37 +184,37 @@ export function categorizeEventsIntoSections(
   events: YPEvent[],
   todayStr: string,
 ): {
-  overdue: YPEvent[];
   today: YPEvent[];
+  soon: YPEvent[];
   tomorrow: YPEvent[];
-  thisWeek: YPEvent[];
-  nextWeek: YPEvent[];
+  upcoming: YPEvent[];
+  later: YPEvent[];
 } {
-  const overdueSet = new Set<YPEvent>();
   const todaySet = new Set<YPEvent>();
+  const soonSet = new Set<YPEvent>();
   const tomorrowSet = new Set<YPEvent>();
-  const thisWeekSet = new Set<YPEvent>();
-  const nextWeekSet = new Set<YPEvent>();
+  const upcomingSet = new Set<YPEvent>();
+  const laterSet = new Set<YPEvent>();
 
   for (const ev of events) {
     if (ev.type === 'group') {
       const tasks = ev.tasks || [];
       if (tasks.length === 0) {
         categorizeSingleEvent(ev, todayStr, {
-          overdueSet, todaySet, tomorrowSet, thisWeekSet, nextWeekSet,
+          todaySet, soonSet, tomorrowSet, upcomingSet, laterSet,
         });
       } else {
         for (const t of tasks) {
           const effectiveStart = getEffectiveTaskStartDate(t, ev);
           const effectiveDue = getEffectiveTaskDueDate(t, ev);
           categorizeByDateRange(ev, effectiveStart, effectiveDue, todayStr, {
-            overdueSet, todaySet, tomorrowSet, thisWeekSet, nextWeekSet,
+            todaySet, soonSet, tomorrowSet, upcomingSet, laterSet,
           });
         }
       }
     } else {
       categorizeSingleEvent(ev, todayStr, {
-        overdueSet, todaySet, tomorrowSet, thisWeekSet, nextWeekSet,
+        todaySet, soonSet, tomorrowSet, upcomingSet, laterSet,
       });
     }
   }
@@ -226,11 +226,11 @@ export function categorizeEventsIntoSections(
   };
 
   return {
-    overdue: [...overdueSet].sort(sortByDate),
     today: [...todaySet].sort(sortByDate),
+    soon: [...soonSet].sort(sortByDate),
     tomorrow: [...tomorrowSet].sort(sortByDate),
-    thisWeek: [...thisWeekSet].sort(sortByDate),
-    nextWeek: [...nextWeekSet].sort(sortByDate),
+    upcoming: [...upcomingSet].sort(sortByDate),
+    later: [...laterSet].sort(sortByDate),
   };
 }
 
@@ -245,21 +245,22 @@ function categorizeSingleEvent(
 }
 
 interface SectionSets {
-  overdueSet: Set<YPEvent>;
   todaySet: Set<YPEvent>;
+  soonSet: Set<YPEvent>;
   tomorrowSet: Set<YPEvent>;
-  thisWeekSet: Set<YPEvent>;
-  nextWeekSet: Set<YPEvent>;
+  upcomingSet: Set<YPEvent>;
+  laterSet: Set<YPEvent>;
 }
 
 /**
  * Core categorization — assigns event to section based on dates.
+ * Round 19: No overdue state. Past-due items go to "today".
  * Priority order (first match wins):
- *   1. overdue  — due date is in the past
- *   2. today     — active today (start <= today <= due)
- *   3. tomorrow — starts tomorrow (diff = 1)
- *   4. thisWeek — within 2-7 days
- *   5. nextWeek — within 8-14 days (and beyond)
+ *   1. today     — active today (start <= today <= due, OR past date)
+ *   2. soon      — within 1-2 days (เร็ว ๆ นี้)
+ *   3. tomorrow  — starts tomorrow (diff = 1)
+ *   4. upcoming  — within 2-7 days (กำลังจะถึง)
+ *   5. later     — 8+ days (อนาคต)
  */
 function categorizeByDateRange(
   ev: YPEvent,
@@ -276,27 +277,27 @@ function categorizeByDateRange(
     return;
   }
 
-  // 1. Overdue
+  // 1. Today — includes past-due items (no overdue state in Round 19)
   if (due < todayStr) {
-    sets.overdueSet.add(ev);
+    sets.todaySet.add(ev);
     return;
   }
-
-  // 2. Today
   if (start <= todayStr && due >= todayStr) {
     sets.todaySet.add(ev);
     return;
   }
 
-  // 3-5. Future dates
+  // 2-5. Future dates
   const diffDays = daysBetween(todayStr, start);
 
   if (diffDays === 1) {
     sets.tomorrowSet.add(ev);
-  } else if (diffDays >= 2 && diffDays <= 7) {
-    sets.thisWeekSet.add(ev);
+  } else if (diffDays >= 2 && diffDays <= 3) {
+    sets.soonSet.add(ev);
+  } else if (diffDays >= 4 && diffDays <= 7) {
+    sets.upcomingSet.add(ev);
   } else if (diffDays >= 8) {
-    sets.nextWeekSet.add(ev);
+    sets.laterSet.add(ev);
   } else {
     // diffDays <= 0 but didn't match above — treat as today
     sets.todaySet.add(ev);
@@ -305,32 +306,32 @@ function categorizeByDateRange(
 
 /**
  * Get section metadata — title and subtitle for display.
- * Round 18: Natural Thai language labels.
+ * Round 19: Natural Thai language labels without overdue state.
  */
 export function getSectionMeta(
   key: TodaySectionKey,
   count: number,
 ): { title: string; subtitle: string } {
   const meta: Record<TodaySectionKey, { title: string; subtitle: string }> = {
-    overdue: {
-      title: 'เลยกำหนด',
-      subtitle: count > 0 ? `${count} รายการต้องรีบดำเนินการ` : '',
-    },
     today: {
       title: 'วันนี้',
       subtitle: count > 0 ? `${count} รายการต้องทำวันนี้` : '',
+    },
+    soon: {
+      title: 'เร็ว ๆ นี้',
+      subtitle: count > 0 ? `${count} รายการที่กำลังจะถึง` : '',
     },
     tomorrow: {
       title: 'พรุ่งนี้',
       subtitle: count > 0 ? `${count} รายการที่จะถึง` : '',
     },
-    thisWeek: {
-      title: 'สัปดาห์นี้',
+    upcoming: {
+      title: 'กำลังจะถึง',
       subtitle: count > 0 ? `${count} รายการในสัปดาห์นี้` : '',
     },
-    nextWeek: {
-      title: 'สัปดาห์หน้า',
-      subtitle: count > 0 ? `${count} รายการในสัปดาห์หน้า` : '',
+    later: {
+      title: 'อนาคต',
+      subtitle: count > 0 ? `${count} รายการในอนาคต` : '',
     },
   };
   return meta[key];

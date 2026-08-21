@@ -44,7 +44,7 @@
    ═══════════════════════════════════════════════════════════════ */
 .yp-form-card {
   background: var(--yp-bg-card);
-  border-radius: var(--yp-radius-lg);
+  border-radius: var(--yp-radius-section);
   border: 1px solid var(--yp-border-subtle);
   padding: var(--yp-space-6);
   box-shadow:

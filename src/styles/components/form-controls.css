@@ -62,7 +62,7 @@
   width: 100%;
   padding: var(--yp-input-padding-y) var(--yp-input-padding-x);
   border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-control);
   background: var(--yp-bg-card);
   font-family: inherit;
   font-size: var(--yp-input-font-size);
@@ -122,11 +122,11 @@
 
 /* Large input variant (for task titles, modal headings) */
 .yp-input--lg {
-  padding: 0.875rem 1.125rem;
+  padding: 0.875rem 1.25rem;
   font-size: var(--yp-text-base);
   min-height: 56px;
   font-weight: var(--yp-fw-medium);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-control);
 }
 
 .yp-input--lg::placeholder {
@@ -152,7 +152,7 @@
   display: flex;
   align-items: center;
   border: var(--yp-input-border-width, 1px) solid var(--yp-border-default);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-control);
   background: var(--yp-bg-card);
   overflow: hidden;
   transition: border-color 180ms var(--yp-ease-standard), box-shadow 180ms var(--yp-ease-standard);

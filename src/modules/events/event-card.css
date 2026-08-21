@@ -113,9 +113,9 @@
    ★ r64: ลดจาก 11px → 10.5px ให้สมดุลกับ type scale ใหม่ */
 .yp-event-card__meta--secondary {
   color: var(--yp-text-faint);
-  font-size: var(--yp-text-2xs);
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
-  opacity: 0.85;
+  opacity: 1;
 }
 
 .yp-event-card__progress {
@@ -186,30 +186,6 @@
 }
 
 .yp-event-card__date-badge--tomorrow {
-  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 14%, transparent);
-  color: var(--yp-indigo-500, #6366F1);
-  border: 1px solid color-mix(in srgb, var(--yp-indigo-500, #6366F1) 20%, transparent);
-}
-
-/* Round 13: removed --overdue variant — no status system (see Round 12) */
-
-/* ═══════════════════════════════════════════════════════════════
-   ★ v3.10.0 รอบที่ 32: Status Breakdown (แทน Subtask Preview เดิม)
-   ═══════════════════════════════════════════════════════════════
-   ทำไมเปลี่ยน: การ preview รายการย่อยทีละแถว (รอบที่ 26-30) มีปัญหาว่า
-   ผู้ใช้ (โดยเฉพาะคนที่ไม่คุ้นระบบ) มองว่าเป็น "การ์ดในการ์ด" แล้วสับสน
-   ว่ากดตรงไหนได้ ทั้งที่ทั้งใบเป็น Link เดียวไปหน้ารายละเอียด
-   → เปลี่ยนเป็นสรุปบรรทัดเดียว (ไม่มี border/background เป็นกล่องย่อยอีก)
-   เพื่อให้ "อ่านสรุปได้" โดยไม่ทำให้ดูเหมือนกดได้ทีละแถว */
-.yp-event-card__breakdown {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--yp-space-2);
-  margin-top: var(--yp-space-3);
-  /* ★ r64: ลด padding-left จาก 58px → 54px ให้ตรงกับ icon ใหม่ 38px */
-  padding-left: 54px;
-}
 
 .yp-event-card__breakdown-label {
   /* ★ r64: text-xs → text-2xs (11px) — breakdown label ที่เล็กลง */

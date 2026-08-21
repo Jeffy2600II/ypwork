@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Profile Page (Stats, Settings) — v3.11.0-r5 (Modular CSS Refactor)
-   ★ r65: soft hero shadow + soft avatar shadow + warm up hero glow — เน้น soft
+   YP WORK · Profile Page (Stats, Settings) — Round 19 (Design Soul)
+   ★ Round 19: Elevated curvature, proper avatar container, text-on-dark contrast
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -51,9 +51,9 @@
 }
 
 .yp-profile-hero__avatar {
-  /* ★ r64: ลดจาก 104×104 → 88×88 — avatar ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
-  width: 88px;
-  height: 88px;
+  /* ★ Round 19: Robust avatar container — proper centering, overflow, sizing */
+  width: 96px;
+  height: 96px;
   margin: 0 auto var(--yp-space-5);
   border-radius: var(--yp-radius-pill);
   background: rgba(255, 255, 255, 0.22);
@@ -61,23 +61,34 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  /* ★ r56: ลด avatar shadow ลง ~50% ให้ avatar ดูเบา ไม่ฟุ้ง
-     ★ r64: ลด alpha ลงอีก — avatar แทบไม่มี shadow
-     ★ r65: ลด alpha ลงอีก ~15% — avatar soft นุ่มขึ้น */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06),
               0 0 0 4px rgba(255, 255, 255, 0.04);
   position: relative;
   z-index: 1;
 }
 
+/* ★ Round 19: Avatar image — proper fit, centering, no overflow */
+.yp-profile-hero__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ★ Round 19: Avatar SVG — ensure it fills container properly */
+.yp-profile-hero__avatar svg {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .yp-profile-hero__name {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
-     ★ r64: ลดจาก text-xl → text-lg — name ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
-  color: white;
-  font-size: var(--yp-text-lg);
+  color: var(--yp-text-on-dark-primary);
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.005em;
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   line-height: var(--yp-leading-tight);
   word-break: break-word;
   position: relative;
@@ -86,38 +97,34 @@
 }
 
 .yp-profile-hero__role {
-  color: rgba(255, 255, 255, 0.88);
-  /* ★ r64: text-sm → text-xs (11.5px) — role ที่เล็กลง */
-  font-size: var(--yp-text-xs);
+  color: var(--yp-text-on-dark-secondary);
+  font-size: var(--yp-text-sm);
   letter-spacing: 0.02em;
   margin: 0 0 var(--yp-space-4);
   line-height: 1.4;
   position: relative;
   z-index: 1;
-  /* v2.1.0: ป้องกัน overflow บนจอแคบ — ตัดด้วย ellipsis ถ้ายาวเกิน */
   overflow-wrap: anywhere;
   word-break: break-word;
   max-width: 100%;
+  opacity: 1;
 }
 
 .yp-profile-hero__chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  /* ★ r64: ลด padding 6px 14px → 4px 11px — chip ที่เล็กลง */
-  padding: 4px 11px;
+  gap: 6px;
+  padding: 5px 14px;
   border-radius: var(--yp-radius-pill);
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.32);
-  color: white;
-  /* ★ r64: text-xs → text-2xs (11px) — chip ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  color: var(--yp-text-on-dark-primary);
+  font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   position: relative;
   z-index: 1;
-  /* v2.1.0: จำกัดความกว้าง — ถ้าชื่อฝ่ายยาวให้ตัด */
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -137,7 +144,7 @@
 .yp-profile-stat {
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);
   padding: var(--yp-space-4) var(--yp-space-3);
   text-align: center;
   box-shadow: var(--yp-shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -149,9 +156,7 @@
 }
 
 .yp-profile-stat__value {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น
-     ★ r64: ลดจาก text-xl → text-lg — stat value ที่เล็กลง */
-  font-size: var(--yp-text-lg);
+  font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-text-strong);
   line-height: 1;
@@ -159,8 +164,7 @@
 }
 
 .yp-profile-stat__label {
-  /* ★ r64: text-xs → text-2xs (11px) — stat label ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   letter-spacing: 0.04em;
@@ -173,7 +177,7 @@
 .yp-profile-progress {
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);
   padding: var(--yp-space-4) var(--yp-space-5);
   box-shadow: var(--yp-shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
@@ -203,7 +207,7 @@
 .yp-profile-section {
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-lg);
+  border-radius: var(--yp-radius-section);
   box-shadow: var(--yp-shadow-xs);
   overflow: hidden;
 }
@@ -218,9 +222,8 @@
 }
 
 .yp-profile-section__icon {
-  /* ★ r64: ลดจาก 32×32 → 28×28 — section icon ที่เล็กลง */
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--yp-radius-sm);
   background: var(--yp-bg-indigo-soft);
   color: var(--yp-indigo-600);
@@ -230,9 +233,8 @@
   border: 1px solid var(--yp-border-indigo);
 }
 .yp-profile-section__icon svg {
-  /* ★ r64: ลดจาก 16×16 → 14×14 */
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
@@ -241,8 +243,7 @@
 }
 
 .yp-profile-section__title {
-  /* ★ r64: text-sm (14→13px after token change) — section title ที่เล็กลง */
-  font-size: var(--yp-text-sm);
+  font-size: var(--yp-text-base);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
   letter-spacing: 0.01em;
@@ -269,8 +270,7 @@
 .yp-profile-info__row:last-child { border-bottom: 0; }
 
 .yp-profile-info__label {
-  /* ★ r64: text-xs → text-2xs (11px) — info label ที่เล็กลง */
-  font-size: var(--yp-text-2xs);
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   font-weight: var(--yp-fw-medium);
   text-transform: uppercase;
@@ -280,8 +280,7 @@
 }
 
 .yp-profile-info__value {
-  /* ★ r64: text-sm → text-xs (11.5px) — info value ที่เล็กลง */
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-heading);
   text-align: right;

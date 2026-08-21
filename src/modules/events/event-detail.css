@@ -36,7 +36,7 @@
   color: var(--yp-text-strong);
   border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 20%, transparent);
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
+  padding: var(--yp-space-8) var(--yp-space-6) var(--yp-space-5);
   margin-bottom: var(--yp-space-6);
   position: relative;
   overflow: hidden;
@@ -239,7 +239,7 @@
   background-position: 0 0, 0 0, 0 0;
   border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
   border-radius: var(--yp-radius-hero);
-  padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
+  padding: var(--yp-space-8) var(--yp-space-6) var(--yp-space-5);
   margin-bottom: var(--yp-space-6);
   position: relative;
   overflow: hidden;

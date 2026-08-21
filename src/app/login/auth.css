@@ -1,15 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Auth/Login/Register Page Styles — v3.10.0-r56 (Modular CSS Refactor)
-   ═══════════════════════════════════════════════════════════════
-   Modular CSS file — part of the design system
-   for easier development, faster navigation, and better maintainability.
-   
-   ★ This file is part of the YP Work Design Library system.
-   ★ To modify: edit this file directly — changes apply globally.
-   ★ Cascade order: managed by src/styles/index.css manifest.
-   ═══════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════
-   YP WORK · LOGIN / REGISTER PAGE (port จาก demo v8.2)
+   YP WORK · Auth/Login/Register Page Styles — Round 19 (Design Soul)
+   ★ Round 19: Complete redesign — "gateway to the platform" feel
+     - Dramatic curvature using --yp-radius-auth token
+     - Elevated auth card with premium character
+     - Better visual hierarchy, spacing, and composition
+     - Proper text-on-dark contrast tokens
    ═══════════════════════════════════════════════════════════════ */
 .yp-auth {
   min-height: 100vh;
@@ -31,6 +26,7 @@
   width: 100%;
 }
 
+/* ── BRAND ── */
 .yp-auth__brand {
   display: flex;
   align-items: center;
@@ -55,8 +51,6 @@
   overflow: hidden;
 }
 
-/* v1.9.5 — image logo variant: transparent backdrop because the demo icon has its own
-   indigo→purple gradient background that matches the auth page background */
 .yp-auth__logo--image {
   background: transparent;
   border-color: transparent;
@@ -82,17 +76,18 @@
 }
 .yp-auth__brand-tag {
   font-size: var(--yp-text-xs);
-  opacity: 0.75;
+  color: var(--yp-text-on-dark-secondary);
+  opacity: 1;
   letter-spacing: 0.02em;
 }
 
 .yp-auth__back {
   margin-left: auto;
-  color: white;
+  color: var(--yp-text-on-dark-primary);
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
   text-decoration: none;
-  opacity: 0.85;
+  opacity: 1;
   transition: opacity var(--yp-t-fast);
   display: inline-flex;
   align-items: center;
@@ -101,14 +96,14 @@
 
 .yp-auth__back:hover { opacity: 1; }
 
+/* ── HERO (text on dark gradient) ── Round 19: Proper contrast tokens */
 .yp-auth__hero {
-  color: white;
+  color: var(--yp-text-on-dark-primary);
   margin-bottom: var(--yp-space-6);
 }
 
 .yp-auth__hero h1 {
-  /* ★ v3.10.0 รอบที่ 31: ลดจาก text-2xl → text-xl เพื่อสมดุลมากขึ้น */
-  color: white;
+  color: var(--yp-text-on-dark-primary);
   font-size: var(--yp-text-xl);
   font-weight: var(--yp-fw-extrabold);
   letter-spacing: 0.01em;
@@ -118,18 +113,32 @@
 }
 
 .yp-auth__hero p {
+  /* ★ Round 19: Use text-on-dark token for proper contrast on dark gradient */
+  color: var(--yp-text-on-dark-secondary);
   font-size: var(--yp-text-sm);
-  opacity: 0.88;
   line-height: var(--yp-leading-normal);
   max-width: 360px;
+  opacity: 1;
 }
 
+/* ── AUTH CARD — "Gateway to the platform" ── Round 19: Complete redesign */
 .yp-auth__card {
   background: white;
-  border-radius: var(--yp-radius-lg);
-  padding: var(--yp-space-6);
-  /* ★ r56: ลด auth card shadow ลง ~55% ทำให้ดูเบา ไม่ฟุ้ง */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+  /* ★ Round 19: Dramatic auth gateway radius — distinctive, premium */
+  border-radius: var(--yp-radius-auth);
+  padding: var(--yp-space-7) var(--yp-space-6);
+  /* ★ Round 19: Layered shadow — deeper but still soft, feels elevated */
+  box-shadow:
+    0 12px 40px rgba(30, 27, 70, 0.14),
+    0 4px 12px rgba(30, 27, 70, 0.06),
+    0 1px 3px rgba(30, 27, 70, 0.04);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .yp-auth__card {
+    padding: var(--yp-space-8) var(--yp-space-7);
+  }
 }
 
 .yp-auth__card-title {
@@ -142,7 +151,7 @@
 .yp-auth__card-sub {
   font-size: var(--yp-text-sm);
   color: var(--yp-text-muted);
-  margin-bottom: var(--yp-space-4);
+  margin-bottom: var(--yp-space-5);
 }
 
 .yp-auth__demo-badge {
@@ -153,7 +162,7 @@
   border-radius: var(--yp-radius-pill);
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.30);
-  color: white;
+  color: var(--yp-text-on-dark-primary);
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-semibold);
   margin-bottom: var(--yp-space-4);
@@ -168,7 +177,7 @@
   box-shadow: 0 0 8px var(--yp-amber-400);
 }
 
-/* ── Mode toggle (segmented control) ── */
+/* ── Mode toggle (segmented control) ── Round 19: Softened curvature */
 .yp-auth__mode-toggle {
   display: flex;
   background: var(--yp-bg-card-soft);
@@ -183,7 +192,7 @@
   flex: 1;
   border: none;
   border-radius: var(--yp-radius-pill);
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-family: inherit;
   font-weight: var(--yp-fw-bold);
   font-size: var(--yp-text-sm);
@@ -230,7 +239,7 @@
   flex: 1;
   border: none;
   border-radius: var(--yp-radius-pill);
-  padding: 8px 8px;
+  padding: 9px 8px;
   font-family: inherit;
   font-weight: var(--yp-fw-bold);
   font-size: var(--yp-text-xs);
@@ -282,10 +291,10 @@
   text-decoration: underline;
 }
 
-/* ── Footer ── */
+/* ── Footer ── Round 19: Proper contrast on dark */
 .yp-auth__footer {
   text-align: center;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--yp-text-on-dark-faint);
   font-size: var(--yp-text-xs);
   margin-top: var(--yp-space-6);
   line-height: 1.5;
@@ -345,3 +354,16 @@
   margin-left: 2px;
 }
 
+/* ── Auth input groups — Round 19: Softened curvature matching new tokens ── */
+.yp-auth .input-group {
+  border-radius: var(--yp-radius-control);
+}
+
+.yp-auth .yp-input {
+  border-radius: var(--yp-radius-control);
+}
+
+/* ── Auth buttons — Round 19: Slightly more rounded for premium feel ── */
+.yp-auth .yp-btn {
+  border-radius: var(--yp-radius-control);
+}

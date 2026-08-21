@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r8 (High-Radius Design Elevation)
-   ★ v3.11.0-r9 Round 9: Ultra-high curvature — xl=66px, dramatic radius scale — softer shadows, friendlier curves, premium feel
+   YP WORK · Design Tokens — Main :root Block (Colors, Spacing, Typography, Shadows, etc.) — v3.11.0-r19 (Design Soul Elevation)
+   ★ Round 19: Elevated curvature with proportional shape language — dramatic hero curves, premium auth gateway, refined text-on-dark tokens
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -45,6 +45,14 @@
   --yp-text-muted:     #6E6B8C;
   --yp-text-faint:     #9794B0;
   --yp-text-inverse:   #FFFFFF;
+  /* ── TEXT ON DARK ── Round 19: Proper contrast for text on dark/gradient surfaces
+     Prevents dark text on dark backgrounds (blue/indigo/violet gradients).
+     Primary = bright and clear, Secondary = slightly dimmed but still readable,
+     Supporting = reduced emphasis without dropping contrast too low. */
+  --yp-text-on-dark-primary:   rgba(255, 255, 255, 0.97);
+  --yp-text-on-dark-secondary: rgba(255, 255, 255, 0.82);
+  --yp-text-on-dark-supporting: rgba(255, 255, 255, 0.68);
+  --yp-text-on-dark-faint:      rgba(255, 255, 255, 0.55);
   /* ── SURFACE ──
      ★ v3.10.0 รอบที่ 13: เพิ่มความต่างระหว่างพื้นหลังหน้ากับพื้นผิวการ์ด
      (เดิม #F5F4FB กับการ์ดขาวใกล้เคียงกันเกินไป การ์ดเลย "ลอย" ไม่ชัดว่าเป็น
@@ -142,23 +150,27 @@
   --yp-space-12: 3rem;        /* 48px — 4px grid */
   --yp-space-16: 4rem;        /* 64px — 4px grid */
   --yp-space-20: 5rem;        /* 80px — 4px grid */
-  /* ── BORDER RADIUS ── v3.9.3: โค้งมนสูงมาก — ultra-premium high curvature design language
-     (xl = 66px: ระดับสูงมาก สำหรับการ์ดและ element หลัก
-      research: premium apps with bold, expressive curves — ทุกแพลตฟอร์มเคลื่อนไปที่ "soft squircle")
-     ค่ามากขึ้น = โค้งมนมากขึ้น รักษาสัดส่วนเดิมเพื่อไม่ให้ small element กลายเป็น pill ไปหมด */
-  --yp-radius-xs:   12px;
-  --yp-radius-sm:   20px;
-  --yp-radius-md:   28px;
-  --yp-radius-lg:   40px;
-  --yp-radius-xl:   52px;
-  --yp-radius-2xl:  68px;
+  /* ── BORDER RADIUS ── Round 19: Proportional shape language
+     Shape relationship: small elements → moderate curve, cards → more,
+     sections → even more, hero/major containers → most prominent.
+     Not over-rounded or bubble-like — soft, premium, modern, friendly.
+     The proportional scale creates rhythm: each level feels intentionally
+     more curved than the last, forming one cohesive shape language. */
+  --yp-radius-xs:   14px;
+  --yp-radius-sm:   22px;
+  --yp-radius-md:   30px;
+  --yp-radius-lg:   42px;
+  --yp-radius-xl:   56px;
+  --yp-radius-2xl:  72px;
   --yp-radius-pill: 999px;
   --yp-radius-none: 0px;    /* Governance: no rounding */
   --yp-radius-circle: 50%;  /* Governance: perfect circle */
-  --yp-radius-control: var(--yp-radius-md);
-  --yp-radius-card:    56px;  /* Round 18: Premium card radius */
-  --yp-radius-panel:   var(--yp-radius-lg);  /* Round 18: 40px per governance */
-  --yp-radius-hero:    58px;  /* Round 18: Slightly more rounded hero for premium character */
+  --yp-radius-control: var(--yp-radius-md);  /* Inputs, buttons — 30px */
+  --yp-radius-card:    58px;  /* Round 19: Premium card — distinct from sections */
+  --yp-radius-panel:   48px;  /* Round 19: Section panels — between card and hero */
+  --yp-radius-section: 62px;  /* Round 19: Major sections — more dramatic than cards */
+  --yp-radius-hero:    66px;  /* Round 19: Hero — most prominent curvature, signature shape */
+  --yp-radius-auth:    64px;  /* Round 19: Auth gateway — dramatic, distinctive portal feel */
   /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
   --yp-input-min-height: 52px;
   --yp-input-padding-y: 1em;

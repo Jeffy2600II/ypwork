@@ -39,7 +39,7 @@
    ★ v3.9.3: More rounded (var instead of 12px fixed) */
 .yp-stat__icon {
   width: 44px; height: 44px;
-  border-radius: var(--yp-radius-sm);
+  border-radius: var(--yp-radius-md);
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 14%, var(--yp-bg-card)) 0%,
     color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 22%, rgba(124, 58, 237, 0.12)) 100%);
@@ -130,9 +130,9 @@
 }
 
 .yp-empty__icon {
-  width: 76px; height: 76px;
+  width: 80px; height: 80px;
   margin: 0 auto var(--yp-space-5);
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);
   background: linear-gradient(135deg, var(--yp-bg-indigo-soft) 0%, rgba(124, 58, 237, 0.10) 100%);
   border: 1px solid var(--yp-border-indigo);
   display: grid;
@@ -167,10 +167,10 @@
   display: flex;
   align-items: flex-start;
   gap: var(--yp-space-4);
-  padding: 0.9375rem 1.125rem;
+  padding: 1rem 1.25rem;
   background: var(--yp-bg-card);
   border: 1px solid var(--yp-border-subtle);
-  border-radius: var(--yp-radius-sm);
+  border-radius: var(--yp-radius-md);
   cursor: pointer;
   transition: transform var(--yp-t-fast), background var(--yp-t-fast), border-color var(--yp-t-fast);
   -webkit-tap-highlight-color: transparent;
@@ -193,7 +193,7 @@
 .yp-list-item__icon {
   flex: 0 0 44px;
   width: 44px; height: 44px;
-  border-radius: var(--yp-radius-md);
+  border-radius: var(--yp-radius-lg);
   background: rgba(99, 102, 241, 0.10);
   color: var(--yp-indigo-600);
   display: grid;
@@ -280,6 +280,7 @@
 /* Consistent card transitions */
 .yp-card,
 .yp-stat {
+  border-radius: var(--yp-radius-card);
   transition-property: background-color, border-color, box-shadow, transform, opacity;
   transition-duration: 200ms;
   transition-timing-function: var(--yp-ease-standard);

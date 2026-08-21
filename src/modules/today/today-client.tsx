@@ -3,17 +3,20 @@
 // ============================================================
 // YP WORK - Today Dashboard
 // ============================================================
-// Round 18: Full UX redesign with 5 natural date sections.
-// Shows what's happening now, what's coming, what needs attention.
+// Round 19: Redesigned with natural date sections.
+// No overdue state — the system doesn't have enough data to
+// confirm items as "overdue" as a real status.
+// Sections: วันนี้, เร็ว ๆ นี้, พรุ่งนี้, กำลังจะถึง, อนาคต
 // ============================================================
 
 import * as React from 'react';
 import {
   Flag,
-  AlertCircle,
   Sun,
   CalendarDays,
   CalendarRange,
+  Clock,
+  Zap,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import type {
@@ -82,22 +85,21 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ── Categorize events into 5 sections ──
+  // ── Categorize events into sections ──
   const sections = React.useMemo(
     () => categorizeEventsIntoSections(events, todayStr),
     [events, todayStr],
   );
 
   const sectionOrder: { key: TodaySectionKey; events: YPEvent[] }[] = [
-    { key: 'overdue', events: sections.overdue },
     { key: 'today', events: sections.today },
+    { key: 'soon', events: sections.soon },
     { key: 'tomorrow', events: sections.tomorrow },
-    { key: 'thisWeek', events: sections.thisWeek },
-    { key: 'nextWeek', events: sections.nextWeek },
+    { key: 'upcoming', events: sections.upcoming },
+    { key: 'later', events: sections.later },
   ];
 
   const visibleSections = sectionOrder.filter((s) => s.events.length > 0);
-  const totalActive = sections.today.length + sections.overdue.length;
 
   // ── Department stats ──
   const deptStats = React.useMemo(() => {
@@ -110,38 +112,38 @@ export function TodayClient({
 
   // ── Section icon mapping ──
   const sectionIcons: Record<TodaySectionKey, React.ReactNode> = {
-    overdue: <AlertCircle width={16} height={16} />,
     today: <Sun width={16} height={16} />,
+    soon: <Zap width={16} height={16} />,
     tomorrow: <CalendarDays width={16} height={16} />,
-    thisWeek: <CalendarRange width={16} height={16} />,
-    nextWeek: <CalendarRange width={16} height={16} />,
+    upcoming: <CalendarRange width={16} height={16} />,
+    later: <Clock width={16} height={16} />,
   };
 
   // ── Empty state messages per section ──
   const emptyMessages: Record<TodaySectionKey, { icon: string; title: string; desc: string }> = {
-    overdue: {
-      icon: '✅',
-      title: 'ไม่มีรายการที่เลยกำหนด',
-      desc: 'ทุกอย่างอยู่ในเวลาที่กำหนด',
-    },
     today: {
       icon: '🌤️',
       title: 'ไม่มีรายการวันนี้',
       desc: 'ลองดูรายการที่กำลังจะถึงได้ด้านล่าง',
+    },
+    soon: {
+      icon: '⚡',
+      title: 'ไม่มีรายการเร็ว ๆ นี้',
+      desc: 'ดูรายการพรุ่งนี้ได้ด้านล่าง',
     },
     tomorrow: {
       icon: '⏭️',
       title: 'ไม่มีรายการพรุ่งนี้',
       desc: 'ดูรายการในสัปดาห์นี้ได้ด้านล่าง',
     },
-    thisWeek: {
+    upcoming: {
       icon: '📅',
       title: 'ยังไม่มีรายการในสัปดาห์นี้',
       desc: 'กดปุ่ม + เพื่อสร้างรายการใหม่',
     },
-    nextWeek: {
+    later: {
       icon: '🗓️',
-      title: 'ยังไม่มีรายการในสัปดาห์หน้า',
+      title: 'ยังไม่มีรายการในอนาคต',
       desc: 'วางแผนล่วงหน้าได้เลย',
     },
   };
@@ -157,26 +159,26 @@ export function TodayClient({
           <div className="yp-today-hero__name">{user.full_name}</div>
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
-            {sections.overdue.length > 0 && (
-              <div className="yp-today-hero__stat yp-today-hero__stat--overdue">
-                <div className="yp-today-hero__stat-value">
-                  {sections.overdue.length}
-                </div>
-                <div className="yp-today-hero__stat-label">เลยกำหนด</div>
-              </div>
-            )}
             <div className="yp-today-hero__stat">
               <div className="yp-today-hero__stat-value">
                 {sections.today.length}
               </div>
               <div className="yp-today-hero__stat-label">วันนี้</div>
             </div>
-            {sections.tomorrow.length > 0 && (
+            {(sections.soon.length + sections.tomorrow.length) > 0 && (
               <div className="yp-today-hero__stat">
                 <div className="yp-today-hero__stat-value">
-                  {sections.tomorrow.length}
+                  {sections.soon.length + sections.tomorrow.length}
                 </div>
-                <div className="yp-today-hero__stat-label">พรุ่งนี้</div>
+                <div className="yp-today-hero__stat-label">เร็ว ๆ นี้</div>
+              </div>
+            )}
+            {sections.upcoming.length > 0 && (
+              <div className="yp-today-hero__stat">
+                <div className="yp-today-hero__stat-value">
+                  {sections.upcoming.length}
+                </div>
+                <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
               </div>
             )}
           </div>
@@ -198,17 +200,16 @@ export function TodayClient({
         visibleSections.map(({ key, events: sectionEvents }) => {
           const meta = getSectionMeta(key, sectionEvents.length);
           const isEmpty = sectionEvents.length === 0;
-          const isOverdue = key === 'overdue';
 
           return (
             <section
               key={key}
-              className={`yp-today-section yp-today-section--panel${isOverdue ? ' yp-today-section--overdue' : ''}`}
+              className="yp-today-section yp-today-section--panel"
             >
               <div className="yp-today-section__head">
                 <div className="yp-today-section__head-left">
                   <span
-                    className={`yp-today-section__icon${isOverdue ? ' yp-today-section__icon--overdue' : ''}`}
+                    className="yp-today-section__icon"
                     aria-hidden="true"
                   >
                     {sectionIcons[key]}
