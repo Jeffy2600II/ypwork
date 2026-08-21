@@ -55,7 +55,8 @@
 }
 
 .yp-today-placeholder__greeting {
-  font-size: var(--yp-text-2xs);
+  /* Round 21: Restore to text-xs (12px) */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-on-dark-supporting);
   opacity: 1;
   margin-bottom: 6px;
@@ -155,7 +156,8 @@
 }
 
 .yp-today-hero__greeting {
-  font-size: var(--yp-text-2xs);
+  /* Round 21: Restore to text-xs (12px) — greeting was over-reduced in r64 */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-on-dark-supporting);
   margin-bottom: 4px;
   font-weight: var(--yp-fw-semibold);
@@ -221,7 +223,8 @@
 }
 
 .yp-today-hero__stat-label {
-  font-size: var(--yp-text-2xs);
+  /* Round 21: Restore to text-xs (12px) — stat labels need to be readable */
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-on-dark-supporting);
   margin-top: 2px;
   font-weight: var(--yp-fw-medium);
@@ -257,7 +260,8 @@
   border: 1px solid var(--yp-border-default);
   /* ★ r68b: ลดความโค้ง local — ไม่แต้ token หลัก ใช้ค่า local ที่นี่ */
   border-radius: var(--yp-radius-section);  /* Round 19: Section-level curvature */
-  padding: var(--yp-space-5) var(--yp-space-4);
+  /* Round 21: Increase mobile padding for better breathing room */
+  padding: var(--yp-space-6) var(--yp-space-5);
   box-shadow: var(--yp-shadow-md);  /* v3.11.0 r5: Visible shadow */
 }
 

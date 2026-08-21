@@ -40,6 +40,7 @@ import {
   useIsSheetOpen,
 } from '@/components/framework';
 import { usePendingDeleteRetry } from '@/lib/core/pending-delete-retry';
+import { DataSyncProvider } from '@/lib/core/data-sync-context';
 
 export type AppShellActiveNav = 'today' | 'calendar' | 'events' | 'profile';
 
@@ -86,9 +87,11 @@ function computeTitleVars(accent?: string): {
 
 export function AppShell(props: AppShellProps) {
   return (
-    <FabProvider>
-      <AppShellInner {...props} />
-    </FabProvider>
+    <DataSyncProvider>
+      <FabProvider>
+        <AppShellInner {...props} />
+      </FabProvider>
+    </DataSyncProvider>
   );
 }
 

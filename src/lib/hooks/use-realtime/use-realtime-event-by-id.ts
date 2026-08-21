@@ -8,6 +8,7 @@ import { getCached, setCached } from '@/lib/utils/session-cache';
 import { getClient, getClientError, useUniqueChannelName } from './client';
 import { normalizeEvent, normalizeTask, EVENT_FIELDS } from './normalize';
 import { fetchEvents, fetchEventById } from './fetch';
+import { useSyncMutations } from '@/lib/core/data-sync-context';
 
 // ═══════════════════════════════════════════════════════════════
 // useRealtimeEventById — สำหรับหน้า detail
@@ -208,6 +209,66 @@ export function useRealtimeEventById(
       prev ? { ...prev, tasks: [...(prev.tasks || []), task] } : prev
     );
   }, []);
+
+  // ── Round 21: Subscribe to centralized Data Sync ──────────────
+  // When a mutation happens on another page (e.g., events list deletes
+  // an event), this hook receives the sync event and can react.
+  // For this hook, most mutations are already handled locally (optimistic
+  // patches), but cross-page events (like event deletion from list view)
+  // need to be received here too.
+  useSyncMutations((mutation) => {
+    switch (mutation.type) {
+      case 'event-updated':
+        // Only apply if the mutation is from a different context
+        // (local patches are already applied via patchEvent)
+        // We check: if the payload contains fields not in our last patch,
+        // apply it. For simplicity, we apply non-self mutations.
+        if (mutation.eventId === eventId && mutation.payload) {
+          setEvent((prev) =>
+            prev ? { ...prev, ...mutation.payload } : prev
+          );
+        }
+        break;
+      case 'event-deleted':
+        if (mutation.eventId === eventId) {
+          setEvent(null);
+        }
+        break;
+      case 'task-updated':
+        if (mutation.taskId && mutation.payload) {
+          const patch = mutation.payload;
+          setEvent((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  tasks: (prev.tasks || []).map((t) =>
+                    t.id === mutation.taskId ? { ...t, ...patch } : t
+                  ),
+                }
+              : prev
+          );
+        }
+        break;
+      case 'task-created':
+        if (mutation.eventId === eventId && mutation.payload?.tasks) {
+          setEvent((prev) =>
+            prev
+              ? { ...prev, tasks: [...(prev.tasks || []), ...mutation.payload!.tasks!] }
+              : prev
+          );
+        }
+        break;
+      case 'task-deleted':
+        if (mutation.taskId) {
+          setEvent((prev) =>
+            prev
+              ? { ...prev, tasks: (prev.tasks || []).filter((t) => t.id !== mutation.taskId) }
+              : prev
+          );
+        }
+        break;
+    }
+  });
 
   return { event, loading, error, reload, patchEvent, patchTask, removeTask, addTask };
 }

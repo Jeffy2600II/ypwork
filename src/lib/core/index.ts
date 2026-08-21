@@ -52,3 +52,12 @@ export {
   isWindowOpenRightNow,
   onWindowOpenChange,
 } from './window-open-state';
+
+// Centralized Data Sync (Round 21)
+export {
+  DataSyncProvider,
+  useDataSync,
+  useSyncMutations,
+  type SyncMutation,
+  type SyncMutationType,
+} from './data-sync-context';

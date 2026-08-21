@@ -190,15 +190,15 @@
 }
 
 .yp-profile-progress__label {
-  /* ★ r64: text-sm → text-xs (11.5px) — progress label ที่เล็กลง */
-  font-size: var(--yp-text-xs);
+  /* Round 21: Restore to text-sm (14px) — was over-reduced in r64 */
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-semibold);
   color: var(--yp-text-heading);
 }
 
 .yp-profile-progress__pct {
-  /* ★ r64: text-sm → text-xs (11.5px) — progress percentage ที่เล็กลง */
-  font-size: var(--yp-text-xs);
+  /* Round 21: Restore to text-sm (14px) — was over-reduced in r64 */
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-extrabold);
   color: var(--yp-indigo-600);
   letter-spacing: -0.01em;
@@ -277,6 +277,7 @@
   letter-spacing: 0.05em;
   margin: 0;
   flex-shrink: 0;
+  line-height: 1.4;
 }
 
 .yp-profile-info__value {

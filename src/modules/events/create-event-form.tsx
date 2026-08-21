@@ -10,6 +10,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useDataSync } from '@/lib/core/data-sync-context';
 import { Layers, Flag } from 'lucide-react';
 import type { Department, EventType } from '@/lib/types';
 import { getLocalTodayStr } from '@/lib/utils/date';   // ★ v3.9.4: Thailand timezone
@@ -51,6 +52,7 @@ export function CreateEventForm({
   prefillDate,
 }: CreateEventFormProps) {
   const router = useRouter();
+  const { notifyMutation } = useDataSync();
   const isEdit = !!editEvent;
 
   // ★ v3.4.0: รองรับ client-side department fetch
@@ -172,6 +174,22 @@ export function CreateEventForm({
         if (!res.ok || !data.success) {
           throw new Error(data.error || 'ไม่สามารถแก้ไขรายการ');
         }
+        // Round 21: Broadcast edit to other pages before navigation
+        notifyMutation({
+          type: 'event-updated',
+          eventId: editEvent.id,
+          payload: {
+            type,
+            title: title.trim(),
+            date: requiresDeadline(type) ? date : null,
+            start_date: startDate || null,
+            time: time || null,
+            location: location.trim(),
+            description: description.trim(),
+            department_id: departmentId || null,
+            color,
+          },
+        });
         router.replace(`/events/${editEvent.id}`);
       } else {
         const res = await fetch('/api/events', {

@@ -63,6 +63,7 @@ import { EditTaskSheet } from './edit-task-sheet';
 import { EditEventSheet } from './edit-event-sheet';
 // ★ r2: scroll lock สำหรับ loading overlay
 import { lockScroll, unlockScroll } from '@/components/framework/shared/scroll-lock';
+import { useDataSync } from '@/lib/core/data-sync-context';
 
 export function EventDetailClient({
   event: initialEvent,
@@ -81,6 +82,9 @@ export function EventDetailClient({
     removeTask,
     addTask,
   } = useRealtimeEventById(initialEvent, initialEvent?.id ?? null);
+
+  // Round 21: Centralized data sync — broadcast mutations to other pages
+  const { notifyMutation } = useDataSync();
 
   const [localError, setLocalError] = React.useState<string | null>(null);
   const error = realtimeError || localError;
@@ -194,6 +198,12 @@ export function EventDetailClient({
     setDeleteTaskId(null);
     setLocalError(null);
     deletingRef.current = true;
+
+    // Round 21: Broadcast deletion to other pages before navigation
+    notifyMutation({
+      type: 'event-deleted',
+      eventId: eventId,
+    });
 
     // ★ r2: ล็อค scroll พื้นหลังก่อนแสดง overlay — กันหน้าเว็บเลื่อนได้
     lockScroll();
@@ -774,6 +784,12 @@ export function EventDetailClient({
             if (data.task) {
               // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
               addTask(data.task as Task);
+              // Round 21: Broadcast to other pages
+              notifyMutation({
+                type: 'task-created',
+                eventId: event.id,
+                payload: { tasks: [data.task as Task] },
+              });
               setAddTaskOpen(false);
               setToast({ msg: 'เพิ่มรายการย่อยเรียบร้อยแล้ว', type: 'success' });
             }
@@ -844,6 +860,23 @@ export function EventDetailClient({
                 tags: payload.tags,
               });
 
+              // Round 21: Broadcast to other pages
+              notifyMutation({
+                type: 'task-updated',
+                eventId: event.id,
+                taskId: editTask.id,
+                payload: {
+                  title: payload.title,
+                  priority: payload.priority,
+                  due_date: payload.dueDate || null,
+                  start_date: payload.startDate || null,
+                  start_time: payload.startTime || null,
+                  estimated_time: payload.estimatedTime,
+                  notes: payload.notes,
+                  tags: payload.tags,
+                },
+              });
+
               setEditTaskOpen(false);
               setEditTaskId(null);
               setToast({ msg: 'บันทึกการแก้ไขเรียบร้อยแล้ว', type: 'success' });
@@ -902,6 +935,23 @@ export function EventDetailClient({
               description: patch.description,
               department_id: patch.departmentId || null,
               color: patch.color,
+            });
+
+            // Round 21: Broadcast to other pages (Today, Events list, Calendar)
+            notifyMutation({
+              type: 'event-updated',
+              eventId: event.id,
+              payload: {
+                type: patch.type,
+                title: patch.title,
+                date: patch.date || null,
+                start_date: patch.start_date,
+                time: patch.time,
+                location: patch.location,
+                description: patch.description,
+                department_id: patch.departmentId || null,
+                color: patch.color,
+              },
             });
 
             setEditEventOpen(false);

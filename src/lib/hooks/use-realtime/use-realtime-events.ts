@@ -8,6 +8,7 @@ import { getCached, setCached } from '@/lib/utils/session-cache';
 import { getClient, getClientError, useUniqueChannelName } from './client';
 import { normalizeEvent, normalizeTask, EVENT_FIELDS } from './normalize';
 import { fetchEvents, fetchEventById } from './fetch';
+import { useSyncMutations } from '@/lib/core/data-sync-context';
 
 // ═══════════════════════════════════════════════════════════════
 // useRealtimeEvents — สำหรับหน้า list/calendar/today
@@ -206,6 +207,66 @@ export function useRealtimeEvents(initialEvents: YPEvent[]): {
       }))
     );
   }, []);
+
+  // ── Round 21: Subscribe to centralized Data Sync ──────────────
+  // When a mutation happens on another page (e.g., detail page edits a
+  // task), this hook receives the sync event and updates local state
+  // immediately — no need to wait for Supabase Realtime + full reload.
+  useSyncMutations((mutation) => {
+    switch (mutation.type) {
+      case 'event-updated':
+        if (mutation.eventId && mutation.payload) {
+          setEvents((prev) =>
+            prev.map((e) =>
+              e.id === mutation.eventId
+                ? { ...e, ...mutation.payload }
+                : e
+            )
+          );
+        }
+        break;
+      case 'event-deleted':
+        if (mutation.eventId) {
+          setEvents((prev) => prev.filter((e) => e.id !== mutation.eventId));
+        }
+        break;
+      case 'task-created':
+        if (mutation.eventId && mutation.payload?.tasks) {
+          // The new task(s) — add to the matching event
+          setEvents((prev) =>
+            prev.map((e) =>
+              e.id === mutation.eventId
+                ? { ...e, tasks: [...(e.tasks || []), ...mutation.payload!.tasks!] }
+                : e
+            )
+          );
+        }
+        break;
+      case 'task-updated':
+        if (mutation.taskId && mutation.payload) {
+          const patch = mutation.payload;
+          setEvents((prev) =>
+            prev.map((e) => ({
+              ...e,
+              tasks: (e.tasks || []).map((t) =>
+                t.id === mutation.taskId ? { ...t, ...patch } : t
+              ),
+            }))
+          );
+        }
+        break;
+      case 'task-deleted':
+        if (mutation.taskId) {
+          setEvents((prev) =>
+            prev.map((e) => ({
+              ...e,
+              tasks: (e.tasks || []).filter((t) => t.id !== mutation.taskId),
+            }))
+          );
+        }
+        break;
+    }
+  });
 
   return { events, loading, error, reload, patchEvent, patchTask };
 }

@@ -86,10 +86,10 @@
 /* ★ r64: ลด title font-size จาก 0.9375rem (15px) → var(--yp-text-sm) (13px) —
    ให้สมดุลกับ type scale ใหม่ที่เล็กลงทั้งระบบ */
 .yp-event-card__title {
-  font-size: var(--yp-text-sm);
+  font-size: var(--yp-text-base);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
-  line-height: 1.35;
+  line-height: 1.4;
   letter-spacing: -0.005em;
   white-space: nowrap;
   overflow: hidden;
@@ -97,10 +97,10 @@
 }
 
 .yp-event-card__meta {
-  /* ★ r64: text-xs (12→11.5px after token change) — meta ที่เล็กลง */
-  font-size: var(--yp-text-xs);
+  /* Round 21: Restore to text-sm (14px) — meta was over-reduced in r64 */
+  font-size: var(--yp-text-sm);
   color: var(--yp-text-muted);
-  line-height: 1.45;
+  line-height: 1.5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,6 +116,7 @@
   font-size: var(--yp-text-xs);
   font-weight: var(--yp-fw-medium);
   opacity: 1;
+  line-height: 1.5;
 }
 
 .yp-event-card__progress {
