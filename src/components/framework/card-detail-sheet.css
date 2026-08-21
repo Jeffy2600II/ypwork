@@ -105,11 +105,6 @@
   color: var(--yp-text-heading);
 }
 
-.yp-card-detail__schedule.is-overdue {
-  color: #BE123C;
-  font-weight: var(--yp-fw-bold);
-}
-
 /* Link (in detail sheet) — สำหรับ "จากกลุ่ม" และปุ่มอื่นๆ */
 .yp-card-detail__link {
   display: inline-flex;
@@ -330,13 +325,48 @@
   color: var(--yp-text-faint);
   flex-shrink: 0;
 }
-.yp-task-row + .yp-task-row { margin-top: var(--yp-space-4); }
+.yp-task-row + .yp-task-row { margin-top: var(--yp-space-3); }
 .yp-task-row:hover {
   background: var(--yp-bg-card-soft);
   border-color: var(--yp-border-indigo);
 }
 
-/* Round 14: Removed dead .yp-task-status-dot CSS — status system removed in Round 12 */
+.yp-task-status-dot {
+  width: 16px; height: 16px;
+  border-radius: var(--yp-radius-pill);
+  flex-shrink: 0;
+  margin-top: 3px;
+  border: 2px solid;
+  position: relative;
+}
+.yp-task-status-dot--todo {
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.15);
+}
+.yp-task-status-dot--ongoing {
+  border-color: #6366F1;
+  background: rgba(99, 102, 241, 0.20);
+}
+.yp-task-status-dot--ongoing::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: var(--yp-radius-pill);
+  background: #6366F1;
+}
+.yp-task-status-dot--done {
+  border-color: #10B981;
+  background: #10B981;
+}
+.yp-task-status-dot--done::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 4px;
+  width: 4px; height: 8px;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(45deg);
+}
 
 .yp-task-row__body {
   flex: 1;
@@ -351,12 +381,11 @@
   line-height: 1.4;
   word-break: break-word;
 }
-/* Round 14: Removed dead .yp-task-row.is-done — status system removed in Round 12 */
 
 .yp-task-row__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
   flex-wrap: wrap;
 }
@@ -377,7 +406,6 @@
   letter-spacing: 0.01em;
 }
 .yp-task-row__chip svg { width: 11px; height: 11px; stroke-width: 2; }
-/* Round 14: Removed dead .yp-task-row__chip.is-overdue — overdue system removed in Round 12 */
 
 .yp-task-row__chip--priority.is-priority-low {
   color: #047857;
@@ -413,7 +441,6 @@
   border-color: rgba(244, 63, 94, 0.22);
 }
 
-/* Round 14: Removed dead .yp-task-row__status CSS — status system removed in Round 12 */
 
 /* v1.5: due-date chip — เด่นกว่า est-time เพราะเป็น deadline */
 .yp-task-row__chip--due {
@@ -422,7 +449,6 @@
   border-color: var(--yp-border-default);
   font-weight: var(--yp-fw-semibold);
 }
-/* Round 14: Removed dead .yp-task-row__chip--due.is-overdue — overdue system removed in Round 12 */
 .yp-task-row__chip--est {
   color: var(--yp-text-muted);
   background: var(--yp-bg-card-soft);
@@ -449,7 +475,6 @@
   margin-right: -2px;
 }
 .yp-task-row__chip--due .yp-task-row__chip-label { color: var(--yp-text-muted); }
-/* Round 14: Removed dead .is-overdue label — overdue system removed in Round 12 */
 
 /* v1.5: assignee chip — avatar + first name */
 .yp-task-row__chip--assignee {

@@ -25,19 +25,14 @@
      - accent ยังคงชัดเจนผ่าน icon, type pill, meta item accent
      - ผสมสีขาวเข้าไปให้ดูสะอาด สบายตา ตามที่ user ต้องการ */
   background:
-    /* layer 1: accent-tinted mesh gradient — 4 radial lights (อ่อนกว่าเดิม)
-       ★ r65: ลด saturation ลงอีก ~10% — soft ขึ้น */
-    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent) 0%, transparent 48%),
-    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--accent, #4F46E5) 7%, transparent) 0%, transparent 42%),
-    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 16%, transparent) 0%, transparent 52%),
-    radial-gradient(circle at 16% 84%, color-mix(in srgb, var(--accent, #4F46E5) 9%, transparent) 0%, transparent 46%),
-    /* layer 2: white base + subtle accent tint (สว่าง สะอาด) */
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 10%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 80% 88%, color-mix(in srgb, var(--accent, #4F46E5) 12%, transparent) 0%, transparent 50%),
     linear-gradient(135deg,
       color-mix(in srgb, var(--accent, #4F46E5) 4%, white) 0%,
       color-mix(in srgb, var(--accent, #4F46E5) 9%, white) 50%,
       color-mix(in srgb, var(--accent, #4F46E5) 14%, white) 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size: 100% 100%, 100% 100%, 180% 180%;
+  background-position: 0 0, 0 0, 0 0;
   color: var(--yp-text-strong);
   border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 20%, transparent);
   border-radius: var(--yp-radius-hero);
@@ -131,7 +126,7 @@
 .yp-detail-hero__meta {
   display: flex;
   align-items: center;
-  gap: var(--yp-space-2) var(--yp-space-3);
+  gap: var(--yp-space-3) var(--yp-space-4);
   /* ★ r64: text-sm → text-xs (11.5px) — meta ที่เล็กลง ให้สมดุลกับ type scale ใหม่ */
   font-size: var(--yp-text-xs);
   color: var(--yp-text-body);
@@ -178,7 +173,7 @@
 }
 
 .yp-detail-section {
-  margin-bottom: var(--yp-space-8);
+  margin-bottom: var(--yp-space-10);
   animation: yp-hero-enter var(--yp-card-enter) var(--yp-ease-emphasized-decel) both;
 }
 
@@ -234,16 +229,14 @@
   /* ★ v3.9.3: Light mesh gradient — 4 radial accents บนพื้นขาว
      ทำให้ hero ดู "ลอย" และมีพลัง ไม่แบน */
   background:
-    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent) 0%, transparent 42%),
-    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--accent, #4F46E5) 14%, transparent) 0%, transparent 38%),
-    radial-gradient(circle at 78% 88%, color-mix(in srgb, var(--accent, #4F46E5) 32%, transparent) 0%, transparent 48%),
-    radial-gradient(circle at 18% 82%, color-mix(in srgb, var(--accent, #4F46E5) 18%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent, #4F46E5) 16%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 78% 88%, color-mix(in srgb, var(--accent, #4F46E5) 22%, transparent) 0%, transparent 48%),
     linear-gradient(135deg,
       color-mix(in srgb, var(--accent, #4F46E5) 6%, white) 0%,
       color-mix(in srgb, var(--accent, #4F46E5) 14%, white) 50%,
       color-mix(in srgb, var(--accent, #4F46E5) 22%, white) 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 180%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size: 100% 100%, 100% 100%, 180% 180%;
+  background-position: 0 0, 0 0, 0 0;
   border: 1px solid color-mix(in srgb, var(--accent, #4F46E5) 28%, transparent);
   border-radius: var(--yp-radius-hero);
   padding: var(--yp-space-7) var(--yp-space-6) var(--yp-space-5);
@@ -270,7 +263,7 @@
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 1;
+  opacity: 0.5;
 }
 
 /* ★ v3.9.3: Pattern layer 2 — accent plus signs */
@@ -283,6 +276,7 @@
   background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.5;
 }
 
 .yp-single-hero__top {
@@ -352,7 +346,7 @@
 .yp-single-hero__meta {
   display: flex;
   align-items: center;
-  gap: var(--yp-space-2);
+  gap: var(--yp-space-3);
   /* ★ r64: text-sm → text-xs (11.5px) — meta ที่เล็กลง */
   font-size: var(--yp-text-xs);
   color: var(--yp-text-secondary);
@@ -450,6 +444,7 @@
 .yp-task-list {
   display: flex;
   flex-direction: column;
+  gap: var(--yp-space-3);
 }
 .yp-task-list .yp-add-task-btn--standalone {
   margin-top: var(--yp-space-4);
@@ -625,7 +620,6 @@
 .yp-add-task-btn:active { transform: scale(0.99); }
 .yp-add-task-btn svg { width: 14px; height: 14px; }
 
-/* Round 14: Removed dead .yp-status-quick and .yp-status-picker CSS — status system was removed in Round 12 */
 
 /* ★ v3.11.0-r5: Detail page consistency — stable transitions */
 .yp-detail-hero,

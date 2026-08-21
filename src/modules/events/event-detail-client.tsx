@@ -39,8 +39,6 @@ import type {
 } from '@/lib/types';
 import {
   formatDate,
-  relativeDay,
-  priorityLabel,
 } from '@/lib/utils/date';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
 import { Avatar } from '@/components/framework/avatar';
@@ -432,7 +430,11 @@ export function EventDetailClient({
               <span className="yp-detail-hero__meta-item">
                 <Clock /> เวลาเริ่ม {event.time}
               </span>
-            ) : null}
+            ) : (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
+              </span>
+            )}
             {/* ★ v3.10.0 รอบที่ 29: แสดง "กำหนดส่ง" เป็น meta รอง — ถ้าต่างจาก start_date
                 หรือถ้าไม่มี start_date เลย → ใช้ date เป็น meta หลักแทน (backward compatible)
                 ★ r51: ถ้า event.date เป็น null (group type ที่ไม่มี deadline)
@@ -448,7 +450,11 @@ export function EventDetailClient({
                   <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
                 </span>
               ) : null
-            ) : null}
+            ) : (
+              <span className="yp-detail-hero__meta-item yp-detail-hero__meta-item--muted">
+                <CalIcon /> ไม่มีกำหนดส่ง (ดูที่รายการย่อย)
+              </span>
+            )}
             {event.location ? (
               <span className="yp-detail-hero__meta-item">
                 <MapPin /> {event.location}
@@ -477,7 +483,11 @@ export function EventDetailClient({
               <span className="yp-single-hero__meta-item">
                 <Clock /> เวลาเริ่ม {event.time}
               </span>
-            ) : null}
+            ) : (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
+                <Clock /> ยังไม่ได้เลือกเวลาเริ่ม
+              </span>
+            )}
             {event.date ? (
               event.start_date && event.start_date !== event.date ? (
                 <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
@@ -488,7 +498,11 @@ export function EventDetailClient({
                   <CalIcon /> กำหนดส่ง {formatDate(event.date, { long: true })}
                 </span>
               ) : null
-            ) : null}
+            ) : (
+              <span className="yp-single-hero__meta-item yp-single-hero__meta-item--muted">
+                <CalIcon /> ไม่มีกำหนดส่ง (ดูที่รายการย่อย)
+              </span>
+            )}
             {event.location ? (
               <span className="yp-single-hero__meta-item">
                 <MapPin /> {event.location}
