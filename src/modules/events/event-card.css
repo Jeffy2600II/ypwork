@@ -186,6 +186,10 @@
 }
 
 .yp-event-card__date-badge--tomorrow {
+  background: color-mix(in srgb, var(--yp-indigo-500, #6366F1) 12%, transparent);
+  color: var(--yp-indigo-500, #6366F1);
+  border: 1px solid color-mix(in srgb, var(--yp-indigo-500, #6366F1) 18%, transparent);
+}
 
 .yp-event-card__breakdown-label {
   /* ★ r64: text-xs → text-2xs (11px) — breakdown label ที่เล็กลง */
