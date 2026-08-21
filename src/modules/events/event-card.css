@@ -16,7 +16,7 @@
 
 /* ── Page container + page header (shared) ── */
 .yp-page {
-  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-4));
+  padding-top: calc(var(--yp-nav-top-h) + var(--yp-safe-top) + var(--yp-space-5));
   padding-left: var(--yp-page-pad-x);
   padding-right: var(--yp-page-pad-x);
   max-width: var(--yp-container-max);
@@ -26,7 +26,7 @@
 }
 
 .yp-page-header {
-  margin-bottom: var(--yp-space-6);
+  margin-bottom: var(--yp-space-7);
 }
 
 /* ── Event card sub-parts (uses .yp-event-card from above) ── */
@@ -305,7 +305,7 @@
    - List rhythm: restored the pre-R12 gap between stacked cards. */
 .yp-event-card {
   padding: 1.625rem 1.375rem;   /* 26px / 22px — matches R10/R11 */
-  border-radius: 60px;
+  border-radius: var(--yp-radius-card);
 }
 
 .yp-event-card + .yp-event-card {

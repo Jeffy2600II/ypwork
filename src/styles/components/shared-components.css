@@ -311,3 +311,73 @@
   outline: 2px solid var(--yp-indigo-500);
   outline-offset: 2px;
 }
+
+/* ── Empty state variants (Round 18) ── */
+.yp-empty--compact {
+  padding: var(--yp-space-6) var(--yp-space-4);
+  max-width: 100%;
+}
+
+.yp-empty--compact .yp-empty__icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--yp-space-3);
+  font-size: var(--yp-text-lg);
+  border-radius: var(--yp-radius-sm);
+}
+
+.yp-empty--compact .yp-empty__title {
+  font-size: var(--yp-text-sm);
+  margin-bottom: var(--yp-space-2);
+}
+
+.yp-empty--compact .yp-empty__desc {
+  font-size: var(--yp-text-xs);
+}
+
+.yp-empty--large {
+  padding: var(--yp-space-12) var(--yp-space-6);
+}
+
+/* ── Department overview card (Round 18) ── */
+.yp-dept-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+}
+
+.yp-dept-overview__members {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  flex-wrap: wrap;
+}
+
+.yp-dept-overview__member-count {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-dept-overview__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-body);
+  line-height: 1.6;
+}
+
+/* Avatar stacked style (Round 18) */
+.yp-avatar--stacked {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+  box-shadow: var(--yp-shadow-xs);
+  border: 2px solid var(--yp-bg-card);
+  position: relative;
+  margin-left: -8px;
+}
+
+.yp-avatar--stacked:first-child {
+  margin-left: 0;
+}

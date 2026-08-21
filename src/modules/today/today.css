@@ -1455,3 +1455,185 @@
     transform: scale(1);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ROUND 18 — ENHANCED SECTION STYLES
+   New: 5-section layout, section icons, subtitles, overdue variant,
+   department overview, compact empty states
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Section head with icon + title */
+.yp-today-section__head-left {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-2);
+  min-width: 0;
+}
+
+.yp-today-section__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--yp-radius-sm);
+  background: var(--yp-bg-indigo-soft);
+  color: var(--yp-indigo-600);
+  flex-shrink: 0;
+  transition: background var(--yp-t-normal), color var(--yp-t-normal);
+}
+
+.yp-today-section__icon--overdue {
+  background: rgba(244, 63, 94, 0.10);
+  color: #BE123C;
+}
+
+/* Hide the ::before pill when section has an icon */
+.yp-today-section__head-left .yp-today-section__title::before {
+  display: none;
+}
+
+/* Section subtitle — natural language description */
+.yp-today-section__subtitle {
+  font-size: var(--yp-text-sm);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-normal);
+  line-height: 1.5;
+  margin: 0 0 var(--yp-space-4) 0;
+  padding-left: 0;
+}
+
+@media (min-width: 768px) {
+  .yp-today-section__subtitle {
+    margin-bottom: var(--yp-space-5);
+  }
+}
+
+/* Overdue section variant — subtle rose tint */
+.yp-today-section--overdue.yp-today-section--panel {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #F43F5E 4%, var(--yp-bg-card)) 0%,
+    var(--yp-bg-card) 100%
+  );
+  border-color: rgba(244, 63, 94, 0.16);
+}
+
+.yp-today-section--overdue .yp-today-section__title {
+  color: #BE123C;
+}
+
+.yp-today-section--overdue .yp-today-section__count {
+  color: #BE123C;
+  background: rgba(244, 63, 94, 0.10);
+  border-color: rgba(244, 63, 94, 0.20);
+}
+
+/* Hero stat — overdue variant */
+.yp-today-hero__stat--overdue .yp-today-hero__stat-value {
+  color: #FCA5A5;
+}
+
+/* ── Empty state variants ── */
+.yp-empty--compact {
+  padding: var(--yp-space-6) var(--yp-space-4);
+}
+
+.yp-empty--compact .yp-empty__icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--yp-space-3);
+  font-size: var(--yp-text-lg);
+}
+
+.yp-empty--compact .yp-empty__title {
+  font-size: var(--yp-text-sm);
+  margin-bottom: var(--yp-space-2);
+}
+
+.yp-empty--compact .yp-empty__desc {
+  font-size: var(--yp-text-xs);
+}
+
+.yp-empty--large {
+  padding: var(--yp-space-12) var(--yp-space-6);
+}
+
+/* ── Department overview card ── */
+.yp-dept-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yp-space-3);
+  padding: var(--yp-space-5) var(--yp-space-4);
+}
+
+@media (min-width: 768px) {
+  .yp-dept-overview {
+    padding: var(--yp-space-6) var(--yp-space-5);
+  }
+}
+
+.yp-dept-overview__members {
+  display: flex;
+  align-items: center;
+  gap: var(--yp-space-3);
+  flex-wrap: wrap;
+}
+
+.yp-dept-overview__member-count {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-muted);
+  font-weight: var(--yp-fw-medium);
+}
+
+.yp-dept-overview__desc {
+  font-size: var(--yp-text-xs);
+  color: var(--yp-text-body);
+  line-height: 1.6;
+}
+
+/* Avatar stacked style */
+.yp-avatar--stacked {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--yp-radius-pill);
+  overflow: hidden;
+  box-shadow: var(--yp-shadow-xs);
+  border: 2px solid var(--yp-bg-card);
+  position: relative;
+  margin-left: -8px;
+}
+
+.yp-avatar--stacked:first-child {
+  margin-left: 0;
+}
+
+.yp-avatar-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Refined section spacing for 5-section layout ── */
+.yp-today-section + .yp-today-section {
+  margin-top: var(--yp-space-8);
+}
+
+@media (min-width: 768px) {
+  .yp-today-section + .yp-today-section {
+    margin-top: var(--yp-space-10);
+  }
+}
+
+/* Overdue sections get slightly more separation for emphasis */
+.yp-today-section--overdue + .yp-today-section,
+.yp-today-section + .yp-today-section--overdue {
+  margin-top: var(--yp-space-10);
+}
+
+@media (min-width: 768px) {
+  .yp-today-section--overdue + .yp-today-section,
+  .yp-today-section + .yp-today-section--overdue {
+    margin-top: var(--yp-space-12);
+  }
+}

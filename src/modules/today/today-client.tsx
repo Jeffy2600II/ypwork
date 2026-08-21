@@ -1,19 +1,19 @@
 'use client';
 
 // ============================================================
-// YP WORK - Today Dashboard (v3.11.0 r1 — major redesign)
+// YP WORK - Today Dashboard
 // ============================================================
-// ★ v3.11.0 r1: เปลี่ยนการออกแบบหน้า Today ทั้งหมด
-//   - ไม่แสดงรายการย่อยแบบ timeline แล้ว
-//   - ใช้ EventCard (การ์ดรายการ) แบบเดียวกับหน้ารายการ
-//   - แสดง 2 sections: วันนี้ / กำลังจะถึง
-//   - กลุ่มรายการสามารถปรากฏในหลาย section พร้อมกันได้
-//   - คลิกการ์ด → ไปหน้ารายละเอียดพร้อม filter ที่ตรงกับ section
+// Round 18: Full UX redesign with 5 natural date sections.
+// Shows what's happening now, what's coming, what needs attention.
 // ============================================================
 
 import * as React from 'react';
 import {
   Flag,
+  AlertCircle,
+  Sun,
+  CalendarDays,
+  CalendarRange,
 } from 'lucide-react';
 import { Avatar } from '@/components/framework/avatar';
 import type {
@@ -36,7 +36,11 @@ import {
   THAI_MONTHS,
 } from '@/lib/utils/date';
 import { EventCard } from '@/modules/events/event-card';
-import { categorizeEventsIntoSections } from './today-helpers';
+import {
+  categorizeEventsIntoSections,
+  getSectionMeta,
+  type TodaySectionKey,
+} from './today-helpers';
 
 export function TodayClient({
   initialEvents,
@@ -78,16 +82,22 @@ export function TodayClient({
   const todayLong = `${dayName}ที่ ${dayNum} ${monthName} ${yearBE}`;
   const todayStr = getLocalTodayStr();
 
-  // ── Categorize events into 3 sections ──
-  // ★ v3.11.0 r1: ใช้ categorizeEventsIntoSections แทน timeline items
-  //   กลุ่มรายการสามารถปรากฏในหลาย section พร้อมกันได้
-  const { today: todayEvents, upcoming } = React.useMemo(
+  // ── Categorize events into 5 sections ──
+  const sections = React.useMemo(
     () => categorizeEventsIntoSections(events, todayStr),
     [events, todayStr],
   );
 
-  const todayCount = todayEvents.length;
-  const upcomingCount = upcoming.length;
+  const sectionOrder: { key: TodaySectionKey; events: YPEvent[] }[] = [
+    { key: 'overdue', events: sections.overdue },
+    { key: 'today', events: sections.today },
+    { key: 'tomorrow', events: sections.tomorrow },
+    { key: 'thisWeek', events: sections.thisWeek },
+    { key: 'nextWeek', events: sections.nextWeek },
+  ];
+
+  const visibleSections = sectionOrder.filter((s) => s.events.length > 0);
+  const totalActive = sections.today.length + sections.overdue.length;
 
   // ── Department stats ──
   const deptStats = React.useMemo(() => {
@@ -97,6 +107,44 @@ export function TodayClient({
       total: deptEvents.length,
     };
   }, [events, dept, initialDeptStats]);
+
+  // ── Section icon mapping ──
+  const sectionIcons: Record<TodaySectionKey, React.ReactNode> = {
+    overdue: <AlertCircle width={16} height={16} />,
+    today: <Sun width={16} height={16} />,
+    tomorrow: <CalendarDays width={16} height={16} />,
+    thisWeek: <CalendarRange width={16} height={16} />,
+    nextWeek: <CalendarRange width={16} height={16} />,
+  };
+
+  // ── Empty state messages per section ──
+  const emptyMessages: Record<TodaySectionKey, { icon: string; title: string; desc: string }> = {
+    overdue: {
+      icon: '✅',
+      title: 'ไม่มีรายการที่เลยกำหนด',
+      desc: 'ทุกอย่างอยู่ในเวลาที่กำหนด',
+    },
+    today: {
+      icon: '🌤️',
+      title: 'ไม่มีรายการวันนี้',
+      desc: 'ลองดูรายการที่กำลังจะถึงได้ด้านล่าง',
+    },
+    tomorrow: {
+      icon: '⏭️',
+      title: 'ไม่มีรายการพรุ่งนี้',
+      desc: 'ดูรายการในสัปดาห์นี้ได้ด้านล่าง',
+    },
+    thisWeek: {
+      icon: '📅',
+      title: 'ยังไม่มีรายการในสัปดาห์นี้',
+      desc: 'กดปุ่ม + เพื่อสร้างรายการใหม่',
+    },
+    nextWeek: {
+      icon: '🗓️',
+      title: 'ยังไม่มีรายการในสัปดาห์หน้า',
+      desc: 'วางแผนล่วงหน้าได้เลย',
+    },
+  };
 
   // ── MAIN RENDER ──
 
@@ -109,76 +157,96 @@ export function TodayClient({
           <div className="yp-today-hero__name">{user.full_name}</div>
           <div className="yp-today-hero__date">{todayLong}</div>
           <div className="yp-today-hero__stats">
+            {sections.overdue.length > 0 && (
+              <div className="yp-today-hero__stat yp-today-hero__stat--overdue">
+                <div className="yp-today-hero__stat-value">
+                  {sections.overdue.length}
+                </div>
+                <div className="yp-today-hero__stat-label">เลยกำหนด</div>
+              </div>
+            )}
             <div className="yp-today-hero__stat">
               <div className="yp-today-hero__stat-value">
-                {todayCount}
+                {sections.today.length}
               </div>
-              <div className="yp-today-hero__stat-label">รายการวันนี้</div>
+              <div className="yp-today-hero__stat-label">วันนี้</div>
             </div>
-            <div className="yp-today-hero__stat">
-              <div className="yp-today-hero__stat-value">
-                {upcomingCount}
+            {sections.tomorrow.length > 0 && (
+              <div className="yp-today-hero__stat">
+                <div className="yp-today-hero__stat-value">
+                  {sections.tomorrow.length}
+                </div>
+                <div className="yp-today-hero__stat-label">พรุ่งนี้</div>
               </div>
-              <div className="yp-today-hero__stat-label">กำลังจะถึง</div>
-            </div>
-
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── TODAY ── */}
-      <section className="yp-today-section yp-today-section--panel">
-        <div className="yp-today-section__head">
-          <h2 className="yp-today-section__title">รายการวันนี้</h2>
-          <span className="yp-today-section__count">
-            {todayCount} รายการ
-          </span>
+      {/* ── DATE SECTIONS ── */}
+      {visibleSections.length === 0 ? (
+        <div className="yp-empty yp-empty--large">
+          <div className="yp-empty__icon" aria-hidden="true">
+            <span role="img" aria-label="ว่าง">🌟</span>
+          </div>
+          <div className="yp-empty__title">ไม่มีรายการในขณะนี้</div>
+          <div className="yp-empty__desc">
+            กดปุ่ม + เพื่อสร้างรายการใหม่
+          </div>
         </div>
-        {todayCount === 0 ? (
-          <div className="yp-empty">
-            <div className="yp-empty__icon" aria-hidden="true">
-              <span role="img" aria-label="ว่าง">🌤️</span>
-            </div>
-            <div className="yp-empty__title">ไม่มีรายการวันนี้</div>
-            <div className="yp-empty__desc">
-              ลองดูรายการที่กำลังจะถึงได้ด้านล่าง
-            </div>
-          </div>
-        ) : (
-          <div className="yp-today-event-list">
-            {todayEvents.map((ev) => (
-              <EventCard key={ev.id} event={ev} filter="today" />
-            ))}
-          </div>
-        )}
-      </section>
+      ) : (
+        visibleSections.map(({ key, events: sectionEvents }) => {
+          const meta = getSectionMeta(key, sectionEvents.length);
+          const isEmpty = sectionEvents.length === 0;
+          const isOverdue = key === 'overdue';
 
-      {/* ── UPCOMING ── */}
-      <section className="yp-today-section yp-today-section--panel">
-        <div className="yp-today-section__head">
-          <h2 className="yp-today-section__title">กำลังจะถึง</h2>
-          <span className="yp-today-section__count">
-            {upcomingCount} รายการ
-          </span>
-        </div>
-        {upcomingCount === 0 ? (
-          <div className="yp-empty">
-            <div className="yp-empty__icon" aria-hidden="true">
-              <span role="img" aria-label="ว่าง">📅</span>
-            </div>
-            <div className="yp-empty__title">
-              ยังไม่มีรายการที่กำลังจะถึง
-            </div>
-            <div className="yp-empty__desc">กดปุ่ม + เพื่อสร้างรายการใหม่</div>
-          </div>
-        ) : (
-          <div className="yp-today-event-list">
-            {upcoming.map((ev) => (
-              <EventCard key={ev.id} event={ev} filter="upcoming" />
-            ))}
-          </div>
-        )}
-      </section>
+          return (
+            <section
+              key={key}
+              className={`yp-today-section yp-today-section--panel${isOverdue ? ' yp-today-section--overdue' : ''}`}
+            >
+              <div className="yp-today-section__head">
+                <div className="yp-today-section__head-left">
+                  <span
+                    className={`yp-today-section__icon${isOverdue ? ' yp-today-section__icon--overdue' : ''}`}
+                    aria-hidden="true"
+                  >
+                    {sectionIcons[key]}
+                  </span>
+                  <h2 className="yp-today-section__title">{meta.title}</h2>
+                </div>
+                <span className="yp-today-section__count">
+                  {sectionEvents.length} รายการ
+                </span>
+              </div>
+              {!isEmpty && meta.subtitle && (
+                <p className="yp-today-section__subtitle">{meta.subtitle}</p>
+              )}
+              {isEmpty ? (
+                <div className="yp-empty yp-empty--compact">
+                  <div className="yp-empty__icon" aria-hidden="true">
+                    <span role="img" aria-label="ว่าง">
+                      {emptyMessages[key].icon}
+                    </span>
+                  </div>
+                  <div className="yp-empty__title">{emptyMessages[key].title}</div>
+                  <div className="yp-empty__desc">{emptyMessages[key].desc}</div>
+                </div>
+              ) : (
+                <div className="yp-today-event-list">
+                  {sectionEvents.map((ev) => (
+                    <EventCard
+                      key={ev.id}
+                      event={ev}
+                      filter={key === 'today' ? 'today' : 'upcoming'}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })
+      )}
 
       {/* ── DEPARTMENT OVERVIEW ── */}
       {dept ? (
@@ -200,53 +268,25 @@ export function TodayClient({
               <div className="yp-stat__label">รายการทั้งหมด</div>
             </div>
           </div>
-          <div className="yp-card">
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '6px',
-                flexWrap: 'wrap',
-              }}
-            >
+          <div className="yp-card yp-dept-overview">
+            <div className="yp-dept-overview__members">
               <div className="yp-avatar-group">
                 {deptMembers.slice(0, 6).map((m) => (
                   <span
                     key={m.auth_uid}
-                    className="yp-avatar"
-                    style={{
-                      display: 'inline-flex',
-                      width: 28,
-                      height: 28,
-                      borderRadius: 'var(--yp-radius-pill)',
-                      overflow: 'hidden',
-                      boxShadow: 'var(--yp-shadow-xs)',
-                      border: '2px solid white',
-                    }}
+                    className="yp-avatar yp-avatar--stacked"
                     title={m.full_name}
                   >
                     <Avatar name={m.full_name} color={m.color} size={28} />
                   </span>
                 ))}
               </div>
-              <div
-                style={{
-                  fontSize: 'var(--yp-text-xs)',
-                  color: 'var(--yp-text-muted)',
-                }}
-              >
+              <div className="yp-dept-overview__member-count">
                 สมาชิก {deptMembers.length} คน
               </div>
             </div>
             {dept.description ? (
-              <div
-                style={{
-                  fontSize: 'var(--yp-text-xs)',
-                  color: 'var(--yp-text-body)',
-                  lineHeight: 1.5,
-                }}
-              >
+              <div className="yp-dept-overview__desc">
                 {dept.description}
               </div>
             ) : null}

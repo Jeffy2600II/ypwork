@@ -156,9 +156,9 @@
   --yp-radius-none: 0px;    /* Governance: no rounding */
   --yp-radius-circle: 50%;  /* Governance: perfect circle */
   --yp-radius-control: var(--yp-radius-md);
-  --yp-radius-card:    var(--yp-radius-xl);  /* v3.11.0 r5: Premium card radius */
-  --yp-radius-panel:   var(--yp-radius-md);
-  --yp-radius-hero:    var(--yp-radius-xl);
+  --yp-radius-card:    56px;  /* Round 18: Premium card radius */
+  --yp-radius-panel:   var(--yp-radius-lg);  /* Round 18: 40px per governance */
+  --yp-radius-hero:    58px;  /* Round 18: Slightly more rounded hero for premium character */
   /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
   --yp-input-min-height: 52px;
   --yp-input-padding-y: 1em;
@@ -360,7 +360,7 @@
   --yp-h3-size: clamp(1.00rem, 0.95rem + 0.3vw, 1.18rem);   /* ~16px - 18.8px responsive */
   --yp-lead-size: clamp(0.9375rem, 0.90rem + 0.2vw, 1.0625rem); /* ~15px - 17px responsive */
   /* shadcn compat */
-  --radius: 1rem;  /* v3.11.0 r5: 12px - M3 Medium, matches --yp-radius-md */
+  --radius: 1.75rem;  /* Round 18: 28px - matches --yp-radius-md */
   --background: var(--yp-bg-page);
   --foreground: var(--yp-text-body);
   --card: var(--yp-bg-card);
