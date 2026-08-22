@@ -627,14 +627,21 @@
   stroke-width: 2;
 }
 
-/* ── Row 2: Title (PROMINENT HIERARCHY) ── */
+/* ── Row 2: Title ── */
+/* ★ Round 30: this is a Level 3 content name (task/item name), not a
+   heading — it was previously text-base/text-lg with a comment literally
+   calling it "PROMINENT HIERARCHY", which is exactly the pattern Round 30
+   is correcting. An item name inside a productivity timeline should be
+   clearly readable, but it shouldn't render at the same size as
+   .yp-today-section__title (the actual section heading above it, 16–18px).
+   Dropped one step: text-sm (14px) mobile / text-base (15px) desktop. */
 .yp-today-item-card__title {
-  font-size: var(--yp-text-base);
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
-  line-height: 1.4;
+  line-height: 1.35;
   word-break: break-word;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -643,7 +650,7 @@
 
 @media (min-width: 768px) {
   .yp-today-item-card__title {
-    font-size: var(--yp-text-lg);
+    font-size: var(--yp-text-base);
   }
 }
 

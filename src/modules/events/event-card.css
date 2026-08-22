@@ -62,17 +62,19 @@
 
 /* ★ v3.7.4: ใช้ --accent จาก parent (.yp-event-card) แทน inline style
    ★ r64: ลด icon container จาก 42×42 → 38×38 — ให้สมดุลกับ type scale
-   ใหม่ที่เล็กลง และลด svg จาก 20×20 → 18×18 */
+   ใหม่ที่เล็กลง และลด svg จาก 20×20 → 18×18
+   ★ Round 30: title ลดลงอีกขั้น (text-sm) — ลด icon ตามอีกขั้นเพื่อรักษา
+   สัดส่วน icon-to-text ไม่ให้ icon ดูใหญ่เกินตัวหนังสือข้างๆ (34×34, svg 16×16) */
 .yp-event-card__icon {
   flex-shrink: 0;
-  width: 38px; height: 38px;
+  width: 34px; height: 34px;
   border-radius: var(--yp-radius-sm);
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-600)) 12%, transparent);
   color: var(--accent, var(--yp-indigo-600));
 }
-.yp-event-card__icon svg { width: 18px; height: 18px; stroke-width: 2; }
+.yp-event-card__icon svg { width: 16px; height: 16px; stroke-width: 2; }
 
 .yp-event-card__main {
   flex: 1;
@@ -83,22 +85,30 @@
   padding-right: var(--yp-space-2);
 }
 
-/* ★ r64: ลด title font-size จาก 0.9375rem (15px) → var(--yp-text-sm) (13px) —
-   ให้สมดุลกับ type scale ใหม่ที่เล็กลงทั้งระบบ */
+/* ★ Round 30: Task/Event name is a Level 3 "content name", not a heading —
+   it should be clearly readable but must sit visibly below section headings
+   (--yp-today-section__title, 16–18px) in the hierarchy. text-base (15px) sat
+   too close to that section-heading size, so the card title and the section
+   above it competed for attention instead of forming a clear step-down.
+   Dropped to text-sm (14px) and tightened line-height slightly — weight is
+   already capped at semibold (600) system-wide from Round 29. */
 .yp-event-card__title {
-  font-size: var(--yp-text-base);
+  font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
   color: var(--yp-text-strong);
-  line-height: 1.4;
+  line-height: 1.35;
   letter-spacing: -0.005em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ★ Round 30: meta moved down a step (text-sm → text-xs) now that the title
+   itself is text-sm — otherwise title and meta would render at the same
+   size and the card would lose its internal hierarchy (Level 3 name vs.
+   Level 4 supporting info). */
 .yp-event-card__meta {
-  /* Round 21: Restore to text-sm (14px) — meta was over-reduced in r64 */
-  font-size: var(--yp-text-sm);
+  font-size: var(--yp-text-xs);
   color: var(--yp-text-muted);
   line-height: 1.5;
   white-space: nowrap;
@@ -110,14 +120,17 @@
 /* ★ v3.10.0 รอบที่ 29: meta บรรทัดรอง — สำหรับแสดง "กำหนดส่ง ..." ใต้บรรทัด
    "เริ่ม ..." เพื่อให้เห็นทั้งจุดเริ่มและจุดสิ้นสุดของงานพร้อมกัน
    ดูจางกว่า meta หลัก เพราะเป็นข้อมูลเสริม ไม่ใช่ข้อมูลหลัก
-   ★ r64: ลดจาก 11px → 10.5px ให้สมดุลกับ type scale ใหม่ */
+   ★ Round 30: meta หลักย้ายไป text-xs แล้ว จึงลด secondary meta ลงอีกขั้น
+   เป็น text-2xs (11px) ให้ยังคงเป็นข้อมูลเสริมที่จางกว่า meta หลักชัดเจน
+   (Level 5 — auxiliary, ต้องอ่านออกได้แต่เบาที่สุดในการ์ด) */
 .yp-event-card__meta--secondary {
   color: var(--yp-text-faint);
-  font-size: var(--yp-text-xs);
+  font-size: var(--yp-text-2xs);
   font-weight: var(--yp-fw-medium);
   opacity: 1;
   line-height: 1.5;
 }
+
 
 .yp-event-card__progress {
   display: flex;
@@ -125,7 +138,7 @@
   gap: 12px;
   margin-top: var(--yp-space-3);
   /* ★ r64: ลด padding-left จาก 58px → 54px ให้ตรงกับ icon ใหม่ 38px */
-  padding-left: 54px;
+  padding-left: 50px;  /* Round 30: recalculated for 34px icon (was 54px for 38px icon) */
 }
 /* ★ v3.10.0 รอบที่ 30: progress bar — ใช้ accent tint แทน indigo flat
    ทำให้ bar กลมกลืนกับ accent ของงาน ไม่ใช่สีเดียวกันทุกการ์ด */
@@ -218,7 +231,7 @@
   align-items: center;
   gap: 4px;
   margin-top: var(--yp-space-3);
-  margin-left: 54px;
+  margin-left: 50px;  /* Round 30: recalculated for 34px icon (was 54px for 38px icon) */
   padding: 3px 10px;
   border-radius: var(--yp-radius-pill);
   background: color-mix(in srgb, var(--accent, var(--yp-indigo-500)) 10%, transparent);
@@ -279,17 +292,19 @@
 
    Fix: override at the component level (NOT in tokens.css — the token
    scale itself stays governance-compliant for every other control).
-   - Radius: uses --yp-radius-lg directly (Round 29: 22px, rebalanced —
-     see tokens.css for why the whole radius scale moved).
+   - Radius: uses --yp-radius-lg directly (Round 30: reverted to 42px —
+     Round 29's radius reduction was reverted; typography was the actual
+     cause, see event-card title/meta rules above).
    - List rhythm: restored the pre-R12 gap between stacked cards.
 
    ★ Round 29: the padding here used to be hard-coded (1.75rem 1.4375rem
-   = 28px/23px), which was the single biggest contributor to Task Cards
-   feeling oversized — ~40% more internal padding than the page's own
-   spacing scale would give a component this size. Switched to the token
-   scale directly (--yp-space-5 / --yp-space-4 = 20px/16px) so the card's
+   = 28px/23px), which was a real contributor to Task Cards feeling
+   oversized — ~40% more internal padding than the page's own spacing
+   scale would give a component this size. Switched to the token scale
+   directly (--yp-space-5 / --yp-space-4 = 20px/16px) so the card's
    padding stays in proportion with the rest of the design system and
-   moves with it if the scale is ever tuned again. */
+   moves with it if the scale is ever tuned again. This padding fix is
+   kept in Round 30 — only the radius reduction was reverted. */
 .yp-event-card {
   padding: var(--yp-space-5) var(--yp-space-4);
   border-radius: var(--yp-radius-lg);
