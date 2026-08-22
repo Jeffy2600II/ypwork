@@ -112,7 +112,7 @@
 }
 
 .yp-info-callout__title {
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   margin-bottom: 4px;
   display: flex;
   align-items: center;
@@ -222,7 +222,7 @@
 
 .yp-info-step__title {
   font-size: var(--yp-text-base);  /* v3.11.0 r4: token */
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   color: var(--yp-text-heading, #1E293B);
   margin-bottom: 3px;
   line-height: 1.3;
@@ -307,7 +307,7 @@
 
 .yp-info-compare__title {
   font-size: var(--yp-text-sm);  /* v3.11.0 r4: token */
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   color: var(--yp-text-heading, #1E293B);
   margin-bottom: 6px;
   text-align: center;
@@ -336,7 +336,7 @@
   position: absolute;
   left: 4px;
   color: var(--yp-indigo-500, #6366F1);
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
 }
 
 .yp-info-compare__body {
@@ -353,7 +353,7 @@
 .yp-info-compare__vs {
   align-self: center;
   font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
-  font-weight: 800;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 800, semibold ceiling */
   letter-spacing: 0.05em;
   color: var(--yp-text-muted, #64748B);
   background: var(--yp-bg-card, #FFFFFF);
@@ -408,7 +408,7 @@
 
 .yp-info-tldr__label {
   font-size: var(--yp-text-2xs);  /* v3.11.0 r4: token */
-  font-weight: 800;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 800, semibold ceiling */
   color: var(--yp-indigo-700, #4338CA);
   text-transform: uppercase;
   letter-spacing: 0.06em;

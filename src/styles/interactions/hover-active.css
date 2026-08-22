@@ -432,7 +432,7 @@
 .yp-info-sheet__title {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   color: var(--yp-text-heading, #1E293B);
   line-height: 1.35;
   letter-spacing: -0.005em;
@@ -458,7 +458,7 @@
 .yp-info-sheet__section-title {
   margin: 22px 0 10px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   color: var(--yp-indigo-600, #4F46E5);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -507,7 +507,7 @@
 
 .yp-info-sheet__option-name {
   font-size: 0.94rem;
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   color: var(--yp-text-heading, #1E293B);
   margin-bottom: 6px;
 }
@@ -567,7 +567,7 @@
   background: linear-gradient(135deg, var(--yp-indigo-500, #6366F1), var(--yp-violet-600, #7C3AED));
   color: white;
   font-size: 0.80rem;
-  font-weight: 700;
+  font-weight: var(--yp-fw-semibold); /* Round 29: was hard-coded 700, semibold ceiling */
   display: inline-flex;
   align-items: center;
   justify-content: center;

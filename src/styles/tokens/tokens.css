@@ -150,27 +150,34 @@
   --yp-space-12: 3rem;        /* 48px — 4px grid */
   --yp-space-16: 4rem;        /* 64px — 4px grid */
   --yp-space-20: 5rem;        /* 80px — 4px grid */
-  /* ── BORDER RADIUS ── Round 19: Proportional shape language
-     Shape relationship: small elements → moderate curve, cards → more,
-     sections → even more, hero/major containers → most prominent.
-     Not over-rounded or bubble-like — soft, premium, modern, friendly.
-     The proportional scale creates rhythm: each level feels intentionally
-     more curved than the last, forming one cohesive shape language. */
-  --yp-radius-xs:   14px;
-  --yp-radius-sm:   22px;
-  --yp-radius-md:   30px;
-  --yp-radius-lg:   42px;
-  --yp-radius-xl:   56px;
-  --yp-radius-2xl:  72px;
+  /* ── BORDER RADIUS ── Round 29: Rebalanced proportional shape language
+     ★ Round 29 root-cause fix: the Round 19 scale (14–72px) made every
+     surface's curvature large relative to its own size on a phone screen.
+     A high radius on a small card doesn't just look "round" — it reads as
+     visually bigger and closer than it is, because the eye spends more of
+     the shape's edge on curve instead of straight line. That was a real,
+     measurable contributor to the "too large / too close" feeling reported
+     for Task Cards and other surfaces (see Round 29 audit notes).
+     Fix: keep the same proportional relationship (small → moderate,
+     cards → more, hero → most) and keep YP Work's signature "soft, high
+     radius" identity, but roughly halve every step. Still clearly more
+     rounded than a typical app — just no longer overwhelming the surface
+     it sits on. */
+  --yp-radius-xs:   10px;
+  --yp-radius-sm:   14px;
+  --yp-radius-md:   18px;
+  --yp-radius-lg:   22px;
+  --yp-radius-xl:   26px;
+  --yp-radius-2xl:  30px;
   --yp-radius-pill: 999px;
   --yp-radius-none: 0px;    /* Governance: no rounding */
   --yp-radius-circle: 50%;  /* Governance: perfect circle */
-  --yp-radius-control: var(--yp-radius-md);  /* Inputs, buttons — 30px */
-  --yp-radius-card:    58px;  /* Round 19: Premium card — distinct from sections */
-  --yp-radius-panel:   48px;  /* Round 19: Section panels — between card and hero */
-  --yp-radius-section: 62px;  /* Round 19: Major sections — more dramatic than cards */
-  --yp-radius-hero:    66px;  /* Round 19: Hero — most prominent curvature, signature shape */
-  --yp-radius-auth:    64px;  /* Round 19: Auth gateway — dramatic, distinctive portal feel */
+  --yp-radius-control: var(--yp-radius-md);  /* Inputs, buttons — 18px */
+  --yp-radius-card:    24px;  /* Round 29 (was 58px): Premium card — distinct from sections */
+  --yp-radius-panel:   22px;  /* Round 29 (was 48px): Section panels — between card and hero */
+  --yp-radius-section: 26px;  /* Round 29 (was 62px): Major sections — more dramatic than cards */
+  --yp-radius-hero:    28px;  /* Round 29 (was 66px): Hero — most prominent curvature, signature shape */
+  --yp-radius-auth:    28px;  /* Round 29 (was 64px): Auth gateway — dramatic, distinctive portal feel */
   /* ★ v3.7.3: Form design tokens — ใช้ทุกที่เพื่อ consistency */
   --yp-input-min-height: 52px;
   --yp-input-padding-y: 1em;
@@ -211,13 +218,18 @@
      │              │             │         │ landing display metrics                               │
      └──────────────┴─────────────┴─────────┴───────────────────────────────────────────────────────┘
      
-     FONT WEIGHT GUIDELINES:
+     FONT WEIGHT GUIDELINES — Round 29: semibold ceiling
+     ★ 700/800/900 were being reached for in ~85 places across the app
+     (section headers, card titles, KPI numbers, badges) — heavy weight
+     that dense, so it read as loud and "pushing forward" almost everywhere,
+     not just where real emphasis was intended. Hierarchy should come from
+     size + color first, weight second. The tokens below are now capped at
+     600 (semibold) — nothing in the app should render heavier than that.
      • 400 (normal)   : Body text, multi-line descriptions, default paragraph copy
      • 500 (medium)   : Interactive labels, form controls, table data cells, timestamps
-     • 600 (semibold) : Card titles, tab navigation labels, primary buttons, category tags
-     • 700 (bold)     : Section headers, modal titles, active tab state, highlight stats
-     • 800 (extrabold): Hero banners, primary numerical KPIs, key metric numbers
-     • 900 (black)    : Special marketing display banners, splash titles
+     • 600 (semibold) : Card titles, tab navigation labels, primary buttons, category
+                         tags, section headers, modal titles, KPI numbers — semibold
+                         ceiling: this is as heavy as YP Work text ever gets
      
      LINE HEIGHT GUIDELINES:
      • 1.0   (none)   : Tight single-line badges, icon alignment containers, micro chips
@@ -255,9 +267,14 @@
   --yp-fw-normal:   400;  /* Body copy, description paragraphs */
   --yp-fw-medium:   500;  /* Form controls, table text, metadata, subtle emphasis */
   --yp-fw-semibold: 600;  /* Card titles, buttons, navigation links, badges */
-  --yp-fw-bold:     700;  /* Section headings, modal headers, active navigation */
-  --yp-fw-extrabold: 800;  /* Hero headers, KPI numerical callouts */
-  --yp-fw-black:    900;  /* Banner display titles, splash screens */
+  /* ★ Round 29: semibold ceiling — bold/extrabold/black are capped to 600 at the
+     token level (not left at 700/800/900) so every existing call site that reaches
+     for "more emphasis" (85+ places) is fixed globally in one place, instead of
+     editing every file individually and risking new inconsistency. Hierarchy for
+     true H1/hero moments now comes from size + color, not from going past semibold. */
+  --yp-fw-bold:     600;  /* was 700 — section headings, modal headers, active navigation */
+  --yp-fw-extrabold: 600;  /* was 800 — hero headers, KPI numerical callouts */
+  --yp-fw-black:    600;  /* was 900 — banner display titles, splash screens */
   /* ── SHADOWS ──
      ★ v3.10.0 รอบที่ 56: ลดน้ำหนักเงาอย่างมีนัยสำคัญ
      เอฟเฟคเงา "เห็นประปราย" ตามแนวทางแพลตฟอร์มขนาดใหญ่

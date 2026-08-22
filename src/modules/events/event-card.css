@@ -279,18 +279,24 @@
 
    Fix: override at the component level (NOT in tokens.css — the token
    scale itself stays governance-compliant for every other control).
-   - Padding: explicit values matching the pre-R12 rendered padding.
-   - Radius: 60px — close to the legacy 66px but slightly tamed, so the
-     card reads as "high-radius, native app" without tipping into an
-     overly blobby stadium shape at this width.
-   - List rhythm: restored the pre-R12 gap between stacked cards. */
+   - Radius: uses --yp-radius-lg directly (Round 29: 22px, rebalanced —
+     see tokens.css for why the whole radius scale moved).
+   - List rhythm: restored the pre-R12 gap between stacked cards.
+
+   ★ Round 29: the padding here used to be hard-coded (1.75rem 1.4375rem
+   = 28px/23px), which was the single biggest contributor to Task Cards
+   feeling oversized — ~40% more internal padding than the page's own
+   spacing scale would give a component this size. Switched to the token
+   scale directly (--yp-space-5 / --yp-space-4 = 20px/16px) so the card's
+   padding stays in proportion with the rest of the design system and
+   moves with it if the scale is ever tuned again. */
 .yp-event-card {
-  padding: 1.75rem 1.4375rem;
+  padding: var(--yp-space-5) var(--yp-space-4);
   border-radius: var(--yp-radius-lg);
 }
 
 .yp-event-card + .yp-event-card {
-  margin-top: 1.0625rem;   /* 17px — matches R10/R11 */
+  margin-top: var(--yp-space-4);   /* 16px — token-based, was hard-coded 17px */
 }
 
 /* ★ v3.11.0-r52: Stable hover — NO translateY, just shadow + border (user preference) */
