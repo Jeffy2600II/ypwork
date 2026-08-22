@@ -8,7 +8,6 @@ import {
   auditLog,
 } from '@/lib/security';
 import { generateRequestId, REQUEST_ID_HEADER } from '@/lib/api/request-context';
-import { logger } from '@/lib/observability/logger';
 
 // ═══════════════════════════════════════════════════════════════
 // YP WORK · Proxy / Middleware (Round 24)
@@ -70,10 +69,8 @@ export async function proxy(request: NextRequest) {
       const response = NextResponse.json(
         {
           success: false,
-          error: {
-            code: 'RATE_LIMITED',
-            message: 'คุณส่งคำขอบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่',
-          },
+          error: 'คุณส่งคำขอบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่',
+          errorCode: 'RATE_LIMITED',
           meta: {
             requestId,
             retryAfter: rl.retryAfterSeconds,
