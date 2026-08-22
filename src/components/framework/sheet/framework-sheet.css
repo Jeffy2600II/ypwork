@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Framework r50 — Bottom Sheet (.yp-sheet-*) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Framework r50 — Bottom Sheet (.yp-sheet-*) — v3.11.0-r52 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -45,9 +45,7 @@
   z-index: var(--yp-sheet-z, 18000);
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.6);
   opacity: 0;
   visibility: hidden;
   display: flex;
@@ -65,6 +63,10 @@
 .yp-sheet-root.is-open {
   opacity: 1;
   visibility: visible;
+}
+
+.yp-sheet-root.is-closing {
+  pointer-events: none;
 }
 
 /* ── Sheet (ตัวการ์ดจริง ๆ) ── */
@@ -89,9 +91,8 @@
   transition: transform 320ms var(--yp-ease-m3-emphasized);
   /* ★ r56: ลด sheet shadow ลง ~50% ทำให้ sheet ดูเบา ไม่ฟุ้ง */
   box-shadow:
-    0 -4px 18px rgba(15, 23, 42, 0.10),
-    0 -8px 24px rgba(15, 23, 42, 0.04),
-    0 -1px 0 rgba(255, 255, 255, 0.6) inset;
+    0 -4px 16px rgba(15, 23, 42, 0.08),
+    0 -1px 0 rgba(255, 255, 255, 0.5) inset;
   padding: 16px var(--yp-space-5, 20px)
            calc(24px + var(--yp-safe-bottom, 0px));
 }
@@ -100,10 +101,13 @@
   padding-bottom: 0;
 }
 
+.yp-sheet.is-mounting {
+  will-change: transform;
+}
+
 /* ── OPEN STATE — sheet อยู่ตำแหน่งปกติ ── */
 .yp-sheet.is-open {
   transform: translate3d(0, 0, 0);
-  will-change: transform;
 }
 
 /* ── CLOSING STATE — sheet เลื่อนลง ── */
@@ -228,6 +232,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  contain: content;
   min-height: 0;
 }
 

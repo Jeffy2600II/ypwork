@@ -80,6 +80,16 @@ export interface BottomSheetProps {
 // 'closing'   = animating out (ยัง mounted)
 type SheetPhase = 'closed' | 'mounting' | 'open' | 'closing';
 
+// Round 28: Memoized content wrapper - prevents children re-rendering
+//   during internal phase transitions (mounting -> open, open -> closing).
+const SheetContent = React.memo(function SheetContent({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+});
+
 export function BottomSheet({
   open,
   onClose,
@@ -113,6 +123,12 @@ export function BottomSheet({
 
   // ★ r52: track if close was triggered by drag (special path)
   const dragClosingRef = React.useRef(false);
+
+  // Round 28: phase ref - read phase in callbacks without recreating them
+  const phaseRef = React.useRef<SheetPhase>('closed');
+  React.useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   // ── register with overlay stack ──
   // ใช้ mounted เป็น dep (ไม่ใช่ phase) เพื่อให้ stack register ตลอดทั้ง
@@ -280,7 +296,7 @@ export function BottomSheet({
     (e: React.TransitionEvent<HTMLDivElement>) => {
       // ★ สนใจเฉพาะ transition ของ element ที่เรา bind (bubbling guard)
       if (e.target !== e.currentTarget) return;
-      if (phase !== 'closing') return;
+      if (phaseRef.current !== 'closing') return;
       // รอให้ transform หรือ opacity จบ (ไม่ใช่ visibility ที่ instant)
       if (
         e.propertyName !== 'transform' &&
@@ -292,7 +308,7 @@ export function BottomSheet({
       setPhase('closed');
       setMounted(false);
     },
-    [phase]
+    []
   );
 
   // Safety timeout — กัน transitionend ไม่ firing
@@ -351,6 +367,7 @@ export function BottomSheet({
   const rootClass = [
     'yp-sheet-root',
     `yp-sheet-root--${size}`,
+    phase === 'mounting' ? 'is-mounting' : '',
     phase === 'open' ? 'is-open' : '',
     phase === 'closing' ? 'is-closing' : '',
     className || '',
@@ -362,6 +379,7 @@ export function BottomSheet({
     'yp-sheet',
     `yp-sheet--${size}`,
     footer ? 'has-footer' : '',
+    phase === 'mounting' ? 'is-mounting' : '',
     phase === 'open' ? 'is-open' : '',
     phase === 'closing' ? 'is-closing' : '',
   ]
@@ -440,7 +458,7 @@ export function BottomSheet({
           className="yp-sheet__body"
           data-scrollable="true"
         >
-          {children}
+          <SheetContent>{children}</SheetContent>
         </div>
 
         {footer ? <div className="yp-sheet__footer">{footer}</div> : null}

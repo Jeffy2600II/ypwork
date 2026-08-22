@@ -256,13 +256,13 @@
 
 /* Panel Containers — subtle background tints & distinct surfaces */
 .yp-today-section--panel {
-  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5 */
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r52 */
   border: 1px solid var(--yp-border-default);
   /* ★ r68b: ลดความโค้ง local — ไม่แต้ token หลัก ใช้ค่า local ที่นี่ */
   border-radius: var(--yp-radius-section);  /* Round 19: Section-level curvature */
   /* Round 21: Increase mobile padding for better breathing room */
   padding: var(--yp-space-6) var(--yp-space-5);
-  box-shadow: var(--yp-shadow-md);  /* v3.11.0 r5: Visible shadow */
+  box-shadow: var(--yp-shadow-md);  /* v3.11.0 r52: Visible shadow */
 }
 
 @media (min-width: 768px) {
@@ -367,7 +367,7 @@
   width: 20px;
   height: 20px;
   background: color-mix(in srgb, var(--yp-indigo-500) 6%, transparent);
-  border-radius: var(--yp-radius-xs, 20px);  /* v3.11.0 r5 */
+  border-radius: var(--yp-radius-xs, 20px);  /* v3.11.0 r52 */
   color: var(--yp-indigo-500);
   flex-shrink: 0;
 }
@@ -423,7 +423,7 @@
 /* ═══════════════════════════════════════════════════════════════
    CARD LIST CONTAINER & SPACING
    ═══════════════════════════════════════════════════════════════ */
-/* ★ v3.11.0-r5: EventCard list — ใช้ EventCard แบบเดียวกับหน้ารายการ */
+/* ★ v3.11.0-r52: EventCard list — ใช้ EventCard แบบเดียวกับหน้ารายการ */
 .yp-today-event-list {
   display: flex;
   flex-direction: column;
@@ -454,9 +454,9 @@
    TODAY ITEM CARD (Task Cards)
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-item-card {
-  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5 */
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r52 */
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-card);
+  border-radius: var(--yp-radius-lg);
   /* Increased internal padding for breathing room */
   padding: var(--yp-space-4) var(--yp-space-4) var(--yp-space-3);
   position: relative;
@@ -818,9 +818,9 @@
   top: 36px;
   right: 12px;
   z-index: 100;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5 */
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r52 */
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-xl);  /* v3.11.0-r5: 16px - more rounded */
+  border-radius: var(--yp-radius-xl);  /* v3.11.0-r52: 16px - more rounded */
   box-shadow: var(--yp-shadow-lg);
   padding: 4px;
   min-width: 140px;
@@ -870,9 +870,9 @@
    ═══════════════════════════════════════════════════════════════ */
 .yp-today-group {
   margin-bottom: 0;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r5 */
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);  /* v3.11.0 r52 */
   border: 1px solid var(--yp-border-default);
-  border-radius: var(--yp-radius-card);
+  border-radius: var(--yp-radius-lg);
   overflow: hidden;
   box-shadow: var(--yp-shadow-sm);
 }
@@ -1342,7 +1342,7 @@
   color: white;
   font-size: var(--yp-text-sm);
   font-weight: var(--yp-fw-bold);
-  border-radius: var(--yp-radius-xl);  /* v3.11.0-r5: 16px - more rounded */
+  border-radius: var(--yp-radius-xl);  /* v3.11.0-r52: 16px - more rounded */
   text-decoration: none;
   box-shadow: var(--yp-shadow-indigo);
   transition: opacity 150ms var(--yp-ease);
@@ -1353,7 +1353,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0-r5: Stable Hero Entrance — consistent, smooth, no jank
+   ★ v3.11.0-r52: Stable Hero Entrance — consistent, smooth, no jank
    ═══════════════════════════════════════════════════════════════ */
 .yp-hero-enter {
   animation: yp-hero-stable-enter 500ms var(--yp-ease-emphasized-decel) both;
@@ -1377,7 +1377,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ★ v3.11.0-r5: Today Section Consistency
+   ★ v3.11.0-r52: Today Section Consistency
    ปรับส่วนต่างๆ ของหน้า Today ให้สม่ำเสมอกับทั้งระบบ
    ═══════════════════════════════════════════════════════════════ */
 
@@ -1398,7 +1398,7 @@
   transition: opacity 200ms var(--yp-ease-standard);
 }
 
-/* ★ v3.11.0-r5: Stable list transitions — no jank on filter change */
+/* ★ v3.11.0-r52: Stable list transitions — no jank on filter change */
 .yp-today-list-container {
   animation: yp-list-reenter 280ms var(--yp-ease-emphasized-decel) both;
 }

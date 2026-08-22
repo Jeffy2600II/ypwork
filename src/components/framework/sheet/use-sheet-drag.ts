@@ -54,6 +54,7 @@ export function useSheetDrag({
   setDragClosing,
 }: UseSheetDragOptions) {
   React.useEffect(() => {
+    // ★ Round 28: pointermove/up/down/cancel use passive:true — they never call preventDefault. Only touchmove needs passive:false.
     if (!open || !dismissable || isClosing) return;
     const sheet = sheetRef.current;
     const backdrop = backdropRef.current;
@@ -357,17 +358,17 @@ export function useSheetDrag({
       }
     };
 
-    sheet.addEventListener('pointerdown', onPointerDown);
-    sheet.addEventListener('pointermove', onPointerMove);
-    sheet.addEventListener('pointerup', onPointerUp);
-    sheet.addEventListener('pointercancel', onPointerCancel);
+    sheet.addEventListener('pointerdown', onPointerDown, { passive: true });
+    sheet.addEventListener('pointermove', onPointerMove, { passive: true });
+    sheet.addEventListener('pointerup', onPointerUp, { passive: true });
+    sheet.addEventListener('pointercancel', onPointerCancel, { passive: true });
     sheet.addEventListener('touchmove', onTouchMove, { passive: false });
 
     return () => {
-      sheet.removeEventListener('pointerdown', onPointerDown);
-      sheet.removeEventListener('pointermove', onPointerMove);
-      sheet.removeEventListener('pointerup', onPointerUp);
-      sheet.removeEventListener('pointercancel', onPointerCancel);
+      sheet.removeEventListener('pointerdown', onPointerDown, { passive: true } as EventListenerOptions);
+      sheet.removeEventListener('pointermove', onPointerMove, { passive: true } as EventListenerOptions);
+      sheet.removeEventListener('pointerup', onPointerUp, { passive: true } as EventListenerOptions);
+      sheet.removeEventListener('pointercancel', onPointerCancel, { passive: true } as EventListenerOptions);
       sheet.removeEventListener('touchmove', onTouchMove as EventListener);
       ro.disconnect();
       bodyEl.style.touchAction = '';

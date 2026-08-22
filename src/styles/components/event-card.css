@@ -1,6 +1,6 @@
 @layer components {
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.10.0-r56 (Modular CSS Refactor)
+   YP WORK · Event Card (Accent-Tinted with Hover/Active) — v3.11.0-r52 (Modular CSS Refactor)
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
    for easier development, faster navigation, and better maintainability.
@@ -13,12 +13,12 @@
      ★ v3.9.3: Premium card — accent-tinted with subtle pattern overlay ── */
   .yp-event-card {
     display: block;
-    /* v3.11.0 r5: Premium card — accent wash + gradient base */
+    /* v3.11.0 r52: Premium card — accent wash + gradient base */
     background:
       radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent, #4F46E5) 4%, transparent) 0%, transparent 50%),
       linear-gradient(180deg, #FFFFFF 0%, #FCFBFE 100%);
     border: 1px solid var(--yp-border-default);
-    border-radius: var(--yp-radius-xl);     /* v3.11.0 r5: Premium radius */
+    border-radius: var(--yp-radius-lg);
     padding: var(--yp-space-6) var(--yp-space-5);
     cursor: pointer;
     transition:
@@ -28,7 +28,7 @@
       transform 180ms var(--yp-ease-standard);
     position: relative;
     overflow: hidden;
-    box-shadow: var(--yp-shadow-sm);  /* v3.11.0 r5: Visible but clean */
+    box-shadow: var(--yp-shadow-sm);  /* v3.11.0 r52: Visible but clean */
     -webkit-tap-highlight-color: transparent;
   }
 
