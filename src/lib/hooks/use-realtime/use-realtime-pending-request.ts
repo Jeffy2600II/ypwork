@@ -97,25 +97,25 @@ async function checkPendingStatusViaServer(
       return { status: 'unknown', request: null };
     }
 
-    const data = await res.json();
+    const json = await res.json();
 
-    if (data.status === 'pending' && data.request) {
+    if (json.data?.status === 'pending' && json.data?.request) {
       return {
         status: 'pending',
         request: {
-          full_name: data.request.full_name,
-          student_id: data.request.student_id ?? null,
-          email: data.request.email ?? null,
-          submitted_at: data.request.submitted_at ?? null,
+          full_name: json.data.request.full_name,
+          student_id: json.data.request.student_id ?? null,
+          email: json.data.request.email ?? null,
+          submitted_at: json.data.request.submitted_at ?? null,
         },
       };
     }
 
-    if (data.status === 'approved') {
+    if (json.data?.status === 'approved') {
       return { status: 'approved', request: null };
     }
 
-    if (data.status === 'rejected') {
+    if (json.data?.status === 'rejected') {
       return { status: 'rejected', request: null };
     }
 

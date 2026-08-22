@@ -7,37 +7,33 @@ import {
   RATE_LIMITS,
   auditLog,
 } from '@/lib/security';
+import { generateRequestId, REQUEST_ID_HEADER } from '@/lib/observability/request-id';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Proxy (v3.4.1)
+// YP WORK · Proxy (Round 22)
 // ═══════════════════════════════════════════════════════════════
 // Pipeline:
-//   1. Apply security headers to every response
-//   2. Rate-limit API routes (different limits for different categories)
-//   3. Refresh Supabase session + protect routes
+//   0. Generate request ID (end-to-end tracing)
+//   1. Rate-limit API routes (different limits for different categories)
+//   2. Refresh Supabase session + protect routes
+//   3. Apply security headers to every response
+//   4. Cache-Control for HTML pages
 //
-// ★ v3.4.1 changes (hotfix):
-//   - REMOVED CSRF token validation จาก middleware
-//     เหตุผล: SameSite=Lax cookies (ที่ Supabase auth ใช้อยู่แล้ว)
-//     ป้องกัน CSRF ได้เทียบเท่าใน browser ที่ทันสมัย (>97% ของตลาด)
-//     การเพิ่ม CSRF token ทำให้ต้อง update ทุกที่ที่มี mutation call
-//     และมี edge cases เยอะ (logout, expiration, retry) → ใช้งานยาก
-//   - เก็บ CSRF infrastructure ไว้ (csrfFetch, /api/auth/csrf, validateCsrfToken)
-//     สำหรับ opt-in use ในอนาคตถ้าต้องการ enforce บนบาง route
-//   - เก็บ security headers อื่น ๆ ทั้งหมด (CSP, HSTS, COOP, CORP, Permissions-Policy)
-//     เพราะสิ่งเหล่านี้ป้องกัน "การดักฟังข้อมูล" ตามที่ user ต้องการ
-//
-// ★ v3.4.0 changes (ก่อนหน้า):
-//   - Add security headers to ALL responses
-//   - Add per-route rate limiting
-//   - Add audit log on rate-limit hits
-//   - ลด unsafe-eval ออกจาก CSP
-//   - เพิ่ม COEP + CORP same-site
+// Round 22: Added request ID generation at the start of the pipeline.
+// The ID is set on the request header (downstream routes can read it via
+// getRequestId()) and on the response header (clients can correlate).
 // ═══════════════════════════════════════════════════════════════
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip = getClientIp(request);
+
+  // ─────────────────────────────────────────────────────────
+  // 0. Generate request ID for end-to-end tracing
+  // ─────────────────────────────────────────────────────────
+  const requestId = request.headers.get(REQUEST_ID_HEADER) || generateRequestId();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_ID_HEADER, requestId);
 
   // ─────────────────────────────────────────────────────────
   // 1. Rate limit — แยกตามประเภท endpoint
@@ -64,16 +60,16 @@ export async function proxy(request: NextRequest) {
     const rl = checkRateLimit(rlKey, rlOpts);
     if (!rl.allowed) {
       if (auditEvent) {
-        auditLog(auditEvent, { ip, status: 'blocked' });
+        auditLog(auditEvent, { ip, status: 'blocked', requestId });
       } else {
-        auditLog('api_rate_limited', { ip, status: 'blocked', meta: { path: pathname } });
+        auditLog('api_rate_limited', { ip, status: 'blocked', meta: { path: pathname }, requestId });
       }
 
       const response = NextResponse.json(
         {
-          status: 'error',
-          error: 'คุณลงทะเบียนบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่',
-          retry_after: rl.retryAfterSeconds,
+          success: false,
+          error: { code: 'RATE_LIMITED', message: 'คุณส่งคำขอบ่อยเกินไป กรุณารอสักครู่' },
+          requestId,
         },
         {
           status: 429,
@@ -82,42 +78,38 @@ export async function proxy(request: NextRequest) {
             'X-RateLimit-Limit': String(rlOpts.limit),
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': String(Math.ceil(rl.resetAt / 1000)),
+            [REQUEST_ID_HEADER]: requestId,
           },
         }
       );
       applySecurityHeaders(response);
       return response;
     }
-
-    // ★ v3.4.1: CSRF validation REMOVED — SameSite=Lax cookies ป้องกัน CSRF ได้เพียงพอ
-    // ถ้าต้องการเพิ่ม CSRF validation บน route เฉพาะ ให้ใช้ validateCsrfToken() ใน route handler
   }
 
   // ─────────────────────────────────────────────────────────
   // 2. Supabase session refresh + route protection
+  //    (pass modified request with request ID header)
   // ─────────────────────────────────────────────────────────
-  const supabaseResponse = await updateSession(request);
+  const supabaseResponse = await updateSession(
+    new NextRequest(request.url, {
+      method: request.method,
+      headers: requestHeaders,
+      body: request.body,
+      redirect: request.redirect,
+      // @ts-ignore — NextRequest constructor typing
+      duplex: 'half',
+    })
+  );
 
   // ─────────────────────────────────────────────────────────
-  // 3. Apply security headers to ALL responses
+  // 3. Apply security headers + request ID to ALL responses
   // ─────────────────────────────────────────────────────────
   applySecurityHeaders(supabaseResponse);
+  supabaseResponse.headers.set(REQUEST_ID_HEADER, requestId);
 
   // ─────────────────────────────────────────────────────────
-  // 4. ★ v3.10.0 รอบที่ 13: กันหน้าเว็บ (เอกสาร HTML) ถูกแคช
-  //    ที่ CDN/reverse proxy หรือฝั่ง browser เอง
-  //
-  //    ปัญหาที่พบ: ผู้ใช้เจอหน้าที่ค้าง ไม่อัปเดตตามโค้ด/ดีพลอยล่าสุด
-  //    แม้ next.config.ts จะไม่ได้ตั้ง Cache-Control ของหน้าไว้เอง (ปล่อยตาม
-  //    ค่า default ของแต่ละเลเยอร์ระหว่างทาง) — ตัวแปรที่ควบคุมไม่ได้เต็มที่
-  //    จึงอาจทำให้ตัวเอกสาร HTML ถูกเก็บไว้นานเกินคาด
-  //
-  //    วิธีแก้: ระบุ Cache-Control: no-store ตรงๆ ที่ตัวเอกสาร HTML เท่านั้น
-  //    (ไม่แตะ /api/* เพราะแต่ละ endpoint มีนโยบายแคชของ "ข้อมูล" อยู่แล้ว
-  //    ใน src/lib/api/cache.ts เช่น 5s stale-while-revalidate สำหรับ /api/events —
-  //    อันนั้นคือส่วนที่ "อยากแคช" อยู่แล้ว ไม่ต้องไปยุ่ง)
-  //    ผลคือ: ข้อมูล (API) ยังแคชสั้นๆ ตามเดิมเพื่อความเร็ว
-  //           แต่ตัวหน้าเว็บเองจะขอสดใหม่จาก server ทุกครั้ง
+  // 4. Cache-Control for HTML pages (not API routes)
   // ─────────────────────────────────────────────────────────
   if (!pathname.startsWith('/api/')) {
     supabaseResponse.headers.set(
@@ -131,14 +123,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder assets
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|manifest)$).*)',
   ],
 };
-

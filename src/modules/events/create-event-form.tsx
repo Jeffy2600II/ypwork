@@ -108,10 +108,10 @@ export function CreateEventForm({
         const data = await res.json();
         if (cancelled) return;
         if (Array.isArray(data.departments)) {
-          setDepartments(data.departments);
+          setDepartments(json.data);
           // ถ้ายังไม่ได้เลือก dept → เลือกอันแรกให้อัตโนมัติ
-          if (!departmentId && data.departments.length > 0) {
-            setDepartmentId(data.departments[0].id);
+          if (!departmentId && json.data.length > 0) {
+            setDepartmentId(json.data[0].id);
           }
         }
       } catch {
@@ -170,9 +170,9 @@ export function CreateEventForm({
             color,
           }),
         });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || 'ไม่สามารถแก้ไขรายการ');
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error?.message || 'ไม่สามารถแก้ไขรายการ');
         }
         // Round 21: Broadcast edit to other pages before navigation
         notifyMutation({
@@ -208,11 +208,11 @@ export function CreateEventForm({
             color,
           }),
         });
-        const data = await res.json();
-        if (!res.ok || !data.success || !data.id) {
-          throw new Error(data.error || 'ไม่สามารถสร้างรายการ');
+        const json = await res.json();
+        if (!res.ok || !json.success || !json.data?.id) {
+          throw new Error(json.error?.message || 'ไม่สามารถสร้างรายการ');
         }
-        router.replace(`/events/${data.id}`);
+        router.replace(`/events/${json.data.id}`);
       }
     } catch (e: any) {
       setError(`เกิดข้อผิดพลาด: ${e.message || 'unknown error'}`);

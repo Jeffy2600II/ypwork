@@ -44,7 +44,7 @@ export async function loginOther(
 
     const loginData = await loginRes.json();
 
-    if (loginRes.ok && loginData.success && loginData.user) {
+    if (loginRes.ok && loginData.success && loginData.data?.user) {
       // เคลียร์สถานะ rejected ใน localStorage ถ้ามี
       if (typeof window !== 'undefined') {
         try {
@@ -57,7 +57,7 @@ export async function loginOther(
       }
 
       // ตรวจว่าเป็นนักเรียนที่ใช้ช่องผิด — ถ้า account_type เป็น student ให้แจ้งเตือน
-      if (loginData.user.account_type === 'student') {
+      if (loginData.data.user.account_type === 'student') {
         return {
           success: false,
           status: 'error',
@@ -65,7 +65,7 @@ export async function loginOther(
         };
       }
 
-      return { success: true, status: 'success', user: loginData.user as SessionUser };
+      return { success: true, status: 'success', user: loginData.data.user as SessionUser };
     }
 
     // server login ล้มเหลว — ตรวจสอบสาเหตุ
