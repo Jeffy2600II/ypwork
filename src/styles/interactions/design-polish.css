@@ -294,30 +294,16 @@
 }
 
 
-.yp-nav-loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: rgba(245, 244, 251, 0.92);
-  background-size: 200% 100%;
-  animation: yp-nav-loading-fade-in 180ms ease-out both;
-  z-index: 99999;
-  pointer-events: none;
-  inset: 0;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-@keyframes yp-nav-loading-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+/* ★ Round 31: removed unused `.yp-nav-loading` class + its
+   `yp-nav-loading-fade-in` keyframe — nothing in the app referenced
+   this class (a nav-loading overlay was instead hand-rolled inline in
+   event-detail-client.tsx, which Round 31 replaced with the
+   centralized showActionOverlay()/hideActionOverlay() in
+   components/framework/loading/loading.tsx + .yp-action-overlay in
+   styles/components/loading.css). Keeping two competing "full-screen
+   nav loading" implementations around — one dead, one hand-rolled —
+   was exactly the kind of duplicated loading system this round set
+   out to remove. */
 
 /* ★ v3.6.0: Spinner */
 .yp-spinner {

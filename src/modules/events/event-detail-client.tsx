@@ -65,6 +65,7 @@ import { EditEventSheet } from './edit-event-sheet';
 import { lockScroll, unlockScroll } from '@/components/framework/shared/scroll-lock';
 import { useDataSync } from '@/lib/core/data-sync-context';
 import { useNotification } from '@/components/framework/notification/notification-provider';
+import { showActionOverlay, hideActionOverlay, ButtonSpinner } from '@/components/framework/loading/loading';
 
 export function EventDetailClient({
   event: initialEvent,
@@ -205,29 +206,16 @@ export function EventDetailClient({
     // ★ v3.6.0: แสดง loading overlay ทันที — user เห็น feedback ภายใน 1 frame
     // ★ r2: เปลี่ยนข้อความจาก "กำลังกลับสู่รายการ..." เป็น "กำลังลบรายการ..."
     //   เพื่อให้สื่อถึงสิ่งที่กำลังเกิดขึ้นจริง
-    const overlay = document.createElement('div');
-    overlay.id = 'yp-nav-loading';
-    overlay.style.cssText = `
-      position: fixed; inset: 0; z-index: 99999;
-      background: rgba(245, 244, 251, 0.92);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      animation: yp-fade-in 180ms ease-out both;
-    `;
-    overlay.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
-        <div style="width:40px;height:40px;border-radius:50%;border:3px solid rgba(99,102,241,0.2);border-top-color:#4F46E5;animation:yp-spin 700ms linear infinite;"></div>
-        <div style="font-size:14px;font-weight:600;color:#4F46E5;letter-spacing:0.02em;">กำลังลบรายการ...</div>
-      </div>
-      <style>@keyframes yp-spin{to{transform:rotate(360deg)}}@keyframes yp-fade-in{from{opacity:0}to{opacity:1}}</style>
-    `;
-    document.body.appendChild(overlay);
+    // ★ Round 31: ใช้ showActionOverlay() ที่ centralize ไว้ที่เดียว
+    //   (แทนการสร้าง DOM node + inline <style> เองในไฟล์นี้) — กันไม่ให้
+    //   เกิด overlay ซ้อนกัน (id-guarded) และให้หน้าตาตรงกับ AppLoading/
+    //   Spinner ที่เหลือของระบบ แทนที่จะเป็น loading UI แยกต่างหาก
+    showActionOverlay('กำลังลบรายการ...');
 
     // ★ r2: Safety cleanup — ถ้า navigation ล้มเหลว ให้ลบ overlay และ unlock scroll
     //   หลัง 5 วินาที (ไม่ควรใช้เวลานานขนาดนั้น แต่กันค้าง)
     const cleanupTimeout = setTimeout(() => {
-      const el = document.getElementById('yp-nav-loading');
-      if (el) el.remove();
+      hideActionOverlay();
       unlockScroll();
     }, 5000);
 
@@ -299,9 +287,8 @@ export function EventDetailClient({
         }
         // ★ r2: ถ้าหลัง 2.5s ยังอยู่หน้าเดิม → navigation ล้มเหลว → cleanup
         setTimeout(() => {
-          const el = document.getElementById('yp-nav-loading');
-          if (el) {
-            el.remove();
+          if (document.getElementById('yp-action-overlay')) {
+            hideActionOverlay();
             unlockScroll();
             // Fallback: ไป /events เป็นทางสุดท้าย
             try {
@@ -736,7 +723,7 @@ export function EventDetailClient({
       <section className="yp-detail-section">
         <button
           type="button"
-          className="yp-btn yp-btn--block"
+          className="yp-btn yp-btn--secondary yp-btn--block"
           onClick={() => setManageOpen(true)}
         >
           <Pencil />
@@ -1123,11 +1110,13 @@ export function EventDetailClient({
             </button>
             <button
               type="button"
-              className="yp-btn yp-btn--danger yp-btn--block"
+              className={`yp-btn yp-btn--danger yp-btn--block${submitting ? ' yp-btn--loading' : ''}`}
               onClick={handleDeleteTask}
               disabled={submitting}
+              aria-busy={submitting}
             >
               {submitting ? 'กำลังลบ...' : 'ลบ'}
+              {submitting && <ButtonSpinner />}
             </button>
           </div>
         }

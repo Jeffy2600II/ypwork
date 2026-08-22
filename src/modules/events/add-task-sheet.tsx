@@ -15,6 +15,7 @@ import * as React from 'react';
 import { AlertTriangle, Check, Flag, Layers, Plus } from 'lucide-react';
 import type { YPEvent, UserProfile, TaskPriority } from '@/lib/types';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
+import { ButtonSpinner } from '@/components/framework/loading/loading';
 import { ESTIMATED_TIME_OPTIONS, PRIORITY_META, getEstimatedTimeSelectValue, type TaskPayload } from './event-detail-types';
 
 // ═══════════════════════════════════════════════════════════════
@@ -99,9 +100,10 @@ export function AddTaskSheet({
           </button>
           <button
             type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
+            className={`yp-btn yp-btn--primary yp-btn--block${submitting ? ' yp-btn--loading' : ''}`}
             onClick={handleSubmit}
             disabled={submitting || !title.trim()}
+            aria-busy={submitting}
           >
             {submitting ? 'กำลังเพิ่ม...' : (
               <>
@@ -109,6 +111,7 @@ export function AddTaskSheet({
                 <span className="yp-btn__text-with-icon">เพิ่มรายการย่อย</span>
               </>
             )}
+            {submitting && <ButtonSpinner />}
           </button>
         </div>
       }

@@ -158,11 +158,10 @@
 }
 
 
-@keyframes yp-nav-loading-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
+/* ★ Round 31: removed unused `@keyframes yp-nav-loading-shimmer` — no
+   component referenced `.yp-nav-loading` (see buttons/loading cleanup
+   note in styles/components/loading.css). Dead code from an earlier,
+   abandoned nav-loading approach. */
 /* ═══════════════════════════════════════════════════════════════
    ★ v3.11.0-r5: Unified Micro-Interactions
    มาตรฐานเดียวกันสำหรับทุก interactive element — Android Material 3 + iOS HIG

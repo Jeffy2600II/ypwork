@@ -13,6 +13,7 @@ import * as React from 'react';
 import { AlertTriangle, Check, Flag, Layers } from 'lucide-react';
 import type { YPEvent, Task, UserProfile, TaskPriority } from '@/lib/types';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
+import { ButtonSpinner } from '@/components/framework/loading/loading';
 import { ESTIMATED_TIME_OPTIONS, PRIORITY_META, getEstimatedTimeSelectValue, type TaskPayload } from './event-detail-types';
 
 // ═══════════════════════════════════════════════════════════════
@@ -99,9 +100,10 @@ export function EditTaskSheet({
           </button>
           <button
             type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
+            className={`yp-btn yp-btn--primary yp-btn--block${submitting ? ' yp-btn--loading' : ''}`}
             onClick={handleSubmit}
             disabled={submitting || !title.trim()}
+            aria-busy={submitting}
           >
             {submitting ? 'กำลังบันทึก...' : (
               <>
@@ -109,6 +111,7 @@ export function EditTaskSheet({
                 <span className="yp-text-with-icon-left">บันทึกการแก้ไข</span>
               </>
             )}
+            {submitting && <ButtonSpinner />}
           </button>
         </div>
       }

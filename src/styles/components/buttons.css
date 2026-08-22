@@ -11,16 +11,15 @@
    ═══════════════════════════════════════════════════════════════ */
 .yp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.yp-btn--primary:hover:not(:disabled) {
-  background: linear-gradient(to right, #5450E8 0%, #8B5CF6 100%);
-  /* ★ r56: ลด primary button hover shadow ลง ~55% */
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.14);
-}
-
-.yp-btn--ghost:hover:not(:disabled) {
-  background: rgba(30, 27, 70, 0.04);
-  color: var(--yp-text-strong);
-}
+/* ★ Round 31: removed the duplicate `.yp-btn--primary:hover:not(:disabled)`
+   and `.yp-btn--ghost:hover:not(:disabled)` rules that used to live here —
+   both were fully shadowed (same selector specificity, later in the
+   cascade) by identical/near-identical rules in
+   src/styles/interactions/hover-refinements.css, so they never actually
+   applied. That file remains the live source for primary/ghost hover+
+   active visuals; see the note at the bottom of this file for the full
+   button-CSS map. This file (buttons.css) is the authoritative place for
+   base fill/layout and for every variant introduced in Round 31. */
 
 .yp-btn--block {
   width: 100%;
@@ -66,4 +65,94 @@
   .yp-btn--gradient:hover:not(:disabled) {
     box-shadow: 0 2px 12px rgba(79, 70, 229, 0.18);
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ★ Round 31: Secondary, Icon, and Loading variants
+   ═══════════════════════════════════════════════════════════════
+   Completes the hierarchy called for in Round 31:
+     Primary    → .yp-btn--primary   (strong emphasis, brand gradient)
+     Secondary  → .yp-btn--secondary (this section — explicit alias
+                  for the base .yp-btn tint; use this class going
+                  forward instead of relying on "no modifier")
+     Tertiary   → .yp-btn--ghost     (already existed — Cancel/Back)
+     Destructive→ .yp-btn--danger    (already existed — Delete)
+     Icon       → .yp-btn--icon      (this section)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Secondary — same soft-tint treatment as the base .yp-btn, given an
+   explicit name so callers don't have to rely on "no modifier means
+   secondary". For actions that matter but shouldn't compete with the
+   primary action in a group (Edit, Manage, Open, alternative actions). */
+.yp-btn--secondary {
+  background: linear-gradient(to right, #EEF2FF 0%, #F5F0FF 100%);
+  color: var(--yp-indigo-600);
+  border: 1px solid var(--yp-indigo-200);
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .yp-btn--secondary:hover:not(:disabled) {
+    background: var(--yp-bg-elevated);
+    border-color: var(--yp-border-indigo, rgba(99, 102, 241, 0.22));
+  }
+}
+
+.yp-btn--secondary:active:not(:disabled) {
+  background: var(--yp-bg-card-soft);
+}
+
+/* Icon — compact, square, icon-only. Fixed footprint keeps touch
+   targets consistent regardless of the icon's intrinsic size. */
+.yp-btn--icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--yp-radius-control);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--yp-text-body);
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .yp-btn--icon:hover:not(:disabled) {
+    background: rgba(30, 27, 70, 0.04);
+    color: var(--yp-text-strong);
+  }
+}
+
+/* Desktop can afford a slightly tighter icon button; mobile keeps the
+   full 40px touch target. */
+@media (min-width: 768px) {
+  .yp-btn--icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Loading — action-level feedback that lives *inside* the button
+   (Round 31 §23). Pair with <ButtonSpinner /> from
+   components/framework/loading/loading.tsx. The label is hidden
+   (not removed) so the button doesn't change width/height while
+   loading, and pointer-events are disabled in addition to the
+   existing `disabled` attribute so a fast double-click during the
+   opacity transition can't fire twice. This is the ONLY loading
+   indicator that should appear for the action it represents — do
+   not pair it with AppLoading or showActionOverlay for the same
+   operation. */
+.yp-btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.yp-btn--loading > :not(.yp-btn__spinner) {
+  opacity: 0;
+}
+
+.yp-btn--loading .yp-btn__spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

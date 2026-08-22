@@ -20,6 +20,7 @@ import * as React from 'react';
 import { Layers, Flag } from 'lucide-react';
 import type { YPEvent, Department, EventType } from '@/lib/types';
 import { BottomSheet } from '@/components/framework/bottom-sheet';
+import { ButtonSpinner } from '@/components/framework/loading/loading';
 import { EVENT_COLOR_OPTIONS, DEFAULT_EVENT_COLOR } from './event-colors';
 import { requiresDeadline } from '@/lib/utils/event-date';
 import type { EventPatch } from './event-detail-types';
@@ -113,11 +114,13 @@ export function EditEventSheet({
           </button>
           <button
             type="button"
-            className="yp-btn yp-btn--primary yp-btn--block"
+            className={`yp-btn yp-btn--primary yp-btn--block${submitting ? ' yp-btn--loading' : ''}`}
             onClick={handleSubmit}
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting ? 'กำลังบันทึก...' : 'บันทึก'}
+            {submitting && <ButtonSpinner />}
           </button>
         </div>
       }

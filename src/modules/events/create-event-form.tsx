@@ -15,6 +15,7 @@ import { Layers, Flag } from 'lucide-react';
 import type { Department, EventType } from '@/lib/types';
 import { getLocalTodayStr } from '@/lib/utils/date';   // ★ v3.9.4: Thailand timezone
 import { InfoButton, InfoSheetHeader, InfoSectionTitle, InfoOption, InfoExample, InfoCallout, InfoSteps, InfoStep, InfoKeyValue, InfoKeyValueRow, InfoPill, InfoTldr, InfoCompare } from '@/components/ui/info-button';
+import { ButtonSpinner } from '@/components/framework/loading/loading';
 // ★ r51: ใช้ shared constants จาก event-colors.ts (single source of truth)
 import { EVENT_COLOR_OPTIONS, DEFAULT_EVENT_COLOR } from './event-colors';
 // ★ r51: ใช้ shared validation จาก event-validation.ts
@@ -568,14 +569,16 @@ export function CreateEventForm({
           </button>
           <button
             type="submit"
-            className="yp-btn yp-btn--primary yp-btn--block"
+            className={`yp-btn yp-btn--primary yp-btn--block${submitting ? ' yp-btn--loading' : ''}`}
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting
               ? 'กำลังบันทึก...'
               : isEdit
               ? 'บันทึกการแก้ไข'
               : 'สร้างรายการ'}
+            {submitting && <ButtonSpinner />}
           </button>
         </div>
       </form>

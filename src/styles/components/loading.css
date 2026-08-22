@@ -64,6 +64,54 @@
   30% { opacity: 1; transform: scale(1); }
 }
 
+/* ── Action overlay (Round 31) ─────────────────────────────────────
+   Singleton full-screen overlay for actions that end in a hard
+   navigation (see showActionOverlay/hideActionOverlay in loading.tsx).
+   Deliberately created outside React, but styled from the same
+   tokens as .yp-app-loading / .yp-spinner so it reads as one
+   continuous loading experience, not a second visual system. ── */
+
+.yp-action-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: color-mix(in srgb, var(--yp-bg-page, #F4F2F7) 92%, transparent);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: yp-action-overlay-in 180ms ease-out both;
+}
+
+.yp-action-overlay__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--yp-indigo-600, #4F46E5);
+}
+
+.yp-action-overlay__label {
+  font-size: var(--yp-text-sm, 0.875rem);
+  font-weight: var(--yp-fw-semibold, 600);
+  color: var(--yp-indigo-600, #4F46E5);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+@keyframes yp-action-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Button spinner (Round 31) ─────────────────────────────────────
+   Action-level loading that lives inside a button. Pairs with
+   `.yp-btn--loading` in buttons.css. ── */
+
+.yp-btn__spinner {
+  flex-shrink: 0;
+}
+
 /* ── Reduced motion ────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -73,5 +121,8 @@
   .yp-loading-dots span {
     animation: none;
     opacity: 0.6;
+  }
+  .yp-action-overlay {
+    animation: none;
   }
 }
