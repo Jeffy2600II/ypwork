@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import { securityHeadersForNextConfig } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -27,14 +26,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
     ],
-    // ป้องกันรูปขนาดใหญ่ที่ใช้ประมวลผลหนัก
     minimumCacheTTL: 60,
     formats: ["image/avif", "image/webp"],
   },
 
   // ★ v3.0.0: จำกัด experimental features ที่อาจเปิด attack surface
   experimental: {
-    // ปิด CSR ที่ไม่จำเป็น เพื่อลด client bundle
     optimizePackageImports: ["lucide-react", "date-fns"],
   },
 };
