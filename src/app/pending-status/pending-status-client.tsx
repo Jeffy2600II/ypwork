@@ -122,13 +122,13 @@ export function PendingStatusClient() {
             });
 
             if (res.ok) {
-              const json = await res.json();
-              if (json?.success) {
+              const data = await res.json();
+              if (data?.success) {
                 console.log(
                   '[pending-status] auto sign-in success after',
                   i,
                   'retries, uid=',
-                  json.data?.uid?.slice(-6)
+                  data.uid?.slice(-6)
                 );
                 clearPendingSessionPassword();
                 return true;

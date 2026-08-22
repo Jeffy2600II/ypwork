@@ -1,16 +1,8 @@
-// Barrel export for repository layer
-export {
-  EVENT_FIELDS,
-  USER_FIELDS,
-  TASK_FIELDS,
-  normalizeEvent,
-  normalizeTask,
-  normalizeUserProfile,
-  normalizeDepartment,
-  buildAssigneesMap,
-} from './normalize';
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · Repositories · Barrel Export (Round 24)
+// ═══════════════════════════════════════════════════════════════
 
-export * as eventsRepo from './events.repository';
-export * as tasksRepo from './tasks.repository';
-export * as usersRepo from './users.repository';
-export * as departmentsRepo from './departments.repository';
+export { eventRepository, type EventFilterOptions, type EventCreateInput, type EventUpdateInput } from './event-repository';
+export { taskRepository, type TaskCreateInput, type TaskUpdateInput, type TaskWithAssignees } from './task-repository';
+export { departmentRepository } from './department-repository';
+export { userRepository } from './user-repository';

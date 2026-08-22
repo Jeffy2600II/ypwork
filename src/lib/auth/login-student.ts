@@ -82,8 +82,8 @@ export async function loginStudent(
 
     const loginData = await loginRes.json();
 
-    if (loginRes.ok && loginData.success && loginData.data?.user) {
-      debug.push(`✅ server login สำเร็จ uid=${loginData.data.user.auth_uid?.slice(-6)}`);
+    if (loginRes.ok && loginData.success && loginData.user) {
+      debug.push(`✅ server login สำเร็จ uid=${loginData.user.auth_uid?.slice(-6)}`);
 
       // เคลียร์สถานะ rejected ใน localStorage ถ้ามี (เพราะ login สำเร็จแล้ว)
       if (typeof window !== 'undefined') {
@@ -96,7 +96,7 @@ export async function loginStudent(
         }
       }
 
-      return { success: true, status: 'success', user: loginData.data.user as SessionUser, debug };
+      return { success: true, status: 'success', user: loginData.user as SessionUser, debug };
     }
 
     // server login ล้มเหลว — ตรวจสอบสาเหตุ

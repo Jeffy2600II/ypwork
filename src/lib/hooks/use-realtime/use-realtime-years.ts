@@ -125,9 +125,9 @@ export function useRealtimeYears(
 async function fetchDeptMembers(departmentId: string): Promise<UserProfile[]> {
   // v3.3.0: ใช้ API route แทน direct Supabase query (bypass RLS)
   const res = await fetch(`/api/departments/members?dept_id=${encodeURIComponent(departmentId)}`, { credentials: 'same-origin' });
-  const json = await res.json();
-  if (!res.ok || !json.success) {
-    throw new Error(json.error?.message || 'โหลดสมาชิกฝ่ายไม่สำเร็จ');
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'โหลดสมาชิกฝ่ายไม่สำเร็จ');
   }
-  return (json.data || []) as UserProfile[];
+  return (data.members || []) as UserProfile[];
 }

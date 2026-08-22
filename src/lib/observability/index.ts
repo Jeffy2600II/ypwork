@@ -1,8 +1,5 @@
-// Barrel export for observability module
-export {
-  generateRequestId,
-  getRequestId,
-  REQUEST_ID_HEADER,
-} from './request-id';
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · Observability · Barrel Export (Round 24)
+// ═══════════════════════════════════════════════════════════════
 
-export { logger } from './logger';
+export { logger, logRequest, logError, type LogLevel } from './logger';

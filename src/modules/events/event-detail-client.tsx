@@ -338,8 +338,8 @@ export function EventDetailClient({
     try {
       // v3.2.0: ใช้ API route แทน direct Supabase write (bypass RLS)
       const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
-      const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.error?.message || 'unknown error');
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
       // v1.6: optimistic remove — การ์ดจะหายทันที
       // (realtime จะมา confirm ในภายหลัง)
       removeTask(taskId);
@@ -779,16 +779,16 @@ export function EventDetailClient({
                 assignee_id: payload.assigneeId || null,
               }),
             });
-            const json = await res.json();
-            if (!res.ok || !json.success) throw new Error(json.error?.message || 'unknown error');
-            if (json.data?.task) {
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
+            if (data.task) {
               // v1.6: optimistic add ทันที — realtime จะ confirm ภายหลัง
-              addTask(json.data.task as Task);
+              addTask(data.task as Task);
               // Round 21: Broadcast to other pages
               notifyMutation({
                 type: 'task-created',
                 eventId: event.id,
-                payload: { tasks: [json.data.task as Task] },
+                payload: { tasks: [data.task as Task] },
               });
               setAddTaskOpen(false);
               setToast({ msg: 'เพิ่มรายการย่อยเรียบร้อยแล้ว', type: 'success' });
@@ -844,9 +844,9 @@ export function EventDetailClient({
               ]);
 
               const taskData = await taskRes.json();
-              if (!taskRes.ok || !taskData.success) throw new Error(taskData.error?.message || 'unknown error');
+              if (!taskRes.ok || !taskData.success) throw new Error(taskData.error || 'unknown error');
               const assigneeData = await assigneeRes.json();
-              if (!assigneeRes.ok || !assigneeData.success) throw new Error(assigneeData.error?.message || 'unknown error');
+              if (!assigneeRes.ok || !assigneeData.success) throw new Error(assigneeData.error || 'unknown error');
 
               // v1.6: optimistic patch — realtime จะ confirm ภายหลัง
               patchTask(editTask.id, {
@@ -920,8 +920,8 @@ export function EventDetailClient({
                 color: patch.color,
               }),
             });
-            const json = await res.json();
-            if (!res.ok || !json.success) throw new Error(json.error?.message || 'unknown error');
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'unknown error');
 
             // v1.6: optimistic patch — realtime จะ sync ภายหลัง
             patchEvent({

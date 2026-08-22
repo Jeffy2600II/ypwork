@@ -1,84 +1,142 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Observability · Structured Logger (Round 22)
+// YP WORK · Observability · Structured Logger (Round 24)
 // ═══════════════════════════════════════════════════════════════
-// Structured logging with request ID correlation.
-// All logs include: timestamp, requestId, module, level, message.
+// Structured logging for application observability.
 //
-// Application logs (debugging, runtime, errors):
-//   logger.debug(requestId, 'Module', 'message', details)
-//   logger.warn(requestId, 'Module', 'message', details)
-//   logger.error(requestId, 'Module', 'message', details)
+// Two log channels:
+//   1. Application Log — for debugging, runtime, operations, errors
+//   2. Audit Log       — for security events and data mutations
 //
-// Audit logs (security events, data changes):
-//   Use auditLog() from '@/lib/security' — now includes requestId.
+// Every log entry includes:
+//   - timestamp (ISO 8601)
+//   - requestId (for traceability)
+//   - level
+//   - context fields
+//
+// Output: console (Vercel/Next.js captures these)
+// Future: can be swapped to external log aggregator without
+// changing call sites.
 // ═══════════════════════════════════════════════════════════════
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+import { sanitizeForLog, redactPiiFromMessage } from '@/lib/security/pii';
 
-interface LogEntry {
-  ts: string;
-  requestId: string;
-  module: string;
-  level: LogLevel;
-  message: string;
-  details?: Record<string, any>;
-}
+// ── Log Levels ─────────────────────────────────────────────────
 
-function formatEntry(
-  requestId: string,
-  module: string,
-  level: LogLevel,
-  message: string,
-  details?: Record<string, any>
-): LogEntry {
-  return {
-    ts: new Date().toISOString(),
-    requestId,
-    module,
-    level,
-    message,
-    details: details ? sanitizeDetails(details) : undefined,
-  };
-}
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-function sanitizeDetails(details: Record<string, any>): Record<string, any> {
-  // Basic PII redaction — for full PII handling use sanitizeForLog from security
-  const redacted: Record<string, any> = {};
-  for (const [key, value] of Object.entries(details)) {
-    const lk = key.toLowerCase();
-    if (lk === 'password' || lk === 'pwd' || lk === 'pass') {
-      redacted[key] = '***REDACTED***';
-    } else if (lk.includes('national_id') || lk === 'nid') {
-      redacted[key] = '[REDACTED]';
-    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      redacted[key] = sanitizeDetails(value);
-    } else {
-      redacted[key] = value;
-    }
-  }
-  return redacted;
-}
-
-function log(level: LogLevel, consoleFn: 'log' | 'info' | 'warn' | 'error') {
-  return (
-    requestId: string,
-    module: string,
-    message: string,
-    details?: Record<string, any>
-  ) => {
-    const entry = formatEntry(requestId, module, level, message, details);
-    const prefix = `[${entry.ts}] [${entry.requestId}] [${entry.module}]`;
-    if (details) {
-      console[consoleFn](prefix, message, entry.details);
-    } else {
-      console[consoleFn](prefix, message);
-    }
-  };
-}
-
-export const logger = {
-  debug: log('debug', 'log'),
-  info: log('info', 'info'),
-  warn: log('warn', 'warn'),
-  error: log('error', 'error'),
+const LOG_LEVELS: Record<LogLevel, number> = {
+  debug: 10,
+  info: 20,
+  warn: 30,
+  error: 40,
 };
+
+// In production, skip debug logs
+const MIN_LEVEL: LogLevel =
+  process.env.NODE_ENV === 'production' ? 'info' : 'debug';
+
+// ── Log Entry Shapes ───────────────────────────────────────────
+
+interface BaseLogEntry {
+  timestamp: string;
+  level: LogLevel;
+  requestId?: string;
+  [key: string]: any;
+}
+
+interface RequestLogEntry {
+  requestId: string;
+  method: string;
+  path: string;
+  status: number;
+  duration: number;
+}
+
+interface ErrorLogEntry {
+  requestId: string;
+  method: string;
+  path: string;
+  error: unknown;
+  duration: number;
+}
+
+// ── Internal Log Writer ────────────────────────────────────────
+
+function writeLog(level: LogLevel, fields: Record<string, any>): void {
+  if (LOG_LEVELS[level] < LOG_LEVELS[MIN_LEVEL]) return;
+
+  const entry: BaseLogEntry = {
+    timestamp: new Date().toISOString(),
+    level,
+    ...sanitizeForLog(fields),
+  };
+
+  const prefix = `[${level.toUpperCase()}]`;
+  switch (level) {
+    case 'error':
+      console.error(prefix, entry);
+      break;
+    case 'warn':
+      console.warn(prefix, entry);
+      break;
+    case 'info':
+      console.info(prefix, entry);
+      break;
+    default:
+      console.log(prefix, entry);
+  }
+}
+
+// ── Public API ─────────────────────────────────────────────────
+
+/** Application log — for debugging and runtime information */
+export const logger = {
+  debug(fields: Record<string, any>, message?: string): void {
+    writeLog('debug', { message, ...fields });
+  },
+
+  info(fields: Record<string, any>, message?: string): void {
+    writeLog('info', { message, ...fields });
+  },
+
+  warn(fields: Record<string, any>, message?: string): void {
+    writeLog('warn', { message, ...fields });
+  },
+
+  error(fields: Record<string, any>, message?: string): void {
+    writeLog('error', { message, ...fields });
+  },
+};
+
+/**
+ * Log an API request — called by the gateway after handler completes.
+ */
+export function logRequest(entry: RequestLogEntry): void {
+  writeLog('info', {
+    type: 'request',
+    requestId: entry.requestId,
+    method: entry.method,
+    path: entry.path,
+    status: entry.status,
+    durationMs: entry.duration,
+  });
+}
+
+/**
+ * Log an unhandled error — called by the gateway's catch block.
+ */
+export function logError(entry: ErrorLogEntry): void {
+  const err = entry.error;
+  const message = err instanceof Error ? err.message : String(err);
+  const stack = err instanceof Error ? err.stack : undefined;
+
+  writeLog('error', {
+    type: 'unhandled_error',
+    requestId: entry.requestId,
+    method: entry.method,
+    path: entry.path,
+    durationMs: entry.duration,
+    error: redactPiiFromMessage(message),
+    stack: stack ? redactPiiFromMessage(stack) : undefined,
+  });
+}

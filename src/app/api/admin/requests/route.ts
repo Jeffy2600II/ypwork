@@ -1,21 +1,41 @@
-import { withAdmin, apiSuccess } from '@/lib/api';
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · API · GET /api/admin/requests (Round 24)
+// ═══════════════════════════════════════════════════════════════
+
+import { NextRequest } from 'next/server';
+import {
+  withApiHandler,
+  apiSuccess,
+  apiErrors,
+  requireAuthAdmin,
+} from '@/lib/api';
 import { getPendingRequests } from '@/lib/db/pending-requests';
 import { auditLog, sanitizeForLog } from '@/lib/security';
 
-export const GET = withAdmin(async (ctx) => {
+export const GET = withApiHandler(async (req: NextRequest) => {
+  const guard = await requireAuthAdmin(req);
+  if (!guard.ok) {
+    auditLog('admin_action_blocked', {
+      status: 'blocked',
+      meta: { action: 'list_requests', reason: 'auth_failed' },
+    });
+    return guard.response;
+  }
+
   try {
-    const requests = await getPendingRequests(ctx.adminClient);
+    const requests = await getPendingRequests(guard.adminClient);
+
     auditLog('admin_approve_request', {
-      actor: ctx.userAuthUid,
+      actor: guard.userAuthUid,
       status: 'success',
-      requestId: ctx.requestId,
       meta: { action: 'list_requests', count: requests?.length ?? 0 },
     });
-    return apiSuccess(requests, ctx.requestId);
+
+    return apiSuccess(req, { requests });
   } catch (err) {
     console.error('[/api/admin/requests]', sanitizeForLog({
       message: err instanceof Error ? err.message : String(err),
     }));
-    throw new Error('เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่');
+    return apiErrors.internalError(req);
   }
 });

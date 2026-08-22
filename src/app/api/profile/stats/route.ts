@@ -1,26 +1,39 @@
-import { withAuth, apiSuccess } from '@/lib/api';
-import { validationError } from '@/lib/api/errors';
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · API · GET /api/profile/stats (Round 24)
+// ═══════════════════════════════════════════════════════════════
 
-export const GET = withAuth(async (ctx, request) => {
-  const { searchParams } = new URL(request.url);
+import { NextRequest } from 'next/server';
+import {
+  withApiHandler,
+  apiSuccess,
+  apiError,
+  apiErrors,
+  ErrorCode,
+  requireAuthUser,
+} from '@/lib/api';
+import { userRepository } from '@/lib/repositories';
+
+export const GET = withApiHandler(async (req: NextRequest) => {
+  const guard = await requireAuthUser(req);
+  if (!guard.ok) return guard.response;
+
+  const { searchParams } = new URL(req.url);
   const userAuthUid = searchParams.get('user_auth_uid');
   const departmentId = searchParams.get('department_id');
-  if (!userAuthUid) throw validationError('Missing user_auth_uid parameter');
 
-  const [deptEventsResult, myAssigneesResult] = await Promise.all([
-    departmentId
-      ? ctx.adminClient.from('ypwork_events').select('id', { count: 'exact', head: true }).eq('department_id', departmentId)
-      : Promise.resolve({ count: 0, data: null, error: null }),
-    ctx.adminClient.from('ypwork_task_assignees').select('task_id').eq('user_auth_uid', userAuthUid),
-  ]);
-
-  const deptEvents = (deptEventsResult as any).count || 0;
-  const myTaskIds = ((myAssigneesResult.data as any[]) || []).map((a) => a.task_id);
-  let myTasks = 0;
-  if (myTaskIds.length > 0) {
-    const { data: myTasksRaw } = await ctx.adminClient.from('ypwork_tasks').select('id').in('id', myTaskIds);
-    myTasks = myTasksRaw?.length || 0;
+  if (!userAuthUid) {
+    return apiError(req, ErrorCode.MISSING_PARAM, 'Missing user_auth_uid parameter', { status: 400 });
   }
 
-  return apiSuccess({ deptEvents, myTasks }, ctx.requestId, { cache: 'list' });
+  try {
+    const stats = await userRepository.getProfileStats(
+      guard.adminClient,
+      userAuthUid,
+      departmentId
+    );
+
+    return apiSuccess(req, { stats }, { cache: 'list' });
+  } catch {
+    return apiErrors.internalError(req);
+  }
 });

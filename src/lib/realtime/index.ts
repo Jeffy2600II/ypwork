@@ -1,7 +1,13 @@
-// Barrel export for realtime module
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · Realtime · Barrel Export (Round 24)
+// ═══════════════════════════════════════════════════════════════
+
 export {
+  RealtimeEventType,
+  type RealtimeEvent,
   REALTIME_TABLES,
-  type SyncMutationType,
-  type SyncMutation,
-  type RealtimeTable,
-} from './event-types';
+  CHANNEL_PREFIXES,
+  type RealtimeEventSchema,
+  type ConnectionStatus,
+  mapConnectionStatus,
+} from './registry';

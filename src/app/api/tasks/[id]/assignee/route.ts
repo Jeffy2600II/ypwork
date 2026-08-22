@@ -1,25 +1,51 @@
-import { withAuth, apiSuccess } from '@/lib/api';
-import { validationError, notFound, forbidden, internalError } from '@/lib/api/errors';
-import { tasksRepo } from '@/lib/repositories';
-import { getTaskOwnership } from '@/lib/auth/ownership';
-import { canUpdateTask } from '@/lib/auth/permissions';
+// ═══════════════════════════════════════════════════════════════
+// YP WORK · API · PUT /api/tasks/[id]/assignee (Round 24)
+// ═══════════════════════════════════════════════════════════════
 
-export const PUT = withAuth(async (ctx, request, routeCtx) => {
-  const { id: taskId } = await routeCtx!.params;
-  if (!taskId) throw validationError('Missing task id');
+import { NextRequest } from 'next/server';
+import {
+  withApiHandlerParams,
+  apiSuccess,
+  apiError,
+  apiErrors,
+  ErrorCode,
+  requireAuthUser,
+} from '@/lib/api';
+import { taskRepository } from '@/lib/repositories';
 
-  const ownership = await getTaskOwnership(ctx.adminClient, taskId);
-  if (!ownership) throw notFound('ไม่พบ task');
-  if (!canUpdateTask(ctx, ownership)) throw forbidden('คุณไม่มีสิทธิ์แก้ไข task นี้');
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export const PUT = withApiHandlerParams(async (req: NextRequest, { params }: RouteContext) => {
+  const { id: taskId } = await params;
+  if (!taskId || typeof taskId !== 'string') {
+    return apiError(req, ErrorCode.MISSING_PARAM, 'Missing task id', { status: 400 });
+  }
+
+  const guard = await requireAuthUser(req);
+  if (!guard.ok) return guard.response;
 
   let body: any;
-  try { body = await request.json(); } catch { throw validationError('Invalid JSON body'); }
+  try {
+    body = await req.json();
+  } catch {
+    return apiErrors.invalidJson(req);
+  }
 
   const { assignee_id } = body || {};
-  if (assignee_id !== null && (typeof assignee_id !== 'string' || !assignee_id.trim())) throw validationError('assignee_id ไม่ถูกต้อง');
+  if (assignee_id !== null && (typeof assignee_id !== 'string' || !assignee_id.trim())) {
+    return apiError(req, ErrorCode.INVALID_PARAM, 'assignee_id ไม่ถูกต้อง', { status: 400 });
+  }
 
-  const { error } = await tasksRepo.setAssignee(ctx.adminClient, taskId, assignee_id);
-  if (error) throw internalError(`ไม่สามารถตั้ง assignee: ${error}`);
+  try {
+    const error = await taskRepository.setAssignee(guard.adminClient, taskId, assignee_id);
+    if (error) {
+      return apiError(req, ErrorCode.INTERNAL_ERROR, `ไม่สามารถตั้ง assignee: ${error}`, { status: 500 });
+    }
 
-  return apiSuccess(null, ctx.requestId, { cache: 'noStore' });
+    return apiSuccess(req, {});
+  } catch {
+    return apiErrors.internalError(req);
+  }
 });

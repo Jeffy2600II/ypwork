@@ -7,21 +7,23 @@ import {
   RATE_LIMITS,
   auditLog,
 } from '@/lib/security';
-import { generateRequestId, REQUEST_ID_HEADER } from '@/lib/observability/request-id';
+import { generateRequestId, REQUEST_ID_HEADER } from '@/lib/api/request-context';
+import { logger } from '@/lib/observability/logger';
 
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · Proxy (Round 22)
+// YP WORK · Proxy / Middleware (Round 24)
 // ═══════════════════════════════════════════════════════════════
-// Pipeline:
-//   0. Generate request ID (end-to-end tracing)
-//   1. Rate-limit API routes (different limits for different categories)
-//   2. Refresh Supabase session + protect routes
-//   3. Apply security headers to every response
-//   4. Cache-Control for HTML pages
+// Centralized middleware pipeline:
+//   1. Generate/inject Request ID for traceability
+//   2. Apply security headers to every response
+//   3. Rate-limit API routes (different limits per category)
+//   4. Refresh Supabase session + protect routes
+//   5. Prevent HTML page caching (force fresh on navigation)
 //
-// Round 22: Added request ID generation at the start of the pipeline.
-// The ID is set on the request header (downstream routes can read it via
-// getRequestId()) and on the response header (clients can correlate).
+// Architecture principle (Round 24):
+//   The proxy is a BOUNDARY — it handles cross-cutting concerns.
+//   It does NOT contain business logic.
+//   Business logic lives in route handlers and repositories.
 // ═══════════════════════════════════════════════════════════════
 
 export async function proxy(request: NextRequest) {
@@ -29,14 +31,14 @@ export async function proxy(request: NextRequest) {
   const ip = getClientIp(request);
 
   // ─────────────────────────────────────────────────────────
-  // 0. Generate request ID for end-to-end tracing
+  // 1. Request ID — inject for traceability
   // ─────────────────────────────────────────────────────────
-  const requestId = request.headers.get(REQUEST_ID_HEADER) || generateRequestId();
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set(REQUEST_ID_HEADER, requestId);
+  const requestId =
+    request.headers.get(REQUEST_ID_HEADER) || generateRequestId();
+  request.headers.set(REQUEST_ID_HEADER, requestId);
 
   // ─────────────────────────────────────────────────────────
-  // 1. Rate limit — แยกตามประเภท endpoint
+  // 2. Rate limit — แยกตามประเภท endpoint
   // ─────────────────────────────────────────────────────────
   if (pathname.startsWith('/api/')) {
     const rlKey = `${ip}:${pathname}`;
@@ -60,25 +62,31 @@ export async function proxy(request: NextRequest) {
     const rl = checkRateLimit(rlKey, rlOpts);
     if (!rl.allowed) {
       if (auditEvent) {
-        auditLog(auditEvent, { ip, status: 'blocked', requestId });
+        auditLog(auditEvent, { ip, status: 'blocked' });
       } else {
-        auditLog('api_rate_limited', { ip, status: 'blocked', meta: { path: pathname }, requestId });
+        auditLog('api_rate_limited', { ip, status: 'blocked', meta: { path: pathname } });
       }
 
       const response = NextResponse.json(
         {
           success: false,
-          error: { code: 'RATE_LIMITED', message: 'คุณส่งคำขอบ่อยเกินไป กรุณารอสักครู่' },
-          requestId,
+          error: {
+            code: 'RATE_LIMITED',
+            message: 'คุณส่งคำขอบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่',
+          },
+          meta: {
+            requestId,
+            retryAfter: rl.retryAfterSeconds,
+          },
         },
         {
           status: 429,
           headers: {
+            'X-Request-Id': requestId,
             'Retry-After': String(rl.retryAfterSeconds ?? 60),
             'X-RateLimit-Limit': String(rlOpts.limit),
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': String(Math.ceil(rl.resetAt / 1000)),
-            [REQUEST_ID_HEADER]: requestId,
           },
         }
       );
@@ -88,28 +96,25 @@ export async function proxy(request: NextRequest) {
   }
 
   // ─────────────────────────────────────────────────────────
-  // 2. Supabase session refresh + route protection
-  //    (pass modified request with request ID header)
+  // 3. Supabase session refresh + route protection
   // ─────────────────────────────────────────────────────────
-  const supabaseResponse = await updateSession(
-    new NextRequest(request.url, {
-      method: request.method,
-      headers: requestHeaders,
-      body: request.body,
-      redirect: request.redirect,
-      // @ts-ignore — NextRequest constructor typing
-      duplex: 'half',
-    })
-  );
+  const supabaseResponse = await updateSession(request);
 
   // ─────────────────────────────────────────────────────────
-  // 3. Apply security headers + request ID to ALL responses
+  // 4. Apply security headers to ALL responses
   // ─────────────────────────────────────────────────────────
   applySecurityHeaders(supabaseResponse);
+
+  // ─────────────────────────────────────────────────────────
+  // 5. Inject Request ID into response
+  // ─────────────────────────────────────────────────────────
   supabaseResponse.headers.set(REQUEST_ID_HEADER, requestId);
 
   // ─────────────────────────────────────────────────────────
-  // 4. Cache-Control for HTML pages (not API routes)
+  // 6. กันหน้าเว็บ (เอกสาร HTML) ถูกแคช
+  //    ที่ CDN/reverse proxy หรือฝั่ง browser เอง
+  //    ข้อมูล (API) ยังแคชสั้นๆ ตามเดิมเพื่อความเร็ว
+  //    แต่ตัวหน้าเว็บเองจะขอสดใหม่จาก server ทุกครั้ง
   // ─────────────────────────────────────────────────────────
   if (!pathname.startsWith('/api/')) {
     supabaseResponse.headers.set(
@@ -123,6 +128,13 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder assets
+     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|manifest)$).*)',
   ],
 };

@@ -195,7 +195,7 @@ export default function LoginPage() {
       }
 
       // v1.9: แยก handling ตาม status
-      if (result.success && result.data?.user) {
+      if (result.success && result.user) {
         addLog(`✅ สำเร็จ — ${result.user.full_name}`);
         // เคลียร์ pending session ถ้ามี (user อนุมัติแล้ว ไม่ใช่ pending อีก)
         clearPendingSession();
@@ -292,7 +292,7 @@ export default function LoginPage() {
       const result = await loginOther(supabase, email, password);
 
       // v1.9: แยก handling ตาม status (เหมือนนักเรียน)
-      if (result.success && result.data?.user) {
+      if (result.success && result.user) {
         clearPendingSession();
         toast({ title: `สวัสดี ${result.user.full_name}`, description: 'เข้าสู่ระบบสำเร็จ' });
         const redirect = getRedirectParam();

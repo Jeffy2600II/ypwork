@@ -27,11 +27,11 @@ async function fetchProfileStats(
   const params = new URLSearchParams({ user_auth_uid: userAuthUid });
   if (departmentId) params.set('department_id', departmentId);
   const res = await fetch(`/api/profile/stats?${params.toString()}`, { credentials: 'same-origin' });
-  const json = await res.json();
-  if (!res.ok || !json.success) {
-    throw new Error(json.error?.message || 'โหลดสถิติไม่สำเร็จ');
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'โหลดสถิติไม่สำเร็จ');
   }
-  return json.data as ProfileStats;
+  return data.stats as ProfileStats;
 }
 
 export function useRealtimeProfileStats(

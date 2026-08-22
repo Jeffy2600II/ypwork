@@ -1,13 +1,16 @@
 // ═══════════════════════════════════════════════════════════════
-// YP WORK · API · GET /api/auth/csrf (Round 24)
+// YP WORK · API · Root Endpoint (Round 24)
 // ═══════════════════════════════════════════════════════════════
-// Issue CSRF token for client-side mutation requests.
-// Uses the gateway pattern for request ID tracking.
+// API metadata endpoint — returns version info for observability.
 // ═══════════════════════════════════════════════════════════════
 
-import { withApiHandler } from '@/lib/api';
-import { issueCsrfToken } from '@/lib/security';
+import { NextRequest } from 'next/server';
+import { withApiHandler, apiSuccess } from '@/lib/api';
 
-export const GET = withApiHandler(async () => {
-  return issueCsrfToken();
+export const GET = withApiHandler(async (req: NextRequest) => {
+  return apiSuccess(req, {
+    name: 'YP Work API',
+    version: '3.11.0',
+    status: 'operational',
+  });
 });
