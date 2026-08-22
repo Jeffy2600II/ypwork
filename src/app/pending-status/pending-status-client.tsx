@@ -56,13 +56,13 @@ import {
 import { useRealtimePendingRequest } from '@/lib/hooks/use-realtime';
 import { createClient } from '@/lib/supabase/client';
 import { synthesizeEmail } from '@/lib/auth';
-import { useToast } from '@/hooks/use-toast';
+import { useNotification } from '@/components/framework/notification/notification-provider';
 
 type DisplayMode = 'loading' | 'pending' | 'approved' | 'approved_signing_in' | 'rejected' | 'unknown' | 'no_session';
 
 export function PendingStatusClient() {
   const router = useRouter();
-  const { toast } = useToast();
+  const notify = useNotification();
 
   // อ่าน pending session เก็บไว้ใน state — ใช้ใน render และ hook
   const [session, setSession] = React.useState(() => getPendingSession());
@@ -185,10 +185,7 @@ export function PendingStatusClient() {
       //   ถ้า sign-in สำเร็จ → redirect ไป /today (user ใช้งานได้ทันที ไม่ต้อง login ใหม่)
       //   ถ้า sign-in ล้มเหลว → fallback ไป /login พร้อม toast แจ้ง
       setDisplayMode('approved_signing_in');
-      toast({
-        title: 'อนุมัติแล้ว! 🎉',
-        description: 'กำลังนำคุณเข้าสู่ระบบ...',
-      });
+      notify.success('อนุมัติแล้ว! กำลังนำคุณเข้าสู่ระบบ...');
 
       (async () => {
         const ok = await performAutoSignIn(session);
@@ -210,10 +207,7 @@ export function PendingStatusClient() {
           // sign-in ล้มเหลว → fallback ไป /login พร้อม toast แจ้ง
           console.warn('[pending-status] auto sign-in failed → fallback to /login');
           clearPendingSession();
-          toast({
-            title: 'อนุมัติแล้ว',
-            description: 'กรุณาเข้าสู่ระบบด้วยตัวเองอีกครั้ง',
-          });
+          notify.info('กรุณาเข้าสู่ระบบด้วยตัวเองอีกครั้ง');
           setTimeout(() => {
             if (typeof window !== 'undefined') {
               window.location.replace('/login');
@@ -239,18 +233,14 @@ export function PendingStatusClient() {
         // ignore
       }
       clearPendingSession();
-      toast({
-        title: 'การลงทะเบียนถูกปฏิเสธ',
-        description: 'คุณสามารถลงทะเบียนใหม่ได้หากต้องการ',
-        variant: 'destructive',
-      });
+      notify.error('การลงทะเบียนถูกปฏิเสธ — คุณสามารถลงทะเบียนใหม่ได้หากต้องการ');
     } else if (status === 'unknown') {
       // ไม่สามารถตรวจสอบได้ (ครู/อื่นๆ) — ให้ user login ด้วยตัวเอง
       setDisplayMode('unknown');
     } else if (status === 'pending') {
       setDisplayMode('pending');
     }
-  }, [status, loading, session, router, toast, performAutoSignIn]);
+  }, [status, loading, session, router, notify, performAutoSignIn]);
 
   // ── Render ──
 
@@ -632,7 +622,7 @@ export function PendingStatusClient() {
                   // ignore
                 }
                 clearPendingSession();
-                toast({ title: 'ออกจากระบบแล้ว' });
+                notify.info('ออกจากระบบแล้ว');
                 router.replace('/login');
               }}
             >

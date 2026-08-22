@@ -1,15 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
-   YP WORK · Responsive Token Overrides (768px/1024px/1280px) — v3.11.0-r5
-   ★ r68: Responsive Scaling Refinement & Desktop Typography Scale-up
-     - Smooth responsive typography scale up on tablet/desktop for elevated readability
-     - Consistent responsive spacing tokens (--yp-space-*, --yp-page-pad-x, --yp-section-gap, --yp-card-pad)
-     - Preserves warm, soft, cohesive design language across all viewports
+   YP WORK · Responsive Token Overrides (768px/1024px/1280px) — v3.11.0-r27
+   ★ Round 27: Balanced visual scale — reduce aggressive heading scaling
+     on desktop/widescreen that made UI feel "too close to the face".
+     Body text scaling is gentler, headings don't balloon on large screens.
    ═══════════════════════════════════════════════════════════════
    Modular CSS file — part of the design system
-   for easier development, faster navigation, and better maintainability.
-
-   ★ This file is part of the YP Work Design Library system.
-   ★ To modify: edit this file directly — changes apply globally.
    ★ Cascade order: managed by src/styles/index.css manifest.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -18,24 +13,26 @@
   :root {
     /* Spacing scale-up */
     --yp-page-pad-x:   1.75rem;
-    --yp-card-pad:     1.375rem;     /* r8: 22px tablet */
-    --yp-card-pad-lg:  2.125rem;     /* r8: 34px tablet */
+    --yp-card-pad:     1.375rem;     /* 22px tablet */
+    --yp-card-pad-lg:  2.125rem;     /* 34px tablet */
     --yp-section-gap:  2.5rem;      /* 40px tablet */
     --yp-stack-gap:    0.875rem;    /* 14px tablet */
     --yp-space-8:      2.5rem;
     --yp-space-10:     3rem;
     --yp-space-12:     3.5rem;
 
-    /* v3.11.0 r5: Typography scale-up (Tablet) - aligned with new Round 5 base */
-    --yp-text-2xs:  0.6875rem;   /* 11px */
-    --yp-text-xs:   0.75rem;     /* 12px - same as base */
-    --yp-text-sm:   0.875rem;    /* 14px - same as base */
-    --yp-text-base: 0.9375rem;   /* 15px */
-    --yp-text-lg:   1.0625rem;   /* 17px - scale up */
-    --yp-text-xl:   1.1875rem;   /* 19px - scale up */
-    --yp-text-2xl:  1.4375rem;   /* 23px - scale up */
-    --yp-text-3xl:  2.25rem;     /* 36px - scale up for 2rem/32px base */
-    --yp-text-4xl:  2.75rem;     /* 44px - scale up */
+    /* Round 27: Gentler typography scale-up (Tablet)
+       Previous values were too aggressive — h1 jumped 28→36px (29% increase).
+       New values: smaller increments, proportional to body text. */
+    --yp-text-2xs:  0.6875rem;   /* 11px — same as base */
+    --yp-text-xs:   0.75rem;     /* 12px — same as base */
+    --yp-text-sm:   0.875rem;    /* 14px — same as base */
+    --yp-text-base: 0.9375rem;   /* 15px — same as base (keep mobile size) */
+    --yp-text-lg:   1rem;        /* 16px — same as base */
+    --yp-text-xl:   1.125rem;    /* 18px — same as base */
+    --yp-text-2xl:  1.375rem;    /* 22px — same as base */
+    --yp-text-3xl:  1.875rem;    /* 30px — was 36px, gentler increase */
+    --yp-text-4xl:  2.375rem;    /* 38px — was 44px, gentler increase */
   }
 }
 
@@ -44,7 +41,7 @@
   :root {
     /* Spacing scale-up */
     --yp-page-pad-x:   2rem;
-    --yp-card-pad:     1.625rem;     /* r8: 26px desktop */
+    --yp-card-pad:     1.625rem;     /* 26px desktop */
     --yp-card-pad-lg:  2.25rem;     /* 36px desktop */
     --yp-section-gap:  2.75rem;     /* 44px desktop */
     --yp-stack-gap:    1rem;        /* 16px desktop */
@@ -52,16 +49,18 @@
     --yp-space-10:     3.25rem;
     --yp-space-12:     3.75rem;
 
-    /* v3.11.0 r5: Typography scale-up (Desktop) */
-    --yp-text-2xs:  0.71875rem;  /* 11.5px */
-    --yp-text-xs:   0.78125rem;  /* 12.5px - scale up */
-    --yp-text-sm:   0.90625rem;  /* 14.5px - scale up */
-    --yp-text-base: 1rem;        /* 16px - scale up */
-    --yp-text-lg:   1.125rem;    /* 18px - scale up */
-    --yp-text-xl:   1.25rem;     /* 20px - scale up */
-    --yp-text-2xl:  1.5rem;      /* 24px - scale up */
-    --yp-text-3xl:  2.5rem;      /* 40px - scale up */
-    --yp-text-4xl:  3rem;        /* 48px - scale up */
+    /* Round 27: Moderate desktop typography (not aggressive)
+       Previous: base jumped to 16px, h1 to 40px (43% increase from mobile).
+       New: base stays at 15px, h1 at 32px (14% increase from mobile 28px). */
+    --yp-text-2xs:  0.6875rem;   /* 11px */
+    --yp-text-xs:   0.75rem;     /* 12px */
+    --yp-text-sm:   0.875rem;    /* 14px */
+    --yp-text-base: 0.9375rem;   /* 15px — keep mobile base, don't scale up */
+    --yp-text-lg:   1rem;        /* 16px */
+    --yp-text-xl:   1.125rem;    /* 18px */
+    --yp-text-2xl:  1.4375rem;    /* 23px — slight scale up */
+    --yp-text-3xl:  2rem;        /* 32px — was 40px, much more natural */
+    --yp-text-4xl:  2.5rem;      /* 40px — was 48px */
   }
 }
 
@@ -69,20 +68,22 @@
 @media (min-width: 1280px) {
   :root {
     /* Spacing scale-up */
-    --yp-page-pad-x:   2.5rem;        /* Governance: 40px widescreen */
-    --yp-card-pad:     1.75rem;     /* r8: 28px widescreen */
-    --yp-card-pad-lg:  2.625rem;     /* r8: 42px widescreen */
+    --yp-page-pad-x:   2.5rem;        /* 40px widescreen */
+    --yp-card-pad:     1.75rem;     /* 28px widescreen */
+    --yp-card-pad-lg:  2.625rem;     /* 42px widescreen */
     --yp-section-gap:  3rem;        /* 48px widescreen */
 
-    /* v3.11.0 r5: Typography scale-up (Widescreen) */
-    --yp-text-2xs:  0.75rem;     /* 12px */
-    --yp-text-xs:   0.8125rem;   /* 13px - scale up */
-    --yp-text-sm:   0.9375rem;   /* 15px - scale up */
-    --yp-text-base: 1.0625rem;   /* 17px - scale up */
-    --yp-text-lg:   1.1875rem;   /* 19px - scale up */
-    --yp-text-xl:   1.375rem;    /* 22px - scale up */
-    --yp-text-2xl:  1.75rem;     /* 28px - scale up */
-    --yp-text-3xl:  2.75rem;     /* 44px - scale up */
-    --yp-text-4xl:  3.25rem;     /* 52px - scale up */
+    /* Round 27: Capped widescreen typography
+       Previous: base jumped to 17px, h1 to 44px (57% increase from mobile!).
+       New: base at 15.5px, h1 at 34px (21% increase — natural, not jarring). */
+    --yp-text-2xs:  0.71875rem;   /* 11.5px */
+    --yp-text-xs:   0.78125rem;   /* 12.5px */
+    --yp-text-sm:   0.90625rem;   /* 14.5px */
+    --yp-text-base: 0.96875rem;   /* 15.5px — was 17px, much more restrained */
+    --yp-text-lg:   1.03125rem;   /* 16.5px */
+    --yp-text-xl:   1.15625rem;   /* 18.5px */
+    --yp-text-2xl:  1.5rem;       /* 24px — was 28px */
+    --yp-text-3xl:  2.125rem;     /* 34px — was 44px, natural scale */
+    --yp-text-4xl:  2.625rem;     /* 42px — was 52px */
   }
 }

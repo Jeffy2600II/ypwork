@@ -64,6 +64,7 @@ import { EditEventSheet } from './edit-event-sheet';
 // ★ r2: scroll lock สำหรับ loading overlay
 import { lockScroll, unlockScroll } from '@/components/framework/shared/scroll-lock';
 import { useDataSync } from '@/lib/core/data-sync-context';
+import { useNotification } from '@/components/framework/notification/notification-provider';
 
 export function EventDetailClient({
   event: initialEvent,
@@ -85,10 +86,10 @@ export function EventDetailClient({
 
   // Round 21: Centralized data sync — broadcast mutations to other pages
   const { notifyMutation } = useDataSync();
+  const notify = useNotification();
 
   const [localError, setLocalError] = React.useState<string | null>(null);
   const error = realtimeError || localError;
-  const [toast, setToast] = React.useState<{ msg: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   // ── Sheet open states ──
   const [manageOpen, setManageOpen] = React.useState(false);
@@ -154,13 +155,6 @@ export function EventDetailClient({
 
   const accent = event?.color || '#4F46E5';
   const isGroup = event?.type === 'group';
-
-  // ── Toast helper (auto-dismiss) ──
-  React.useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), TOAST_AUTO_DISMISS);
-    return () => clearTimeout(t);
-  }, [toast]);
 
   // ═══════════════════════════════════════════════════════════════
   // ACTIONS
@@ -351,7 +345,7 @@ export function EventDetailClient({
       setDeleteTaskId(null);
       setEditTaskId(null);
 
-      setToast({ msg: 'ลบรายการย่อยเรียบร้อยแล้ว', type: 'success' });
+      notify.success('ลบรายการย่อยเรียบร้อยแล้ว');
     } catch (e: any) {
       setLocalError(`ไม่สามารถลบรายการย่อย: ${e.message || ''}`);
     } finally {
@@ -791,7 +785,7 @@ export function EventDetailClient({
                 payload: { tasks: [data.task as Task] },
               });
               setAddTaskOpen(false);
-              setToast({ msg: 'เพิ่มรายการย่อยเรียบร้อยแล้ว', type: 'success' });
+              notify.success('เพิ่มรายการย่อยเรียบร้อยแล้ว');
             }
           } catch (e: any) {
             setLocalError(`ไม่สามารถเพิ่มรายการย่อย: ${e.message || 'unknown error'}`);
@@ -879,7 +873,7 @@ export function EventDetailClient({
 
               setEditTaskOpen(false);
               setEditTaskId(null);
-              setToast({ msg: 'บันทึกการแก้ไขเรียบร้อยแล้ว', type: 'success' });
+              notify.success('บันทึกการแก้ไขเรียบร้อยแล้ว');
             } catch (e: any) {
               setLocalError(`ไม่สามารถแก้ไขรายการย่อย: ${e.message || 'unknown error'}`);
             } finally {
@@ -955,7 +949,7 @@ export function EventDetailClient({
             });
 
             setEditEventOpen(false);
-            setToast({ msg: 'บันทึกเรียบร้อยแล้ว', type: 'success' });
+            notify.success('บันทึกเรียบร้อยแล้ว');
           } catch (e: any) {
             setLocalError(`ไม่สามารถแก้ไขรายการ: ${e.message || 'unknown error'}`);
           } finally {
@@ -1193,12 +1187,6 @@ export function EventDetailClient({
         </div>
       </BottomSheet>
 
-      {/* ── Toast (auto-dismiss) ── */}
-      {toast ? (
-        <div className={`yp-toast yp-toast--${toast.type || 'info'}`}>
-          {toast.msg}
-        </div>
-      ) : null}
     </div>
   );
 }

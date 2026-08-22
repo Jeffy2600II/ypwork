@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════════════
+   YP WORK · Notification System (Round 27)
+   ═══════════════════════════════════════════════════════════════
+   Two notification variants:
+     1. Bottom — capsule/pill shaped, centered, for general feedback
+     2. Top — floating card, for important/attention messages
+
+   Both are position:fixed — never bound to DOM position.
+   Mobile safe-area aware.
+   Reduced-motion respected.
+
+   ★ This file is part of the YP Work Design Library system.
+   ★ Cascade order: managed by src/styles/index.css manifest.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Container wrappers (fixed position) ────────────────────────── */
+
+.yp-notif-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.yp-notif-container--top {
+  top: 0;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+}
+
+.yp-notif-container--bottom {
+  bottom: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
+
+/* Desktop: adjust bottom position — no bottom nav */
+@media (min-width: 768px) {
+  .yp-notif-container--bottom {
+    padding-bottom: 28px;
+  }
+  .yp-notif-container--top {
+    padding-top: 20px;
+  }
+}
+
+/* ── Base notification ─────────────────────────────────────────── */
+
+.yp-notif {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  cursor: pointer;
+  user-select: none;
+  animation: yp-notif-enter 280ms var(--yp-ease-emphasized-decel, cubic-bezier(0.2, 0, 0, 1)) both;
+}
+
+.yp-notif--exiting {
+  animation: yp-notif-exit 200ms var(--yp-ease-standard, ease-out) both;
+}
+
+/* ── Bottom notification (capsule/pill) ─────────────────────────── */
+
+.yp-notif--bottom {
+  padding: 10px 20px;
+  border-radius: var(--yp-radius-pill, 999px);
+  font-size: var(--yp-text-sm, 0.875rem);
+  font-weight: var(--yp-fw-semibold, 600);
+  color: var(--yp-text-inverse, #FFFFFF);
+  line-height: var(--yp-leading-tight, 1.25);
+  letter-spacing: -0.005em;
+  box-shadow: var(--yp-shadow-lg, 0 10px 25px rgba(0,0,0,0.15));
+  text-align: center;
+}
+
+.yp-notif--bottom .yp-notif-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Top notification (floating card) ──────────────────────────── */
+
+.yp-notif--top {
+  padding: 12px 16px;
+  border-radius: var(--yp-radius-md, 30px);
+  background: var(--yp-bg-card, #FFFFFF);
+  color: var(--yp-text-body, #3F3C5E);
+  font-size: var(--yp-text-sm, 0.875rem);
+  font-weight: var(--yp-fw-medium, 500);
+  line-height: var(--yp-leading-snug, 1.375);
+  box-shadow: var(--yp-shadow-lg, 0 10px 25px rgba(0,0,0,0.15));
+  border: 1px solid var(--yp-border-default, rgba(79, 70, 229, 0.07));
+  width: calc(100vw - 32px);
+  max-width: 420px;
+}
+
+.yp-notif--top .yp-notif-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.yp-notif--top .yp-notif-message {
+  flex: 1;
+  text-align: left;
+}
+
+/* ── Action button (for top notifications) ─────────────────────── */
+
+.yp-notif-action {
+  background: none;
+  border: none;
+  color: var(--yp-indigo-600, #4F46E5);
+  font-size: var(--yp-text-sm, 0.875rem);
+  font-weight: var(--yp-fw-semibold, 600);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--yp-radius-xs, 14px);
+  transition: background 180ms ease;
+  flex-shrink: 0;
+}
+
+.yp-notif-action:hover {
+  background: var(--yp-bg-indigo-soft, #EEF2FF);
+}
+
+/* ── Type variants (colors) ────────────────────────────────────── */
+
+/* Success */
+.yp-notif--success.yp-notif--bottom {
+  background: var(--yp-emerald-500, #10B981);
+}
+.yp-notif--success.yp-notif--top {
+  border-left: 3px solid var(--yp-emerald-500, #10B981);
+}
+.yp-notif--success .yp-notif-icon {
+  background: var(--yp-emerald-500, #10B981);
+  color: white;
+}
+.yp-notif--success.yp-notif--bottom .yp-notif-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Error */
+.yp-notif--error.yp-notif--bottom {
+  background: var(--yp-rose-500, #F43F5E);
+}
+.yp-notif--error.yp-notif--top {
+  border-left: 3px solid var(--yp-rose-500, #F43F5E);
+}
+.yp-notif--error .yp-notif-icon {
+  background: var(--yp-rose-500, #F43F5E);
+  color: white;
+}
+.yp-notif--error.yp-notif--bottom .yp-notif-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Warning */
+.yp-notif--warning.yp-notif--bottom {
+  background: var(--yp-amber-500, #F59E0B);
+}
+.yp-notif--warning.yp-notif--top {
+  border-left: 3px solid var(--yp-amber-500, #F59E0B);
+}
+.yp-notif--warning .yp-notif-icon {
+  background: var(--yp-amber-500, #F59E0B);
+  color: white;
+}
+.yp-notif--warning.yp-notif--bottom .yp-notif-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Info */
+.yp-notif--info.yp-notif--bottom {
+  background: var(--yp-indigo-600, #4F46E5);
+}
+.yp-notif--info.yp-notif--top {
+  border-left: 3px solid var(--yp-indigo-600, #4F46E5);
+}
+.yp-notif--info .yp-notif-icon {
+  background: var(--yp-indigo-600, #4F46E5);
+  color: white;
+}
+.yp-notif--info.yp-notif--bottom .yp-notif-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* ── Animations ────────────────────────────────────────────────── */
+
+@keyframes yp-notif-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes yp-notif-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .yp-notif {
+    animation: none;
+    transition: opacity 150ms ease;
+  }
+  .yp-notif--exiting {
+    animation: none;
+    opacity: 0;
+  }
+}

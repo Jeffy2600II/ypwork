@@ -49,7 +49,7 @@ import {
 import { formatThaiNationalId, stripNonDigits } from '@/lib/security/pii';
 // ★ v3.8.1: typing pulse hook for character reveal/delete animation
 import { useTypingPulse } from '@/lib/hooks/use-typing-pulse';
-import { useToast } from '@/hooks/use-toast';
+import { useNotification } from '@/components/framework/notification/notification-provider';
 import {
   getPendingSession,
   setPendingSession,
@@ -74,7 +74,7 @@ type LoginUiState =
 
 export default function LoginPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const notify = useNotification();
   const supabase = React.useMemo(() => createClient(), []);
 
   const [mode, setMode] = React.useState<LoginMode>('student');
@@ -180,7 +180,7 @@ export default function LoginPage() {
     if (!validateStudentCode(studentCode)) nextErrors.studentCode = 'รหัสนักเรียนต้องมี 5 หลัก';
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
-      toast({ title: 'กรุณาตรวจสอบข้อมูลที่กรอก', variant: 'destructive' });
+      notify.error('กรุณาตรวจสอบข้อมูลที่กรอก');
       return;
     }
 
@@ -199,7 +199,7 @@ export default function LoginPage() {
         addLog(`✅ สำเร็จ — ${result.user.full_name}`);
         // เคลียร์ pending session ถ้ามี (user อนุมัติแล้ว ไม่ใช่ pending อีก)
         clearPendingSession();
-        toast({ title: `สวัสดี ${result.user.full_name}`, description: 'เข้าสู่ระบบสำเร็จ' });
+        notify.success('เข้าสู่ระบบสำเร็จ');
         const redirect = getRedirectParam();
         setTimeout(() => router.replace(redirect), 350);
         return;
@@ -218,10 +218,7 @@ export default function LoginPage() {
           // v1.9.3: นักเรียนไม่ต้องเก็บ password (คำนวณได้จาก student_id)
           password: null,
         });
-        toast({
-          title: 'การลงทะเบียนยังอยู่ระหว่างพิจารณา',
-          description: 'กำลังนำคุณไปยังหน้าสถานะ...',
-        });
+        notify.info('กำลังนำคุณไปยังหน้าสถานะ...');
         setTimeout(() => router.replace('/pending-status'), 350);
         return;
       }
@@ -235,11 +232,7 @@ export default function LoginPage() {
           canResubmit: true,
           studentId: studentCode,
         });
-        toast({
-          title: 'การลงทะเบียนถูกปฏิเสธ',
-          description: result.error,
-          variant: 'destructive',
-        });
+        notify.error(result.error ?? 'การลงทะเบียนถูกปฏิเสธ');
         return;
       }
 
@@ -250,24 +243,16 @@ export default function LoginPage() {
           kind: 'not_found',
           message: result.error ?? 'ยังไม่มีบัญชีในระบบ',
         });
-        toast({
-          title: 'ยังไม่มีบัญชีในระบบ',
-          description: 'คุณต้องลงทะเบียนก่อน',
-          variant: 'destructive',
-        });
+        notify.error('ยังไม่มีบัญชีในระบบ — คุณต้องลงทะเบียนก่อน');
         return;
       }
 
       // error ทั่วไป
       addLog(`❌ ล้มเหลว: ${result.error ?? 'ไม่ทราบสาเหตุ'}`);
-      toast({ title: result.error ?? 'เข้าสู่ระบบไม่สำเร็จ', variant: 'destructive' });
+      notify.error(result.error ?? 'เข้าสู่ระบบไม่สำเร็จ');
     } catch (err) {
       addLog(`❌ Exception: ${err instanceof Error ? err.message : String(err)}`);
-      toast({
-        title: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
-        description: err instanceof Error ? err.message : String(err),
-        variant: 'destructive',
-      });
+      notify.error('เกิดข้อผิดพลาดที่ไม่คาดคิด');
     } finally {
       setSubmitting(false);
     }
@@ -282,7 +267,7 @@ export default function LoginPage() {
     if (!validatePassword(password)) nextErrors.password = 'รหัสผ่านต้องไม่น้อยกว่า 6 ตัว';
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
-      toast({ title: 'กรุณาตรวจสอบข้อมูลที่กรอก', variant: 'destructive' });
+      notify.error('กรุณาตรวจสอบข้อมูลที่กรอก');
       return;
     }
 
@@ -294,7 +279,7 @@ export default function LoginPage() {
       // v1.9: แยก handling ตาม status (เหมือนนักเรียน)
       if (result.success && result.user) {
         clearPendingSession();
-        toast({ title: `สวัสดี ${result.user.full_name}`, description: 'เข้าสู่ระบบสำเร็จ' });
+        notify.success('เข้าสู่ระบบสำเร็จ');
         const redirect = getRedirectParam();
         setTimeout(() => router.replace(redirect), 350);
         return;
@@ -312,10 +297,7 @@ export default function LoginPage() {
           // (user กรอก password เอง และอยู่ในเครื่องของตัวเอง เป็นความปลอดภัยที่ยอมรับได้)
           password: password,
         });
-        toast({
-          title: 'การลงทะเบียนยังอยู่ระหว่างพิจารณา',
-          description: 'กำลังนำคุณไปยังหน้าสถานะ...',
-        });
+        notify.info('กำลังนำคุณไปยังหน้าสถานะ...');
         setTimeout(() => router.replace('/pending-status'), 350);
         return;
       }
@@ -327,11 +309,7 @@ export default function LoginPage() {
           canResubmit: true,
           email,
         });
-        toast({
-          title: 'การลงทะเบียนถูกปฏิเสธ',
-          description: result.error,
-          variant: 'destructive',
-        });
+        notify.error(result.error ?? 'การลงทะเบียนถูกปฏิเสธ');
         return;
       }
 
@@ -340,22 +318,14 @@ export default function LoginPage() {
           kind: 'not_found',
           message: result.error ?? 'ยังไม่มีบัญชีในระบบ',
         });
-        toast({
-          title: 'ยังไม่มีบัญชีในระบบ',
-          description: 'คุณต้องลงทะเบียนก่อน',
-          variant: 'destructive',
-        });
+        notify.error('ยังไม่มีบัญชีในระบบ — คุณต้องลงทะเบียนก่อน');
         return;
       }
 
       // error ทั่วไป
-      toast({ title: result.error ?? 'เข้าสู่ระบบไม่สำเร็จ', variant: 'destructive' });
+      notify.error(result.error ?? 'เข้าสู่ระบบไม่สำเร็จ');
     } catch (err) {
-      toast({
-        title: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
-        description: err instanceof Error ? err.message : String(err),
-        variant: 'destructive',
-      });
+      notify.error('เกิดข้อผิดพลาดที่ไม่คาดคิด');
     } finally {
       setSubmitting(false);
     }

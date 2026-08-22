@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Inter } from "next/font/google";
 import "@/styles/index.css";
-import { Toaster } from "@/components/ui/toaster";
+import { NotificationProvider } from "@/components/framework/notification/notification-provider";
 import { NetworkStatusBanner } from "@/components/framework/network-status-banner";
 
 const notoSansThai = Noto_Sans_Thai({
@@ -63,10 +63,12 @@ export default function RootLayout({
           color: "var(--yp-text-body)",
         }}
       >
-        {/* v3.0.0: Network status banner — shown when offline */}
-        <NetworkStatusBanner />
-        {children}
-        <Toaster />
+        {/* Round 27: Centralized notification system replaces shadcn Toaster */}
+        <NotificationProvider>
+          {/* v3.0.0: Network status banner — shown when offline */}
+          <NetworkStatusBanner />
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   );

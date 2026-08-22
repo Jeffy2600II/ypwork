@@ -78,7 +78,7 @@ import {
 import { formatThaiNationalId, stripNonDigits } from '@/lib/security/pii';
 // ★ v3.8.1: typing pulse hook for character reveal/delete animation
 import { useTypingPulse } from '@/lib/hooks/use-typing-pulse';
-import { useToast } from '@/hooks/use-toast';
+import { useNotification } from '@/components/framework/notification/notification-provider';
 import { useRealtimeDepartments, useRealtimeYears } from '@/lib/hooks/use-realtime';
 import type { CouncilYear } from '@/lib/hooks/use-realtime';
 import type { Department, RegisterAccountType } from '@/lib/types';
@@ -107,7 +107,7 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ departments, years }: RegisterFormProps) {
-  const { toast } = useToast();
+  const notify = useNotification();
   const router = useRouter();
 
   // v1.8: subscribe realtime — รายการฝ่ายอัพเดตทันทีเมื่อ admin
@@ -244,18 +244,14 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
 
     if (Object.keys(next).length > 0) {
       setErrors(next);
-      toast({ title: 'กรุณาตรวจสอบข้อมูลที่กรอก', variant: 'destructive' });
+      notify.error('กรุณาตรวจสอบข้อมูลที่กรอก');
       return;
     }
 
     // v2.0.0: ★ บังคับเลือกฝ่ายสำหรับนักเรียน ★
     // นักเรียนต้องเลือกฝ่าย — ครู/อื่นๆ ยัง optional
     if (accountType === 'student' && !departmentId) {
-      toast({
-        title: 'กรุณาเลือกฝ่ายงาน',
-        description: 'นักเรียนต้องเลือกฝ่ายงานที่จะสังกัด',
-        variant: 'destructive',
-      });
+      notify.error('กรุณาเลือกฝ่ายงาน — นักเรียนต้องเลือกฝ่ายงานที่จะสังกัด');
       setErrors({ department: 'นักเรียนต้องเลือกฝ่ายงาน' });
       return;
     }
@@ -300,11 +296,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
         }
 
         setSubmitError(userMessage);
-        toast({
-          title: 'ลงทะเบียนไม่สำเร็จ',
-          description: userMessage,
-          variant: 'destructive',
-        });
+        notify.error(userMessage);
         return; // ★ หยุด — ไม่เข้า success state
       }
 
@@ -341,7 +333,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
 
       // แสดง success state สั้น ๆ แล้ว redirect ไป /pending-status
       setDone({ fullName: name, type: accountType, departmentName: deptName });
-      toast({ title: 'ลงทะเบียนสำเร็จ — กำลังนำคุณไปยังหน้าสถานะ...' });
+      notify.success('ลงทะเบียนสำเร็จ — กำลังนำคุณไปยังหน้าสถานะ...');
 
       // ★ v3.7.2: ใช้ window.location.replace (hard navigation) แทน router.replace (SPA)
       //   ก่อนหน้านี้: router.replace เป็น SPA transition → middleware ตรวจพบ !user
@@ -362,11 +354,7 @@ export function RegisterForm({ departments, years }: RegisterFormProps) {
       const userMessage =
         err?.message || 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองอีกครั้ง';
       setSubmitError(userMessage);
-      toast({
-        title: 'ลงทะเบียนไม่สำเร็จ',
-        description: userMessage,
-        variant: 'destructive',
-      });
+      notify.error(userMessage);
     } finally {
       setSubmitting(false);
     }

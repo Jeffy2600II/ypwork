@@ -3,58 +3,9 @@
    ═══════════════════════════════════════════════════════════════
    
    This is the central manifest that imports ALL modular CSS files
-   in the correct cascade order. Replace the old monolithic 
-   index.css.
+   in the correct cascade order.
    
    ★ CASCADE ORDER MATTERS — do NOT reorder imports!
-   
-   Architecture (Modular CSS Refactor):
-   ┌─────────────────────────────────────────────────────────┐
-   │ src/styles/           ← Central Design Library          │
-   │   ├── index.css       ← THIS manifest file              │
-   │   ├── tokens/         ← Design tokens (variables)       │
-   │   ├── base.css        ← Base/reset styles               │
-   │   ├── components/     ← Shared component styles         │
-   │   ├── animations/     ← Animation library               │
-   │   ├── interactions/   ← Micro-interactions & hover      │
-   │   ├── layout/         ← Layout framework                │
-   │   ├── accessibility.css ← WCAG 2.2                     │
-   │   ├── utilities/      ← Utility classes                 │
-   │                                                         │
-   │ src/modules/           ← Module-specific CSS             │
-   │   ├── today/today.css                                   │
-   │   ├── events/event-card.css                             │
-   │   ├── events/events-list.css                            │
-   │   ├── events/event-detail.css                           │
-   │   ├── events/form-pages.css                             │
-   │   ├── calendar/calendar.css                             │
-   │   ├── profile/profile.css                               │
-   │                                                         │
-   │ src/components/framework/ ← Framework component CSS      │
-   │   ├── password-field.css                                │
-   │   ├── card-detail-sheet.css                             │
-   │   ├── task-detail-sheet.css                             │
-   │   ├── sheet/bottom-sheet.css                            │
-   │   ├── sheet/framework-sheet.css                         │
-   │   ├── popup/confirm-dialog.css                          │
-   │   ├── popup/framework-popup.css                         │
-   │   ├── popup/framework-sidepanel.css                     │
-   │   ├── popup/framework-fullscreen.css                    │
-   │   ├── fab/framework-overlay-hide.css                    │
-   │   ├── shared/framework-compat.css                       │
-   │   ├── shared/framework-responsive.css                   │
-   │   ├── shared/framework-reduced-motion.css               │
-   │                                                         │
-   │ src/app/login/auth.css  ← Login/Register page CSS       │
-   └─────────────────────────────────────────────────────────┘
-   
-   To find a specific style:
-   • Today module? → src/modules/today/today.css
-   • Calendar? → src/modules/calendar/calendar.css
-   • Bottom Sheet? → src/components/framework/sheet/bottom-sheet.css
-   • Design tokens? → src/styles/tokens/tokens.css
-   • Animations? → src/styles/animations/
-   • Hover effects? → src/styles/interactions/
    
    ═══════════════════════════════════════════════════════════════ */
 
@@ -140,6 +91,9 @@
 /* ── PHASE 25: Skeleton ── */
 @import "./components/skeleton.css";
 
+/* ── PHASE 25.5: Loading (Round 27) — spinner + loading screen ── */
+@import "./components/loading.css";
+
 /* ── PHASE 26: Task Detail Sheet (component co-located) ── */
 @import "../components/framework/task-detail-sheet.css";
 
@@ -155,8 +109,11 @@
 /* ── PHASE 30: Component Library Utilities ── */
 @import "./utilities/component-library.css";
 
-/* ── PHASE 31: Toast ── */
+/* ── PHASE 31: Toast (legacy — kept for backward compat) ── */
 @import "./components/toast.css";
+
+/* ── PHASE 31.5: Notification System (Round 27) ── */
+@import "./components/notification.css";
 
 /* ── PHASE 32: Hover States ── */
 @import "./interactions/hover-states.css";
@@ -202,13 +159,13 @@
    ★ DO NOT move these earlier in the import chain! ★
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── PHASE 47: Desktop Left-Rail Override (r25 cascade fix) ── */
+/* ── PHASE 47: Desktop Left-Rail Override ── */
 @import "./layout/desktop-rail-override.css";
 
 /* ── PHASE 48: Mobile Bottom-Nav Fixes ── */
 @import "./layout/mobile-fix.css";
 
-/* ── PHASE 49: Desktop Left-Rail Quality (r24) ── */
+/* ── PHASE 49: Desktop Left-Rail Quality ── */
 @import "./layout/desktop-quality.css";
 
 /* ── PHASE 50: Framework r50 — Bottom Sheet ── */
